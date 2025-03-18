@@ -260,7 +260,7 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/ctfshow/" style="color: #ffa2c4">ctfshow</a>
+                <a href="/blog/tags/ctfshow/" style="color: #03a9f4">ctfshow</a>
             </span>
             
         </span>
@@ -274,7 +274,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">11.6k字</span>
+        <span class="post-count">11.7k字</span>
       </span>
     </span>
 
@@ -283,7 +283,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">49分</span>
+        <span class="post-count">50分</span>
       </span>
     </span>
     
@@ -1083,7 +1083,7 @@ p<span class="token punctuation">.</span>interactive<span class="token punctuati
 <h2 id="ALSR"><a href="#ALSR" class="headerlink" title="ALSR"></a>ALSR</h2><p>对于二进制来说，攻击的前提是知道内存布局，需要提前知道shellcode或者其他一些数据的位置</p>
 <p>而ALSR的作用是随机分配可执行文件、动态链接库、堆、栈等内存区域的地址，使攻击者无法轻易地预测这些内存区域的位置</p>
 <p>但是ASLR提供的只是概率上的安全性，根据用于随机化的熵，攻击者有可能幸运地猜到正确的地址，有时攻击者还可以爆破</p>
-<p>在Linux上，ASLR的全局配置&#x2F;proc&#x2F;sts&#x2F;kernel&#x2F;randomize_va_space有三种情况：</p>
+<p>在Linux上，ASLR的全局配置 &#x2F;proc&#x2F;sts&#x2F;kernel&#x2F;randomize_va_space 有三种情况：</p>
 <p>0表示关闭ASLR；</p>
 <p>1表示部分开启（将mmap的基址，stack和vdso页面随机化）；</p>
 <p>2表示完全开启（在部分开启的基础上增加heap的随机化）。</p>
@@ -1128,7 +1128,9 @@ p<span class="token punctuation">.</span>interactive<span class="token punctuati
   <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p> 审计代码，可以看到先读取我们本地的<code>/proc/sys/kernel/randomize_va_space</code>文件，若里面的内容是0，那接下来输出正确的flag</p>
+<p>审计代码，可以看到先读取我们本地的<code>/proc/sys/kernel/randomize_va_space</code>文件，若里面的内容是0，那接下来输出正确的flag</p>
+<p>flag 由 <strong>main 函数的地址、system 函数的地址、ptr的堆地址、libc 库的基址</strong>组成</p>
+<p>如果 ALSR 启用，那么<strong>堆、栈和libc库的地址都会被随机化</strong>，我们就得不到真正的flag</p>
 <p>那我们先看看本地的<code>/proc/sys/kernel/randomize_va_space</code>文件</p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cat</span> /proc/sys/kernel/randomize_va_space<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
@@ -1141,10 +1143,10 @@ p<span class="token punctuation">.</span>interactive<span class="token punctuati
 ./pwn<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <p><img src="/blog/2023/06/20/ctfshow-pwn%E5%85%A5%E9%97%A8/image-20230626120704721.png" alt="image-20230626120704721"></p>
-<p>由于环境不同给的flag会不一样，这里得用ctfshow提供的虚拟机来运行</p>
+<p>由于环境不同 libc 不一样，给的 flag 会不一样，这里得用 ctfshow 提供的虚拟机来运行，其中的 libc 才是正确的</p>
 <p>flag：<code>ctfshow&#123;0x400687_0x400560_0x603260_0x7ffff7fd64f0&#125;</code></p>
 <hr>
-<h3 id="pwn27"><a href="#pwn27" class="headerlink" title="pwn27"></a>pwn27</h3><p>先把题目给的libc-2.27.so文件和pwn附件放在同个文件夹下</p>
+<h3 id="pwn27"><a href="#pwn27" class="headerlink" title="pwn27"></a>pwn27</h3><p>先把题目给的 libc-2.27.so 文件和 pwn 附件放在同个文件夹下</p>
 <p>和上题一样操作，同样是修改<code>/proc/sys/kernel/randomize_va_space</code>，这次要求为0或者1</p>
 <pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token function">system</span><span class="token punctuation">(</span><span class="token string">"cat /proc/sys/kernel/randomize_va_space"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token function">puts</span><span class="token punctuation">(</span><span class="token string">"If the result is 0 or 1, then you get the correct flag!"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
@@ -1156,7 +1158,7 @@ p<span class="token punctuation">.</span>interactive<span class="token punctuati
 <p><img src="/blog/2023/06/20/ctfshow-pwn%E5%85%A5%E9%97%A8/image-20230626122708881.png" alt="image-20230626122708881"></p>
 <hr>
 <h2 id="PIE"><a href="#PIE" class="headerlink" title="PIE"></a>PIE</h2><p>由于ASLR是一种操作系统层面的技术，而二进制程序本身是不支持随机化加载的，便出现了一些绕过方法，例如ret2plt、GOT劫持、地址爆破等</p>
-<p>于是，人们于2003年引入了位置无关可执行文件（Position-Independent Executable，PIE）。它在应用层的编译器实现，通过将程序编译为位置无关代码（Position-Independent Code，PIC），使程序可以被加载到任意位置，就像是一个特殊的共享库。在PIE和ASLR同时开启的情况下，攻击者将对程序的内存布局一无所知，大大增加了利用难度。</p>
+<p>于是，人们于2003年引入了位置无关可执行文件（Position-Independent Executable，PIE）。它在<strong>应用层的编译器</strong>实现，通过将程序编译为位置无关代码（Position-Independent Code，PIC），使程序可以被加载到任意位置，就像是一个特殊的共享库。在PIE和ASLR同时开启的情况下，攻击者将对程序的内存布局一无所知，大大增加了利用难度。</p>
 <p>可执行文件中的代码和数据会被随机地放置在内存中的某个位置，因此无法像传统的可执行文件那样准确地知道偏移量</p>
 <hr>
 <h3 id="pwn29"><a href="#pwn29" class="headerlink" title="pwn29"></a>pwn29</h3><p>下载题目附件pwn，丢进虚拟机checksec</p>

