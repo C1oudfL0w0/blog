@@ -260,7 +260,7 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/Sql/" style="color: #ff7d73">Sql</a>
+                <a href="/blog/tags/Sql/" style="color: #00bcd4">Sql</a>
             </span>
             
         </span>
@@ -301,8 +301,15 @@
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>看到<a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3868">[LitCTF 2023]这是什么？SQL ！注一下 ！</a>这题的<a target="_blank" rel="noopener" href="https://www.nssctf.cn/note/set/2169">wp</a>中出现了这种解法，顺手记下来</p>
 <span id="more"></span>
 
-<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><p>使用<code>outfile</code>写入webshell，通过参数执行系统命令，结束后删除webshell</p>
-<h1 id="条件"><a href="#条件" class="headerlink" title="条件"></a>条件</h1><p>root权限<br>知道网站根目录绝对路径<br>secure_file_priv为空或指定目录（@@secure_file_priv参数可以其值）<br>gpc关闭</p>
+<hr>
+<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><p>使用 MySQL 中的<code>outfile</code>方法，构造 sql 语句写入webshell，通过参数执行系统命令</p>
+<h1 id="条件"><a href="#条件" class="headerlink" title="条件"></a>条件</h1><ul>
+<li>具有目录写权限</li>
+<li>知道网站根目录绝对路径</li>
+<li><code>secure_file_priv</code>为空或指定目录在网站目录下</li>
+<li>php gpc 关闭</li>
+</ul>
+<hr>
 <h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><p>题目sql语句</p>
 <pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
 <span class="token variable">$sql</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"SELECT username,password FROM users WHERE id = "</span><span class="token operator">.</span><span class="token string single-quoted-string">'(((((('</span><span class="token operator">.</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string double-quoted-string">"id"</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string single-quoted-string">'))))))'</span><span class="token punctuation">;</span>
