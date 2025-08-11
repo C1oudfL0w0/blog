@@ -1,0 +1,585 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Off-By-One | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%80%9D%E8%B7%AF"><span class="toc-number">3.</span> <span class="toc-text">利用思路</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-number">4.</span> <span class="toc-text">示例</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BE%B9%E7%95%8C%E9%AA%8C%E8%AF%81%E4%B8%8D%E4%B8%A5"><span class="toc-number">4.1.</span> <span class="toc-text">边界验证不严</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C"><span class="toc-number">4.2.</span> <span class="toc-text">字符串操作</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Off-By-One</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2025/3/18
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Pwn/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Pwn
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Heap/" style="color: #ff7d73">Heap</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.4k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">6分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/off-by-one">https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/off-by-one</a></p>
+<p>程序向缓冲区中写入时，写入的字节数超过了这个缓冲区本身所申请的字节数并且只越界了一个字节</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><p>单字节缓冲区溢出，往往与边界验证不严和字符串操作有关：</p>
+<ul>
+<li>使用循环语句向堆块中写入数据时，循环的次数设置错误导致多写入了一个字节。</li>
+<li>字符串操作不合适</li>
+</ul>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">void</span> <span class="token function">receive</span><span class="token punctuation">(</span><span class="token keyword">int</span> socket<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">char</span> buf<span class="token punctuation">[</span>MAX<span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> nbytes <span class="token operator">=</span> <span class="token function">rev</span><span class="token punctuation">(</span>socket<span class="token punctuation">,</span> buf<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>buf<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token comment">//接收字节数为sizeof(buf)</span>
+        buf<span class="token punctuation">[</span>nbytes<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token char">'\0'</span><span class="token punctuation">;</span>   <span class="token comment">//间接引用将会在分配内存边界+1的地方写入空字节</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h1 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h1><ol>
+<li>溢出字节为可控制任意字节：通过修改大小造成块结构之间出现重叠，从而泄露其他块数据，或是覆盖其他块数据</li>
+<li>溢出字节为 NULL 字节：在 size 为 0x100 的时候，溢出 NULL 字节可以使得 <code>prev_in_use</code> 位被清，这样前块会被认为是 free 块<ul>
+<li>这时可以选择使用 unlink 方法进行处理</li>
+<li>另外，这时 <code>prev_size</code> 域就会启用，就可以伪造 <code>prev_size</code> ，从而造成块之间发生重叠。此方法的关键在于 unlink 的时候没有检查按照 <code>prev_size</code> 找到的块的大小与<code>prev_size</code> 是否一致（libc-2.29之后被check）</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h1 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h1><h2 id="边界验证不严"><a href="#边界验证不严" class="headerlink" title="边界验证不严"></a>边界验证不严</h2><pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">int</span> <span class="token function">my_gets</span><span class="token punctuation">(</span><span class="token keyword">char</span> <span class="token operator">*</span>ptr<span class="token punctuation">,</span><span class="token keyword">int</span> size<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token keyword">int</span> i<span class="token punctuation">;</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span>i<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>i<span class="token operator">&lt;=</span>size<span class="token punctuation">;</span>i<span class="token operator">++</span><span class="token punctuation">)</span>
+    <span class="token punctuation">&#123;</span>
+        ptr<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token operator">=</span><span class="token function">getchar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> i<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token keyword">void</span> <span class="token operator">*</span>chunk1<span class="token punctuation">,</span><span class="token operator">*</span>chunk2<span class="token punctuation">;</span>
+    chunk1<span class="token operator">=</span><span class="token function">malloc</span><span class="token punctuation">(</span><span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    chunk2<span class="token operator">=</span><span class="token function">malloc</span><span class="token punctuation">(</span><span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">puts</span><span class="token punctuation">(</span><span class="token string">"Get Input:"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">my_gets</span><span class="token punctuation">(</span>chunk1<span class="token punctuation">,</span><span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>我们自己编写的 my_gets 函数导致了一个 off-by-one 漏洞，原因是 for 循环的边界没有控制好（<code>i=0;i&lt;=size;i++</code>）导致写入多执行了一次，这也被称为栅栏错误</p>
+<blockquote>
+<p>栅栏错误：”建造一条直栅栏（即不围圈），长 30 米、每条栅栏柱间相隔 3 米，需要多少条栅栏柱？”<br>最容易想到的答案 10 是错的。这个栅栏有 10 个间隔，11 条栅栏柱</p>
+</blockquote>
+<p>编译并用gdb调试一下程序（添加 <code>-g</code> 选项以保留调试符号）</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">gcc <span class="token parameter variable">-g</span> <span class="token parameter variable">-o</span> off_by_one off_by_one.c<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>下断点走到输入之前</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">gdb ./off_by_one
+
+pwndbg<span class="token operator">></span> b main
+pwndbg<span class="token operator">></span> r
+
+<span class="token comment"># 在第一次 malloc 处暂停</span>
+pwndbg<span class="token operator">></span> <span class="token builtin class-name">break</span> malloc
+pwndbg<span class="token operator">></span> <span class="token builtin class-name">continue</span>
+
+<span class="token comment"># 退出第一次 malloc</span>
+pwndbg<span class="token operator">></span> finish
+
+<span class="token comment"># 在第二次 malloc 处暂停</span>
+pwndbg<span class="token operator">></span> <span class="token builtin class-name">continue</span>
+pwndbg<span class="token operator">></span> finish
+
+<span class="token comment"># 查看堆</span>
+pwndbg<span class="token operator">></span> heap<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>此时堆状态：</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">Allocated chunk | PREV_INUSE
+Addr: 0x555555559000    ← 堆起始地址（heap base）
+Size: 0x291            ← 初始 top chunk 大小（0x290 字节）
+
+Allocated chunk | PREV_INUSE
+Addr: 0x555555559290    ← chunk1 的起始地址
+Size: 0x21             ← chunk1 的大小（0x20 字节，包含元数据）
+
+Allocated chunk | PREV_INUSE
+Addr: 0x5555555592b0    ← chunk2 的起始地址
+Size: 0x21             ← chunk2 的大小（0x20 字节，包含元数据）
+
+Top chunk | PREV_INUSE
+Addr: 0x5555555592d0    ← 当前 top chunk 起始地址
+Size: 0x20d31          ← 剩余可用堆空间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong><code>chunk1</code> 和 <code>chunk2</code> 的地址</strong>：</p>
+<ul>
+<li><code>chunk1</code> 的地址是 <code>0x555555559290</code>（由 <code>malloc</code> 返回的指针）。</li>
+<li><code>chunk2</code> 的地址是 <code>0x5555555592b0</code>。</li>
+</ul>
+<p><strong>用户数据区地址</strong>：</p>
+<ul>
+<li><code>chunk1</code> 的数据区从 <code>0x5555555592a0</code> 开始（<code>chunk1</code> 地址 + 0x10）。</li>
+<li><code>chunk2</code> 的数据区从 <code>0x5555555592c0</code> 开始（<code>chunk2</code> 地址 + 0x10）。</li>
+</ul>
+<p>看一下 chunk1 和 chunk2 的内容</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">pwndbg&gt; telescope 0x555555559290 10
+00:0000│        0x555555559290 ◂— 0x0
+01:0008│        0x555555559298 ◂— 0x21 &#x2F;* &#39;!&#39; *&#x2F;	← chunk1 的元数据（size&#x3D;0x20）
+02:0010│        0x5555555592a0 ◂— 0x0
+... ↓           2 skipped
+05:0028│        0x5555555592b8 ◂— 0x21 &#x2F;* &#39;!&#39; *&#x2F;	← chunk2 的元数据（size&#x3D;0x20）
+06:0030│ rax r9 0x5555555592c0 ◂— 0x0
+... ↓           2 skipped
+09:0048│        0x5555555592d8 ◂— 0x20d31<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后下断点到 my_gets 和 return 准备触发堆溢出</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">b my_gets
+b <span class="token number">17</span>
+c<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>continue 直到停下等待输入，此时输入 17 个 A</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">pwndbg&gt; c
+Continuing.
+AAAAAAAAAAAAAAAAA
+
+Breakpoint 5, main () at off_by_one.c:17
+17          return 0;
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+──────────────────────────────────────[ REGISTERS &#x2F; show-flags off &#x2F; show-compact-regs off ]───────────────────────────────────────
+*RAX  0x11
+*RBX  0x0
+*RCX  0x10
+*RDX  0x41
+*RDI  0x0
+*RSI  0x5555555596f0 ◂— &#39;AAAAAAAAAAAAAAAAA\n&#39;
+ R8   0x0
+*R9   0x5555555596f0 ◂— &#39;AAAAAAAAAAAAAAAAA\n&#39;
+*R10  0x77
+ R11  0x246
+ R12  0x7fffffffdcf8 —▸ 0x7fffffffdf6b ◂— 0xe62f642f746e6d2f
+ R13  0x5555555551d1 (main) ◂— endbr64
+ R14  0x555555557db0 (__do_global_dtors_aux_fini_array_entry) —▸ 0x555555555140 (__do_global_dtors_aux) ◂— endbr64
+ R15  0x7ffff7ffd040 (_rtld_global) —▸ 0x7ffff7ffe2e0 —▸ 0x555555554000 ◂— 0x10102464c457f
+*RBP  0x7fffffffdbe0 ◂— 0x1
+*RSP  0x7fffffffdbd0 —▸ 0x5555555592a0 ◂— &#39;AAAAAAAAAAAAAAAAA&#39;
+*RIP  0x555555555219 (main+72) ◂— mov eax, 0
+───────────────────────────────────────────────[ DISASM &#x2F; x86-64 &#x2F; set emulate on ]────────────────────────────────────────────────
+ ► 0x555555555219 &lt;main+72&gt;                       mov    eax, 0
+   0x55555555521e &lt;main+77&gt;                       leave
+   0x55555555521f &lt;main+78&gt;                       ret
+    ↓
+   0x7ffff7daed90 &lt;__libc_start_call_main+128&gt;    mov    edi, eax
+   0x7ffff7daed92 &lt;__libc_start_call_main+130&gt;    call   exit                &lt;exit&gt;
+
+   0x7ffff7daed97 &lt;__libc_start_call_main+135&gt;    call   __nptl_deallocate_tsd                &lt;__nptl_deallocate_tsd&gt;
+
+   0x7ffff7daed9c &lt;__libc_start_call_main+140&gt;    lock dec dword ptr [rip + 0x1ef505]  &lt;__nptl_nthreads&gt;
+   0x7ffff7daeda3 &lt;__libc_start_call_main+147&gt;    sete   al
+   0x7ffff7daeda6 &lt;__libc_start_call_main+150&gt;    test   al, al
+   0x7ffff7daeda8 &lt;__libc_start_call_main+152&gt;    jne    __libc_start_call_main+168                &lt;__libc_start_call_main+168&gt;    
+
+   0x7ffff7daedaa &lt;__libc_start_call_main+154&gt;    mov    edx, 0x3c
+─────────────────────────────────────────────────────────[ SOURCE (CODE) ]─────────────────────────────────────────────────────────
+In file: &#x2F;mnt&#x2F;d&#x2F;pwn_learning&#x2F;heap&#x2F;off_by_one.c
+   12     void *chunk1,*chunk2;
+   13     chunk1&#x3D;malloc(16);
+   14     chunk2&#x3D;malloc(16);
+   15     puts(&quot;Get Input:&quot;);
+   16     my_gets(chunk1,16);
+ ► 17     return 0;
+   18 &#125;
+─────────────────────────────────────────────────────────────[ STACK ]─────────────────────────────────────────────────────────────
+00:0000│ rsp 0x7fffffffdbd0 —▸ 0x5555555592a0 ◂— &#39;AAAAAAAAAAAAAAAAA&#39;
+01:0008│     0x7fffffffdbd8 —▸ 0x5555555592c0 ◂— 0x0
+02:0010│ rbp 0x7fffffffdbe0 ◂— 0x1
+03:0018│     0x7fffffffdbe8 —▸ 0x7ffff7daed90 (__libc_start_call_main+128) ◂— mov edi, eax
+04:0020│     0x7fffffffdbf0 ◂— 0x0
+05:0028│     0x7fffffffdbf8 —▸ 0x5555555551d1 (main) ◂— endbr64
+06:0030│     0x7fffffffdc00 ◂— 0x1ffffdce0
+07:0038│     0x7fffffffdc08 —▸ 0x7fffffffdcf8 —▸ 0x7fffffffdf6b ◂— 0xe62f642f746e6d2f
+───────────────────────────────────────────────────────────[ BACKTRACE ]───────────────────────────────────────────────────────────
+ ► 0   0x555555555219 main+72
+   1   0x7ffff7daed90 __libc_start_call_main+128
+   2   0x7ffff7daee40 __libc_start_main+128
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+pwndbg&gt; <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>此时观察堆内容：</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">pwndbg&gt; x&#x2F;gx 0x5555555592b0-0x10
+0x5555555592a0: 0x4141414141414141
+pwndbg&gt; telescope 0x555555559290 10
+00:0000│  0x555555559290 ◂— 0x0
+01:0008│  0x555555559298 ◂— 0x21 &#x2F;* &#39;!&#39; *&#x2F;
+02:0010│  0x5555555592a0 ◂— &#39;AAAAAAAAAAAAAAAAA&#39;
+03:0018│  0x5555555592a8 ◂— &#39;AAAAAAAAA&#39;
+04:0020│  0x5555555592b0 ◂— 0x41 &#x2F;* &#39;A&#39; *&#x2F;
+05:0028│  0x5555555592b8 ◂— 0x21 &#x2F;* &#39;!&#39; *&#x2F;
+06:0030│  0x5555555592c0 ◂— 0x0
+... ↓     2 skipped
+09:0048│  0x5555555592d8 ◂— 0x411<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>可以看到原本是 chunk2 元数据区的 0x5555555592b0 被溢出覆盖了 0x41</p>
+<hr>
+<h2 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h2><pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token keyword">char</span> buffer<span class="token punctuation">[</span><span class="token number">40</span><span class="token punctuation">]</span><span class="token operator">=</span><span class="token string">""</span><span class="token punctuation">;</span>
+    <span class="token keyword">void</span> <span class="token operator">*</span>chunk1<span class="token punctuation">;</span>
+    chunk1<span class="token operator">=</span><span class="token function">malloc</span><span class="token punctuation">(</span><span class="token number">24</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">puts</span><span class="token punctuation">(</span><span class="token string">"Get Input"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">gets</span><span class="token punctuation">(</span>buffer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">strlen</span><span class="token punctuation">(</span>buffer<span class="token punctuation">)</span><span class="token operator">==</span><span class="token number">24</span><span class="token punctuation">)</span>
+    <span class="token punctuation">&#123;</span>
+        <span class="token function">strcpy</span><span class="token punctuation">(</span>chunk1<span class="token punctuation">,</span>buffer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>看着没啥问题（不考虑栈溢出），但是 <code>strlen</code> 和 <code>strcpy</code> 的行为不一致却导致了 off-by-one 的发生</p>
+<p>strlen 在计算字符串长度时是不把结束符 <code>&#39;\x00&#39;</code> 计算在内的，但是 strcpy 在复制字符串时会拷贝结束符 <code>&#39;\x00&#39;</code></p>
+<p>这就导致了我们实际向 chunk1 中写入了 25 个字节</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

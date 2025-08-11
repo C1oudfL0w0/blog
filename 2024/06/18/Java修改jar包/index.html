@@ -1,0 +1,465 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Java修改jar包&amp;DocToolkit fix复现 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%B7%E8%A1%A5%E4%B8%81%E4%BF%AE%E6%94%B9-jar-%E5%8C%85%EF%BC%88%E4%B8%80%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">冷补丁修改 jar 包（一）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E9%BB%98%E8%AE%A4key"><span class="toc-number">2.1.</span> <span class="toc-text">修改默认key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8D%E6%96%B0%E6%89%93%E5%8C%85"><span class="toc-number">2.2.</span> <span class="toc-text">重新打包</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%B7%E8%A1%A5%E4%B8%81%E4%BF%AE%E6%94%B9-jar-%E5%8C%85%EF%BC%88%E4%BA%8C%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">冷补丁修改 jar 包（二）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#war%E5%8C%85"><span class="toc-number">4.</span> <span class="toc-text">war包</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Java修改jar包&amp;DocToolkit fix复现</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/6/18
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/AWD/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                AWD
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Java/" style="color: #00a596">Java</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">838字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">3分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>给长城杯半决赛线下的jar包创碎很久之后想起来要学这个了，这篇文章基本上可以算是全抄参考文章的了</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://natro92.fun/posts/82174079/">https://natro92.fun/posts/82174079/</a></p>
+<p>喜报：我们先进的 jar_Editor 插件已经取代了老式的冷补丁修改jar包！（（</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="冷补丁修改-jar-包（一）"><a href="#冷补丁修改-jar-包（一）" class="headerlink" title="冷补丁修改 jar 包（一）"></a>冷补丁修改 jar 包（一）</h1><p>准备反编译jar包需要的工具：</p>
+<p>cfr：这里选择0.152版本（注意这个好像不能挂代理访问）<a target="_blank" rel="noopener" href="http://www.benf.org/other/cfr/">http://www.benf.org/other/cfr/</a></p>
+<p>附件选择长城杯半决赛的DocToolkit</p>
+<p>批量转换class文件：（by Natro92）</p>
+<p>decompile.sh</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+<span class="token comment"># WSL运行</span>
+<span class="token comment"># 设置CFR JAR文件的路径</span>
+<span class="token assign-left variable">CFR_JAR</span><span class="token operator">=</span><span class="token string">"cfr-0.152.jar"</span>
+<span class="token comment"># 设置class文件的根目录</span>
+<span class="token assign-left variable">CLASS_ROOT</span><span class="token operator">=</span><span class="token string">"src/main/java"</span>
+<span class="token comment"># 查找所有的class文件并反编译为java文件</span>
+<span class="token function">find</span> <span class="token variable">$CLASS_ROOT</span> <span class="token parameter variable">-name</span> <span class="token string">"*.class"</span> <span class="token operator">|</span> <span class="token keyword">while</span> <span class="token builtin class-name">read</span> class_file<span class="token punctuation">;</span> <span class="token keyword">do</span>
+    <span class="token comment"># 获取class文件的目录和文件名</span>
+    <span class="token assign-left variable">class_dir</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span><span class="token function">dirname</span> <span class="token string">"<span class="token variable">$class_file</span>"</span><span class="token variable">)</span></span>
+    <span class="token assign-left variable">class_name</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span><span class="token function">basename</span> <span class="token string">"<span class="token variable">$class_file</span>"</span> .class<span class="token variable">)</span></span>
+    <span class="token builtin class-name">echo</span> <span class="token variable">$class_name</span>
+    <span class="token comment"># 反编译class文件并将输出重定向到.java文件</span>
+    <span class="token function">java</span> <span class="token parameter variable">-jar</span> <span class="token variable">$CFR_JAR</span> <span class="token string">"<span class="token variable">$class_file</span>"</span> <span class="token operator">></span> <span class="token string">"<span class="token variable">$class_dir</span>/<span class="token variable">$class_name</span>.java"</span>
+<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>先把 jar 文件解压到 example 目录（因为是<code>com.example</code>）中（PS：今天才知道 wsl 的<code>/mnt/</code>目录下是我们Windows主机对应的文件，而且可以用任何linux命令，这谁还用传统windows终端啊，以后直接打开文件夹执行wsl就行了）</p>
+<p><img src="/blog/2024/06/18/Java%E4%BF%AE%E6%94%B9jar%E5%8C%85/image-20240618012204750.png" alt="image-20240618012204750"></p>
+<p>解压 jar 包到 example 文件夹中：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">unzip</span> DocToolkit-0.0.1-SNAPSHOT.jar <span class="token parameter variable">-d</span> example<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>再将 class 文件放入相关目录中：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">mkdir</span> <span class="token parameter variable">-p</span> src/main/java
+<span class="token function">cp</span> <span class="token parameter variable">-r</span> example/BOOT-INF/classes/* src/main/java/<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>然后进行反编译</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sh</span> decompile.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/06/18/Java%E4%BF%AE%E6%94%B9jar%E5%8C%85/image-20240619003010977.png" alt="image-20240619003010977"></p>
+<p>后面我们需要对 src 中的 class 文件修改，再移回 example 中</p>
+<p>先本地起一下java环境</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">java</span> <span class="token parameter variable">-jar</span> DocToolkit-0.0.1-SNAPSHOT.jar<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>然后访问localhost:8080，注意这里的localhost实际的ip地址取决于起环境的终端是哪个（wsl的话需要自己看一下<code>ip addr</code>）</p>
+<p>然后取出我们jar包的shirokey</p>
+<p><img src="/blog/2024/06/18/Java%E4%BF%AE%E6%94%B9jar%E5%8C%85/image-20240619002249974.png" alt="image-20240619002249974"></p>
+<p>测试一下</p>
+<p><img src="/blog/2024/06/18/Java%E4%BF%AE%E6%94%B9jar%E5%8C%85/image-20240619002315399.png" alt="image-20240619002315399"></p>
+<h2 id="修改默认key"><a href="#修改默认key" class="headerlink" title="修改默认key"></a>修改默认key</h2><p>先利用这个工具随机生成一个key：<code>Iyxx0SgsspVZvsJ2E5ke3g==</code></p>
+<p><img src="/blog/2024/06/18/Java%E4%BF%AE%E6%94%B9jar%E5%8C%85/image-20240619002550752.png" alt="image-20240619002550752"></p>
+<p>然后修改源码中的硬编码 key 值（别忘了前面要用cfr反编译）：</p>
+<p>src\main\java\com\example\doctoolkit\shiro\ShiroConfig.java</p>
+<p><img src="/blog/2024/06/18/Java%E4%BF%AE%E6%94%B9jar%E5%8C%85/image-20240619003157137.png" alt="image-20240619003157137"></p>
+<p>接下来生成新的class文件</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token assign-left variable">CLASS_LIB</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span><span class="token function">find</span> example/BOOT-INF/lib/ <span class="token parameter variable">-name</span> <span class="token string">"*.jar"</span> <span class="token operator">|</span> <span class="token function">tr</span> <span class="token string">'\n'</span> <span class="token string">':'</span><span class="token variable">)</span></span><span class="token punctuation">;</span>
+javac <span class="token parameter variable">-cp</span> <span class="token string">".:<span class="token variable">$&#123;CLASS_LIB<span class="token operator">%</span><span class="token operator">:</span>&#125;</span>"</span> src/main/java/com/example/doctoolkit/shiro/ShiroConfig.java src/main/java/com/example/doctoolkit/shiro/UserRealm.java src/main/java/com/example/doctoolkit/controller/admin/AdminController.java<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/06/18/Java%E4%BF%AE%E6%94%B9jar%E5%8C%85/image-20240619003524692.png" alt="image-20240619003524692"></p>
+<p>此时就修改成功了</p>
+<h2 id="重新打包"><a href="#重新打包" class="headerlink" title="重新打包"></a>重新打包</h2><p>先替换原有的 class 文件</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cp</span> src/main/java/com/example/doctoolkit/shiro/ShiroConfig.class example/BOOT-INF/classes/com/example/doctoolkit/shiro/ShiroConfig.class
+<span class="token function">cp</span> src/main/java/com/example/doctoolkit/shiro/UserRealm.class example/BOOT-INF/classes/com/example/doctoolkit/shiro/UserRealm.class
+<span class="token function">cp</span> src/main/java/com/example/doctoolkit/controller/admin/AdminController.class example/BOOT-INF/classes/com/example/doctoolkit/controller/admin/AdminController.class<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>（如果lib里已经有jar包了，接下来可以直接打包主jar包）</p>
+<p><del>然后打包，把 lib 中的每一个 jar 文件都解压到目录中</del></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">cd</span> example/BOOT-INF/lib
+<span class="token keyword">for</span> <span class="token for-or-select variable">jar</span> <span class="token keyword">in</span> *.jar<span class="token punctuation">;</span> <span class="token keyword">do</span>
+    <span class="token function">mkdir</span> <span class="token parameter variable">-p</span> <span class="token string">"../lib_unpacked/<span class="token variable">$jar</span>"</span>
+    <span class="token builtin class-name">cd</span> <span class="token string">"../lib_unpacked/<span class="token variable">$jar</span>"</span>
+    jar <span class="token parameter variable">-xvf</span> <span class="token string">"../../lib/<span class="token variable">$jar</span>"</span>
+    <span class="token builtin class-name">cd</span> <span class="token punctuation">..</span>/<span class="token punctuation">..</span>/lib
+<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/06/18/Java%E4%BF%AE%E6%94%B9jar%E5%8C%85/image-20240619004100091.png" alt="image-20240619004100091"></p>
+<p><img src="/blog/2024/06/18/Java%E4%BF%AE%E6%94%B9jar%E5%8C%85/image-20240619004144902.png" alt="image-20240619004144902"></p>
+<p>过程有点小久</p>
+<p><del>然后再重新打包 lib 中 jar 文件，依旧需要花上一点时间</del></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">cd</span> <span class="token punctuation">..</span>/lib_unpacked
+<span class="token keyword">for</span> <span class="token for-or-select variable">dir</span> <span class="token keyword">in</span> *<span class="token punctuation">;</span> <span class="token keyword">do</span>
+     jar <span class="token parameter variable">-cvfM0</span> <span class="token string">"../lib/<span class="token variable">$dir</span>.jar"</span> <span class="token parameter variable">-C</span> <span class="token string">"<span class="token variable">$dir</span>"</span> <span class="token builtin class-name">.</span>
+<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>在主jar包解压的目录下，再打包主 jar 文件</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">cd</span> <span class="token punctuation">..</span>
+<span class="token builtin class-name">cd</span> <span class="token punctuation">..</span>
+jar <span class="token parameter variable">-cvfM0</span> <span class="token punctuation">..</span>/example_repacked.jar <span class="token parameter variable">-C</span> <span class="token builtin class-name">.</span> <span class="token builtin class-name">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>打包完成后我们运行新的jar包</p>
+<p><img src="/blog/2024/06/18/Java%E4%BF%AE%E6%94%B9jar%E5%8C%85/image-20240619005712018.png" alt="image-20240619005712018"></p>
+<p>重新测试密钥：<code>Iyxx0SgsspVZvsJ2E5ke3g==</code></p>
+<p><img src="/blog/2024/06/18/Java%E4%BF%AE%E6%94%B9jar%E5%8C%85/image-20240619005950967.png" alt="image-20240619005950967"></p>
+<p>新的key检测了出来，说明修改成功</p>
+<hr>
+<h1 id="冷补丁修改-jar-包（二）"><a href="#冷补丁修改-jar-包（二）" class="headerlink" title="冷补丁修改 jar 包（二）"></a>冷补丁修改 jar 包（二）</h1><hr>
+<h1 id="war包"><a href="#war包" class="headerlink" title="war包"></a>war包</h1><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">java</span> <span class="token parameter variable">-cvf</span> xxx.war ./*<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

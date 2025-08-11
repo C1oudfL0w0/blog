@@ -1,0 +1,948 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>分组密码 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81%E6%A6%82%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">分组密码概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Feistel%E7%BB%93%E6%9E%84"><span class="toc-number">2.1.</span> <span class="toc-text">Feistel结构</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#DES"><span class="toc-number">3.</span> <span class="toc-text">DES</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E7%BD%AE%E6%8D%A2"><span class="toc-number">3.1.</span> <span class="toc-text">初始置换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AE%E7%BB%93%E6%9E%84"><span class="toc-number">3.2.</span> <span class="toc-text">轮结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%86%E9%92%A5%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B"><span class="toc-number">3.3.</span> <span class="toc-text">密钥加密流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%86%E6%8E%A8%E5%AD%90%E5%AF%86%E9%92%A5"><span class="toc-number">3.4.</span> <span class="toc-text">逆推子密钥</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.5.</span> <span class="toc-text">代码实现</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%86%E7%BB%84%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">分组模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ECB"><span class="toc-number">4.1.</span> <span class="toc-text">ECB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CBC"><span class="toc-number">4.2.</span> <span class="toc-text">CBC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%EF%BC%9A%E5%AD%97%E8%8A%82%E5%8F%8D%E8%BD%AC%E6%94%BB%E5%87%BB"><span class="toc-number">4.2.1.</span> <span class="toc-text">攻击：字节反转攻击</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CFB"><span class="toc-number">4.3.</span> <span class="toc-text">CFB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OFB"><span class="toc-number">4.4.</span> <span class="toc-text">OFB</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#IDEA"><span class="toc-number">5.</span> <span class="toc-text">IDEA</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#AES"><span class="toc-number">6.</span> <span class="toc-text">AES</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E5%AD%A6%E5%9F%BA%E7%A1%80"><span class="toc-number">6.1.</span> <span class="toc-text">数学基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E3%80%81%E7%A7%8D%E5%AD%90%E5%AF%86%E9%92%A5%E5%92%8C%E8%BD%AE%E6%95%B0"><span class="toc-number">6.2.</span> <span class="toc-text">状态、种子密钥和轮数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AE%E5%87%BD%E6%95%B0"><span class="toc-number">6.3.</span> <span class="toc-text">轮函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E8%8A%82%E4%BB%A3%E6%8D%A2"><span class="toc-number">6.3.1.</span> <span class="toc-text">字节代换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%8C%E7%A7%BB%E4%BD%8D"><span class="toc-number">6.3.2.</span> <span class="toc-text">行移位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%97%E6%B7%B7%E5%90%88"><span class="toc-number">6.3.3.</span> <span class="toc-text">列混合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%86%E9%92%A5%E5%8A%A0"><span class="toc-number">6.3.4.</span> <span class="toc-text">密钥加</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%86%E9%92%A5%E7%BC%96%E6%8E%92"><span class="toc-number">6.4.</span> <span class="toc-text">密钥编排</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95"><span class="toc-number">6.5.</span> <span class="toc-text">加密算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A0%E8%A7%A3%E5%AF%86%E7%9A%84%E7%9B%B8%E8%BF%91%E7%A8%8B%E5%BA%A6%E5%8F%8A%E8%A7%A3%E5%AF%86%E7%AE%97%E6%B3%95"><span class="toc-number">6.6.</span> <span class="toc-text">加解密的相近程度及解密算法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SM4"><span class="toc-number">7.</span> <span class="toc-text">SM4</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A5%96%E5%86%B2%E4%B9%8B%E5%AF%86%E7%A0%81"><span class="toc-number">8.</span> <span class="toc-text">祖冲之密码</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>分组密码</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/3/28
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Crypto/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Crypto
+            </a>
+        </span>
+        
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">5.1k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">23分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>生活所迫（x</p>
+<p>分组密码，又称块加密</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://ctf-wiki.org/crypto/blockcipher/introduction/">https://ctf-wiki.org/crypto/blockcipher/introduction/</a></p>
+<p>《现代密码学（第5版）》—— 杨波</p>
+<span id="more"></span>
+
+<h1 id="分组密码概述"><a href="#分组密码概述" class="headerlink" title="分组密码概述"></a>分组密码概述</h1><p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_62396648/article/details/131319813">https://blog.csdn.net/m0_62396648/article/details/131319813</a></p>
+<p>将明文划分为长为n的组<code>x(x0,x1,…,xn-1)</code>，各组在密钥<code>k=(k0,k1,…kt-1)</code>控制下变换成等长的数字序列<code>y=(y0,y1,…ym-1)</code></p>
+<p>实际上就是对字长为n的数字序列的代换密码（一般m&#x3D;n）</p>
+<p>分组密码安全设计性原则：</p>
+<ul>
+<li>扩散：使<strong>明文与密文</strong>之间的统计关系变得尽可能复杂，以使敌手无法得到密钥。明文每一比特变换尽量多的影响密文序列的变化，以隐蔽明文的统计特性（雪崩效应）</li>
+<li>混淆：使<strong>密文与密钥</strong>之间的统计关系变得尽可能复杂，以使敌手无法得到密钥</li>
+</ul>
+<p>P盒（置换）用于扩散</p>
+<p>S盒（代换）用于混淆</p>
+<h2 id="Feistel结构"><a href="#Feistel结构" class="headerlink" title="Feistel结构"></a>Feistel结构</h2><blockquote>
+<p>Feistel提出利用乘积密码可以获得简单的代换密码，”乘积密码“指顺序地执行两个或多个基本密码系统，使得最后结果的密码强度高于每个基本密码系统产生的结果，Feistel还提出了实现代换和置换的方法。</p>
+</blockquote>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/image-20240503214814517.png" alt="image-20240503214814517"></p>
+<p>分成左右两边，右边用 F 进行加密，和左边异或一下，和这一轮原始的进行交换，进行n轮迭代，最后置换一下，再合在一起</p>
+<hr>
+<h1 id="DES"><a href="#DES" class="headerlink" title="DES"></a>DES</h1><p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/jayq1/article/details/132380018">https://blog.csdn.net/jayq1/article/details/132380018</a></p>
+<p>基本操作：</p>
+<ul>
+<li>输入 64 位。</li>
+<li>输出 64 位。</li>
+<li>密钥 64 位，使用 64 位密钥中的 56 位，剩余的 8 位要么丢弃，要么作为奇偶校验位。</li>
+<li>Feistel 迭代结构<ul>
+<li>明文经过 16 轮迭代得到密文。</li>
+<li>密文经过类似的 16 轮迭代得到明文。</li>
+</ul>
+</li>
+</ul>
+<p>密钥产生：</p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/1711563089828.jpg" alt="1711563089828"></p>
+<h2 id="初始置换"><a href="#初始置换" class="headerlink" title="初始置换"></a>初始置换</h2><p>将64bits的待加密数据块进行排列，形成IP盒</p>
+<p>然后对IP进行一系列操作</p>
+<p>将第58个比特放在第一个位置上，逆初始置换也一样，第40个比特放在第一个位置上（即对照IP盒和IP<sup>-1</sup>盒进行置换）</p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/image-20240503221055010.png" alt="image-20240503221055010"></p>
+<h2 id="轮结构"><a href="#轮结构" class="headerlink" title="轮结构"></a>轮结构</h2><p>将数据切割成左右两部分</p>
+<p><code>Ln=Rn-1</code></p>
+<p><code>Rn=Ln-1 ^ f(Rn-1,Kn)</code></p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/1711878108852.jpg" alt="1711878108852"></p>
+<p>将右边的32比特扩展到48比特，与48比特的密钥K<sub>i</sub>进行轮密钥加，得到48比特长的结果再通过S盒压缩到32比特，通过置换得到32比特长的轮函数输出，再与左边进行一次异或，得到本次的R结果，一轮就结束了</p>
+<ul>
+<li><p>扩展运算：对照E盒的位置，把四个，边上的前一个和后一个扩展了。如左上角第一个取第32比特</p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/image-20240503222356215.png" alt="image-20240503222356215"></p>
+</li>
+<li><p>轮密钥加：把8组6比特变成4比特，具体操作就是把6比特输入看成一个二进制数，16位选行，2-4选列，然后查S盒</p>
+</li>
+</ul>
+<h2 id="密钥加密流程"><a href="#密钥加密流程" class="headerlink" title="密钥加密流程"></a>密钥加密流程</h2><p>首先对 KEY 进行排列，每8bit删除最后一个（奇偶校验位），然后根据PC-1盒（8行7列共56个）生成相应位置的数值，再进行左移位，对照PC-2盒产生Kn</p>
+<p>来一个demo：</p>
+<p>原始的64bit KEY：<code>0001001100110100010101110111100110011011101111001101111111110001</code></p>
+<p>转换成类似矩阵的线性排列</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span>  <span class="token comment">#8</span>
+<span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">0</span>  <span class="token comment">#16</span>
+<span class="token number">0</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span>  <span class="token comment">#24</span>
+<span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span>  <span class="token comment">#32</span>
+<span class="token number">1</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span>  <span class="token comment">#40</span>
+<span class="token number">1</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">0</span>  <span class="token comment">#48</span>
+<span class="token number">1</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span>  <span class="token comment">#56</span>
+<span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span>  <span class="token comment">#64</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后根据PC-1盒里对应位置的数值选择对应位置交换</p>
+<p>比如第1位是57，则置换之后的结果的第1位就是KEY中的第57位，即<code>0 -&gt; 1</code></p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/image-20240331172943329.png" alt="image-20240331172943329"></p>
+<p>逐个替换，最后得到结果：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span>
+<span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span>
+<span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">1</span>
+<span class="token number">0</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span>
+<span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span>
+<span class="token number">0</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">0</span>
+<span class="token number">1</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span>
+<span class="token number">1</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span>
+<span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>此时只剩下56位</p>
+<p>然后取前四行为C，后四行为D</p>
+<p>依靠固定的移位表</p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/1711877753011.jpg" alt="1711877753011"></p>
+<p>而此时</p>
+<p><code>C0 = 1111000011001100101010101111</code></p>
+<p><code>D0 = 0101010101100110011110001111</code></p>
+<p>为了获得C1，就按照1去查找，表中对应的左移位为1，这里举个左移2位的的例子：</p>
+<blockquote>
+<p>原始：1,2,3,4，……，27,28</p>
+</blockquote>
+<blockquote>
+<p>左移：3,4,5,6，……，28,1,2</p>
+</blockquote>
+<p>所以<code>C1 = 1110000110011001010101011111</code></p>
+<p>同理<code>D1 = 1010101011001100111100011110</code></p>
+<p>接下来根据PC-2提取Kn</p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/image-20240331173936761.png" alt="image-20240331173936761"></p>
+<p>这里可以说明 Kn 的第一位是 CnDn 组合中的第14位，即 0</p>
+<p>所以<code>K1 = 000110110000001011101111111111000111000001110010</code></p>
+<hr>
+<h2 id="逆推子密钥"><a href="#逆推子密钥" class="headerlink" title="逆推子密钥"></a>逆推子密钥</h2><hr>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44034444/article/details/121055630">https://blog.csdn.net/weixin_44034444/article/details/121055630</a></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> binascii
+ 
+<span class="token keyword">class</span> <span class="token class-name">DES</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># 初始化DES加密的参数</span>
+        self<span class="token punctuation">.</span>ip <span class="token operator">=</span> <span class="token punctuation">[</span>
+            <span class="token number">58</span><span class="token punctuation">,</span> <span class="token number">50</span><span class="token punctuation">,</span> <span class="token number">42</span><span class="token punctuation">,</span> <span class="token number">34</span><span class="token punctuation">,</span> <span class="token number">26</span><span class="token punctuation">,</span> <span class="token number">18</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">60</span><span class="token punctuation">,</span> <span class="token number">52</span><span class="token punctuation">,</span> <span class="token number">44</span><span class="token punctuation">,</span> <span class="token number">36</span><span class="token punctuation">,</span> <span class="token number">28</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span>
+            <span class="token number">62</span><span class="token punctuation">,</span> <span class="token number">54</span><span class="token punctuation">,</span> <span class="token number">46</span><span class="token punctuation">,</span> <span class="token number">38</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">,</span> <span class="token number">22</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">64</span><span class="token punctuation">,</span> <span class="token number">56</span><span class="token punctuation">,</span> <span class="token number">48</span><span class="token punctuation">,</span> <span class="token number">40</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">,</span> <span class="token number">24</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span>
+            <span class="token number">57</span><span class="token punctuation">,</span> <span class="token number">49</span><span class="token punctuation">,</span> <span class="token number">41</span><span class="token punctuation">,</span> <span class="token number">33</span><span class="token punctuation">,</span> <span class="token number">25</span><span class="token punctuation">,</span> <span class="token number">17</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">59</span><span class="token punctuation">,</span> <span class="token number">51</span><span class="token punctuation">,</span> <span class="token number">43</span><span class="token punctuation">,</span> <span class="token number">35</span><span class="token punctuation">,</span> <span class="token number">27</span><span class="token punctuation">,</span> <span class="token number">19</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span>
+            <span class="token number">61</span><span class="token punctuation">,</span> <span class="token number">53</span><span class="token punctuation">,</span> <span class="token number">45</span><span class="token punctuation">,</span> <span class="token number">37</span><span class="token punctuation">,</span> <span class="token number">29</span><span class="token punctuation">,</span> <span class="token number">21</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">63</span><span class="token punctuation">,</span> <span class="token number">55</span><span class="token punctuation">,</span> <span class="token number">47</span><span class="token punctuation">,</span> <span class="token number">39</span><span class="token punctuation">,</span> <span class="token number">31</span><span class="token punctuation">,</span> <span class="token number">23</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span>  <span class="token comment"># ip置换</span>
+ 
+        self<span class="token punctuation">.</span>ip1 <span class="token operator">=</span> <span class="token punctuation">[</span>
+            <span class="token number">40</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">48</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">,</span> <span class="token number">56</span><span class="token punctuation">,</span> <span class="token number">24</span><span class="token punctuation">,</span> <span class="token number">64</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">,</span> <span class="token number">39</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">47</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">55</span><span class="token punctuation">,</span> <span class="token number">23</span><span class="token punctuation">,</span> <span class="token number">63</span><span class="token punctuation">,</span> <span class="token number">31</span><span class="token punctuation">,</span>
+            <span class="token number">38</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">46</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">54</span><span class="token punctuation">,</span> <span class="token number">22</span><span class="token punctuation">,</span> <span class="token number">62</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">,</span> <span class="token number">37</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">45</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">53</span><span class="token punctuation">,</span> <span class="token number">21</span><span class="token punctuation">,</span> <span class="token number">61</span><span class="token punctuation">,</span> <span class="token number">29</span><span class="token punctuation">,</span>
+            <span class="token number">36</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">44</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">52</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">,</span> <span class="token number">60</span><span class="token punctuation">,</span> <span class="token number">28</span><span class="token punctuation">,</span> <span class="token number">35</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">43</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">51</span><span class="token punctuation">,</span> <span class="token number">19</span><span class="token punctuation">,</span> <span class="token number">59</span><span class="token punctuation">,</span> <span class="token number">27</span><span class="token punctuation">,</span>
+            <span class="token number">34</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">42</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">50</span><span class="token punctuation">,</span> <span class="token number">18</span><span class="token punctuation">,</span> <span class="token number">58</span><span class="token punctuation">,</span> <span class="token number">26</span><span class="token punctuation">,</span> <span class="token number">33</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">41</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">49</span><span class="token punctuation">,</span> <span class="token number">17</span><span class="token punctuation">,</span> <span class="token number">57</span><span class="token punctuation">,</span> <span class="token number">25</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span>  <span class="token comment"># 逆ip置换</span>
+        self<span class="token punctuation">.</span>E <span class="token operator">=</span> <span class="token punctuation">[</span>
+            <span class="token number">32</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span>
+            <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span>
+            <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span>
+            <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">,</span> <span class="token number">17</span><span class="token punctuation">,</span>
+            <span class="token number">16</span><span class="token punctuation">,</span> <span class="token number">17</span><span class="token punctuation">,</span> <span class="token number">18</span><span class="token punctuation">,</span> <span class="token number">19</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">,</span> <span class="token number">21</span><span class="token punctuation">,</span>
+            <span class="token number">20</span><span class="token punctuation">,</span> <span class="token number">21</span><span class="token punctuation">,</span> <span class="token number">22</span><span class="token punctuation">,</span> <span class="token number">23</span><span class="token punctuation">,</span> <span class="token number">24</span><span class="token punctuation">,</span> <span class="token number">25</span><span class="token punctuation">,</span>
+            <span class="token number">24</span><span class="token punctuation">,</span> <span class="token number">25</span><span class="token punctuation">,</span> <span class="token number">26</span><span class="token punctuation">,</span> <span class="token number">27</span><span class="token punctuation">,</span> <span class="token number">28</span><span class="token punctuation">,</span> <span class="token number">29</span><span class="token punctuation">,</span>
+            <span class="token number">28</span><span class="token punctuation">,</span> <span class="token number">29</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">,</span> <span class="token number">31</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span>  <span class="token comment"># E置换，将32位明文置换位48位</span>
+        self<span class="token punctuation">.</span>P <span class="token operator">=</span> <span class="token punctuation">[</span>
+            <span class="token number">16</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">,</span> <span class="token number">21</span><span class="token punctuation">,</span> <span class="token number">29</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">28</span><span class="token punctuation">,</span> <span class="token number">17</span><span class="token punctuation">,</span>
+            <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">23</span><span class="token punctuation">,</span> <span class="token number">26</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">18</span><span class="token punctuation">,</span> <span class="token number">31</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span>
+            <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">24</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">,</span> <span class="token number">27</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span>
+            <span class="token number">19</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">22</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">25</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span>  <span class="token comment"># P置换，对经过S盒之后的数据再次进行置换</span>
+        self<span class="token punctuation">.</span>K <span class="token operator">=</span> <span class="token string">''</span>
+        self<span class="token punctuation">.</span>k1 <span class="token operator">=</span> <span class="token punctuation">[</span>
+            <span class="token number">57</span><span class="token punctuation">,</span> <span class="token number">49</span><span class="token punctuation">,</span> <span class="token number">41</span><span class="token punctuation">,</span> <span class="token number">33</span><span class="token punctuation">,</span> <span class="token number">25</span><span class="token punctuation">,</span> <span class="token number">17</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span>
+            <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">58</span><span class="token punctuation">,</span> <span class="token number">50</span><span class="token punctuation">,</span> <span class="token number">42</span><span class="token punctuation">,</span> <span class="token number">34</span><span class="token punctuation">,</span> <span class="token number">26</span><span class="token punctuation">,</span> <span class="token number">18</span><span class="token punctuation">,</span>
+            <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">59</span><span class="token punctuation">,</span> <span class="token number">51</span><span class="token punctuation">,</span> <span class="token number">43</span><span class="token punctuation">,</span> <span class="token number">35</span><span class="token punctuation">,</span> <span class="token number">27</span><span class="token punctuation">,</span>
+            <span class="token number">19</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">60</span><span class="token punctuation">,</span> <span class="token number">52</span><span class="token punctuation">,</span> <span class="token number">44</span><span class="token punctuation">,</span> <span class="token number">36</span><span class="token punctuation">,</span>
+            <span class="token number">63</span><span class="token punctuation">,</span> <span class="token number">55</span><span class="token punctuation">,</span> <span class="token number">47</span><span class="token punctuation">,</span> <span class="token number">39</span><span class="token punctuation">,</span> <span class="token number">31</span><span class="token punctuation">,</span> <span class="token number">23</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span>
+            <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">62</span><span class="token punctuation">,</span> <span class="token number">54</span><span class="token punctuation">,</span> <span class="token number">46</span><span class="token punctuation">,</span> <span class="token number">38</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">,</span> <span class="token number">22</span><span class="token punctuation">,</span>
+            <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">61</span><span class="token punctuation">,</span> <span class="token number">53</span><span class="token punctuation">,</span> <span class="token number">45</span><span class="token punctuation">,</span> <span class="token number">37</span><span class="token punctuation">,</span> <span class="token number">29</span><span class="token punctuation">,</span>
+            <span class="token number">21</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">28</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span>  <span class="token comment"># 密钥的K1初始置换</span>
+        self<span class="token punctuation">.</span>k2 <span class="token operator">=</span> <span class="token punctuation">[</span>
+            <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">17</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">24</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">28</span><span class="token punctuation">,</span>
+            <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">21</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">23</span><span class="token punctuation">,</span> <span class="token number">19</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span>
+            <span class="token number">26</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">27</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span>
+            <span class="token number">41</span><span class="token punctuation">,</span> <span class="token number">52</span><span class="token punctuation">,</span> <span class="token number">31</span><span class="token punctuation">,</span> <span class="token number">37</span><span class="token punctuation">,</span> <span class="token number">47</span><span class="token punctuation">,</span> <span class="token number">55</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">,</span> <span class="token number">40</span><span class="token punctuation">,</span>
+            <span class="token number">51</span><span class="token punctuation">,</span> <span class="token number">45</span><span class="token punctuation">,</span> <span class="token number">33</span><span class="token punctuation">,</span> <span class="token number">48</span><span class="token punctuation">,</span> <span class="token number">44</span><span class="token punctuation">,</span> <span class="token number">49</span><span class="token punctuation">,</span> <span class="token number">39</span><span class="token punctuation">,</span> <span class="token number">56</span><span class="token punctuation">,</span>
+            <span class="token number">34</span><span class="token punctuation">,</span> <span class="token number">53</span><span class="token punctuation">,</span> <span class="token number">46</span><span class="token punctuation">,</span> <span class="token number">42</span><span class="token punctuation">,</span> <span class="token number">50</span><span class="token punctuation">,</span> <span class="token number">36</span><span class="token punctuation">,</span> <span class="token number">29</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span>
+ 
+        self<span class="token punctuation">.</span>k0 <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token punctuation">]</span>  <span class="token comment"># 秘钥循环移位的位数</span>
+ 
+        self<span class="token punctuation">.</span>S <span class="token operator">=</span> <span class="token punctuation">[</span>
+            <span class="token punctuation">[</span>
+                <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span>
+                <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span>
+                <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span>
+                <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">13</span>
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token punctuation">[</span>
+                <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span>
+                <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span>
+                <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span>
+                <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">9</span>
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token punctuation">[</span>
+                <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span>
+                <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span>
+                <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span>
+                <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">12</span>
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token punctuation">[</span>
+                <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span>
+                <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span>
+                <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span>
+                <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">14</span>
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token punctuation">[</span>
+                <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span>
+                <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span>
+                <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span>
+                <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">3</span>
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token punctuation">[</span>
+                <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span>
+                <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span>
+                <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span>
+                <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">13</span>
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token punctuation">[</span>
+                <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span>
+                <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span>
+                <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span>
+                <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">12</span>
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token punctuation">[</span>
+                <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span>
+                <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span>
+                <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span>
+                <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">14</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">13</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">11</span>
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span>  <span class="token comment"># 16进制表示S盒的数据，S盒是为了将48位转换为32位，有8个盒子</span>
+ 
+    <span class="token keyword">def</span> <span class="token function">__substitution</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> table<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">,</span> self_table<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">str</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""
+        :param table: 需要进行置换的列表,是一个01字符串
+        :param self_table: 置换表，在__init__中初始化了
+        :return: 返回置换后的01字符串
+        """</span>
+        sub_result <span class="token operator">=</span> <span class="token string">""</span>
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> self_table<span class="token punctuation">:</span>
+            sub_result <span class="token operator">+=</span> table<span class="token punctuation">[</span>i <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span>
+        <span class="token keyword">return</span> sub_result
+ 
+    <span class="token keyword">def</span> <span class="token function">str2bin</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> string<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">str</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""
+        将明文转为二进制字符串:
+        :param string: 任意字符串
+        :return:二进制字符串
+        """</span>
+        plaintext_list <span class="token operator">=</span> <span class="token builtin">list</span><span class="token punctuation">(</span><span class="token builtin">bytes</span><span class="token punctuation">(</span>string<span class="token punctuation">,</span> <span class="token string">'utf8'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token comment"># 将字符串转成bytes类型，再转成list</span>
+        result <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>  <span class="token comment"># 定义返回结果</span>
+        <span class="token keyword">for</span> num <span class="token keyword">in</span> plaintext_list<span class="token punctuation">:</span>
+            result<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token builtin">bin</span><span class="token punctuation">(</span>num<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">.</span>zfill<span class="token punctuation">(</span><span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token comment"># 将列表的每个元素转成二进制字符串，8位宽度</span>
+        <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">.</span>join<span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+ 
+    <span class="token keyword">def</span> <span class="token function">bin2str</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> binary<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">str</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""
+        二进制字符串转成字符串
+        :param binary:
+        :return:
+        """</span>
+        list_bin <span class="token operator">=</span> <span class="token punctuation">[</span>binary<span class="token punctuation">[</span>i<span class="token punctuation">:</span>i <span class="token operator">+</span> <span class="token number">8</span><span class="token punctuation">]</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>binary<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">]</span>  <span class="token comment"># 对二进制字符串进行切分，每8位为一组</span>
+        list_int <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> b <span class="token keyword">in</span> list_bin<span class="token punctuation">:</span>
+            list_int<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">(</span>b<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token comment"># 对二进制转成int</span>
+        result <span class="token operator">=</span> <span class="token builtin">bytes</span><span class="token punctuation">(</span>list_int<span class="token punctuation">)</span><span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token punctuation">)</span>  <span class="token comment"># 将列表转成bytes，在进行解码，得到字符串</span>
+        <span class="token keyword">return</span> result
+ 
+    <span class="token keyword">def</span> <span class="token function">__bin2int</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> binary<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">list</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""
+        由于加密之后的二进制无法直接转成字符，有不可见字符在，utf8可能无法解码，所以需要将二进制字符串每8位转成int型号列表，用于转成bytes再转hex
+        :param binary: 二进制字符串
+        :return: int型列表
+        """</span>
+        list_bin <span class="token operator">=</span> <span class="token punctuation">[</span>binary<span class="token punctuation">[</span>i<span class="token punctuation">:</span>i <span class="token operator">+</span> <span class="token number">8</span><span class="token punctuation">]</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>binary<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">]</span>  <span class="token comment"># 对二进制字符串进行切分，每8位为一组</span>
+        list_int <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> b <span class="token keyword">in</span> list_bin<span class="token punctuation">:</span>
+            list_int<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">(</span>b<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> list_int
+ 
+    <span class="token keyword">def</span> <span class="token function">__int2bin</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> list_int<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">str</span><span class="token punctuation">:</span>
+        result <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> num <span class="token keyword">in</span> list_int<span class="token punctuation">:</span>
+            result<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token builtin">bin</span><span class="token punctuation">(</span>num<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">.</span>zfill<span class="token punctuation">(</span><span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> <span class="token string">''</span><span class="token punctuation">.</span>join<span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+ 
+    <span class="token keyword">def</span> <span class="token function">__get_block_list</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> binary<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">list</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""
+        对明文二进制串进行切分，每64位为一块，DES加密以64位为一组进行加密的
+        :type binary: 二进制串
+        """</span>
+        len_binary <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>binary<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> len_binary <span class="token operator">%</span> <span class="token number">64</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">:</span>
+            binary_block <span class="token operator">=</span> binary <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token string">"0"</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">64</span> <span class="token operator">-</span> <span class="token punctuation">(</span>len_binary <span class="token operator">%</span> <span class="token number">64</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token keyword">return</span> <span class="token punctuation">[</span>binary_block<span class="token punctuation">[</span>i<span class="token punctuation">:</span>i <span class="token operator">+</span> <span class="token number">64</span><span class="token punctuation">]</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>binary_block<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">64</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">return</span> <span class="token punctuation">[</span>binary<span class="token punctuation">[</span>j<span class="token punctuation">:</span>j <span class="token operator">+</span> <span class="token number">64</span><span class="token punctuation">]</span> <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>binary<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">64</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+ 
+    <span class="token keyword">def</span> <span class="token function">modify_secretkey</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""
+        修改默认密钥函数
+        :return: None
+        """</span>
+        newkey <span class="token operator">=</span> <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token string">"输入密钥（长度为8）："</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>newkey<span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">8</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"密钥长度不符合，请重新输入："</span><span class="token punctuation">)</span>
+            self<span class="token punctuation">.</span>modify_secretkey<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            bin_key <span class="token operator">=</span> self<span class="token punctuation">.</span>str2bin<span class="token punctuation">(</span>newkey<span class="token punctuation">)</span>
+            self<span class="token punctuation">.</span>K <span class="token operator">=</span> bin_key
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"当前二进制形式密钥为：&#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>K<span class="token punctuation">)</span><span class="token punctuation">)</span>
+ 
+    <span class="token keyword">def</span> <span class="token function">__f_funtion</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> right<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">,</span> key<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""
+        :param right: 明文二进制的字符串加密过程的右半段
+        :param key: 当前轮数的密钥
+        :return: 进行E扩展，与key异或操作，S盒操作后返回32位01字符串
+        """</span>
+        <span class="token comment"># 对right进行E扩展</span>
+        e_result <span class="token operator">=</span> self<span class="token punctuation">.</span>__substitution<span class="token punctuation">(</span>right<span class="token punctuation">,</span> self<span class="token punctuation">.</span>E<span class="token punctuation">)</span>
+        <span class="token comment"># 与key 进行异或操作</span>
+        xor_result <span class="token operator">=</span> self<span class="token punctuation">.</span>__xor_function<span class="token punctuation">(</span>e_result<span class="token punctuation">,</span> key<span class="token punctuation">)</span>
+        <span class="token comment"># 进入S盒子</span>
+        s_result <span class="token operator">=</span> self<span class="token punctuation">.</span>__s_box<span class="token punctuation">(</span>xor_result<span class="token punctuation">)</span>
+        <span class="token comment"># 进行P置换</span>
+        p_result <span class="token operator">=</span> self<span class="token punctuation">.</span>__substitution<span class="token punctuation">(</span>s_result<span class="token punctuation">,</span> self<span class="token punctuation">.</span>P<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> p_result
+ 
+    <span class="token keyword">def</span> <span class="token function">__get_key_list</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""
+        :return: 返回加密过程中16轮的子密钥
+        """</span>
+        key <span class="token operator">=</span> self<span class="token punctuation">.</span>__substitution<span class="token punctuation">(</span>self<span class="token punctuation">.</span>K<span class="token punctuation">,</span> self<span class="token punctuation">.</span>k1<span class="token punctuation">)</span>
+        left_key <span class="token operator">=</span> key<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">:</span><span class="token number">28</span><span class="token punctuation">]</span>
+        right_key <span class="token operator">=</span> key<span class="token punctuation">[</span><span class="token number">28</span><span class="token punctuation">:</span><span class="token number">56</span><span class="token punctuation">]</span>
+        keys <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">17</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            move <span class="token operator">=</span> self<span class="token punctuation">.</span>k0<span class="token punctuation">[</span>i <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span>
+            move_left <span class="token operator">=</span> left_key<span class="token punctuation">[</span>move<span class="token punctuation">:</span><span class="token number">28</span><span class="token punctuation">]</span> <span class="token operator">+</span> left_key<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">:</span>move<span class="token punctuation">]</span>
+            move_right <span class="token operator">=</span> right_key<span class="token punctuation">[</span>move<span class="token punctuation">:</span><span class="token number">28</span><span class="token punctuation">]</span> <span class="token operator">+</span> right_key<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">:</span>move<span class="token punctuation">]</span>
+            left_key <span class="token operator">=</span> move_left
+            right_key <span class="token operator">=</span> move_right
+            move_key <span class="token operator">=</span> left_key <span class="token operator">+</span> right_key
+            ki <span class="token operator">=</span> self<span class="token punctuation">.</span>__substitution<span class="token punctuation">(</span>move_key<span class="token punctuation">,</span> self<span class="token punctuation">.</span>k2<span class="token punctuation">)</span>
+            keys<span class="token punctuation">.</span>append<span class="token punctuation">(</span>ki<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> keys
+ 
+    <span class="token keyword">def</span> <span class="token function">__xor_function</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> str1<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">,</span> str2<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""
+        :param str1: 01字符串
+        :param str2: 01字符串
+        :return: 异或操作返回的结果
+        """</span>
+        result <span class="token operator">=</span> <span class="token string">""</span>
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>str1<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">if</span> str1<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">==</span> str2<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">:</span>
+                result <span class="token operator">+=</span> <span class="token string">"0"</span>
+            <span class="token keyword">else</span><span class="token punctuation">:</span>
+                result <span class="token operator">+=</span> <span class="token string">"1"</span>
+        <span class="token keyword">return</span> result
+ 
+    <span class="token keyword">def</span> <span class="token function">__s_box</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> xor_result<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""
+        :param xor_result: 48位01字符串
+        :return: 返回32位01字符串
+        """</span>
+        result <span class="token operator">=</span> <span class="token string">""</span>
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token comment"># 将48位数据分为6组，循环进行</span>
+            block <span class="token operator">=</span> xor_result<span class="token punctuation">[</span>i <span class="token operator">*</span> <span class="token number">6</span><span class="token punctuation">:</span><span class="token punctuation">(</span>i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">6</span><span class="token punctuation">]</span>
+            line <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>block<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">+</span> block<span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span>
+            colmn <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>block<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">:</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span>
+            res <span class="token operator">=</span> <span class="token builtin">bin</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>S<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>line<span class="token operator">*</span><span class="token number">16</span> <span class="token operator">+</span> colmn<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">:</span><span class="token punctuation">]</span>
+            <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">4</span><span class="token punctuation">:</span>
+                res <span class="token operator">=</span> <span class="token string">'0'</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">4</span> <span class="token operator">-</span> <span class="token builtin">len</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">+</span> res
+            result <span class="token operator">+=</span> res
+        <span class="token keyword">return</span> result
+ 
+    <span class="token keyword">def</span> <span class="token function">__iteration</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> bin_plaintext<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">,</span> key_list<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""
+        :param bin_plaintext: 01字符串，64位
+        :param key_list: 密钥列表，共16个
+        :return: 进行F函数以及和left异或操作之后的字符串
+        """</span>
+        left <span class="token operator">=</span> bin_plaintext<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">:</span><span class="token number">32</span><span class="token punctuation">]</span>
+        right <span class="token operator">=</span> bin_plaintext<span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">:</span><span class="token number">64</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            next_lift <span class="token operator">=</span> right
+            f_result <span class="token operator">=</span> self<span class="token punctuation">.</span>__f_funtion<span class="token punctuation">(</span>right<span class="token punctuation">,</span> key_list<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span>
+            next_right <span class="token operator">=</span> self<span class="token punctuation">.</span>__xor_function<span class="token punctuation">(</span>left<span class="token punctuation">,</span> f_result<span class="token punctuation">)</span>
+            left <span class="token operator">=</span> next_lift
+            right <span class="token operator">=</span> next_right
+        bin_plaintext_result <span class="token operator">=</span> left <span class="token operator">+</span> right
+        <span class="token keyword">return</span> bin_plaintext_result<span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">:</span><span class="token punctuation">]</span> <span class="token operator">+</span> bin_plaintext_result<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token number">32</span><span class="token punctuation">]</span>
+ 
+    <span class="token keyword">def</span> <span class="token function">encode</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> plaintext<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">"""
+        :param plaintext: 明文字符串
+        :return: 密文字符串
+        """</span>
+        bin_plaintext <span class="token operator">=</span> self<span class="token punctuation">.</span>str2bin<span class="token punctuation">(</span>plaintext<span class="token punctuation">)</span>
+        bin_plaintext_block <span class="token operator">=</span> self<span class="token punctuation">.</span>__get_block_list<span class="token punctuation">(</span>bin_plaintext<span class="token punctuation">)</span>
+        ciphertext_bin_list <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        key_list <span class="token operator">=</span> self<span class="token punctuation">.</span>__get_key_list<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">for</span> block <span class="token keyword">in</span> bin_plaintext_block<span class="token punctuation">:</span>
+            <span class="token comment"># 初代ip置换</span>
+            sub_ip <span class="token operator">=</span> self<span class="token punctuation">.</span>__substitution<span class="token punctuation">(</span>block<span class="token punctuation">,</span> self<span class="token punctuation">.</span>ip<span class="token punctuation">)</span>
+            ite_result <span class="token operator">=</span> self<span class="token punctuation">.</span>__iteration<span class="token punctuation">(</span>sub_ip<span class="token punctuation">,</span> key_list<span class="token punctuation">)</span>
+            <span class="token comment"># 逆ip置换</span>
+            sub_ip1 <span class="token operator">=</span> self<span class="token punctuation">.</span>__substitution<span class="token punctuation">(</span>ite_result<span class="token punctuation">,</span> self<span class="token punctuation">.</span>ip1<span class="token punctuation">)</span>
+            ciphertext_bin_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>sub_ip1<span class="token punctuation">)</span>
+        ciphertext_bin <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">.</span>join<span class="token punctuation">(</span>ciphertext_bin_list<span class="token punctuation">)</span>
+        result <span class="token operator">=</span> self<span class="token punctuation">.</span>__bin2int<span class="token punctuation">(</span>ciphertext_bin<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> <span class="token builtin">bytes</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">hex</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>upper<span class="token punctuation">(</span><span class="token punctuation">)</span>
+ 
+    <span class="token keyword">def</span> <span class="token function">decode</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> ciphertext<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token triple-quoted-string string">'''
+        :param ciphertext: 密文字符串
+        :return: 明文字符串
+        '''</span>
+        b_ciphertext <span class="token operator">=</span> binascii<span class="token punctuation">.</span>a2b_hex<span class="token punctuation">(</span>ciphertext<span class="token punctuation">)</span>
+        bin_ciphertext <span class="token operator">=</span> self<span class="token punctuation">.</span>__int2bin<span class="token punctuation">(</span><span class="token builtin">list</span><span class="token punctuation">(</span>b_ciphertext<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        bin_plaintext_list <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        key_list <span class="token operator">=</span> self<span class="token punctuation">.</span>__get_key_list<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        key_list <span class="token operator">=</span> key_list<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span>
+        bin_ciphertext_block <span class="token operator">=</span> <span class="token punctuation">[</span>bin_ciphertext<span class="token punctuation">[</span>i<span class="token punctuation">:</span>i <span class="token operator">+</span> <span class="token number">64</span><span class="token punctuation">]</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>bin_ciphertext<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">64</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> block <span class="token keyword">in</span> bin_ciphertext_block<span class="token punctuation">:</span>
+            sub_ip <span class="token operator">=</span> self<span class="token punctuation">.</span>__substitution<span class="token punctuation">(</span>block<span class="token punctuation">,</span> self<span class="token punctuation">.</span>ip<span class="token punctuation">)</span>
+            ite <span class="token operator">=</span> self<span class="token punctuation">.</span>__iteration<span class="token punctuation">(</span>sub_ip<span class="token punctuation">,</span> key_list<span class="token punctuation">)</span>
+            sub_ip1 <span class="token operator">=</span> self<span class="token punctuation">.</span>__substitution<span class="token punctuation">(</span>ite<span class="token punctuation">,</span> self<span class="token punctuation">.</span>ip1<span class="token punctuation">)</span>
+            bin_plaintext_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>sub_ip1<span class="token punctuation">)</span>
+        bin_plaintext <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">.</span>join<span class="token punctuation">(</span>bin_plaintext_list<span class="token punctuation">)</span><span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">'00000000'</span><span class="token punctuation">,</span> <span class="token string">''</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> self<span class="token punctuation">.</span>bin2str<span class="token punctuation">(</span>bin_plaintext<span class="token punctuation">)</span>
+ 
+    <span class="token keyword">def</span> <span class="token function">main</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        select <span class="token operator">=</span> <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token string">"Please selecting:\n1、Encryption\t 2、Decrpytion\t 3、Exit\nYour selecting："</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> select <span class="token operator">==</span> <span class="token string">'1'</span><span class="token punctuation">:</span>
+            plaintext <span class="token operator">=</span> <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token string">"Input plaintext："</span><span class="token punctuation">)</span>
+            <span class="token comment"># print("Your plaintext is:&#123;&#125;".format(plaintext))</span>
+            ciphertext <span class="token operator">=</span> self<span class="token punctuation">.</span>encode<span class="token punctuation">(</span>plaintext<span class="token punctuation">)</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"The ciphertext is：&#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>ciphertext<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">elif</span> select <span class="token operator">==</span> <span class="token string">'2'</span><span class="token punctuation">:</span>
+            plaintext <span class="token operator">=</span> <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token string">"Input ciphertext："</span><span class="token punctuation">)</span>
+            <span class="token comment"># print("Your ciphertext is:&#123;&#125;".format(plaintext))</span>
+            plaintext <span class="token operator">=</span> self<span class="token punctuation">.</span>decode<span class="token punctuation">(</span>plaintext<span class="token punctuation">)</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"The plaintext is：&#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>plaintext<span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token comment"># print(len(plaintext))</span>
+        <span class="token keyword">elif</span> select <span class="token operator">==</span> <span class="token string">'3'</span><span class="token punctuation">:</span>
+            exit<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token string">"Please selecting again！"</span><span class="token punctuation">)</span>
+            self<span class="token punctuation">.</span>main<span class="token punctuation">(</span><span class="token punctuation">)</span>
+ 
+ 
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
+    mydes <span class="token operator">=</span> DES<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    mydes<span class="token punctuation">.</span>modify_secretkey<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>
+        mydes<span class="token punctuation">.</span>main<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h1 id="分组模式"><a href="#分组模式" class="headerlink" title="分组模式"></a>分组模式</h1><h2 id="ECB"><a href="#ECB" class="headerlink" title="ECB"></a>ECB</h2><blockquote>
+<p>电码本模式（Electronic CodeBook）</p>
+</blockquote>
+<p>一次对一个64bit长的明文分组加密，且每次都加密密钥都相同</p>
+<p>用途：传送短数据（如一个加密密钥）</p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/image-20240503223028670.png" alt="image-20240503223028670"></p>
+<p>问题：同样的明文块会被加密成相同的密文块，不会隐藏明文分组的统计规律。类似于下图，相同的色块在加密后也呈现出相同的色块</p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/image-20240503222750808.png" alt="image-20240503222750808"></p>
+<hr>
+<h2 id="CBC"><a href="#CBC" class="headerlink" title="CBC"></a>CBC</h2><blockquote>
+<p>密码分组链接模式（Cipher Block Chaining）</p>
+</blockquote>
+<p>让重复的明文分组产生不同的密文分组</p>
+<p>一次对一个明文分组加密，每次加密使用同一密钥，加密算法的输入是当前明文分组和<strong>前一次密文分组</strong>的<strong>异或</strong></p>
+<p>在产生第一个密文分组时，需要有一个初始向量 IV 与第一个明文分组异或；解密时，IV 和解密算法对第一个密文分组的输出进行异或以恢复第一个明文分组</p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/1711876201137.jpg" alt="Screenshot_2024-03-28-09-00-47-417_com.orion.notein-edit"></p>
+<p>安全性：<code>IV</code> 应像密钥一样被保护。由图可知，一次加密中有地方出错后面所有的加密会全部出错；解密时，一次解密中有地方出错不会影响后面的解密</p>
+<p>用途：传送数据分组（如加密文件）；认证</p>
+<h3 id="攻击：字节反转攻击"><a href="#攻击：字节反转攻击" class="headerlink" title="攻击：字节反转攻击"></a>攻击：字节反转攻击</h3><p>观察解密过程可以发现如下特性:</p>
+<ul>
+<li>IV 向量影响第一个明文分组</li>
+<li>第 n 个密文分组可以影响第 n + 1 个明文分组</li>
+</ul>
+<p>假设第 n 个密文分组为C<sub>n</sub>，解密后的第 n 个明文分组为为P<sub>n</sub></p>
+<p>然后<code>Pn+1=Cn xor f(Cn+1)</code>，其中 f 函数为上图的DES解密</p>
+<p>对于某个信息已知的原文和密文，然后我们可以修改第 n 个密文块 Cn 为<code>Cn xor Pn+1 xor A</code>。然后再对这条密文进行解密，那么解密后的第 n 个明文块将会变成 A</p>
+<hr>
+<h2 id="CFB"><a href="#CFB" class="headerlink" title="CFB"></a>CFB</h2><blockquote>
+<p>密码反馈模式（Cipher FeedBack）</p>
+</blockquote>
+<p>将DES转换为流密码</p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/1711876726957.jpg" alt="Screenshot_2024-03-28-09-30-20-236_com_1.orion.notein-edit"></p>
+<p>因为流密码具有<strong>密文和明文一样长</strong>的性质，所以如果需要发送的每个字符长为8bit，就应使用8bit密钥来加密每个字符，如果密钥长超过8bit，则造成浪费</p>
+<p>错误恢复：j&#x3D;8的情况下，</p>
+<p>如果在一次加密中有地方出错，那么在接下来8次加密内会出错；但是会在第9次之后恢复正常，错误的bit位均被丢弃</p>
+<p>如果在一次解密中有密文分组出错，那么初始向量的移位寄存器中会出错，导致在后面的8个分组均会出错，第10个分组开始恢复正常</p>
+<p>用途：传送数据流；认证</p>
+<hr>
+<h2 id="OFB"><a href="#OFB" class="headerlink" title="OFB"></a>OFB</h2><blockquote>
+<p>输出反馈模式（Output FeedBack）</p>
+</blockquote>
+<p>OFB模式是将加密算法的输出反馈到移位寄存器，而CFB模式是将密文单元反馈到移位寄存器</p>
+<p>因此，有密文分组出错的时候，OFB传输过程中的bit错误<strong>不传播</strong></p>
+<p>IV 无需保密，但是对每个消息必须选择不同的 IV</p>
+<p>安全性：比CFB更容易受到消息流的篡改攻击</p>
+<p>用途：适用于一些明文冗余度比较大的场景，如有扰信道上（如卫星通信）传送数据流</p>
+<hr>
+<h1 id="IDEA"><a href="#IDEA" class="headerlink" title="IDEA"></a>IDEA</h1><blockquote>
+<p>国际数据加密算法（International Data Encryption Algorithm，IDEA）</p>
+</blockquote>
+<hr>
+<h1 id="AES"><a href="#AES" class="headerlink" title="AES"></a>AES</h1><blockquote>
+<p>高级加密标准（Advanced Encryption Standard），又称Rijndael加密法</p>
+</blockquote>
+<p>输入：128bit</p>
+<p>输出：128bit</p>
+<p>AES的分组长度是128bit，有三种可选的密钥长度128bit、192bit和256bit，轮数分别为10、12和14</p>
+<hr>
+<h2 id="数学基础"><a href="#数学基础" class="headerlink" title="数学基础"></a>数学基础</h2><ul>
+<li><p>域上运算</p>
+<p>有限域GF(2<sup>8</sup>)：有限个元素的域，这里是2<sup>8</sup>个</p>
+</li>
+<li><p>多项式表示法：</p>
+<p>例：57+83&#x3D;D4，</p>
+<p>用多项式表示为：(x<sup>6</sup>+x<sup>4</sup>+x<sup>2</sup>+x+1)+(x<sup>7</sup>+x+1) &#x3D; x<sup>7</sup>+x<sup>6</sup>+x<sup>4</sup>+x<sup>2</sup></p>
+<p>用二进制表示为：01010111 + 10000011 &#x3D; 11010100</p>
+<p>注：由于每个元素的加法逆元等于自己，所以减法和加法相同</p>
+<p>要计算GF(2<sup>8</sup>)上的乘法，必须先确定一个GF(2)上的8次不可约多项式；则在GF(2<sup>8</sup>)上两个元素的乘积就是这两个多项式的<strong>模乘</strong>（以这个8次不可约多项式为模）</p>
+</li>
+</ul>
+<p>在AES中，这个8次不可约多项式为：m(x) &#x3D; x<sup>8</sup>+x<sup>4</sup>+x<sup>3</sup>+x+1，16进制表达为 11B</p>
+<p>例：57*83 &#x3D; C1</p>
+<p>多项式表示：(x<sup>6</sup>+x<sup>4</sup>+x<sup>2</sup>+x+1)*(x<sup>7</sup>+x+1) &#x3D; x<sup>7</sup>+x<sup>6</sup>+1 (mod m(x))</p>
+<p>以上定义的乘法满足交换律，且有单位元01。另外，对任何次数小于8的多项式b(x)，可用推广的欧几里得算法得：b(x)a(x)+m(x)c(x) &#x3D; 1，即a(x)*b(x) &#x3D; 1 mod m(x)，因此 a(x) 是 b(x) 的乘法逆元。再者，乘法还满足分配律</p>
+<p>所以，256bits构成的集合，在以上定义的加法和乘法运算下，有有限域GF(2<sup>8</sup>)的结构</p>
+<p>x乘法：x * b(x) &#x3D; b<sub>7</sub>x<sup>8</sup>+b<sub>6</sub>x<sup>7</sup>+…+b<sub>1</sub>x<sup>2</sup>+b<sub>0</sub>x (mod m(x))</p>
+<hr>
+<h2 id="状态、种子密钥和轮数"><a href="#状态、种子密钥和轮数" class="headerlink" title="状态、种子密钥和轮数"></a>状态、种子密钥和轮数</h2><p>状态：算法的中间结果也需分组，称算法中间结果的分组为<strong>状态</strong>，所有的操作都在状态上进行</p>
+<p>种子密钥：用一个以字节为元素的矩阵阵列表示，该阵列有4行，列数记为N<sub>k</sub>，N<sub>k</sub>等于分组长度除以32</p>
+<hr>
+<h2 id="轮函数"><a href="#轮函数" class="headerlink" title="轮函数"></a>轮函数</h2><p>由4个不同的计算部件组成：字节代换（ByteSub）、行移位（ShiftRow）、列混合（MixColimn）、密钥加（AddRoundKey）</p>
+<h3 id="字节代换"><a href="#字节代换" class="headerlink" title="字节代换"></a>字节代换</h3><p>非线性变换，独立地对状态的每个字节进行</p>
+<p>代换表（S盒）：可逆，由以下两个变换的合成得到：</p>
+<ol>
+<li>首先，将字节看作GF(2<sup>8</sup>)上的元素，映射到自己的乘法逆元，00映射到自己</li>
+<li>其次，对字节做（GF(2)上的，可逆的）仿射变换：ByteSub(State)</li>
+</ol>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/Screenshot_2024-04-08-10-40-59-253_com.orion.notein-edit.jpg" alt="Screenshot_2024-04-08-10-40-59-253_com.orion.notein-edit"></p>
+<p>逆变换：先仿射逆变换，再求每个字节在GF(2<sup>8</sup>)上的逆元</p>
+<h3 id="行移位"><a href="#行移位" class="headerlink" title="行移位"></a>行移位</h3><p>将状态阵列的各行进行循环移位，不同状态行的位移量不同</p>
+<p>第0行不移动，第1行循环左移C<sub>1</sub>个字节，第2行循环左移C<sub>2</sub>个字节，第3行循环左移C<sub>3</sub>个字节</p>
+<p>位移量的取值与N<sub>b</sub>有关</p>
+<table>
+<thead>
+<tr>
+<th>N<sub>b</sub></th>
+<th>C<sub>1</sub></th>
+<th>C<sub>2</sub></th>
+<th>C<sub>3</sub></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>4</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>6</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>8</td>
+<td>1</td>
+<td>3</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<p>行移位运算：ShiftRow(State)</p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/Screenshot_2024-04-08-10-59-58-624_com.orion.notein-edit.jpg" alt="Screenshot_2024-04-08-10-59-58-624_com.orion.notein-edit"></p>
+<p>逆变换：对状态阵列的后3列分别以位移量 N<sub>b</sub>-C<sub>1</sub>、…进行循环移位，使第i行第j列的字节移位到 (j + N<sub>b</sub> - C<sub>i</sub>)mod N<sub>b</sub></p>
+<h3 id="列混合"><a href="#列混合" class="headerlink" title="列混合"></a>列混合</h3><p>将状态阵列的每个列视为GF(2<sup>8</sup>)上的多项式，再与一个固定的多项式 c(x) 进行模 x<sup>4</sup>+1 乘法</p>
+<p>列混合运算：MixColumn(State)</p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/Screenshot_2024-04-08-11-01-09-450_com.orion.notein-edit.jpg" alt="Screenshot_2024-04-08-11-01-09-450_com.orion.notein-edit"></p>
+<h3 id="密钥加"><a href="#密钥加" class="headerlink" title="密钥加"></a>密钥加</h3><p>将轮密钥简单地与状态进行逐比特异或</p>
+<p>密钥加运算：AddRoundKey(State, RoundKey)</p>
+<p><img src="/blog/2024/03/28/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81/Screenshot_2024-04-08-11-02-47-960_com.orion.notein-edit.jpg" alt="Screenshot_2024-04-08-11-02-47-960_com.orion.notein-edit"></p>
+<hr>
+<h2 id="密钥编排"><a href="#密钥编排" class="headerlink" title="密钥编排"></a>密钥编排</h2><hr>
+<h2 id="加密算法"><a href="#加密算法" class="headerlink" title="加密算法"></a>加密算法</h2><hr>
+<h2 id="加解密的相近程度及解密算法"><a href="#加解密的相近程度及解密算法" class="headerlink" title="加解密的相近程度及解密算法"></a>加解密的相近程度及解密算法</h2><p>先上结论：</p>
+<ol>
+<li><p>设字节代换、行移位的逆变换分别为 InvByteSub、InvShiftRow，则组合部件 ByteSub -&gt; ShiftRow 的逆变换为 InvByteSub -&gt; InvShiftRow</p>
+</li>
+<li><p>设列混合的逆变换为 InvMixColumn ，则列混合部件与密钥加部件的组合部件 MixColumn -&gt; AddRoundKey(State,Key) 的逆变换为 InvMixColumn -&gt; AddRoundKey(State,InvKey)</p>
+</li>
+<li><p>有组合部件：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token function">MixColumn</span><span class="token punctuation">(</span>State<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">AddRoundKey</span><span class="token punctuation">(</span>State<span class="token punctuation">,</span><span class="token function">Key</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">ByteSub</span><span class="token punctuation">(</span>State<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">ShiftRow</span><span class="token punctuation">(</span>State<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>其逆变换为：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token function">InvByteSub</span><span class="token punctuation">(</span>State<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">InvShiftRow</span><span class="token punctuation">(</span>State<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">InvMixColumn</span><span class="token punctuation">(</span>State<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">AddRoundKey</span><span class="token punctuation">(</span>State<span class="token punctuation">,</span><span class="token function">InvMixColumn</span><span class="token punctuation">(</span><span class="token function">Key</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></li>
+</ol>
+<hr>
+<h1 id="SM4"><a href="#SM4" class="headerlink" title="SM4"></a>SM4</h1><hr>
+<h1 id="祖冲之密码"><a href="#祖冲之密码" class="headerlink" title="祖冲之密码"></a>祖冲之密码</h1>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

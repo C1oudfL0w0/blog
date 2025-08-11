@@ -1,0 +1,514 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Tomcat漏洞总结 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Tomcat-PUT%E6%96%B9%E6%B3%95%E4%BB%BB%E6%84%8F%E5%86%99%E6%96%87%E4%BB%B6%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2017-12615%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">Tomcat PUT方法任意写文件漏洞（CVE-2017-12615）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Tomcat-URL%E8%A7%A3%E6%9E%90%E5%B7%AE%E5%BC%82%E6%80%A7%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98"><span class="toc-number">3.</span> <span class="toc-text">Tomcat URL解析差异性导致的安全问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTPServletRequest%E5%AF%B9URL%E7%9A%84%E8%A7%A3%E6%9E%90%E5%B7%AE%E5%BC%82%E6%80%A7"><span class="toc-number">3.1.</span> <span class="toc-text">HTTPServletRequest对URL的解析差异性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%B9%E6%AE%8A%E5%AD%97%E7%AC%A6%E7%9A%84URL%E8%A7%A3%E6%9E%90"><span class="toc-number">3.2.</span> <span class="toc-text">特殊字符的URL解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%B8%B8%E8%AE%BF%E9%97%AE"><span class="toc-number">3.2.1.</span> <span class="toc-text">正常访问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%92%E5%85%A5-x2F-%E8%AE%BF%E9%97%AE"><span class="toc-number">3.2.2.</span> <span class="toc-text">插入 .&#x2F; 访问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%92%E5%85%A5-x2F-%E8%AE%BF%E9%97%AE-1"><span class="toc-number">3.2.3.</span> <span class="toc-text">插入 ..&#x2F; 访问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%92%E5%85%A5-x2F-%E8%AE%BF%E9%97%AE-2"><span class="toc-number">3.2.4.</span> <span class="toc-text">插入 ;&#x2F; 访问</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E8%AF%95"><span class="toc-number">3.3.</span> <span class="toc-text">调试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E5%88%A9%E7%94%A8"><span class="toc-number">3.4.</span> <span class="toc-text">攻击利用</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Tomcat漏洞总结</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/7/23
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/CVE/" style="color: #00bcd4">CVE</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Tomcat/" style="color: #00bcd4">Tomcat</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">980字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">4分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/10083">https://xz.aliyun.com/t/10083</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7544">https://xz.aliyun.com/t/7544</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="Tomcat-PUT方法任意写文件漏洞（CVE-2017-12615）"><a href="#Tomcat-PUT方法任意写文件漏洞（CVE-2017-12615）" class="headerlink" title="Tomcat PUT方法任意写文件漏洞（CVE-2017-12615）"></a>Tomcat PUT方法任意写文件漏洞（CVE-2017-12615）</h1><p>复现环境：<a target="_blank" rel="noopener" href="https://github.com/vulhub/vulhub/blob/master/tomcat/CVE-2017-12615/">https://github.com/vulhub/vulhub/blob/master/tomcat/CVE-2017-12615/</a></p>
+<p>版本限制：不确定，貌似是一个配置漏洞</p>
+<p>漏洞成因：</p>
+<p>&#x2F;usr&#x2F;local&#x2F;tomcat&#x2F;conf&#x2F;web.xml</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>init-param</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-name</span><span class="token punctuation">></span></span>readonly<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-name</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-value</span><span class="token punctuation">></span></span>false<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-value</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>init-param</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>readonly设置为false，此时我们就可以使用 PUT 方法进行文件上传</p>
+<p><img src="/blog/2024/07/23/Tomcat%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/image-20240726115438187.png" alt="image-20240726115438187"></p>
+<p>返回201，说明成功上传</p>
+<p>看一下 &#x2F;usr&#x2F;local&#x2F;tomcat&#x2F;webapps&#x2F;ROOT 目录</p>
+<p><img src="/blog/2024/07/23/Tomcat%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/image-20240726115527994.png" alt="image-20240726115527994"></p>
+<p>可以看到刚才上传的test.txt文件</p>
+<p>接下来尝试上传.jsp，返回404，应该是当成路径访问进行解析了</p>
+<p><img src="/blog/2024/07/23/Tomcat%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/image-20240726115822467.png" alt="image-20240726115822467"></p>
+<p>这里就需要进行绕过，有三种方法：</p>
+<ol>
+<li>Windows下不允许文件以空格结尾：以<code>PUT /a001.jsp%20 HTTP/1.1</code>上传到 Windows 会被自动去掉末尾空格</li>
+<li>Windows NTFS流：<code>PUT /a001.jsp::$DATA HTTP/1.1</code>\</li>
+<li><code>/</code>在文件名中是非法的，也会被去除（Linux&#x2F;Windows）：<code>PUT /a001.jsp/ HTTP/1.1</code></li>
+</ol>
+<p>这里只演示第三种：</p>
+<p><img src="/blog/2024/07/23/Tomcat%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/image-20240726120126859.png" alt="image-20240726120126859"></p>
+<p>成功上传，然后蚁剑getshell即可</p>
+<hr>
+<h1 id="Tomcat-URL解析差异性导致的安全问题"><a href="#Tomcat-URL解析差异性导致的安全问题" class="headerlink" title="Tomcat URL解析差异性导致的安全问题"></a>Tomcat URL解析差异性导致的安全问题</h1><p>后台使用<code>getRequestURI()</code>或<code>getRequestURL()</code>函数来解析用户请求的URL时，若URL中包含了一些特殊符号，则可能会造成访问限制绕过的安全风险</p>
+<h2 id="HTTPServletRequest对URL的解析差异性"><a href="#HTTPServletRequest对URL的解析差异性" class="headerlink" title="HTTPServletRequest对URL的解析差异性"></a>HTTPServletRequest对URL的解析差异性</h2><p>在Servlet处理URL请求的路径时，HTTPServletRequest有如下几个常用的函数：</p>
+<ul>
+<li><code>request.getRequestURL()</code>：返回全路径；</li>
+<li><code>request.getRequestURI()</code>：返回除去Host（域名或IP）部分的路径；</li>
+<li><code>request.getContextPath()</code>：返回工程名部分，如果工程映射为<code>/</code>，则返回为空；</li>
+<li><code>request.getServletPath()</code>：返回除去Host和工程名部分的路径；</li>
+<li><code>request.getPathInfo()</code>：仅返回传递到Servlet的路径，如果没有传递额外的路径信息，则此返回Null；</li>
+</ul>
+<p>设Servlet的匹配路径为<code>/test%3F/*</code>，并且Web应用是部署在<code>/app</code>下</p>
+<p>此时请求的URL为<code>http://30thh.loc:8480/app/test%3F/a%3F+b;jsessionid=s%3F+ID?p+1=c+d&amp;p+2=e+f#a</code>，则各个函数解析如下表：</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>URL解码</th>
+<th>解析结构</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>getRequestURL()</td>
+<td>no</td>
+<td><code>http://30thh.loc:8480/app/test%3F/a%3F+b;jsessionid=s%3F+ID</code></td>
+</tr>
+<tr>
+<td>getRequestURI()</td>
+<td>no</td>
+<td><code>/app/test%3F/a%3F+b;jsessionid=s%3F+ID</code></td>
+</tr>
+<tr>
+<td>getContextPath()</td>
+<td>no</td>
+<td><code>/app</code></td>
+</tr>
+<tr>
+<td>getServletPath()</td>
+<td>yes</td>
+<td><code>/test?</code></td>
+</tr>
+<tr>
+<td>getPathInfo()</td>
+<td>yes</td>
+<td><code>/a?+b</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="特殊字符的URL解析"><a href="#特殊字符的URL解析" class="headerlink" title="特殊字符的URL解析"></a>特殊字符的URL解析</h2><p>Tomcat中的URL解析是支持嵌入<code>./</code>、<code>../</code>、<code>;xx/</code>等特殊字符的</p>
+<p>新建一个Java Web项目，1.jsp如下：</p>
+<pre class="line-numbers language-jsp" data-language="jsp"><code class="language-jsp">&lt;%
+out.println(&quot;getRequestURL(): &quot; + request.getRequestURL() + &quot;&lt;br&gt;&quot;);
+out.println(&quot;getRequestURI(): &quot; + request.getRequestURI() + &quot;&lt;br&gt;&quot;);
+out.println(&quot;getContextPath(): &quot; + request.getContextPath() + &quot;&lt;br&gt;&quot;);
+out.println(&quot;getServletPath(): &quot; + request.getServletPath() + &quot;&lt;br&gt;&quot;);
+out.println(&quot;getPathInfo(): &quot; + request.getPathInfo() + &quot;&lt;br&gt;&quot;);
+%&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>放在test目录下</p>
+<h3 id="正常访问"><a href="#正常访问" class="headerlink" title="正常访问"></a>正常访问</h3><p><code>http://localhost:8082/test/1.jsp</code></p>
+<p><img src="/blog/2024/07/23/Tomcat%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/image-20240726172209143.png" alt="image-20240726172209143"></p>
+<h3 id="插入-x2F-访问"><a href="#插入-x2F-访问" class="headerlink" title="插入 .&#x2F; 访问"></a>插入 .&#x2F; 访问</h3><p>插入多个<code>./</code>访问，即<code>http://localhost:8082/test/./././1.jsp</code></p>
+<p><img src="/blog/2024/07/23/Tomcat%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/image-20240726172226480.png" alt="image-20240726172226480"></p>
+<p>接着尝试这种形式<code>http://localhost:8082/test/.a/.bb/.ccc/1.jsp</code></p>
+<p><img src="/blog/2024/07/23/Tomcat%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/image-20240726172358304.png" alt="image-20240726172358304"></p>
+<p>返回404，未找到资源</p>
+<h3 id="插入-x2F-访问-1"><a href="#插入-x2F-访问-1" class="headerlink" title="插入 ..&#x2F; 访问"></a>插入 ..&#x2F; 访问</h3><p>插入<code>../</code>访问，即<code>http://localhost:8082/test/../1.jsp</code></p>
+<p><img src="/blog/2024/07/23/Tomcat%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/image-20240726172534288.png" alt="image-20240726172534288"></p>
+<p>404，因为此时实际访问的是<code>http://localhost:8082/test/1.jsp</code>，也就说明进行了目录穿越</p>
+<h3 id="插入-x2F-访问-2"><a href="#插入-x2F-访问-2" class="headerlink" title="插入 ;&#x2F; 访问"></a>插入 ;&#x2F; 访问</h3><p>插入多个<code>;/</code>访问，即<code>http://localhost:8082/test/;/;/;/1.jsp</code></p>
+<p><img src="/blog/2024/07/23/Tomcat%E6%BC%8F%E6%B4%9E%E6%80%BB%E7%BB%93/image-20240726172725318.png" alt="image-20240726172725318"></p>
+<p>正常返回，同样的在<code>;</code>后面加字符串也能正常访问</p>
+<hr>
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>咕</p>
+<hr>
+<h2 id="攻击利用"><a href="#攻击利用" class="headerlink" title="攻击利用"></a>攻击利用</h2><p>遇到下面这种filter：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">filter</span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span></span><span class="token operator">*</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span>http<span class="token punctuation">.</span></span><span class="token operator">*</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>io<span class="token punctuation">.</span></span><span class="token class-name">IOException</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> testFilter <span class="token keyword">implements</span> <span class="token class-name">Filter</span> <span class="token punctuation">&#123;</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">init</span><span class="token punctuation">(</span><span class="token class-name">FilterConfig</span> filterConfig<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">ServletException</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">doFilter</span><span class="token punctuation">(</span><span class="token class-name">ServletRequest</span> servletRequest<span class="token punctuation">,</span> <span class="token class-name">ServletResponse</span> servletResponse<span class="token punctuation">,</span> <span class="token class-name">FilterChain</span> filterChain<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span><span class="token punctuation">,</span> <span class="token class-name">ServletException</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">HttpServletRequest</span> httpServletRequest <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">HttpServletRequest</span><span class="token punctuation">)</span>servletRequest<span class="token punctuation">;</span>
+        <span class="token class-name">HttpServletResponse</span> httpServletResponse <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">HttpServletResponse</span><span class="token punctuation">)</span>servletResponse<span class="token punctuation">;</span>
+
+        <span class="token class-name">String</span> url <span class="token operator">=</span> httpServletRequest<span class="token punctuation">.</span><span class="token function">getRequestURI</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>url<span class="token punctuation">.</span><span class="token function">startsWith</span><span class="token punctuation">(</span><span class="token string">"/test/info"</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            httpServletResponse<span class="token punctuation">.</span><span class="token function">getWriter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span><span class="token string">"No Permission."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+
+        filterChain<span class="token punctuation">.</span><span class="token function">doFilter</span><span class="token punctuation">(</span>servletRequest<span class="token punctuation">,</span> servletResponse<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">destroy</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>此时我们如果想要访问 &#x2F;test&#x2F;info 下的文件，如<code>/test/info/secert.jsp</code>的话会被拦截返回No Permission</p>
+<p>而根据前面的url解析我们可以得到下面这几种绕过的方法：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//localhost:8080/test/./info/secret.jsp</span></span>
+<span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//localhost:8080/test/;aaa/info/secret.jsp</span></span>
+<span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//localhost:8080/test/aaa/../info/secret.jsp</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

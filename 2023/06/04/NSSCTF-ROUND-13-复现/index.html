@@ -1,0 +1,476 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>NSSCTF ROUND#13 复现 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#flask-jwt"><span class="toc-number">2.</span> <span class="toc-text">flask?jwt?</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#flask-jwt-hard"><span class="toc-number">3.</span> <span class="toc-text">flask?jwt?(hard)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ez-factors"><span class="toc-number">4.</span> <span class="toc-text">ez_factors</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">5.</span> <span class="toc-text">信息收集</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>NSSCTF ROUND#13 复现</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/6/4
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/CTF%E7%BA%BF%E4%B8%8A%E8%B5%9B/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                CTF线上赛
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/NSS/" style="color: #00a596">NSS</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.2k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">4分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>唉，又爆零了，最简单的一道还因为自己少考虑到某些信息没做出来呜呜呜</p>
+<p>贴个<a target="_blank" rel="noopener" href="https://ph0ebus.cn/post/NSSRound13%20WEB.html">ph0ebus大佬的wp</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="flask-jwt"><a href="#flask-jwt" class="headerlink" title="flask?jwt?"></a>flask?jwt?</h1><blockquote>
+<p>session伪造</p>
+</blockquote>
+<p>进入题目，发现是一个登录界面</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230615234324229.png" alt="image-20230615234324229"></p>
+<p>那我们就注册个账号登录试试</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230615234402614.png" alt="image-20230615234402614"></p>
+<p>登录之后出现一个拿flag的按钮</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230615234643908.png" alt="image-20230615234643908"></p>
+<p>点击后来到<code>/getFlag</code>路由，回显”不不不，你不是 admin“</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230615234830585.png" alt="image-20230615234830585"></p>
+<p>这个时候基本可以知道是session伪造了</p>
+<p>拿一下cookie中的session解密看看</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230615235339072.png" alt="image-20230615235339072"></p>
+<p>猜测admin的<code>_user_id</code>为1</p>
+<p>接下来就是去找密钥了</p>
+<p>回到登录页面，发现这里还有一个<strong>忘记密码</strong>的按钮，右下角有个邮箱<code>adm1n@flag.com</code>(其实这个没什么用)</p>
+<p>点击忘记密码来到<code>/changePassword</code>路由</p>
+<p>f12发现<code>secretkey</code>为<code>th3f1askisfunny</code>(当时做的时候就是没f12看看才没做出来的555)</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230615235720924.png" alt="image-20230615235720924"></p>
+<p>于是丢进加密脚本，构造<code>&quot;_user_id&quot;:&quot;1&quot;</code>的session值</p>
+<p>注：因为python语法的原因，上面解出来的true要改成True</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230616002046193.png" alt="image-20230616002046193"></p>
+<p>带着session值来到<code>/getFlag</code>路由获取flag</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230616002403551.png" alt="image-20230616002403551"></p>
+<hr>
+<h1 id="flask-jwt-hard"><a href="#flask-jwt-hard" class="headerlink" title="flask?jwt?(hard)"></a>flask?jwt?(hard)</h1><blockquote>
+<p>session伪造</p>
+</blockquote>
+<p>和第一题一样是session伪造，但是密钥不在<code>/changePassword</code>路由下了</p>
+<p>我们先注册个号登录看看，f12发现hint</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230712163122437.png" alt="image-20230712163122437"></p>
+<p>访问&#x2F;wor</p>
+<p>返回<code>哼，我不会告诉你我藏哪里了，但是不能什么都不跟你说吧？哎，告诉你上次的登录时间吧: 2023-07-12 08:29:55+00:00</code></p>
+<p>拿到现在的session并丢进脚本解密</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">python flask_session_cookie_manager3.py decode <span class="token parameter variable">-c</span> .eJwlzrFqQzEMheFXMZozSLKta_kFCoFuhY5BtmUSSJeb3Cnk3evS8Ry-4X_BZe7-uEJ97oef4HIbUGFE0cFGs5WufaYiqWNmyd3IKJtv2PJmU6UspFNyi32SjkIjZXaTEqdtjUxLYvMk2ZaS1grJwKgofVFBHYQeXWNB7dF9ynC1DivkePj-X8NrPm8_DvUF4e_49nEKxOF83AMjx4Clstacw8fnF7zfv5XkO1Y.ZK5kgw.BFaeOd4JTpB3UNKs3dkZp_Ia-G4<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>得到结果</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json">b'<span class="token punctuation">&#123;</span><span class="token property">"_fresh"</span><span class="token operator">:</span><span class="token boolean">true</span><span class="token punctuation">,</span><span class="token property">"_id"</span><span class="token operator">:</span><span class="token string">"d369d2a1fb8c9cf4864c05265ca1a15ae70b57af968a1f9f65b3cf19d81d452ea683fa7b1a9842ae465a9f66bb816d03906c81d609d10e3e93809c3eef6de9ac"</span><span class="token punctuation">,</span><span class="token property">"_user_id"</span><span class="token operator">:</span><span class="token string">"2"</span><span class="token punctuation">,</span><span class="token property">"time"</span><span class="token operator">:</span><span class="token punctuation">&#123;</span><span class="token property">" d"</span><span class="token operator">:</span><span class="token string">"Wed, 12 Jul 2023 08:29:55 GMT"</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>'<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>接下来就是要找密钥了，但是上哪找呢？这个时候就要考虑看看还有没有什么遗漏的点，除去已知的几个页面，此时我们还有debug页面的信息没看</p>
+<p>因为session含有<code>time</code>属性，所以猜测这个时间是从session中读取，于是瞎改session弄出debug报错页面</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230712164510455.png" alt="image-20230712164510455"></p>
+<p>点开下面的注释，发现secret_key在这里，为<code>hardgam3_C0u1d_u_f1ndM3????</code></p>
+<p>带上secret_key把<code>_user_id</code>改为1，注意：这里外层要改为双引号包括里面改成单引号，true改为True不然会报错</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">python flask_session_cookie_manager3.py encode <span class="token parameter variable">-s</span> <span class="token string">"hardgam3_C0u1d_u_f1ndM3????"</span> <span class="token parameter variable">-t</span> <span class="token string">"&#123;'fresh':True,'_id':'d369d2a1fb8c9cf4864c05265ca1a15ae70b57af968a1f9f65b3cf19d81d452ea683fa7b1a9842ae465a9f66bb816d03906c81d609d10e3e93809c3eef6de9ac','_user_id':'1','time':&#123;' d':'Wed, 12 Jul 2023 08:29:55 GMT'&#125;&#125;"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>带着session值访问&#x2F;getFlag即可获得flag</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230712171223964.png" alt="image-20230712171223964"></p>
+<hr>
+<h1 id="ez-factors"><a href="#ez-factors" class="headerlink" title="ez_factors"></a>ez_factors</h1><blockquote>
+<p>换行漏洞+编码读取文件</p>
+</blockquote>
+<p>题目描述：原生 Linux 因数爆破工具。flag在根目录</p>
+<p>进入题目，点击Tool，来到&#x2F;factors&#x2F;114514</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230616211027121.png" alt="image-20230616211027121"></p>
+<p>可以发现这里把114514分解出因数了，猜测是命令执行</p>
+<p>尝试利用换行符<code>%0a</code>进行命令执行，发现可行</p>
+<p>直接<code>tac /flag</code>试试，记得<code>/</code>需要url编码不然会出歧义</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230616211643663.png" alt="image-20230616211643663"></p>
+<p>看得出来命令执行了，但是只返回了一串数字，猜测只会返回数字</p>
+<p>那就尝试用编码读flag</p>
+<p>这里使用<code>od</code>命令，用<code>od -b</code>以八进制形式输出文件内容，payload建议url编码一下以免出问题（</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http">/factors/114514%0aod%20-b%20%2fflag<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230616212056732.png" alt="image-20230616212056732"></p>
+<p>扔进赛博厨子解码得到flag</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230616212217390.png" alt="image-20230616212217390"></p>
+<hr>
+<h1 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h1><blockquote>
+<p><a href="https://c1oudfl0w0.github.io/blog/2023/07/10/CVE-2023-25690-Apache-HTTP-Server-%E8%AF%B7%E6%B1%82%E8%B5%B0%E7%A7%81%E6%BC%8F%E6%B4%9E/">CVE-2023-25690</a></p>
+</blockquote>
+<p>进入题目</p>
+<p>只回显了<code>It works!</code>，f12翻了一下没有什么有价值的信息</p>
+<p>标题叫信息收集，所以我们直接用dirsearch开扫看看有什么</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230711211159721.png" alt="image-20230711211159721"></p>
+<p>访问index.php，显示了php源码</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">isset</span><span class="token punctuation">(</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'file'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">echo</span> <span class="token function">file_get_contents</span><span class="token punctuation">(</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'file'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+    <span class="token function">highlight_file</span><span class="token punctuation">(</span><span class="token constant">__FILE__</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token delimiter important">?></span></span> <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>get传参file来读取文件，这里读了几个可能的flag文件名都没有回显</p>
+<p>应该没有这么简单，结合题目信息收集，我们再次f12看看有没有什么值得切入的点</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230711211538344.png" alt="image-20230711211538344"></p>
+<p>在网络中发现Apache的版本是2.4.55，尝试搜索看看有没有什么相关的漏洞</p>
+<p>最后发现是<a href="https://c1oudfl0w0.github.io/blog/2023/07/10/CVE-2023-25690-Apache-HTTP-Server-%E8%AF%B7%E6%B1%82%E8%B5%B0%E7%A7%81%E6%BC%8F%E6%B4%9E/">CVE-2023-25690 Apache请求走私漏洞</a></p>
+<p>要利用这个漏洞，我们得先读取<code>conf/httpd.conf</code>的内容</p>
+<p>本题中该文件的路径在<code>/usr/local/apache2/conf/httpd.conf</code></p>
+<p>crtl+u格式化一下返回的内容，找到<code>RewriteRule</code><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230711212125475.png" alt="image-20230711212125475"></p>
+<p>这里的意思是</p>
+<p><code>RewriteRule</code>将所有以<code>/nssctf/</code>开头的请求路径重写为<a target="_blank" rel="noopener" href="http://backend-server:8080/index.php?id=%E5%90%8E%E6%8E%A5%E5%8E%9F%E5%A7%8B%E8%AF%B7%E6%B1%82%E8%B7%AF%E5%BE%84%EF%BC%8C%E5%B9%B6%E5%B0%86%E8%AF%B7%E6%B1%82%E4%BB%A3%E7%90%86%E5%88%B0%E5%90%8E%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8">http://backend-server:8080/index.php?id=后接原始请求路径，并将请求代理到后端服务器</a></p>
+<p><code>ProxyPassReverse</code>用于修改响应中的Location头信息以确保重定向到正确的URL</p>
+<p>于是修改一下参考文章中的利用姿势得到我们的payload</p>
+<pre class="line-numbers language-apache" data-language="apache"><code class="language-apache">&#x2F;nssctf&#x2F;abc%20HTTP&#x2F;1.1%0d%0aHost:%20127.0.0.1%0d%0a%0d%0aGET%20&#x2F;flag<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>回显<code>flag in here!!!Can you see it???</code>，那就是要我们加个后缀</p>
+<p>测试了一下，最终发现是flag.txt</p>
+<p><img src="/blog/2023/06/04/NSSCTF-ROUND-13-%E5%A4%8D%E7%8E%B0/image-20230711212859838.png" alt="image-20230711212859838"></p>
+<p>得到flag</p>
+<hr>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

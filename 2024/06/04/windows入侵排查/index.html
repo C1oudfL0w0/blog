@@ -1,0 +1,501 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>windows入侵排查 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E5%9F%BA%E6%9C%AC%E4%BF%A1%E6%81%AF"><span class="toc-number">2.</span> <span class="toc-text">系统基本信息</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#msinfo32"><span class="toc-number">2.1.</span> <span class="toc-text">msinfo32</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF"><span class="toc-number">2.2.</span> <span class="toc-text">用户信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E9%A1%B9"><span class="toc-number">2.3.</span> <span class="toc-text">启动项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E8%AE%A1%E5%88%92"><span class="toc-number">2.4.</span> <span class="toc-text">任务计划</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-number">2.4.1.</span> <span class="toc-text">防火墙</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5"><span class="toc-number">3.</span> <span class="toc-text">入侵排查</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5%E7%B3%BB%E7%BB%9F%E8%B4%A6%E5%8F%B7%E5%AE%89%E5%85%A8"><span class="toc-number">3.1.</span> <span class="toc-text">检查系统账号安全</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A3%80%E6%B5%8B%E5%BC%82%E5%B8%B8%E7%AB%AF%E5%8F%A3"><span class="toc-number">3.2.</span> <span class="toc-text">检测异常端口</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>windows入侵排查</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/6/4
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Windows/" style="color: #ff7d73">Windows</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/" style="color: #00bcd4">应急响应</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.9k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">6分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Zerimon/p/16371479.html">https://www.cnblogs.com/Zerimon/p/16371479.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Bypass007/Emergency-Response-Notes">https://github.com/Bypass007/Emergency-Response-Notes</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="系统基本信息"><a href="#系统基本信息" class="headerlink" title="系统基本信息"></a>系统基本信息</h1><p>若只是简单了解系统信息，可通过在命令行中输入<code>systeminfo</code>命令实现</p>
+<p><img src="/blog/2024/06/04/windows%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5/image-20240604165805977.png" alt="image-20240604165805977"></p>
+<h2 id="msinfo32"><a href="#msinfo32" class="headerlink" title="msinfo32"></a>msinfo32</h2><blockquote>
+<p>在基础排查时，可以使用 Microsoft 系统信息工具<code>Msinfo32.exe</code>，它是 Microsoft Windows NT诊断工具（Winmsd.exe）的更新版本</p>
+</blockquote>
+<p><img src="/blog/2024/06/04/windows%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5/image-20240604165655083.png" alt="image-20240604165655083"></p>
+<p>此处可以显示出本地计算机的硬件资源、组件和软件环境的信息</p>
+<p>以下是软件环境的内容：</p>
+<ul>
+<li><p>正在运行任务：正在运行任务的名称、路径、进程ID等</p>
+</li>
+<li><p>服务：服务的名称、状态、路径等</p>
+</li>
+<li><p>系统驱动程序：系统驱动程序的名称、描述、文件等</p>
+</li>
+<li><p>加载的模块：加载的模块的名称、路径等</p>
+</li>
+<li><p>启动程序：启动程序的命令、用户名、位置等</p>
+</li>
+</ul>
+<h2 id="用户信息"><a href="#用户信息" class="headerlink" title="用户信息"></a>用户信息</h2><p><strong>命令行查看</strong>：</p>
+ <pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">net user	<span class="token comment"># 直接收集用户账户信息（注意，此方法看不到以$结尾的隐藏账户）</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/06/04/windows%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5/image-20240604170552039.png" alt="image-20240604170552039"></p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">net user username	<span class="token comment"># 查看某个账户的详细信息</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/06/04/windows%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5/image-20240604170640655.png" alt="image-20240604170640655"></p>
+<p><strong>图形化查看</strong>：</p>
+<p>打开【计算机管理】窗口，单击【本地用户和组】中的【用户】选项，可查看隐藏账户，名称以<code>$</code>结尾的为隐藏账户</p>
+<p>或者在命令行输入下列命令</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">lusrmgr<span class="token punctuation">.</span>msc	<span class="token comment"># 直接打开图形界面，查看是否有新增/可疑的账户</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/06/04/windows%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5/image-20240604170819074.png" alt="image-20240604170819074"></p>
+<p><strong>注册表查看：</strong></p>
+<p>打开【注册表编辑器】窗口（<code>win + R</code>输入<code>regedit</code>打开），选择【HKEY_LOCAL_MACHINE】下的【SAM】选项，为该项添加【允许父项的继承权限传播到该对象和所有子对象。包括那些在此明确定义的项目】和【用在此显示的可以应用到子对象的项目替代所有子对象的权限项目】权限，使当前用户拥有SAM的读取权限；</p>
+<p>添加权限完成后按【F5】键，刷新后即可访问子项并查看用户信息；</p>
+<p>在此项下导出所有以 00000 开头的项，将所有导出的项与 000001F4（该项对应Administrator用户）导出内容做比较，若其中的F值相同，则表示系统中存在克隆账户（图直接从参考文章取的）</p>
+<p><img src="/blog/2024/06/04/windows%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5/image-20240604171227341.png" alt="image-20240604171227341"></p>
+<p><strong>wmic</strong>：</p>
+<blockquote>
+<p>wmic 扩展 WMI（Windows Management Instrumentation，Windows管理工具），提供从命令行接口和批命令脚本执行系统管理支持</p>
+</blockquote>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">wmic useraccount get name<span class="token punctuation">,</span> SID	<span class="token comment"># 可以查看系统中的用户信息</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="启动项"><a href="#启动项" class="headerlink" title="启动项"></a>启动项</h2><p><strong>通过【系统配置】对话框查看</strong>：</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">msconfig<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>打开Windows系统中的【系统配置】对话框，单击【启动】选项卡，可查看启动项的详细信息</p>
+<p><strong>通过注册表查看</strong>：</p>
+<blockquote>
+<p>注册表是操作系统中一个重要的数据库，主要用于存储系统所必需的信息。注册表以分层的组织形式存储数据元素。数据项是注册表的基本元素，每个数据项下面不但可以存储很多子数据项，还可以以键值对的形式存储数据。</p>
+</blockquote>
+<p>目录含义：</p>
+<ol>
+<li><code>HKEY_CLASSES_ROOT</code>（HKCR）<br>此处存储的信息可确保在Windows资源管理器中执行时打开正确的程序。<br>它还包含有关拖放规则、快捷方法和用户界面信息的更多详细信息。</li>
+<li><code>HKEY_CURRENT_USER</code>（HKCU）<br>包含当前登录系统的用户的配置信息，有用户的文件夹、屏幕颜色和控制面板设置。</li>
+<li><code>HKEY_LOCAL_MACHINE</code>（HKLM）<br>包含运行操作系统的计算机硬件特定信息，有系统上安装的驱动器列表及已安装硬件和应用程序的通用配置。</li>
+<li><code>HKEY_USERS</code>（HKU）<br>包含运行操作系统的计算机硬件特定信息，有系统上安装的驱动器列表及已安装硬件和应用程序的通用配置。</li>
+<li><code>HKEY_CURRENT_CONFIG</code>（HCU）<br>存储有关系统当前配置的信息。</li>
+</ol>
+<hr>
+<h2 id="任务计划"><a href="#任务计划" class="headerlink" title="任务计划"></a>任务计划</h2><blockquote>
+<p>任务计划是Windows系统的一个预置实现某些操作的功能，利用这个功能还可实现自启动的目的</p>
+</blockquote>
+<p>获取方法：</p>
+<ol>
+<li><p>打开【计算机管理】窗口，选择【系统工具】中【任务计划程序】中的【任务计划程序库】选项，可以查看任务计划的名称、状态、触发器等详细信息；</p>
+</li>
+<li><p>在PowerShell下输入<code>Get-ScheduledTask</code>命令，可查看当前系统中所有任务计划的信息，包括任务计划的路径、名称、状态等详细信息；</p>
+<p><img src="/blog/2024/06/04/windows%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5/image-20240604171802384.png" alt="image-20240604171802384"></p>
+</li>
+<li><p>在命令行中输入<code>schtasks</code>命令，可获取任务计划的信息。该命令是一个功能更为强大的超级命令行计划工具，它含有【at】（在较旧的系统中才可以用）命令行工具中的所有功能，获取任务计划时要求必须是本地 Administrators 组的成员。</p>
+<p><img src="/blog/2024/06/04/windows%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5/image-20240604171844807.png" alt="image-20240604171844807"></p>
+</li>
+</ol>
+<hr>
+<h3 id="防火墙"><a href="#防火墙" class="headerlink" title="防火墙"></a>防火墙</h3><blockquote>
+<p>Windows系统防火墙最基本的用途是对出、入的数据包进行检测</p>
+</blockquote>
+<p>防火墙规则包括入站规则和出站规则。</p>
+<ul>
+<li>入站规则：根据规则中的过滤条件，过滤从公网到本地主机的流量。</li>
+<li>出站规则：根据规则中的过滤条件，过滤从本地主机到公网的流量。</li>
+</ul>
+<p>两种规则都可以按需自定义流量过滤的条件。</p>
+<p>换句话说，入站规则与进入主机的流量有关，如果在主机上运行一个Web服务器，那就必须告诉防火墙允许外部用户访问主机。</p>
+<p>出站规则与流出主机的流量有关，会将应用程序分类，允许部分应用程序访问外网，而其他应用则不能。</p>
+<p>查看：</p>
+<ul>
+<li><p>打开【Windows防火墙】窗口，单击【高级设置】，然后选择【入站规则】或【出站规则】可查看防火墙的入站规则或出站规则。</p>
+</li>
+<li><p>在命令行中输入<code>netsh</code>命令进行查看</p>
+<p><img src="/blog/2024/06/04/windows%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5/image-20240604172427001.png" alt="image-20240604172427001"></p>
+</li>
+</ul>
+<hr>
+<h1 id="入侵排查"><a href="#入侵排查" class="headerlink" title="入侵排查"></a>入侵排查</h1><p>常见的应急响应事件分类：</p>
+<p>Web入侵：网页挂马、主页篡改、Webshell</p>
+<p>系统入侵：病毒木马、勒索软件、远控后门</p>
+<p>网络攻击：DDOS 攻击、DNS 劫持、ARP 欺骗</p>
+<h2 id="检查系统账号安全"><a href="#检查系统账号安全" class="headerlink" title="检查系统账号安全"></a>检查系统账号安全</h2><ol>
+<li><p>查看服务器是否有弱口令，远程管理端口是否对公网开放：根据实际情况咨询管理员</p>
+</li>
+<li><p>查看服务器是否存在可疑账号、新增账号、隐藏账号、克隆账号。（可看到以<code>$</code>结尾的隐藏账户）：</p>
+<ul>
+<li><code>lusrmgr.msc</code> &#x2F; <code>compmgmt.msc</code>查看是否有新增&#x2F;可疑的账号，如有管理员群组的（Administrators）里的新增账户，立刻删除或禁用</li>
+<li>检查目录<code>c:\users</code>即可看到创建用户，用户登录后会在该目录创建⼀个以用户名命名的文件夹，当安全日志被删、或者用户已经被删除可以通过该文件夹的创建时间来大致判断用户被创建时间和登录时间。</li>
+</ul>
+</li>
+<li><p>查看服务器是否存在隐藏账号、克隆账号</p>
+<ul>
+<li><p>打开注册表 ，查看管理员对应键值</p>
+<p><img src="/blog/2024/06/04/windows%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5/image-20240604174928652.png" alt="image-20240604174928652"></p>
+</li>
+<li><p>使用D盾_web查杀工具，集成了对克隆账号检测的功能</p>
+<p><img src="/blog/2024/06/04/windows%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5/image-20240604174812558.png" alt="image-20240604174812558"></p>
+</li>
+</ul>
+</li>
+<li><p>结合日志，查看管理员登录时间、用户名是否存在异常</p>
+<ul>
+<li><p><code>eventvwr.msc</code>：打开事件查看器</p>
+</li>
+<li><p>导出 Windows 日志，利用微软官方工具 <a target="_blank" rel="noopener" href="https://www.microsoft.com/en-us/download/details.aspx?id=24659">Log Parser</a> 进行分析：</p>
+<p>登录成功用户和时间</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">LogParser<span class="token punctuation">.</span>exe <span class="token operator">-</span>i:EVT <span class="token string">"SELECT TimeGenerated as LoginTime,EXTRACT_TOKEN(Strin
+gs,5,'|') as username FROM 1.evtx where EventID=4624"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="检测异常端口"><a href="#检测异常端口" class="headerlink" title="检测异常端口"></a>检测异常端口</h2><p>检查端口连接情况，是否有远程连接、可疑连接</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

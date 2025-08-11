@@ -1,0 +1,490 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>病毒木马样本逆向 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E7%97%85%E6%AF%92%E9%80%86%E5%90%91%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">简单病毒逆向分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E6%A0%87"><span class="toc-number">2.1.</span> <span class="toc-text">目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4"><span class="toc-number">2.2.</span> <span class="toc-text">步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%BA%90%E5%87%86%E5%A4%87"><span class="toc-number">2.2.1.</span> <span class="toc-text">数据源准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%97%85%E6%AF%92%E5%88%86%E6%9E%90"><span class="toc-number">2.2.2.</span> <span class="toc-text">病毒分析</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%A4%B9%E6%9C%A8%E9%A9%AC%E7%97%85%E6%AF%92%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">文件夹木马病毒样本逆向分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7"><span class="toc-number">3.1.</span> <span class="toc-text">工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4-1"><span class="toc-number">3.2.</span> <span class="toc-text">步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%91%E6%B2%99%E7%AE%B1%E5%88%86%E6%9E%90"><span class="toc-number">3.2.1.</span> <span class="toc-text">云沙箱分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E5%A3%B3"><span class="toc-number">3.2.2.</span> <span class="toc-text">查壳</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Delphi-%E5%88%86%E6%9E%90"><span class="toc-number">3.2.3.</span> <span class="toc-text">Delphi 分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A3%80%E6%B5%8B%E4%BE%9D%E8%B5%96%E5%85%B3%E7%B3%BB"><span class="toc-number">3.2.4.</span> <span class="toc-text">检测依赖关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%81%AB%E7%BB%92%E5%89%91%E5%88%86%E6%9E%90"><span class="toc-number">3.2.5.</span> <span class="toc-text">火绒剑分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IDA%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90"><span class="toc-number">3.2.6.</span> <span class="toc-text">IDA静态分析</span></a></li></ol></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>病毒木马样本逆向</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/12/4
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Rev/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Rev
+            </a>
+        </span>
+        
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.6k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">5分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>🐎</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="简单病毒逆向分析"><a href="#简单病毒逆向分析" class="headerlink" title="简单病毒逆向分析"></a>简单病毒逆向分析</h1><p>电脑病毒（computer virus），或称电子计算机病毒。是一种在人为或非人为的情况下产生的、在用户不知情或未批准下，能自我复制或运行的电脑程序；电脑病毒往往会影响受感染电脑的正常运作，或是被控制而不自知，电脑正常运作仅盗窃资料、或者被利用做其他用途等用户非自发启动的行为。</p>
+<h2 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h2><ul>
+<li>针对病毒的简单分析</li>
+<li>掌握发现病毒后的各类操作</li>
+</ul>
+<h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><h3 id="数据源准备"><a href="#数据源准备" class="headerlink" title="数据源准备"></a>数据源准备</h3><ul>
+<li><p>病毒文件基本信息：</p>
+<pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">文件名：35a7db3cde6c0744dc2146f23f499df8ad527c93
+大小：229 KB (234,496 字节)
+CRC32：7E28EBC8
+MD5：324B6AB5E45E2A106025BE8802D39511
+SHA-1：35A7DB3CDE6C0744DC2146F23F499DF8AD527C93<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>查壳程序：本次通过 <strong>Exeinfo PE</strong> 来进行查询，该软件目前内置海量 PEiD 的签名库并整合了近 50 种插件以及更加完整的中文语言包，具备非常强悍的可鉴定多种文件类别的能力，全面兼容包括bmp、.jpg、.mov、.mp4、.vpx、.crx、.skn、.dcu、.obj、.ice、.apk、.TLB、.ddd、.dcu、.pkg、.mkv、.WebM、.iso、.xar、.nup、.vhd、.tar、.gma、.mts、res、tiff、7z、rar 在内的多种文件格式，支持查看加密程序的 PE 信息、编译信息、是否加壳、输入输出表、入口地址、首字节、文件大小、子系统与覆盖等任何可执行程序的多种相关信息，给予用户引导脱壳方法</p>
+</li>
+<li><p>脱壳工具：<strong>XVolkolak</strong> 是一个功能强大的通用 shelling 实用程序，带有虚拟机。它旨在帮助用户快速解决各种加密 shell。与其他 shelling 工具不同，它使用虚拟机脱壳技术。避免损坏用户系统，同时使用 XVolkolak，还可以执行 PE 编辑，数据扫描检测和快速 shell 检查操作，支持拖放操作，易于使用</p>
+</li>
+</ul>
+<h3 id="病毒分析"><a href="#病毒分析" class="headerlink" title="病毒分析"></a>病毒分析</h3><p>查壳：</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241204104144941.png" alt="image-20241204104144941"></p>
+<p>有壳，是 MPRESS，同时查看到文件是 PE 文件，使用 XVolkolak 进行脱壳</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241204104429569.png" alt="image-20241204104429569"></p>
+<p>脱壳完毕后生成一个 .unp 文件，拖入 OD 在入口点处，可以看到各项功能显示正常，说明脱壳成功</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241204105705591.png" alt="image-20241204105705591"></p>
+<p>通过火绒剑识别病毒行为进行分析，将未脱壳的源文件改为：1.exe</p>
+<p>将病毒 exe 拖动到火绒剑窗口当中（需关闭火绒防护）</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211111245535.png" alt="image-20241211111245535"></p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211111437251.png" alt="image-20241211111437251"></p>
+<p>病毒首先 PROC_exec 打开并创建了一个 conhost.exe 进程，接着在 C:\Program File 新建了 Microsoft DN1 文件</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211111544688.png" alt="image-20241211111544688"></p>
+<p>FILE_touch 新建了 images.exe 文件，并启动自释放文件。REG_setval 设置 images.exe 为开机启动项</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211112024954.png" alt="image-20241211112024954"></p>
+<p>接着进程 1.exe 结束，执行了 powershell.exe ，然后 images.exe 在 Windows\CurrentVersion\Explorer\ 下新建了一个键值 ADDEJIWOQK，并设置了一个注册表项值 inst</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211113810367.png" alt="image-20241211113810367"></p>
+<p>最底下可以看到远程连接的服务器ip和端口</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211114057881.png" alt="image-20241211114057881"></p>
+<hr>
+<h1 id="文件夹木马病毒样本逆向分析"><a href="#文件夹木马病毒样本逆向分析" class="headerlink" title="文件夹木马病毒样本逆向分析"></a>文件夹木马病毒样本逆向分析</h1><h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><p>Windows 虚拟机</p>
+<p>沙箱、Exeinfo PE 等</p>
+<hr>
+<h2 id="步骤-1"><a href="#步骤-1" class="headerlink" title="步骤"></a>步骤</h2><h3 id="云沙箱分析"><a href="#云沙箱分析" class="headerlink" title="云沙箱分析"></a>云沙箱分析</h3><p>关闭杀毒软件，在虚拟机中解压病毒，使用在线云沙箱进行文件解析</p>
+<p>安恒云沙箱：<a target="_blank" rel="noopener" href="https://sandbox.dbappsecurity.com.cn/">https://sandbox.dbappsecurity.com.cn</a></p>
+<p>微步云沙箱：<a target="_blank" rel="noopener" href="https://s.threatbook.com/">https://s.threatbook.com</a></p>
+<p>这里使用安恒云沙箱，首先访问网站，将病毒文件上传至平台</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211172208565.png" alt="image-20241211172208565"></p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211172358984.png" alt="image-20241211172358984"></p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211172510575.png" alt="image-20241211172510575"></p>
+<ol>
+<li><p>确认病毒的信息后，我们使用第二个工具。由 Windows 自带的 certutil -hashfile</p>
+<blockquote>
+<p>certutil -hashfile 是一个在 Windows 操作系统中非常有用的命令行工具，它用于计算文件的哈希值。哈希值是一个固定长度的字符串，它代表了文件内容的数字指纹。即使文件内容发生微小变化，其哈希值也会发生显著变化。这使得哈希值成为验证文件完整性和一致性的理想工具</p>
+</blockquote>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">certutil <span class="token parameter variable">-hashfile</span> 文件地址 MD5
+certutil <span class="token parameter variable">-hashfile</span> 文件地址 SHA1
+certutil <span class="token parameter variable">-hashfile</span> 文件地址 SHA256<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211173549416.png" alt="image-20241211173549416"></p>
+</li>
+</ol>
+<h3 id="查壳"><a href="#查壳" class="headerlink" title="查壳"></a>查壳</h3><p>基础信息分析完成后，通过 Exeinfo PE 来进行查壳</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211173629109.png" alt="image-20241211173629109"></p>
+<p>无壳，用 Delphi 写的</p>
+<h3 id="Delphi-分析"><a href="#Delphi-分析" class="headerlink" title="Delphi 分析"></a>Delphi 分析</h3><p>通过 DeDe 查看 Delphi 程序窗体属性</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211173931879.png" alt="image-20241211173931879"></p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211174048042.png" alt="image-20241211174048042"></p>
+<p>通过 DeDe 分析工具我们可以看到，这个病毒程序由五个功能模块组成的，分别为 FromCreate、Timer1Timer、Timer2Timer、Timer3Timer、Timer4Timer，其中 FromCreate 类似于程序的入口函数（main），剩下 4 个是个定时器函数</p>
+<h3 id="检测依赖关系"><a href="#检测依赖关系" class="headerlink" title="检测依赖关系"></a>检测依赖关系</h3><p>通过 depends 工具来检测依赖关系：</p>
+<p>查询 Windows 应用开发文档：<a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/windows/apps/">https://learn.microsoft.com/zh-cn/windows/apps/</a></p>
+<p>通过 Depends 检测可以发现这个病毒调用了很多注册表操作和文件操作，例如</p>
+<pre class="line-numbers language-none"><code class="language-none">RegOpenKeyExA()
+RegSetValueExA()
+WriteFile()
+CreateFileA()<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211174802612.png" alt="image-20241211174802612"></p>
+<h3 id="火绒剑分析"><a href="#火绒剑分析" class="headerlink" title="火绒剑分析"></a>火绒剑分析</h3><p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211192827482.png" alt="image-20241211192827482"></p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211192905935.png" alt="image-20241211192905935"></p>
+<p>病毒创建了名为 avb.exe、javasc.exe 的恶意文件，路径如图所示，打开文件路径可以观察到这些恶意文件</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211193115969.png" alt="image-20241211193115969"></p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211193246612.png" alt="image-20241211193246612"></p>
+<p>继续观察，可以发现大量的注册表操作，avb.exe 写入自启动注册表：</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211193540797.png" alt="image-20241211193540797"></p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211193947341.png" alt="image-20241211193947341"></p>
+<p>禁用显示隐藏文件和文件夹的选项，以隐藏自身：</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211194120071.png" alt="image-20241211194120071"></p>
+<h3 id="IDA静态分析"><a href="#IDA静态分析" class="headerlink" title="IDA静态分析"></a>IDA静态分析</h3><p>Delphi 函数参考库：<a target="_blank" rel="noopener" href="http://docwiki.embarcadero.com/Libraries/Sydney/en/Main_Page">http://docwiki.embarcadero.com/Libraries/Sydney/en/Main_Page</a></p>
+<p>函数入口点</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211204741892.png" alt="image-20241211204741892"></p>
+<p>f5反编译</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211205242848.png" alt="image-20241211205242848"></p>
+<p>调用 Forms::TApplication 类的 CreateForm 方法，传入 off_450FD0[0] 指向的值、off_44E76C 和 off_4510B0，跟进 off_44E76C 函数：</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211205915941.png" alt="image-20241211205915941"></p>
+<p>跟进 word_44E8F3</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211210118657.png" alt="image-20241211210118657"></p>
+<p>分析函数：</p>
+<ul>
+<li><p>FormCreate：跟进 _TForm1_FormCreate</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211210345919.png" alt="image-20241211210345919"></p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211210533089.png" alt="image-20241211210533089"></p>
+<p>可以看到这里把 javasc.exe、avb.exe 注册为服务，加入自启动</p>
+<p>跟进 sub_44F3A0 </p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211210847675.png" alt="image-20241211210847675"></p>
+<p>应该是写入注册表隐藏文件不可见的代码，跟进这里的 &amp;str_HideFileExt 和 &amp;str_Hidden</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211211031245.png" alt="image-20241211211031245"></p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211211127718.png" alt="image-20241211211127718"></p>
+<p>于是可以得出结论：</p>
+<p>TForm1_FormCreate 是这个病毒样本的入口函数，病毒的功能起源就是这个函数，功能是将病毒样本放置到系统盘的 Windows 目录下伪装成系统程序，将病毒文件写入到注册表中的开机自启动项里面，以实现每次开机就启动病毒样本</p>
+</li>
+<li><p>Timer1Timer 函数：</p>
+<p>esc 退回到前面的函数页，跟进 _TForm1_Timer1Timer 函数</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211211631344.png" alt="image-20241211211631344"></p>
+<p>跟进 sub_44EF94</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211211750291.png" alt="image-20241211211750291"></p>
+<p>跟进 sub_44E9FC</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211211938021.png" alt="image-20241211211938021"></p>
+<p>跟进 sub_44E980</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211212035879.png" alt="image-20241211212035879"></p>
+<p>可以看到这里通过 Sysutils::DiskSize 获取磁盘大小来判断磁盘是否存在</p>
+<p>然后回到上一级 sub_44E9FC</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211212145672.png" alt="image-20241211212145672"></p>
+<p>接下来调用 GetDriveTypeA 判断磁盘类型</p>
+<p>然后退出 sub_44E9FC，进入 sub_44EEBC 函数</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211212424469.png" alt="image-20241211212424469"></p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211212452460.png" alt="image-20241211212452460"></p>
+<p>先跟进 sub_44EAA4</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211212655513.png" alt="image-20241211212655513"></p>
+<p>这里的操作主要是文件的遍历</p>
+<p>然后看 sub_44EC88</p>
+<p><img src="/blog/2024/12/04/%E7%97%85%E6%AF%92%E6%9C%A8%E9%A9%AC%E6%A0%B7%E6%9C%AC%E9%80%86%E5%90%91/image-20241211212800753.png" alt="image-20241211212800753"></p>
+<p>主要是设置文件属性，随后进行了一个对自身的拷贝</p>
+</li>
+</ul>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

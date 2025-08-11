@@ -1,0 +1,1461 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Linux从0.5到1 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#VMware%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">VMware配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85RHEL6-3"><span class="toc-number">2.1.</span> <span class="toc-text">安装RHEL6.3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E8%AE%BE%E7%BD%AE"><span class="toc-number">2.2.</span> <span class="toc-text">网络设置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ssh%E8%BF%9C%E7%A8%8B%E7%99%BB%E5%BD%95"><span class="toc-number">2.3.</span> <span class="toc-text">ssh远程登录</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8-ssh-%E6%9C%8D%E5%8A%A1"><span class="toc-number">2.3.1.</span> <span class="toc-text">启动 ssh 服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-ssh"><span class="toc-number">2.3.2.</span> <span class="toc-text">配置 ssh</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Shell%E5%91%BD%E4%BB%A4%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">Shell命令行</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E6%8E%A7%E5%88%B6%E5%8F%B0"><span class="toc-number">3.1.</span> <span class="toc-text">虚拟控制台</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shell-%E5%91%BD%E4%BB%A4%E6%8F%90%E7%A4%BA%E7%AC%A6"><span class="toc-number">3.2.</span> <span class="toc-text">Shell 命令提示符</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4"><span class="toc-number">3.3.</span> <span class="toc-text">一些命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#grep"><span class="toc-number">3.3.1.</span> <span class="toc-text">grep</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">3.3.2.</span> <span class="toc-text">正则表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sed"><span class="toc-number">3.3.3.</span> <span class="toc-text">sed</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shell-%E5%8A%9F%E8%83%BD"><span class="toc-number">3.4.</span> <span class="toc-text">Shell 功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vi-%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%BC%96%E8%BE%91%E6%96%87%E4%BB%B6"><span class="toc-number">3.5.</span> <span class="toc-text">vi 命令行编辑文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.5.1.</span> <span class="toc-text">模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#vi-%E5%91%BD%E4%BB%A4"><span class="toc-number">3.5.2.</span> <span class="toc-text">vi 命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A9%E5%B1%95-Shell-%E5%91%BD%E4%BB%A4"><span class="toc-number">3.6.</span> <span class="toc-text">扩展 Shell 命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Shell-%E5%91%BD%E4%BB%A4%E6%9B%BF%E6%8D%A2"><span class="toc-number">3.6.1.</span> <span class="toc-text">Shell 命令替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shell-%E8%BE%93%E5%85%A5-x2F-%E8%BE%93%E5%87%BA%E7%9A%84%E9%87%8D%E5%AE%9A%E5%90%91%E4%B8%8E%E7%AE%A1%E9%81%93"><span class="toc-number">3.6.2.</span> <span class="toc-text">Shell 输入&#x2F;输出的重定向与管道</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%87%E5%87%86%E8%BE%93%E5%85%A5-x2F-%E8%BE%93%E5%87%BA"><span class="toc-number">3.6.2.1.</span> <span class="toc-text">标准输入&#x2F;输出</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BE%93%E5%85%A5-x2F-%E8%BE%93%E5%87%BA%E9%87%8D%E5%AE%9A%E5%90%91"><span class="toc-number">3.6.2.2.</span> <span class="toc-text">输入&#x2F;输出重定向</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%A1%E9%81%93"><span class="toc-number">3.6.2.3.</span> <span class="toc-text">管道</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shell-%E5%8F%98%E9%87%8F"><span class="toc-number">3.7.</span> <span class="toc-text">Shell 变量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C"><span class="toc-number">3.7.1.</span> <span class="toc-text">实验</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-number">4.</span> <span class="toc-text">Linux文件系统</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#FHS-%E7%9B%AE%E5%BD%95%E6%A0%91"><span class="toc-number">4.1.</span> <span class="toc-text">FHS 目录树</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8E%E6%96%87%E4%BB%B6%E7%B1%BB%E5%9E%8B"><span class="toc-number">4.2.</span> <span class="toc-text">文件与文件类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BF%E9%97%AE-Shell-%E5%91%BD%E4%BB%A4"><span class="toc-number">4.3.</span> <span class="toc-text">文件系统访问 Shell 命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8Erpm%E5%8C%85%E5%AE%89%E8%A3%85tree"><span class="toc-number">4.4.</span> <span class="toc-text">从rpm包安装tree</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87"><span class="toc-number">4.5.</span> <span class="toc-text">使用外部存储设备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%9D%83%E9%99%90%E9%85%8D%E7%BD%AE%E4%B8%8E%E7%AE%A1%E7%90%86"><span class="toc-number">4.6.</span> <span class="toc-text">文件系统权限配置与管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90%E8%AE%BE%E7%BD%AE"><span class="toc-number">4.6.1.</span> <span class="toc-text">文件权限设置</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux%E7%94%A8%E6%88%B7%E8%B4%A6%E5%8F%B7%E9%85%8D%E7%BD%AE%E4%B8%8E%E7%AE%A1%E7%90%86"><span class="toc-number">5.</span> <span class="toc-text">Linux用户账号配置与管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E7%99%BB%E5%BD%95%E7%94%A8%E6%88%B7%E8%B4%A6%E5%8F%B7%E4%BF%A1%E6%81%AF"><span class="toc-number">5.1.</span> <span class="toc-text">获取登录用户账号信息</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7"><span class="toc-number">5.1.1.</span> <span class="toc-text">用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E7%BB%84"><span class="toc-number">5.1.2.</span> <span class="toc-text">用户组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E4%B8%8E%E7%94%A8%E6%88%B7%E7%BB%84%E4%BF%A1%E6%81%AF%E6%96%87%E4%BB%B6"><span class="toc-number">5.1.3.</span> <span class="toc-text">用户与用户组信息文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84%E8%B4%A6%E5%8F%B7"><span class="toc-number">5.2.</span> <span class="toc-text">建立用户和用户组账号</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C-1"><span class="toc-number">5.2.1.</span> <span class="toc-text">实验</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%A3%E4%BB%A4%E6%97%B6%E9%99%90%E6%9C%BA%E5%88%B6"><span class="toc-number">5.3.</span> <span class="toc-text">口令时限机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%83%85%E6%99%AF%E5%AE%9E%E9%AA%8C%EF%BC%9ALinux%E7%94%A8%E6%88%B7%E7%BB%84%E5%85%B1%E4%BA%AB%E7%9B%AE%E5%BD%95%E6%9D%83%E9%99%90%E9%85%8D%E7%BD%AE"><span class="toc-number">5.4.</span> <span class="toc-text">情景实验：Linux用户组共享目录权限配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%AE%89%E8%A3%85%E4%B8%8E%E7%AE%A1%E7%90%86"><span class="toc-number">6.</span> <span class="toc-text">Linux软件包安装与管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E5%8C%85%E4%BE%9D%E8%B5%96%E6%80%A7"><span class="toc-number">6.1.</span> <span class="toc-text">软件包依赖性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85"><span class="toc-number">6.2.</span> <span class="toc-text">软件编译安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RPM-amp-YUM%EF%BC%88CentOS%E7%B3%BB%EF%BC%89"><span class="toc-number">6.3.</span> <span class="toc-text">RPM&amp;YUM（CentOS系）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux-Shell%E8%84%9A%E6%9C%AC%E7%BC%96%E7%A8%8B"><span class="toc-number">7.</span> <span class="toc-text">Linux Shell脚本编程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E5%8F%98%E9%87%8F"><span class="toc-number">7.1.</span> <span class="toc-text">系统变量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E7%BB%84"><span class="toc-number">7.2.</span> <span class="toc-text">数组</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%94%AE%E5%85%A5"><span class="toc-number">7.3.</span> <span class="toc-text">键入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E5%AD%A6%E8%BF%90%E7%AE%97"><span class="toc-number">7.4.</span> <span class="toc-text">数学运算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C-2"><span class="toc-number">7.5.</span> <span class="toc-text">实验</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux-gcc%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91"><span class="toc-number">8.</span> <span class="toc-text">Linux gcc源码编译</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">8.1.</span> <span class="toc-text">环境配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C1"><span class="toc-number">8.2.</span> <span class="toc-text">实验1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C2"><span class="toc-number">8.3.</span> <span class="toc-text">实验2</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Linux从0.5到1</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/12/16
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Basic/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Basic
+            </a>
+        </span>
+        
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">9.4k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">38分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>期末自查用</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="VMware配置"><a href="#VMware配置" class="headerlink" title="VMware配置"></a>VMware配置</h1><h2 id="安装RHEL6-3"><a href="#安装RHEL6-3" class="headerlink" title="安装RHEL6.3"></a>安装RHEL6.3</h2><p>虚拟磁盘设置为30G，采用动态分配硬盘方式，并设置为分割多个小文件</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps1.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps2.jpg" alt="img"></p>
+<p>DVD 导入准备的光盘，使用 ISO 映像文件</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps3.jpg" alt="img"></p>
+<p>正式进入安装界面</p>
+<p>磁盘分区：</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps4.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps5.jpg" alt="img"></p>
+<p>自定义软件安装包</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps8.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps6.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps7.jpg" alt="img"></p>
+<hr>
+<h2 id="网络设置"><a href="#网络设置" class="headerlink" title="网络设置"></a>网络设置</h2><p>以 NAT 模式为例，这样子主机相当于路由器，给虚拟机分配一层内网地址（桥接模式则会和主机在同一网段分配 ip 地址）</p>
+<p>虚拟机网络设置为 NAT 模式</p>
+<p>主机网络适配器启动 VMnet8  网卡</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241216101636472.png" alt="image-20241216101636472"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241216101704214.png" alt="image-20241216101704214"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241216101801687.png" alt="image-20241216101801687"></p>
+<p>然后保证右下角这个图标处于启动状态</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241216102028365.png" alt="image-20241216102028365"></p>
+<p>同时虚拟机内连接网络，这里是 System eth0</p>
+<p>然后主机和虚拟机之间相互ping一下测试网络连通性（主机需关闭防火墙才能被 ping 通）</p>
+<h2 id="ssh远程登录"><a href="#ssh远程登录" class="headerlink" title="ssh远程登录"></a>ssh远程登录</h2><h3 id="启动-ssh-服务"><a href="#启动-ssh-服务" class="headerlink" title="启动 ssh 服务"></a>启动 ssh 服务</h3><p>debian 系</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">apt-get</span> update
+<span class="token function">sudo</span> <span class="token function">apt-get</span> <span class="token function">install</span> openssh-server
+
+<span class="token function">sudo</span> <span class="token function">service</span> <span class="token function">ssh</span> start <span class="token comment"># 启动服务</span>
+<span class="token function">sudo</span> systemctl start <span class="token function">ssh</span> <span class="token comment"># 较新的系统启动服务</span>
+
+<span class="token function">sudo</span> /etc/init.d/ssh restart <span class="token comment"># 重启服务</span>
+<span class="token comment"># 或</span>
+<span class="token function">sudo</span> systemctl restart <span class="token function">ssh</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>centos 系</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> yum <span class="token function">install</span> openssh-server
+
+<span class="token function">sudo</span> <span class="token function">service</span> sshd start
+<span class="token comment"># 或</span>
+<span class="token function">sudo</span> systemctl start sshd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>检查是否启动</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">ps</span> <span class="token parameter variable">-e</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token function">ssh</span>
+<span class="token function">netstat</span> <span class="token parameter variable">-an</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token number">22</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="配置-ssh"><a href="#配置-ssh" class="headerlink" title="配置 ssh"></a>配置 ssh</h3><p>允许密码身份验证：编辑 &#x2F;etc&#x2F;ssh&#x2F;ssh_config 文件</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">PasswordAuthentication <span class="token function">yes</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>允许root用户登录：编辑 &#x2F;etc&#x2F;ssh&#x2F;ssh_config 文件</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># PermitRootLogin prohibit-password</span>
+PermitRootLogin <span class="token function">yes</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>重新加载ssh配置：重载或重启</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> systemctl reload <span class="token function">ssh</span>
+<span class="token function">sudo</span> systemctl restart <span class="token function">ssh</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h1 id="Shell命令行"><a href="#Shell命令行" class="headerlink" title="Shell命令行"></a>Shell命令行</h1><h2 id="虚拟控制台"><a href="#虚拟控制台" class="headerlink" title="虚拟控制台"></a>虚拟控制台</h2><p>除了桌面启动终端窗口，ssh连接终端以外，还可以使用 linux 的虚拟控制台，在 RHEL 6 上对应的设备是 &#x2F;dev&#x2F;tty2、&#x2F;dev&#x2F;tty3、&#x2F;dev&#x2F;tty4、&#x2F;dev&#x2F;tty5、&#x2F;dev&#x2F;tty6</p>
+<p>此种运行等级为 run level 3，纯文本终端 （图形登录环境 tty1 的运行等级为 run level 5）</p>
+<p>使用 ctrl+alt+f2&#x2F;f3&#x2F;f4&#x2F;f5&#x2F;f6 可以切换</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps9.jpg" alt="img"></p>
+<p>alt + f3 可以切换为控制台 tty3</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps10.jpg" alt="img"></p>
+<p>这里登录时间后面显示的是主机地址，如果是远程主机则会显示其 ip</p>
+<p>默认登录运行级别的设置可以修改 &#x2F;etc&#x2F;inittab 文件：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">id:3:initdefault:<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h2 id="Shell-命令提示符"><a href="#Shell-命令提示符" class="headerlink" title="Shell 命令提示符"></a>Shell 命令提示符</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@rhelserver /etc<span class="token punctuation">]</span><span class="token comment">#</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><code>[]</code>内的内容即为 Shell 提示符：格式<code>用户名@主机名 当前目录</code></p>
+<p><code>~</code>符号是表示<strong>用户主目录的 Shell 变量</strong></p>
+<p>Shell 命令提示符的显示内容可以通过修改 Shell 的环境变量 PS1 来实现</p>
+<hr>
+<h2 id="一些命令"><a href="#一些命令" class="headerlink" title="一些命令"></a>一些命令</h2><p>记一些之前没怎么用过的</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">reboot</span>
+<span class="token comment"># 重启</span>
+
+<span class="token function">halt</span>
+<span class="token function">shutdown</span>
+<span class="token comment"># 关机</span>
+
+<span class="token builtin class-name">cd</span>
+<span class="token comment"># 直接切换到用户主目录</span>
+<span class="token builtin class-name">cd</span> -
+<span class="token comment"># 回到前一次工作目录</span>
+
+<span class="token function">mkdir</span> <span class="token punctuation">[</span>-p/--parents<span class="token punctuation">]</span> <span class="token punctuation">[</span>目录<span class="token punctuation">]</span>
+<span class="token comment"># -p 建立尚不存在的目录，即多层目录</span>
+<span class="token function">rmdir</span> <span class="token punctuation">[</span>-p<span class="token punctuation">]</span> <span class="token punctuation">[</span>目录<span class="token punctuation">]</span>
+
+<span class="token function">dmesg</span>
+<span class="token comment"># 查看内核日志</span>
+
+<span class="token function">ls</span> <span class="token parameter variable">-d</span>
+<span class="token comment"># 显示指定目录的详细信息，不显示子目录及文件</span>
+<span class="token function">ls</span> <span class="token parameter variable">-R</span>
+<span class="token comment"># 递归列出所有子目录下的文件和目录</span>
+<span class="token function">ls</span> <span class="token parameter variable">-i</span>
+<span class="token comment"># 查询inode号</span>
+
+<span class="token function">tail</span> <span class="token punctuation">[</span>-n<span class="token punctuation">]</span> 文件名
+<span class="token function">head</span> <span class="token punctuation">[</span>-n<span class="token punctuation">]</span> 文件名
+<span class="token comment"># 查看某文件的末尾/头几行，-n指定行数，默认10行</span>
+
+<span class="token function">cut</span> -d<span class="token punctuation">\</span>  <span class="token parameter variable">-f1</span> data.txt
+<span class="token comment"># -d指定以空格为分隔符，-f指定显示每行分隔出的第一个字段</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241216153437229.png" alt="image-20241216153437229"></p>
+<p>使用ls命令查看&#x2F;root&#x2F;lab4&#x2F;file目录下的各个文件的inode编号：</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/9.jpg" alt="img"></p>
+<h3 id="grep"><a href="#grep" class="headerlink" title="grep"></a>grep</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">grep</span> <span class="token punctuation">[</span>-clnvi<span class="token punctuation">]</span> <span class="token operator">&lt;</span>pattern<span class="token operator">></span> <span class="token operator">&lt;</span>files<span class="token operator">></span>
+<span class="token parameter variable">-c</span> <span class="token comment"># 只显示符合字符串模式的总行数</span>
+<span class="token parameter variable">-l</span> <span class="token comment"># 只显示符合字符串模式的文件的文件名</span>
+<span class="token parameter variable">-n</span> <span class="token comment"># 显示匹配行的行号</span>
+<span class="token parameter variable">-v</span> <span class="token comment"># 反选</span>
+<span class="token parameter variable">-i</span> <span class="token comment"># 忽略大小写</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h3><h3 id="sed"><a href="#sed" class="headerlink" title="sed"></a>sed</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sed</span> <span class="token punctuation">[</span>-hnV<span class="token punctuation">]</span><span class="token punctuation">[</span>-e<span class="token operator">&lt;</span>script<span class="token operator">></span><span class="token punctuation">]</span><span class="token punctuation">[</span>-f<span class="token operator">&lt;</span>script文件<span class="token operator">></span><span class="token punctuation">]</span><span class="token punctuation">[</span>文本文件<span class="token punctuation">]</span>
+-e<span class="token operator">&lt;</span>script<span class="token operator">></span>/--expression<span class="token operator">=</span><span class="token operator">&lt;</span>script<span class="token operator">></span> <span class="token comment"># 以选项中指定的script来处理输入的文本文件。</span>
+-f<span class="token operator">&lt;</span>script文件<span class="token operator">></span>/--file<span class="token operator">=</span><span class="token operator">&lt;</span>script文件<span class="token operator">></span> <span class="token comment"># 以选项中指定的script文件来处理输入的文本文件。</span>
+-n/--quiet/--silent <span class="token comment"># 仅显示script处理后的结果</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+
+
+<hr>
+<h2 id="Shell-功能"><a href="#Shell-功能" class="headerlink" title="Shell 功能"></a>Shell 功能</h2><p>以 Bash Shell 为准</p>
+<ol>
+<li><p>历史命令记忆功能</p>
+<p>前一次登录以前所执行过的 Shell 命令被保存在用户主目录下的 .bash_history 文件中</p>
+</li>
+<li><p>Tab键补全</p>
+</li>
+<li><p>文件名通配</p>
+<table>
+<thead>
+<tr>
+<th>符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>*</td>
+<td>匹配0个或多个字符</td>
+</tr>
+<tr>
+<td>?</td>
+<td>匹配任意一个字符</td>
+</tr>
+<tr>
+<td>[list]</td>
+<td>匹配 list 中的任意单一字符</td>
+</tr>
+<tr>
+<td>[c1-c2]</td>
+<td>匹配 c1-c2 中的任意单一字符</td>
+</tr>
+<tr>
+<td>[!list]</td>
+<td>匹配除 list 中的任意单一字符</td>
+</tr>
+<tr>
+<td>{string1,string2,…}</td>
+<td>匹配 string1 或 string2 （或更多）其一字符串</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>命令别名 alias</p>
+</li>
+</ol>
+<hr>
+<h2 id="vi-命令行编辑文件"><a href="#vi-命令行编辑文件" class="headerlink" title="vi 命令行编辑文件"></a>vi 命令行编辑文件</h2><h3 id="模式"><a href="#模式" class="headerlink" title="模式"></a>模式</h3><p>命令模式 –&gt; 文本编辑模式：i、I、a、A、o、O</p>
+<p>扩展命令模式：Esc 回到命令模式，输入<code>:</code>切换到扩展命令模式</p>
+<p>退出vi：</p>
+<ul>
+<li><code>wq</code>保存文件，<code>wq newfile</code>或<code>w newfile</code>另存为新文件名</li>
+<li><code>q!</code>不保存退出</li>
+<li>在命令模式下输入<code>ZZ</code>，会保存当前文件的修改，并退出 vi 编辑器</li>
+</ul>
+<h3 id="vi-命令"><a href="#vi-命令" class="headerlink" title="vi 命令"></a>vi 命令</h3><p>命令模式下</p>
+<ol>
+<li><p>命令模式 –&gt; 文本编辑模式</p>
+<p>i：从当前光标位置开始输入字符</p>
+<p>I：光标移动到当前光标所在行的行首，开始输入字符</p>
+<p>a：从当前光标后开始输入字符，也就是在当前光标所在的字符后开始插入新字符</p>
+<p>A：光标移动到当前光标所在行的行尾，开始输入字符</p>
+<p>o：在当前光标所在行之下新增一行</p>
+<p>O：在当前光标所在行之上新增一行</p>
+</li>
+<li><p>光标移动命令</p>
+<p>h：左移，如果在 h 前输入数字 n，则光标左移 n 个字符，下同</p>
+<p>l：右移</p>
+<p>j：上移</p>
+<p>k：下移</p>
+<p>0：移到行首</p>
+<p>$：移到行尾</p>
+<p>G：移动到文件的最后一行的行首</p>
+<p>nG：移到第n行的行首</p>
+<p>H：移到屏幕上显示的第一行</p>
+<p>L：移到屏幕上显示的最后一行</p>
+<p>M：移到屏幕的中间一行</p>
+<p>w或W：右移至下一个单词的词首</p>
+<p>e或E：移动到单词尾，若已处于当前的单词尾则移动到下一个单词尾</p>
+<p>b或B：移动到词首，若已处于当前的单词首则移动到上一个单词首</p>
+<br>
+
+<p>此外，还有扩展模式命令</p>
+<p><code>:n</code> ：光标移到文件的第n行</p>
+<p><code>:$</code> ：光标移到文件的最后一行</p>
+</li>
+<li><p>替换删除命令</p>
+<p>r：使用随后输入的字符替换当前光标所在的字符</p>
+</li>
+<li><p>剪切命令</p>
+<p>d：剪切选定块到缓冲区</p>
+</li>
+<li><p>复制命令</p>
+<p>y：复制选定块到缓冲区</p>
+</li>
+<li><p>粘贴命令</p>
+<p>p：粘贴到当前光标后</p>
+<p>P：粘贴到当前光标前</p>
+</li>
+<li><p>v 命令进入可视模式，用于选定区域</p>
+</li>
+<li><p>u 命令撤销前一次修改</p>
+</li>
+<li><p>查找命令</p>
+<p>&#x2F;pattern：从光标开始处向后搜索 pattern 字符串</p>
+<p>?pattern：从光标开始处向前搜索 pattern 字符串</p>
+<p>n：在同方向重复上一次搜索命令</p>
+<p>N：在反方向重复上一次搜索命令</p>
+</li>
+<li><p>扩展命令模式中——替换命令s</p>
+<p><code>:s/p1/p2</code>：将当前行第一次出现的 p1 用 p2 替代</p>
+<p><code>:s/p1/p2/g</code>：将当前行中所有 p1 均用 p2 替代</p>
+</li>
+</ol>
+<hr>
+<h2 id="扩展-Shell-命令"><a href="#扩展-Shell-命令" class="headerlink" title="扩展 Shell 命令"></a>扩展 Shell 命令</h2><h3 id="Shell-命令替换"><a href="#Shell-命令替换" class="headerlink" title="Shell 命令替换"></a>Shell 命令替换</h3><p>在Bash Shell中，反引号 &#96; 作为命令替换功能使用，具有内联执行的功能</p>
+<p>于是就有了这样的用法：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">cd</span> /lib/modules/<span class="token variable"><span class="token variable">`</span><span class="token function">uname</span> <span class="token parameter variable">-r</span><span class="token variable">`</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h3 id="Shell-输入-x2F-输出的重定向与管道"><a href="#Shell-输入-x2F-输出的重定向与管道" class="headerlink" title="Shell 输入&#x2F;输出的重定向与管道"></a>Shell 输入&#x2F;输出的重定向与管道</h3><h4 id="标准输入-x2F-输出"><a href="#标准输入-x2F-输出" class="headerlink" title="标准输入&#x2F;输出"></a>标准输入&#x2F;输出</h4><p>在 Linux 系统中，每条 shell 命令对应的进程都有三个与之相关的输入&#x2F;输出流，对应特殊的文件描述指针：</p>
+<ul>
+<li>标准输入，文件描述指针为0：执行该进程时，进程获得用户从键盘输入的数据</li>
+<li>标准输出，文件描述指针为1：命令执行后传回的正确信息</li>
+<li>标准错误输出，文件描述指针为2：命令执行失败后传回的错误信息</li>
+</ul>
+<p>以 cat 命令为例，如果 cat 的命令行中没有参数，它就会从标准输入中读取数据，并将其送到标准输出，用户输入的每一行都立刻被 cat 命令输出到屏幕上，直到 ctrl+d 结束输入，cat 命令运行结束</p>
+<h4 id="输入-x2F-输出重定向"><a href="#输入-x2F-输出重定向" class="headerlink" title="输入&#x2F;输出重定向"></a>输入&#x2F;输出重定向</h4><ul>
+<li><p>输入重定向：把命令（或可执行程序）的标准输入重定向为从指定的文件获取输入数据</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">命令<span class="token operator">&lt;</span>文件名<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>常用于不接受文件名作为输入参数的命令，要输入的内容又存在一个文件时</p>
+<br>
+</li>
+<li><p>输出重定向：把命令（或可执行程序）的标准输出或标准错误输出重定向到指定文件中</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">命令<span class="token operator">></span>文件名
+<span class="token operator"><span class="token file-descriptor important">1</span>></span> <span class="token comment">#stdout</span>
+<span class="token operator"><span class="token file-descriptor important">2</span>></span> <span class="token comment">#stderr</span>
+命令<span class="token operator">>></span>文件名 <span class="token comment">#追加到文件尾</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<br>
+</li>
+<li><p>Here Documents 输入重定向：将一对分隔符之间的正文重定向输入给命令</p>
+<p>在<code>&lt;&lt;</code>操作符后面，任何字符都可以作为正文开始前的分隔符，Here 文档的正文一直延续到另一个分隔符为止，第二个分隔符应出现在新行的开头，即分隔符前面不能有空格，分隔符后面必须是回车符</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">command<span class="token operator">&lt;&lt;</span><span class="token punctuation">[</span>-<span class="token punctuation">]</span> limit_string
+msg_body
+limit_string<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>如果使用<code>&lt;&lt;-</code>，则 msg_body 和 limit_string 行中的所有前缀 Tab 字符都将被忽略（但空格不会被忽略）</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241216210643592.png" alt="image-20241216210643592"></p>
+</li>
+</ul>
+<h4 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h4><p>将一个 shell 命令的输出结果传递给另一个 shell 命令作为输入时，可以使用 linux shell 提供的管道功能</p>
+<p>使用管道符<code>|</code>来建立一个多条 shell 命令联合执行的命令</p>
+<p>管道可以把一系列命令连接起来，第一个命令的输入会作为第二个命令的输入通过管道传给第二个命令</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241216211314040.png" alt="image-20241216211314040"></p>
+<hr>
+<h2 id="Shell-变量"><a href="#Shell-变量" class="headerlink" title="Shell 变量"></a>Shell 变量</h2><h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><ol>
+<li><p>开启一个终端程序，执行命令<code>echo $PATH</code>，查看Linux环境变量PATH的值。</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps45.jpg" alt="img"></p>
+</li>
+<li><p>新建目录“&#x2F;opt&#x2F;arm-linux&#x2F;bin”，在Shell终端中执行以下命令：</p>
+<p><code>export PATH=$PATH:/opt/arm-linux/bin</code></p>
+<p>执行完毕后检查PATH变量的值，是否有加入路径“&#x2F;opt&#x2F;arm-linux&#x2F;bin”，执行exit退出当前Shell，然后再次启动一个终端，查看PATH路径列表，是否有“&#x2F;opt&#x2F;arm-linux&#x2F;bin”</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps46.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps47.jpg" alt="img"></p>
+</li>
+<li><p>用全屏幕编辑工具vi编写一个文件setenv.sh，在setenv.sh写入能够为环境变量PATH新增路径“&#x2F;opt&#x2F;arm-linux&#x2F;bin”的命令：<br><code>export PATH=$PATH:/opt/arm-linux/bin</code></p>
+<p>保存退出vi，然后执行“source setenv.sh”命令，执行完成后再次查看PATH 的结果，检查PATH变量设置效果；关闭当前终端，再次启动一个终端，检查PATH变量是否还有路径“&#x2F;opt&#x2F;arm-linux&#x2F;bin”。</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps48.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps49.jpg" alt="img"></p>
+</li>
+<li><p>新建目录“&#x2F;opt&#x2F;bin”，使用全屏幕编辑工具vi修改系统环境配置文件中PATH变量设置，使得新修改后的PATH变量新增路径“&#x2F;opt&#x2F;bin”，要求修改后的PATH路径对每个用户都能生效。保存后注销当前用户登录，并使用root帐号重新登陆一次，再次开启终端并检查PATH变量的路径列表中是否有添加新的路径“&#x2F;opt&#x2F;bin”。</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps50.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps51.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps52.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps53.jpg" alt="img"></p>
+</li>
+<li><p>把实验5的sdl-image-view.tar.gz中的可执行文件viewimage复制到&#x2F;opt&#x2F;bin，测试一下当&#x2F;opt&#x2F;bin目录添加到PATH路径后，能否在shell任意当前目录执行该程序</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps54.jpg" alt="img"></p>
+</li>
+</ol>
+<hr>
+<h1 id="Linux文件系统"><a href="#Linux文件系统" class="headerlink" title="Linux文件系统"></a>Linux文件系统</h1><h2 id="FHS-目录树"><a href="#FHS-目录树" class="headerlink" title="FHS 目录树"></a>FHS 目录树</h2><p>&#x2F;：根目录，通常以独立分区挂载</p>
+<p>&#x2F;bin：命令行工具，不能单独挂载为一个分区</p>
+<p>&#x2F;boot：linux启动文件，包括linux内核文件以及启动引导程序的配置文件</p>
+<p>&#x2F;dev：设备与外设接口</p>
+<p>&#x2F;etc：配置文件</p>
+<p>&#x2F;home：存放所有普通用户主目录的目录</p>
+<p>&#x2F;lib：系统函数库，不要以单独的分区挂载此目录</p>
+<p>&#x2F;media：可移动设备的挂载点，如软驱、光驱和U盘</p>
+<p>&#x2F;mnt：挂载某些额外设备</p>
+<p>&#x2F;opt：放置非原 linux 发行版提供的第三方软件</p>
+<p>&#x2F;root：root 主目录，需要与根分区处于同一目录</p>
+<p>&#x2F;sbin：系统管理命令，不要以单独的分区挂载此目录</p>
+<p>&#x2F;tmp：临时文件目录</p>
+<p>&#x2F;usr：与 UNIX 操作系统软件资源相关的目录</p>
+<p>&#x2F;var：与系统运行过程有关</p>
+<hr>
+<h2 id="文件与文件类型"><a href="#文件与文件类型" class="headerlink" title="文件与文件类型"></a>文件与文件类型</h2><p>“一切皆文件”</p>
+<p>普通文件、目录文件</p>
+<p>设备文件：系统把每个I&#x2F;O设备都看成一个文件，通常在 &#x2F;dev 下</p>
+<p>链接文件：硬链接、软链接</p>
+<p>管道文件：当两个进程需要进行数据与信息传递时，可以使用管道文件。写入的数据每次都添加到管道缓冲区的末尾，读数据的时候都是从缓冲区的头部读出数据的，管道文件通常建立在内存中</p>
+<hr>
+<h2 id="文件系统访问-Shell-命令"><a href="#文件系统访问-Shell-命令" class="headerlink" title="文件系统访问 Shell 命令"></a>文件系统访问 Shell 命令</h2><p>依旧记一些少用的</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cp</span> 文件1 文件2 文件3 目录
+<span class="token function">mv</span> 文件1 文件2 文件3 目录
+<span class="token comment"># 复制/移动多个文件到目录</span>
+<span class="token function">cp</span> <span class="token parameter variable">-r</span> 源目录 目标目录
+<span class="token comment"># 以递归形式复制整个目录的文件及其下级子目录</span>
+
+<span class="token function">rm</span> -f/--force
+<span class="token comment"># 从不提示，直接删除</span>
+<span class="token function">rm</span> <span class="token punctuation">[</span>-i/--interactive<span class="token punctuation">]</span>
+<span class="token comment"># 交互式删除，等待用户确认，需要主动输入y进行确认</span>
+<span class="token function">rm</span> -r/-R/--recursive
+<span class="token comment"># 将参数中列出的全部目录和子目录均递归删除</span>
+
+<span class="token function">cat</span> <span class="token operator">></span> filename
+<span class="token comment"># 从键盘创建一个文件，结合输出重定向，ctrl+d结束输入</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>复制 &#x2F;etc&#x2F;fstab、&#x2F;etc&#x2F;inittab 文件到 &#x2F;root&#x2F;lab4&#x2F;bak&#x2F; 目录：</p>
+<p>可用<code>cp /etc/fstab /etc/inittab /root/lab4/bak/</code></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps12.jpg" alt="img"></p>
+<p>复制&#x2F;etc&#x2F;passwd文件到&#x2F;root&#x2F;lab4&#x2F;bak&#x2F;目录，并把该文件重命名为passwd.bk：</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/10.jpg" alt="img"></p>
+<p>使用<code>cat &gt; hello.txt</code>命令建立文件hello.txt，输入5行英文：</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps11.jpg" alt="img"></p>
+<p>执行<code>view /root/lab4/file/hello.txt</code>验证文件内容是否是前一步输入的内容：</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/11.jpg" alt="img"></p>
+<p>把&#x2F;root&#x2F;lab4&#x2F;file&#x2F;hello.txt文件复制到&#x2F;root&#x2F;lab4&#x2F;temp&#x2F;目录：</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/12.jpg" alt="img"></p>
+<p>删除非空目录&#x2F;root&#x2F;lab4&#x2F;aa：</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps13.jpg" alt="img"></p>
+<p>复制文件 &#x2F;root&#x2F;lab4&#x2F;file&#x2F;hello.txt 到 &#x2F;root&#x2F;lab4&#x2F;file&#x2F; 目录中并命名为hello-new.txt：</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps14.jpg" alt="img"></p>
+<hr>
+<h2 id="从rpm包安装tree"><a href="#从rpm包安装tree" class="headerlink" title="从rpm包安装tree"></a>从rpm包安装tree</h2><p>把树形目录列表显示工具 tree 软件安装包文件 tree-1.5.3-2.el6.i686.rpm 通过 winscp 复制到 Linux 虚拟机，进入该 rpm 包所在的目录，执行 rpm 软件包安装命令<code>rpm -ivh tree-1.5.3-2.el6.i686.rpm</code>安装 tree 工具软件包</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps15.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps16.jpg" alt="img"></p>
+<hr>
+<h2 id="使用外部存储设备"><a href="#使用外部存储设备" class="headerlink" title="使用外部存储设备"></a>使用外部存储设备</h2><p>vmware 连接U盘到虚拟机中</p>
+<p>mount 挂载</p>
+<p>umount 卸载</p>
+<p>设U盘安装的加载点为 &#x2F;media&#x2F;KINGSTON，识别为 &#x2F;dev&#x2F;sdb1</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">umount</span> /dev/sdb1
+<span class="token comment"># 或</span>
+<span class="token function">umount</span> /media/KINGSTON
+
+<span class="token function">mkdir</span> <span class="token parameter variable">-p</span> /mnt/usbdisk
+<span class="token function">mount</span> <span class="token parameter variable">-t</span> vfat <span class="token parameter variable">-o</span> <span class="token assign-left variable">iocharset</span><span class="token operator">=</span>utf8 /dev/sdb1 /mnt/usbdisk<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="文件系统权限配置与管理"><a href="#文件系统权限配置与管理" class="headerlink" title="文件系统权限配置与管理"></a>文件系统权限配置与管理</h2><p>Linux 文件系统支持 UGO（User, Group, Other）访问控制机制</p>
+<p>UGO 访问控制模型通过给linux系统中的文件赋予两个属性来起作用：所有者和访问权限</p>
+<p>查看文件所有者与文件权限属性：</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241217003804957.png" alt="image-20241217003804957"></p>
+<p>文件权限位：drwxr-xr-x	文件拥有者：root	文件所属组：4096</p>
+<br>
+
+<p>文件权限位示意图：</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241217003306623.png" alt="image-20241217003306623"></p>
+<p>文件类型：&quot;-&quot;为普通文件，&quot;d&quot;为目录文件，&quot;i&quot;为连接文件，&quot;b”为块设备文件，&quot;c&quot;为字符设备文件</p>
+<br>
+
+<p>权限的数字表示形式：使用3位八进制的数字形式表示某个文件或目录实际配置的权限</p>
+<p>如 rwx r-x r-x，其中转换进制：</p>
+<p>rwx —— 111 —— 7（二进制转换为八进制）</p>
+<p>r-x —— 101 —— 5</p>
+<br>
+
+<h3 id="文件权限设置"><a href="#文件权限设置" class="headerlink" title="文件权限设置"></a>文件权限设置</h3><p>权限修改命令：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">chmod</span> <span class="token punctuation">[</span>-R<span class="token punctuation">]</span> <span class="token punctuation">[</span>who<span class="token punctuation">]</span> <span class="token punctuation">[</span>+ <span class="token operator">|</span> - <span class="token operator">|</span> <span class="token operator">=</span><span class="token punctuation">]</span> <span class="token punctuation">[</span>mode<span class="token punctuation">]</span> <span class="token operator">&lt;</span>file_name<span class="token operator">></span>/<span class="token operator">&lt;</span>directory_name<span class="token operator">></span>
+<span class="token parameter variable">-R</span> <span class="token comment"># 表示递归设置，即整个目录树都使用相同的权限配置</span>
+<span class="token function">who</span> <span class="token comment"># 表示操作对象，有u（user）、g（group）、o（others）、a（all）可选</span>
++ <span class="token comment"># 添加权限</span>
+- <span class="token comment"># 取消权限</span>
+<span class="token operator">=</span> <span class="token comment"># 直接赋予给定的权限，取消所有以前设置的权限</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<br>
+
+<p>文件拥有者修改命令：</p>
+<p>root 用户可以直接修改文件拥有者</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">chown</span> <span class="token punctuation">[</span>-R<span class="token punctuation">]</span> <span class="token operator">&lt;</span>user_name<span class="token operator">></span> <span class="token operator">&lt;</span>directory_name<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<br>
+
+<p>文件所在组修改命令：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">chgrp</span> <span class="token punctuation">[</span>-R<span class="token punctuation">]</span> <span class="token operator">&lt;</span>group_name<span class="token operator">></span> <span class="token operator">&lt;</span>file_name<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+
+<hr>
+<h1 id="Linux用户账号配置与管理"><a href="#Linux用户账号配置与管理" class="headerlink" title="Linux用户账号配置与管理"></a>Linux用户账号配置与管理</h1><h2 id="获取登录用户账号信息"><a href="#获取登录用户账号信息" class="headerlink" title="获取登录用户账号信息"></a>获取登录用户账号信息</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">id</span>
+<span class="token comment"># 查看用户账号信息，如用户UID、主组GID、用户所属组的信息</span>
+<span class="token function">ps</span> <span class="token parameter variable">-l</span>
+<span class="token comment"># 查看当前正在运行进程的详细信息，包括建立进程的UID、进程PID和创建该进程的父进程PPID</span>
+<span class="token function">ls</span> <span class="token parameter variable">-ln</span>
+<span class="token comment"># 查看文件系统中文件与目录的拥有者的UID与文件所处的组的GID信息</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="用户"><a href="#用户" class="headerlink" title="用户"></a>用户</h3><p>Linux 是多用户多任务操作系统，从本地或从远程登录的多个用户可以同时使用同一台运行 Linux 操作系统的计算机</p>
+<p>Linux 系统内部使用用户ID（UID）来识别用户</p>
+<p>在 Linux 系统中所有进行的工作都是以进程的方式进行的，运行的程序都体现为进程</p>
+<p>用户账号分为三类：</p>
+<ul>
+<li>超级用户：root，UID为0，GID为0，最高权限</li>
+<li>普通用户：只能管理自己启动的进程，只能操作其拥有权限的文件与目录，通常普通用户默认配置的UID值为500~60000</li>
+<li>系统用户：伪用户，与系统服务相关，UID值为1~499</li>
+</ul>
+<h3 id="用户组"><a href="#用户组" class="headerlink" title="用户组"></a>用户组</h3><p>具有相同特征或具有某种特定联系的用户的集合，用于表示该组内所有用户的账号称为组账号</p>
+<p>Linux 系统中每个用户账号至少属于一个用户组；一个组中可以有多个用户，一个用户也可以属于多个不同的组；一个用户只能属于一个主组，但可以同时属于多个附加组</p>
+<p>主组：用户登录 Linux 系统后的默认组，在 &#x2F;etc&#x2F;passwd 中的 GID 字段有记载，用户的主组可以切换，使用<code>newgrp 组名</code>，切换后原先的组变为附加组</p>
+<p>用户组分类：</p>
+<ul>
+<li>标准组</li>
+<li>系统组</li>
+<li>私有组</li>
+</ul>
+<p>如要使多个用户能查看、修改某一文件或执行某个命令，可以先把这些用户都定义到同一用户组，然后修改文件或目录的权限，让改用户组具有相应的权限</p>
+<h3 id="用户与用户组信息文件"><a href="#用户与用户组信息文件" class="headerlink" title="用户与用户组信息文件"></a>用户与用户组信息文件</h3><ul>
+<li><p>用户账号信息 &#x2F;etc&#x2F;passwd</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">用户名:口令（该字段现已为x或*）:<span class="token environment constant">UID</span>:GID:注释性描述:主目录:登录shell<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241216215628084.png" alt="image-20241216215628084"></p>
+</li>
+<li><p>用户密码信息及其密码时限文件 &#x2F;etc&#x2F;shadow</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">用户名:加密口令:口令最后修改时间:口令最小有效天数:口令最大有效天数:警告时间:不活动时间:账号过期失效时间:标志<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241216215831695.png" alt="image-20241216215831695"></p>
+</li>
+<li><p>用户组信息文件 &#x2F;etc&#x2F;group</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">组名:口令:GID:组内成员列表<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241216220053865.png" alt="image-20241216220053865"></p>
+</li>
+<li><p>用户组密码文件 &#x2F;etc&#x2F;gshadow</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">组名:口令:组管理者:组成员<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241216220302442.png" alt="image-20241216220302442"></p>
+</li>
+</ul>
+<hr>
+<h2 id="建立用户和用户组账号"><a href="#建立用户和用户组账号" class="headerlink" title="建立用户和用户组账号"></a>建立用户和用户组账号</h2><p>建立用户组</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">groupadd</span> 选项 用户组名
+<span class="token function">groupadd</span> <span class="token parameter variable">-g</span> GID 用户组名<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>建立用户账号并设定登录密码</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">useradd</span> 选项 用户名
+<span class="token parameter variable">-u</span> <span class="token environment constant">UID</span> <span class="token comment"># 指定用户账号对应的UID</span>
+<span class="token parameter variable">-g</span> 组名 <span class="token comment"># 指定用户账号的初始默认组</span>
+<span class="token parameter variable">-G</span> 组名1，组名2，组名3，<span class="token punctuation">..</span>. <span class="token comment"># 指定用户所属的附加组</span>
+<span class="token parameter variable">-m</span> <span class="token comment"># 创建用户主目录</span>
+<span class="token parameter variable">-M</span> <span class="token comment"># 不建立用户主目录</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>设置密码</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">passwd</span> 选项 用户名
+<span class="token parameter variable">--stdin</span> <span class="token comment"># 从标准输入读取令牌</span>
+<span class="token builtin class-name">echo</span> <span class="token string">""</span> <span class="token operator">|</span> <span class="token function">passwd</span> <span class="token parameter variable">--stdin</span> 用户名<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>设定组密码与管理组成员</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">gpasswd <span class="token punctuation">[</span>-a user<span class="token punctuation">]</span> <span class="token punctuation">[</span>-d user<span class="token punctuation">]</span><span class="token punctuation">[</span>-A user,<span class="token punctuation">..</span>.<span class="token punctuation">]</span><span class="token punctuation">[</span>-M user,<span class="token punctuation">..</span>.<span class="token punctuation">]</span><span class="token punctuation">[</span>-r<span class="token punctuation">]</span><span class="token punctuation">[</span>-R<span class="token punctuation">]</span> groupname<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>修改用户账号</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">usermod</span> 选项 用户名
+<span class="token function">usermod</span> <span class="token parameter variable">-m</span> <span class="token parameter variable">-d</span> /home/new-dir user1
+<span class="token comment"># 修改用户user1的主目录为/home/new-dir，把原来用户的主目录迁移到新目录中</span>
+<span class="token function">usermod</span> <span class="token parameter variable">-l</span> new-username user1
+<span class="token comment"># 修改用户user1的用户名为new-username</span>
+
+<span class="token parameter variable">-g</span> 组名 <span class="token comment"># 修改用户账号的初始默认组（主组）</span>
+<span class="token parameter variable">-G</span> 组名1 组名2 组名3 <span class="token comment"># 修改用户所属的附加组</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>修改用户组信息</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">groupmod</span> 选项 用户组
+<span class="token function">groupmod</span> <span class="token parameter variable">-g</span> <span class="token number">600</span> group2
+<span class="token comment"># 将组group2的组标识号修改为600</span>
+<span class="token function">groupmod</span> <span class="token parameter variable">-g</span> <span class="token number">10000</span> <span class="token parameter variable">-n</span> group3 group2
+<span class="token comment"># 将组group2的标识号改为10000，组名修改为group3</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>删除用户、删除组</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">groupdel</span> 用户组
+
+<span class="token function">userdel</span> <span class="token parameter variable">-r</span> 用户名
+<span class="token comment"># -r删除用户时也删除用户相关的文件</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<br>
+
+<h3 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h3><p>建立标准组:account （gid&#x3D;1200）、admin   (gid&#x3D;1000)、sale  (gid&#x3D;1100)</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/1.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/2.jpg" alt="img"></p>
+<p>建立一个主组属于admin的帐号 admin-user1，其uid为1001<br>建立一个附加组属于admin的帐号 admin-user2，其uid为1002<br>建立一个主组属于sale的帐号 sale-user1，其uid为1101<br>建立一个附加组属于sale的帐号 sale-user2，其uid为1102<br>建立一个主组属于account的帐号 account-user1，其uid为1201<br>建立一个附加组属于account的帐号 account-user2，其uid为1202<br>建立一个主组属于admin，附加组属于sale、account的用户帐号 admin-all，uid为1000<br>建立完用户后 ，给这些用户设定初始密码&quot;123456&quot;</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/3.jpg" alt="img"></p>
+<p>建立两个新组 fjnumcs、fjnu</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/4.jpg" alt="img"></p>
+<p>建立用户 jack、lucy，并把其主组设置为 fjnumcs，附加组设置为 fjnu</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/6.jpg" alt="img"></p>
+<hr>
+<h2 id="口令时限机制"><a href="#口令时限机制" class="headerlink" title="口令时限机制"></a>口令时限机制</h2><p>每个用户账号的口令时效配置参数体现在 &#x2F;etc&#x2F;shadow</p>
+<p>设置口令时效信息有两种方式：</p>
+<ol>
+<li>对所有新建立的用户自动设置并启动口令时效机制，需要修改建立用户的默认配置文件 &#x2F;etc&#x2F;login.defs 以及 &#x2F;etc&#x2F;default&#x2F;useradd</li>
+<li>对已经建立好的用户账号，可以用<code>chage</code>命令修改口令时效参数</li>
+</ol>
+<p>在 &#x2F;etc&#x2F;login.defs 修改系统关于口令的默认设置，使得密码长度不小于8位，口令有效期为60天</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/5.jpg" alt="img"></p>
+<p>&#x2F;etc&#x2F;default&#x2F;useradd</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241217002104424.png" alt="image-20241217002104424"></p>
+<p>INACTIVE（口令从过期到锁定的时间）</p>
+<p>EXPIRE（失效日期）</p>
+<hr>
+<h2 id="情景实验：Linux用户组共享目录权限配置"><a href="#情景实验：Linux用户组共享目录权限配置" class="headerlink" title="情景实验：Linux用户组共享目录权限配置"></a>情景实验：Linux用户组共享目录权限配置</h2><ol>
+<li><p>某公司新来了5个合约为2年的员工（jack、tom、jerry、jason、ketty），这些人员成立了一个研发团队，为这些员工建立一个用户账号，并为建立用户账号把新建立的员工归属到附加组g_deepmind。要求，设定每个员工需要每隔90天修改密码，账号有效期到2023年12月31日。</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/7.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/8.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/91.jpg" alt="img"></p>
+</li>
+<li><p>为研发团队g_deepmind建立一个组共享目录&#x2F;home&#x2F;g_deepmind，使得g_deepmind组中的用户能够通过该共享目录&#x2F;home&#x2F;g_deepmind相互共享并交换文件，要求用户在该目录中建立的文件能够不能被其他用户随意删除（目录拥有者除外，可以设置目录拥有者为项目组长），并且自动与用户组成员共享。</p>
+</li>
+</ol>
+<p>   <img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/101.jpg" alt="img"></p>
+<ol start="3">
+<li><p>建立临时用户t_user1、t_user2，配置用户组g_deepmind，使得临时用户也可以切换g_deepmind为主组登陆系统，临时访问组共享目录&#x2F;home&#x2F;g_deepmind。</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/111.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/121.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/131.jpg" alt="img"></p>
+</li>
+</ol>
+<hr>
+<h1 id="Linux软件包安装与管理"><a href="#Linux软件包安装与管理" class="headerlink" title="Linux软件包安装与管理"></a>Linux软件包安装与管理</h1><h2 id="软件包依赖性"><a href="#软件包依赖性" class="headerlink" title="软件包依赖性"></a>软件包依赖性</h2><p>任务1：运行预先编译好的jpg图片查看可执行程序viewimage</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps41.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps42.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps43.jpg" alt="img"></p>
+<p>任务2： 编译运行源码软件，cmatrix-1.2a.tar.gz</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps44.jpg" alt="img"></p>
+<hr>
+<h2 id="软件编译安装"><a href="#软件编译安装" class="headerlink" title="软件编译安装"></a>软件编译安装</h2><p>尝试在rhel6.3或者ubuntu18.04系统中编译fswebcam</p>
+<p>上传并解压fswebcam_20140113.orig.tar.xz</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./configure<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>报错<code>configure: error: GD graphics library not found</code></p>
+<p>安装 GD 库</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">yum <span class="token function">install</span> gd-devel<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>不幸的是查无此库</p>
+<p>尝试从源码编译 gd-devel，源码包下载：<a target="_blank" rel="noopener" href="https://github.com/libgd/libgd/releases/download/gd-2.3.2/libgd-2.3.2.tar.xz">https://github.com/libgd/libgd/releases/download/gd-2.3.2/libgd-2.3.2.tar.xz</a></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./configure
+<span class="token function">make</span><span class="token operator">&amp;&amp;</span><span class="token function">make</span> <span class="token function">install</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>这样就可以编译 fswebcam 了</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./configure
+<span class="token function">make</span><span class="token operator">&amp;&amp;</span><span class="token function">make</span> <span class="token function">install</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241106012228777.png" alt="image-20241106012228777"></p>
+<p>尝试以不同分辨率运行</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">fswebcam <span class="token parameter variable">-r</span> 800x600 --no-banner d1.jpg <span class="token parameter variable">-d</span> /dev/video0
+fswebcam <span class="token parameter variable">-r</span> 960x720 --no-banner d2.jpg <span class="token parameter variable">-d</span> /dev/video0
+fswebcam <span class="token parameter variable">-r</span> 640x480 --no-banner d3.jpg <span class="token parameter variable">-d</span> /dev/video0
+fswebcam <span class="token parameter variable">-D</span> <span class="token number">10</span> <span class="token parameter variable">-r</span> 640x480 --no-banner d3.jpg <span class="token parameter variable">-d</span> /dev/video0
+fswebcam <span class="token parameter variable">-D</span> <span class="token number">2</span> <span class="token parameter variable">--title</span> <span class="token string">"welcome"</span> <span class="token parameter variable">-r</span> 640x480  d3.jpg <span class="token parameter variable">-d</span> /dev/video0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>执行时报错<code>fswebcam: error while loading shared libraries: libgd.so.3: cannot open shared object file: No such file or directory</code>，没找到库文件</p>
+<p>全局搜索对应文件并添加 LD_LIBRARY_PATH</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">find</span> / <span class="token parameter variable">-name</span> <span class="token string">"libgd.so.3"</span>
+<span class="token builtin class-name">export</span> <span class="token assign-left variable">LD_LIBRARY_PATH</span><span class="token operator">=</span>/root/ex_lab/libgd-2.3.2/src/.libs:<span class="token variable">$LD_LIBRARY_PATH</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>然后就可以成功运行了</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241106012633210.png" alt="image-20241106012633210"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241106012744417.png" alt="image-20241106012744417"></p>
+<hr>
+<h2 id="RPM-amp-YUM（CentOS系）"><a href="#RPM-amp-YUM（CentOS系）" class="headerlink" title="RPM&amp;YUM（CentOS系）"></a>RPM&amp;YUM（CentOS系）</h2><ol>
+<li><p>启动RHEL6.3虚拟机，使用root登陆，加载RHEL6.3安装光盘</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps26.jpg" alt="img"></p>
+</li>
+<li><p>使用“rpm -qa  | grep -i  SDL” 查看Linux系统中已经安装的软件包列表中是否包括有SDL、SDL-devel（SDL是一种游戏引擎开发库，SDL-devel是其对应开发包），如果有安装SDL-devel软件包，请使用rpm工具的卸载命令SDL-devel软件包；</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps27.jpg" alt="img"></p>
+</li>
+<li><p>使用rpm查询系统已经安装软件的命令查看Linux系统中是否已经安装SDL_image、SDL_image-devel软件包</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps28.jpg" alt="img"></p>
+</li>
+<li><p>进入光盘安装加载目录，在RHEL6.3安装光盘Packages目录中的查找SDL、SDL-devel以及alsa-lib-devel对应的rpm安装文件</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps29.jpg" alt="img"></p>
+</li>
+<li><p>使用查询rpm软件包中文件列表的命令<code>rpm -qpl</code>查看实验资源目录lab6中的SDL_image-1.2.12-9.el6.i686.rpm、SDL_image-devel-1.2.12-9.el6.i686.rpm两个rpm文件中包含有哪些文件</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps30.jpg" alt="img"></p>
+</li>
+<li><p>使用查询rpm软件包中文件列表的命令<code>rpm -qpl</code>查看SDL-1.2.14-3.el6.i686.rpm、SDL-devel-1.2.14-3.el6.i686.rpm 两个rpm软件包安装文件中包含有哪些文件</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps31.jpg" alt="img"></p>
+</li>
+<li><p>找出RHEL6.3安装光盘Packages目录中的libjpeg、libjpeg-devel软件包对应的rpm文件，使用rpm查询命令并找出当安装这2个rpm包将会向Linux文件系统安装了哪些文件？</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps32.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps33.jpg" alt="img"></p>
+</li>
+<li><p>尝试使用rpm工具的安装命令安装SDL_image库对应的两个软件包： SDL_image-1.2.12-9.el6.i686.rpm、SDL_image-devel-1.2.12-9.el6.i686.rpm。</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps34.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps35.jpg" alt="img"></p>
+</li>
+<li><p>尝试使用rpm工具的安装命令安装SDL_image库对应的两个软件包： SDL-1.2.14-3.el6.i686.rpm、SDL-devel-1.2.14-3.el6.i686.rpm。</p>
+</li>
+</ol>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps36.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps37.jpg" alt="img"></p>
+<ol start="10">
+<li><p>使用提供的yum本地源配置文件rhel-local.repo，配置RHEL6.3的安装光盘成为yum的本地源，并使用yum工具安装SDL-devel-1.2.14-3.el6.i686.rpm。</p>
+<ul>
+<li><p>复制rhel-local.repo到&#x2F;etc&#x2F;yum.repos.d目录；</p>
+</li>
+<li><p>执行yum  repolist查看yum是否正确配置本地yum源；</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps38.jpg" alt="img"></p>
+</li>
+<li><p>使用rpm工具查询当前系统是否安装软件包tree，如果已经安装，请尝试使用yum命令卸载tree，然后使用yum install tree命令安装tree软件包；</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps39.jpg" alt="img"></p>
+</li>
+<li><p>进入实验目录&#x2F;root&#x2F;lab6-xxx-xxx，执行以下命令安装rpm软件SDL-devel，注意观察安装过程中都安装了哪些软件包：<br>“yum  install  SDL-devel-1.2.14-3.el6.i686.rpm”</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps40.jpg" alt="img"></p>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h1 id="Linux-Shell脚本编程"><a href="#Linux-Shell脚本编程" class="headerlink" title="Linux Shell脚本编程"></a>Linux Shell脚本编程</h1><h2 id="系统变量"><a href="#系统变量" class="headerlink" title="系统变量"></a>系统变量</h2><p><code>$&#123;n&#125;</code>：位置变量</p>
+<p><code>$?</code>：保存前一条 Shell 命令的执行返回值。通常0代表执行成功，非0代表执行有误</p>
+<p><code>$*</code>：以&quot;$1 $2” 形式保存的所有的命令行参数，作为一个单独的变量</p>
+<p><code>$@</code>：以&quot;$1” &quot;$2” 形式保存的所有命令行参数，作为一个集合使用</p>
+<p><code>$0</code>：当前运行的脚本路径</p>
+<p><code>$$</code>：返回当前进程的PID</p>
+<hr>
+<h2 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token assign-left variable">name</span><span class="token operator">=</span><span class="token punctuation">(</span>value0 value1 value2 value3 <span class="token punctuation">..</span>.<span class="token punctuation">)</span>
+name<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">=</span>value0
+name<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token operator">=</span>value1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><code>$&#123;ARRAY_NAME[n]&#125;</code>：取得数组中的元素</p>
+<p><code>$&#123;	#ARRAY_NAME[@]&#125;</code>或<code>$&#123;	#ARRAY_NAME[*]&#125;</code>：取得数组元素的个数</p>
+<p><code>$&#123;	#ARRAY_NAME[n]&#125;</code>：取得数组中单个分量的长度</p>
+<hr>
+<h2 id="键入"><a href="#键入" class="headerlink" title="键入"></a>键入</h2><p>内部命令 <code>read</code>，用于从键盘读入变量</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">read</span> <span class="token parameter variable">-p</span> <span class="token string">"提示语句"</span> varname、
+<span class="token builtin class-name">read</span> <span class="token parameter variable">-n</span> 字符个数 varname
+<span class="token builtin class-name">read</span> <span class="token parameter variable">-t</span> 时间 varname	<span class="token comment"># 等待时间</span>
+<span class="token builtin class-name">read</span> <span class="token parameter variable">-s</span> varname	<span class="token comment"># 关闭回显</span>
+<span class="token builtin class-name">read</span> <span class="token parameter variable">-a</span> arrayname	<span class="token comment"># 输入数组</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h2 id="数学运算"><a href="#数学运算" class="headerlink" title="数学运算"></a>数学运算</h2><p><code>let</code>命令：在完整的赋值型数学表达式前加上 let 命令，就可以完成整数运算表达式的计算并赋值</p>
+<p><code>expr</code>命令：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">expr</span> 操作数 运算符 操作数<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><code>$(())</code>与<code>$[]</code>：数学表达式计算</p>
+<p><code>bc</code>：浮点数计算</p>
+<hr>
+<h2 id="实验-2"><a href="#实验-2" class="headerlink" title="实验"></a>实验</h2><ol>
+<li><p>编写shell脚本count-fix.sh，实现计算1+2+3+4+5+6+7+8+…+100的和，并输出到屏幕上,分别使用for循环，while循环编写</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+<span class="token assign-left variable">sum_for</span><span class="token operator">=</span><span class="token number">0</span>
+<span class="token keyword">for</span> <span class="token variable"><span class="token punctuation">((</span>i<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span> i<span class="token operator">&lt;=</span><span class="token number">100</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">))</span></span>
+<span class="token keyword">do</span>
+    <span class="token assign-left variable">sum_for</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$((</span>sum_for <span class="token operator">+</span> i<span class="token variable">))</span></span>
+<span class="token keyword">done</span>
+
+<span class="token builtin class-name">echo</span> <span class="token string">"for: <span class="token variable">$sum_for</span>"</span>
+
+<span class="token assign-left variable">sum_while</span><span class="token operator">=</span><span class="token number">0</span>
+<span class="token assign-left variable">j</span><span class="token operator">=</span><span class="token number">1</span>
+<span class="token keyword">while</span> <span class="token punctuation">[</span> <span class="token variable">$j</span> <span class="token parameter variable">-le</span> <span class="token number">100</span> <span class="token punctuation">]</span>
+<span class="token keyword">do</span>
+    <span class="token assign-left variable">sum_while</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$((</span>sum_while <span class="token operator">+</span> j<span class="token variable">))</span></span>
+    <span class="token assign-left variable">j</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$((</span>j <span class="token operator">+</span> <span class="token number">1</span><span class="token variable">))</span></span>
+<span class="token keyword">done</span>
+
+<span class="token builtin class-name">echo</span> <span class="token string">"while: <span class="token variable">$sum_while</span>"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>使用bash的for循环语句编写一脚本batchmkdir.sh，能实现以下功能：在当前目录中建立10个目录，目录的命名形式为dir-1、dir-2、dir-3、…..dir-20，在程序中注意先判断待建立的目录是否已经存在。</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token keyword">for</span> <span class="token variable"><span class="token punctuation">((</span>i<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span> i<span class="token operator">&lt;=</span><span class="token number">10</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">))</span></span>
+<span class="token keyword">do</span>
+    <span class="token assign-left variable">dir_name</span><span class="token operator">=</span><span class="token string">"dir-<span class="token variable">$i</span>"</span>
+
+    <span class="token comment"># 检查目录是否已存在</span>
+    <span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token operator">!</span> <span class="token parameter variable">-d</span> <span class="token string">"<span class="token variable">$dir_name</span>"</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+        <span class="token function">mkdir</span> <span class="token string">"<span class="token variable">$dir_name</span>"</span>
+    <span class="token keyword">fi</span>
+<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>编写一个shell脚本count.sh，实现如下功能，用户可以在count.sh脚本后面跟不同数字的命令行参数，使得脚本能计算不同数字的连加和，并在脚本中注意判断用户是否输入了一个参数，如当用户以“.&#x2F;count.sh 30”运行脚本时，能计算1+2+3+4+…+30，如果用户没有输入参数，则默认计算1到10的连加和。</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token variable">$#</span> <span class="token parameter variable">-eq</span> <span class="token number">0</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+    <span class="token assign-left variable">end_num</span><span class="token operator">=</span><span class="token number">10</span>
+<span class="token keyword">else</span>
+    <span class="token assign-left variable">end_num</span><span class="token operator">=</span><span class="token variable">$1</span>
+<span class="token keyword">fi</span>
+
+<span class="token assign-left variable">sum</span><span class="token operator">=</span><span class="token number">0</span>
+<span class="token keyword">for</span> <span class="token variable"><span class="token punctuation">((</span>i<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span> i<span class="token operator">&lt;=</span>$end_num<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">))</span></span>
+<span class="token keyword">do</span>
+    <span class="token assign-left variable">sum</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$((</span>sum <span class="token operator">+</span> i<span class="token variable">))</span></span>
+<span class="token keyword">done</span>
+
+<span class="token builtin class-name">echo</span> <span class="token string">"和为: <span class="token variable">$sum</span>"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>编写一个脚本batchuser.sh，能批量建立10个用户帐号，并给用户帐号设定8位的随机密码，同时把该用户名与密码保存到指定的文件中&#x2F;root&#x2F;user-pass.txt，以便管理员分发密码；其中帐号的形式为user1、user2、…user10；保存用户名与密码的文件的每行的格式形式为：user1:ChczVZww</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token keyword">for</span> <span class="token variable"><span class="token punctuation">((</span>i<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span> i<span class="token operator">&lt;=</span><span class="token number">10</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">))</span></span>
+<span class="token keyword">do</span>
+    <span class="token assign-left variable">username</span><span class="token operator">=</span><span class="token string">"user<span class="token variable">$i</span>"</span>
+    <span class="token assign-left variable">password</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span>openssl rand <span class="token parameter variable">-base64</span> <span class="token number">6</span><span class="token variable">)</span></span>
+
+    <span class="token function">useradd</span> <span class="token parameter variable">-m</span> <span class="token variable">$username</span>
+    <span class="token builtin class-name">echo</span> <span class="token parameter variable">-e</span> <span class="token string">"<span class="token variable">$password</span><span class="token entity" title="\n">\n</span><span class="token variable">$password</span>"</span> <span class="token operator">|</span> <span class="token function">passwd</span> <span class="token variable">$username</span> <span class="token parameter variable">--stdin</span>
+
+    <span class="token builtin class-name">echo</span> <span class="token string">"<span class="token variable">$username</span>:<span class="token variable">$password</span>"</span> <span class="token operator">>></span> /root/user-pass.txt
+<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>编写一个shell脚本，实现以下功能：该脚本能读取usernamelist.txt中的用户列表（一行一个用户名）建立帐号，并给每个帐号设置8位随机密码，同时把该用户名与密码保存到指定userpass.txt 文件中，密码文件的格式同第4题的要求。要求要跳过空行。</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token keyword">while</span> <span class="token assign-left variable"><span class="token environment constant">IFS</span></span><span class="token operator">=</span> <span class="token builtin class-name">read</span> <span class="token parameter variable">-r</span> username
+<span class="token keyword">do</span>
+    <span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token parameter variable">-z</span> <span class="token string">"<span class="token variable">$username</span>"</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+        <span class="token builtin class-name">continue</span>
+    <span class="token keyword">fi</span>
+
+    <span class="token assign-left variable">password</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span>openssl rand <span class="token parameter variable">-base64</span> <span class="token number">6</span><span class="token variable">)</span></span>
+
+    <span class="token function">useradd</span> <span class="token parameter variable">-m</span> <span class="token variable">$username</span>
+    <span class="token builtin class-name">echo</span> <span class="token parameter variable">-e</span> <span class="token string">"<span class="token variable">$password</span><span class="token entity" title="\n">\n</span><span class="token variable">$password</span>"</span> <span class="token operator">|</span> <span class="token function">passwd</span> <span class="token variable">$username</span> <span class="token parameter variable">--stdin</span>
+
+    <span class="token builtin class-name">echo</span> <span class="token string">"<span class="token variable">$username</span>:<span class="token variable">$password</span>"</span> <span class="token operator">>></span> userpass.txt
+<span class="token keyword">done</span> <span class="token operator">&lt;</span> <span class="token string">"usernamelist.txt"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>脚本capprintfile.sh</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token keyword">for</span> <span class="token for-or-select variable">file</span> <span class="token keyword">in</span> <span class="token string">"<span class="token variable">$@</span>"</span>
+<span class="token keyword">do</span>
+ <span class="token builtin class-name">echo</span> <span class="token variable">$file</span><span class="token operator">|</span><span class="token function">tr</span> a-z A-Z
+<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>建立目录 &#x2F;root&#x2F;lab-shell&#x2F;，并使用 touch 命令建立一些空文件或者使用 mkdir 建立一些目录，然后以<code>./capprintfile.sh /  /root/lab-shell/*</code> 的形式运行脚本，观察结果</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps25.jpg" alt="img"></p>
+<p>编写一个脚本，能把指定目录&#x2F;root&#x2F;lab-shell&#x2F;中的文件的文件名全改名为大写，并测试运行</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token builtin class-name">cd</span> /root/lab-shell/
+
+<span class="token keyword">for</span> <span class="token for-or-select variable">file</span> <span class="token keyword">in</span> *
+<span class="token keyword">do</span>
+    <span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token parameter variable">-f</span> <span class="token string">"<span class="token variable">$file</span>"</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+        <span class="token assign-left variable">new_name</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span><span class="token builtin class-name">echo</span> <span class="token string">"<span class="token variable">$file</span>"</span> <span class="token operator">|</span> <span class="token function">tr</span> <span class="token string">'[:lower:]'</span> <span class="token string">'[:upper:]'</span><span class="token variable">)</span></span>
+        <span class="token function">mv</span> <span class="token string">"<span class="token variable">$file</span>"</span> <span class="token string">"<span class="token variable">$new_name</span>"</span>
+    <span class="token keyword">fi</span>
+<span class="token keyword">done</span>
+
+<span class="token builtin class-name">echo</span> <span class="token string">"Finished"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>设计一个脚本checkmd5.sh，实现用于检测Linux系统某些特定重要文件是否被修改的功能</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token string">"<span class="token variable">$#</span>"</span> <span class="token parameter variable">-ne</span> <span class="token number">1</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+    <span class="token builtin class-name">echo</span> <span class="token string">"Usage: <span class="token variable">$0</span> &lt;file_list_with_md5sum>"</span>
+    <span class="token builtin class-name">exit</span> <span class="token number">1</span>
+<span class="token keyword">fi</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token operator">!</span> <span class="token parameter variable">-f</span> <span class="token string">"<span class="token variable">$1</span>"</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+    <span class="token builtin class-name">echo</span> <span class="token string">"Error: 文件列表不存在."</span>
+    <span class="token builtin class-name">exit</span> <span class="token number">1</span>
+<span class="token keyword">fi</span>
+
+<span class="token keyword">while</span> <span class="token assign-left variable"><span class="token environment constant">IFS</span></span><span class="token operator">=</span> <span class="token builtin class-name">read</span> <span class="token parameter variable">-r</span> line
+<span class="token keyword">do</span>
+    <span class="token assign-left variable">file</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span><span class="token builtin class-name">echo</span> <span class="token string">"<span class="token variable">$line</span>"</span> <span class="token operator">|</span> <span class="token function">awk</span> <span class="token string">'&#123;print $1&#125;'</span><span class="token variable">)</span></span>
+    <span class="token assign-left variable">expected_md5</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span><span class="token builtin class-name">echo</span> <span class="token string">"<span class="token variable">$line</span>"</span> <span class="token operator">|</span> <span class="token function">awk</span> <span class="token string">'&#123;print $2&#125;'</span><span class="token variable">)</span></span>
+    
+    <span class="token assign-left variable">current_md5</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span>md5sum <span class="token string">"<span class="token variable">$file</span>"</span> <span class="token operator">|</span> <span class="token function">awk</span> <span class="token string">'&#123;print $1&#125;'</span><span class="token variable">)</span></span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token string">"<span class="token variable">$current_md5</span>"</span> <span class="token operator">!=</span> <span class="token string">"<span class="token variable">$expected_md5</span>"</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+        <span class="token builtin class-name">echo</span> <span class="token string">"文件 <span class="token variable">$file</span> 已被修改！"</span>
+    <span class="token keyword">else</span>
+        <span class="token builtin class-name">echo</span> <span class="token string">"文件 <span class="token variable">$file</span> 未被修改。"</span>
+    <span class="token keyword">fi</span>
+<span class="token keyword">done</span> <span class="token operator">&lt;</span> <span class="token string">"<span class="token variable">$1</span>"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+</ol>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token comment"># 检查参数是否正确</span>
+<span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token variable">$#</span> <span class="token parameter variable">-ne</span> <span class="token number">1</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+    <span class="token builtin class-name">echo</span> <span class="token string">"Usage: <span class="token variable">$0</span> &lt;ip_list_file>"</span>
+    <span class="token builtin class-name">exit</span> <span class="token number">1</span>
+<span class="token keyword">fi</span>
+
+<span class="token assign-left variable">ip_list_file</span><span class="token operator">=</span><span class="token variable">$1</span>
+
+<span class="token comment"># 检查文件是否存在</span>
+<span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token operator">!</span> <span class="token parameter variable">-f</span> <span class="token string">"<span class="token variable">$ip_list_file</span>"</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+    <span class="token builtin class-name">echo</span> <span class="token string">"Error: File <span class="token variable">$ip_list_file</span> not found."</span>
+    <span class="token builtin class-name">exit</span> <span class="token number">1</span>
+<span class="token keyword">fi</span>
+
+<span class="token comment"># 逐行读取 IP 地址并进行 ping 测试</span>
+<span class="token keyword">while</span> <span class="token assign-left variable"><span class="token environment constant">IFS</span></span><span class="token operator">=</span> <span class="token builtin class-name">read</span> <span class="token parameter variable">-r</span> <span class="token function">ip</span><span class="token punctuation">;</span> <span class="token keyword">do</span>
+    <span class="token builtin class-name">echo</span> <span class="token string">"Pinging IP: <span class="token variable">$ip</span>"</span>
+    <span class="token function">ping</span> <span class="token parameter variable">-c</span> <span class="token number">1</span> <span class="token variable">$ip</span> <span class="token operator">></span> /dev/null
+    <span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token variable">$?</span> <span class="token parameter variable">-eq</span> <span class="token number">0</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+        <span class="token builtin class-name">echo</span> <span class="token string">"Ping successful"</span>
+    <span class="token keyword">else</span>
+        <span class="token builtin class-name">echo</span> <span class="token string">"Ping failed"</span>
+    <span class="token keyword">fi</span>
+<span class="token keyword">done</span> <span class="token operator">&lt;</span> <span class="token string">"<span class="token variable">$ip_list_file</span>"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h1 id="Linux-gcc源码编译"><a href="#Linux-gcc源码编译" class="headerlink" title="Linux gcc源码编译"></a>Linux gcc源码编译</h1><h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p>在新版本的Linux发行版中，这里选择银河麒麟，安装配置vscode，尝试配置好c&#x2F;c++的编程开发环境</p>
+<p>在vscode官网上下载deb：<a target="_blank" rel="noopener" href="https://code.visualstudio.com/docs/?dv=linux64_deb">https://code.visualstudio.com/docs/?dv=linux64_deb</a></p>
+<p>然后安装</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> dpkg <span class="token parameter variable">-i</span> code_1.95.3-1731513102_amd64.deb<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241203203646070.png" alt="image-20241203203646070"></p>
+<p>接下来配置c&#x2F;c++的开发环境</p>
+<p>先准备好 gcc ， g++ 和 gdb</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241203204406397.png" alt="image-20241203204406397"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241203214320992.png" alt="image-20241203214320992"></p>
+<p>然后在vscode扩展商店下载相关扩展</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241203205157452.png" alt="image-20241203205157452"></p>
+<p>接下来在工作区生成launch.json和tasks.json</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+    <span class="token comment">// Use IntelliSense to learn about possible attributes.</span>
+    <span class="token comment">// Hover to view descriptions of existing attributes.</span>
+    <span class="token comment">// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387</span>
+    <span class="token property">"version"</span><span class="token operator">:</span> <span class="token string">"0.2.0"</span><span class="token punctuation">,</span>
+    <span class="token property">"configurations"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+ 
+        <span class="token punctuation">&#123;</span>
+            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"g++ - Build and debug active file"</span><span class="token punctuation">,</span>
+            <span class="token property">"type"</span><span class="token operator">:</span> <span class="token string">"cppdbg"</span><span class="token punctuation">,</span>
+            <span class="token property">"request"</span><span class="token operator">:</span> <span class="token string">"launch"</span><span class="token punctuation">,</span>
+            <span class="token property">"program"</span><span class="token operator">:</span> <span class="token string">"$&#123;fileDirname&#125;/$&#123;fileBasenameNoExtension&#125;"</span><span class="token punctuation">,</span>
+            <span class="token property">"args"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token property">"stopAtEntry"</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+            <span class="token property">"cwd"</span><span class="token operator">:</span> <span class="token string">"$&#123;fileDirname&#125;"</span><span class="token punctuation">,</span>
+            <span class="token property">"environment"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token property">"externalConsole"</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+            <span class="token property">"MIMode"</span><span class="token operator">:</span> <span class="token string">"gdb"</span><span class="token punctuation">,</span>
+            <span class="token property">"setupCommands"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+                <span class="token punctuation">&#123;</span>
+                    <span class="token property">"description"</span><span class="token operator">:</span> <span class="token string">"Enable pretty-printing for gdb"</span><span class="token punctuation">,</span>
+                    <span class="token property">"text"</span><span class="token operator">:</span> <span class="token string">"-enable-pretty-printing"</span><span class="token punctuation">,</span>
+                    <span class="token property">"ignoreFailures"</span><span class="token operator">:</span> <span class="token boolean">true</span>
+                <span class="token punctuation">&#125;</span>
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token property">"preLaunchTask"</span><span class="token operator">:</span> <span class="token string">"C/C++: g++ build active file"</span><span class="token punctuation">,</span>
+            <span class="token property">"miDebuggerPath"</span><span class="token operator">:</span> <span class="token string">"/usr/bin/gdb"</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+    <span class="token property">"version"</span><span class="token operator">:</span> <span class="token string">"2.0.0"</span><span class="token punctuation">,</span>
+    <span class="token property">"tasks"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">&#123;</span>
+            <span class="token property">"type"</span><span class="token operator">:</span> <span class="token string">"cppbuild"</span><span class="token punctuation">,</span>
+            <span class="token property">"label"</span><span class="token operator">:</span> <span class="token string">"C/C++: g++ build active file"</span><span class="token punctuation">,</span>
+            <span class="token property">"command"</span><span class="token operator">:</span> <span class="token string">"/usr/bin/g++"</span><span class="token punctuation">,</span>
+            <span class="token property">"args"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+                <span class="token string">"-g"</span><span class="token punctuation">,</span>
+                <span class="token string">"$&#123;file&#125;"</span><span class="token punctuation">,</span>
+                <span class="token string">"-o"</span><span class="token punctuation">,</span>
+                <span class="token string">"$&#123;fileDirname&#125;/$&#123;fileBasenameNoExtension&#125;"</span>
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token property">"options"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+                <span class="token property">"cwd"</span><span class="token operator">:</span> <span class="token string">"$&#123;fileDirname&#125;"</span>
+            <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+            <span class="token property">"problemMatcher"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+                <span class="token string">"$gcc"</span>
+            <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token property">"group"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+                <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"build"</span><span class="token punctuation">,</span>
+                <span class="token property">"isDefault"</span><span class="token operator">:</span> <span class="token boolean">true</span>
+            <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+            <span class="token property">"detail"</span><span class="token operator">:</span> <span class="token string">"compiler: /usr/bin/g++"</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后f5调试与编译</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241203214446936.png" alt="image-20241203214446936"></p>
+<hr>
+<h2 id="实验1"><a href="#实验1" class="headerlink" title="实验1"></a>实验1</h2><p>math_pic_png.c 是一个能够自动生成一张 1024*1024 的数学分形图像的c代码，生成的图像效果如 math_png_rgb.png 文件所示</p>
+<p>尝试在 rhel 6.3、ubuntu18.04 中编译出可执行程序，并测试运行</p>
+<p>math_pic_png.c</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdint.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;time.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;png.h></span></span>
+
+<span class="token keyword">typedef</span> <span class="token keyword">struct</span> <span class="token class-name">pixel_RGB</span> <span class="token punctuation">&#123;</span>
+    png_byte red<span class="token punctuation">,</span> green<span class="token punctuation">,</span> black<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span> pixel_RGB<span class="token punctuation">;</span>
+
+
+
+<span class="token class-name">uint8_t</span> <span class="token function">random_uint8</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">return</span> <span class="token function">rand</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token number">256</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">void</span> <span class="token function">write_data_to_png</span><span class="token punctuation">(</span>
+    <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>png_name<span class="token punctuation">,</span>
+    png_uint_32 width<span class="token punctuation">,</span>
+    png_uint_32 height<span class="token punctuation">,</span>
+    png_bytepp  data<span class="token punctuation">,</span>
+    <span class="token keyword">int</span>         color_type<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    FILE       <span class="token operator">*</span>fp <span class="token operator">=</span> <span class="token function">fopen</span><span class="token punctuation">(</span>png_name<span class="token punctuation">,</span> <span class="token string">"wb"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    png_structp png <span class="token operator">=</span>
+        <span class="token function">png_create_write_struct</span><span class="token punctuation">(</span>PNG_LIBPNG_VER_STRING<span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    png_infop info <span class="token operator">=</span> <span class="token function">png_create_info_struct</span><span class="token punctuation">(</span>png<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">png_init_io</span><span class="token punctuation">(</span>png<span class="token punctuation">,</span> fp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">png_set_IHDR</span><span class="token punctuation">(</span>
+        png<span class="token punctuation">,</span>
+        info<span class="token punctuation">,</span>
+        width<span class="token punctuation">,</span>
+        height<span class="token punctuation">,</span>
+        <span class="token number">8</span><span class="token punctuation">,</span>
+        color_type<span class="token punctuation">,</span>
+        PNG_INTERLACE_NONE<span class="token punctuation">,</span>
+        PNG_COMPRESSION_TYPE_DEFAULT<span class="token punctuation">,</span>
+        PNG_FILTER_TYPE_DEFAULT<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">png_write_info</span><span class="token punctuation">(</span>png<span class="token punctuation">,</span> info<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">png_write_image</span><span class="token punctuation">(</span>png<span class="token punctuation">,</span> data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">png_write_end</span><span class="token punctuation">(</span>png<span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">png_destroy_write_struct</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>png<span class="token punctuation">,</span> <span class="token operator">&amp;</span>info<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">fclose</span><span class="token punctuation">(</span>fp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token comment">//===Mandelbrot ����ͼ�� </span>
+<span class="token keyword">unsigned</span> <span class="token keyword">char</span> <span class="token function">RD</span><span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token punctuation">,</span><span class="token keyword">int</span> j<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+  <span class="token keyword">float</span> x<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span>y<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span><span class="token keyword">int</span> k<span class="token punctuation">;</span><span class="token keyword">for</span><span class="token punctuation">(</span>k<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>k<span class="token operator">++</span><span class="token operator">&lt;</span><span class="token number">256</span><span class="token punctuation">;</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span><span class="token keyword">float</span> a<span class="token operator">=</span>x<span class="token operator">*</span>x<span class="token operator">-</span>y<span class="token operator">*</span>y<span class="token operator">+</span><span class="token punctuation">(</span>i<span class="token operator">-</span><span class="token number">768.0</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">512</span><span class="token punctuation">;</span>y<span class="token operator">=</span><span class="token number">2</span><span class="token operator">*</span>x<span class="token operator">*</span>y<span class="token operator">+</span><span class="token punctuation">(</span>j<span class="token operator">-</span><span class="token number">512.0</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">512</span><span class="token punctuation">;</span>x<span class="token operator">=</span>a<span class="token punctuation">;</span><span class="token keyword">if</span><span class="token punctuation">(</span>x<span class="token operator">*</span>x<span class="token operator">+</span>y<span class="token operator">*</span>y<span class="token operator">></span><span class="token number">4</span><span class="token punctuation">)</span><span class="token keyword">break</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span>
+  <span class="token keyword">return</span> <span class="token function">log</span><span class="token punctuation">(</span>k<span class="token punctuation">)</span><span class="token operator">*</span><span class="token number">47</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">unsigned</span> <span class="token keyword">char</span> <span class="token function">GR</span><span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token punctuation">,</span><span class="token keyword">int</span> j<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+  <span class="token keyword">float</span> x<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span>y<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span><span class="token keyword">int</span> k<span class="token punctuation">;</span><span class="token keyword">for</span><span class="token punctuation">(</span>k<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>k<span class="token operator">++</span><span class="token operator">&lt;</span><span class="token number">256</span><span class="token punctuation">;</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span><span class="token keyword">float</span> a<span class="token operator">=</span>x<span class="token operator">*</span>x<span class="token operator">-</span>y<span class="token operator">*</span>y<span class="token operator">+</span><span class="token punctuation">(</span>i<span class="token operator">-</span><span class="token number">768.0</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">512</span><span class="token punctuation">;</span>y<span class="token operator">=</span><span class="token number">2</span><span class="token operator">*</span>x<span class="token operator">*</span>y<span class="token operator">+</span><span class="token punctuation">(</span>j<span class="token operator">-</span><span class="token number">512.0</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">512</span><span class="token punctuation">;</span>x<span class="token operator">=</span>a<span class="token punctuation">;</span><span class="token keyword">if</span><span class="token punctuation">(</span>x<span class="token operator">*</span>x<span class="token operator">+</span>y<span class="token operator">*</span>y<span class="token operator">></span><span class="token number">4</span><span class="token punctuation">)</span><span class="token keyword">break</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span>
+  <span class="token keyword">return</span> <span class="token function">log</span><span class="token punctuation">(</span>k<span class="token punctuation">)</span><span class="token operator">*</span><span class="token number">47</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">unsigned</span> <span class="token keyword">char</span> <span class="token function">BL</span><span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token punctuation">,</span><span class="token keyword">int</span> j<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+  <span class="token keyword">float</span> x<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span>y<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span><span class="token keyword">int</span> k<span class="token punctuation">;</span><span class="token keyword">for</span><span class="token punctuation">(</span>k<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>k<span class="token operator">++</span><span class="token operator">&lt;</span><span class="token number">256</span><span class="token punctuation">;</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span><span class="token keyword">float</span> a<span class="token operator">=</span>x<span class="token operator">*</span>x<span class="token operator">-</span>y<span class="token operator">*</span>y<span class="token operator">+</span><span class="token punctuation">(</span>i<span class="token operator">-</span><span class="token number">768.0</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">512</span><span class="token punctuation">;</span>y<span class="token operator">=</span><span class="token number">2</span><span class="token operator">*</span>x<span class="token operator">*</span>y<span class="token operator">+</span><span class="token punctuation">(</span>j<span class="token operator">-</span><span class="token number">512.0</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">512</span><span class="token punctuation">;</span>x<span class="token operator">=</span>a<span class="token punctuation">;</span><span class="token keyword">if</span><span class="token punctuation">(</span>x<span class="token operator">*</span>x<span class="token operator">+</span>y<span class="token operator">*</span>y<span class="token operator">></span><span class="token number">4</span><span class="token punctuation">)</span><span class="token keyword">break</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span>
+  <span class="token keyword">return</span> <span class="token number">128</span><span class="token operator">-</span><span class="token function">log</span><span class="token punctuation">(</span>k<span class="token punctuation">)</span><span class="token operator">*</span><span class="token number">23</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+  
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span><span class="token operator">*</span>argv<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token function">srand</span><span class="token punctuation">(</span><span class="token function">time</span><span class="token punctuation">(</span><span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    png_uint_32 x<span class="token punctuation">,</span>y<span class="token punctuation">;</span>
+    png_uint_32 png_size <span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span><span class="token punctuation">(</span>argc<span class="token operator">&lt;</span><span class="token number">2</span><span class="token punctuation">)</span>
+        <span class="token punctuation">&#123;</span>
+                <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"using defalut 1024,you can input png_size,usage:  %s png_size\n"</span><span class="token punctuation">,</span>argv<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                png_size <span class="token operator">=</span> <span class="token number">1024</span><span class="token punctuation">;</span>       
+        <span class="token punctuation">&#125;</span>
+        <span class="token keyword">else</span>
+        <span class="token punctuation">&#123;</span>
+            png_size <span class="token operator">=</span> <span class="token function">strtoul</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+       
+    <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>math_png_rgb  <span class="token operator">=</span> <span class="token string">"math_png_rgb.png"</span><span class="token punctuation">;</span>
+
+
+    pixel_RGB  <span class="token operator">*</span>image_data_rgb <span class="token operator">=</span> <span class="token function">calloc</span><span class="token punctuation">(</span>png_size <span class="token operator">*</span> png_size<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>pixel_RGB<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    pixel_RGB <span class="token operator">*</span><span class="token operator">*</span>row_ptrs_rgb   <span class="token operator">=</span> <span class="token function">calloc</span><span class="token punctuation">(</span>png_size<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>pixel_RGB <span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span> y<span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> y <span class="token operator">&lt;</span> png_size<span class="token punctuation">;</span> y<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        row_ptrs_rgb<span class="token punctuation">[</span>y<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token operator">&amp;</span>image_data_rgb<span class="token punctuation">[</span>y <span class="token operator">*</span> png_size<span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>x <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> x <span class="token operator">&lt;</span> png_size<span class="token punctuation">;</span> x<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            row_ptrs_rgb<span class="token punctuation">[</span>y<span class="token punctuation">]</span><span class="token punctuation">[</span>x<span class="token punctuation">]</span><span class="token punctuation">.</span>red   <span class="token operator">=</span> <span class="token function">RD</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>y<span class="token punctuation">)</span><span class="token operator">&amp;</span><span class="token number">255</span><span class="token punctuation">;</span>
+            row_ptrs_rgb<span class="token punctuation">[</span>y<span class="token punctuation">]</span><span class="token punctuation">[</span>x<span class="token punctuation">]</span><span class="token punctuation">.</span>green <span class="token operator">=</span> <span class="token function">GR</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>y<span class="token punctuation">)</span><span class="token operator">&amp;</span><span class="token number">255</span><span class="token punctuation">;</span>
+            row_ptrs_rgb<span class="token punctuation">[</span>y<span class="token punctuation">]</span><span class="token punctuation">[</span>x<span class="token punctuation">]</span><span class="token punctuation">.</span>black <span class="token operator">=</span> <span class="token function">BL</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>y<span class="token punctuation">)</span><span class="token operator">&amp;</span><span class="token number">255</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token function">write_data_to_png</span><span class="token punctuation">(</span>
+        math_png_rgb<span class="token punctuation">,</span>
+        png_size<span class="token punctuation">,</span>
+        png_size<span class="token punctuation">,</span>
+        <span class="token punctuation">(</span>png_bytepp<span class="token punctuation">)</span>row_ptrs_rgb<span class="token punctuation">,</span>
+        PNG_COLOR_TYPE_RGB<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">free</span><span class="token punctuation">(</span>row_ptrs_rgb<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">free</span><span class="token punctuation">(</span>image_data_rgb<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>直接编译会报错：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@rhel6 ex7<span class="token punctuation">]</span><span class="token comment"># gcc -o math_pix_png math_pix_png.c </span>
+math_pix_png.c: 在函数‘RD’中:
+math_pix_png.c:55: 警告：隐式声明与内建函数‘log’不兼容
+math_pix_png.c: 在函数‘GR’中:
+math_pix_png.c:60: 警告：隐式声明与内建函数‘log’不兼容
+math_pix_png.c: 在函数‘BL’中:
+math_pix_png.c:65: 警告：隐式声明与内建函数‘log’不兼容
+/tmp/ccPI6QFP.o: In <span class="token keyword">function</span> <span class="token variable"><span class="token variable">`</span>write_data_to_png':
+math_pix_png.c:<span class="token punctuation">(</span>.text+0x5b<span class="token punctuation">)</span>: undefined reference to <span class="token variable">`</span></span>png_create_write_struct<span class="token string">'
+math_pix_png.c:(.text+0x69): undefined reference to `png_create_info_struct'</span>
+math_pix_png.c:<span class="token punctuation">(</span>.text+0x7e<span class="token punctuation">)</span>: undefined reference to <span class="token variable"><span class="token variable">`</span>png_init_io'
+math_pix_png.c:<span class="token punctuation">(</span>.text+0xc5<span class="token punctuation">)</span>: undefined reference to <span class="token variable">`</span></span>png_set_IHDR<span class="token string">'
+math_pix_png.c:(.text+0xd7): undefined reference to `png_write_info'</span>
+math_pix_png.c:<span class="token punctuation">(</span>.text+0xe9<span class="token punctuation">)</span>: undefined reference to <span class="token variable"><span class="token variable">`</span>png_write_image'
+math_pix_png.c:<span class="token punctuation">(</span>.text+0xfc<span class="token punctuation">)</span>: undefined reference to <span class="token variable">`</span></span>png_write_end<span class="token string">'
+math_pix_png.c:(.text+0x10e): undefined reference to `png_destroy_write_struct'</span>
+/tmp/ccPI6QFP.o: In <span class="token keyword">function</span> <span class="token variable"><span class="token variable">`</span>RD':
+math_pix_png.c:<span class="token punctuation">(</span>.text+0x1c7<span class="token punctuation">)</span>: undefined reference to <span class="token variable">`</span></span>log<span class="token string">'
+/tmp/ccPI6QFP.o: In function `GR'</span><span class="token builtin class-name">:</span>
+math_pix_png.c:<span class="token punctuation">(</span>.text+0x297<span class="token punctuation">)</span>: undefined reference to <span class="token variable"><span class="token variable">`</span>log'
+/tmp/ccPI6QFP.o: In <span class="token keyword">function</span> <span class="token variable">`</span></span>BL<span class="token string">':
+math_pix_png.c:(.text+0x367): undefined reference to `log'</span>
+collect2: ld 返回 <span class="token number">1</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>很明显缺头文件了，在 c 文件头部引入一个<code>&lt;math.h&gt;</code>，然后需要链接 libpng 库进行编译</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">gcc <span class="token parameter variable">-o</span> math_pix_png math_pix_png.c <span class="token parameter variable">-lpng</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/image-20241203215652654.png" alt="image-20241203215652654"></p>
+<hr>
+<h2 id="实验2"><a href="#实验2" class="headerlink" title="实验2"></a>实验2</h2><ol>
+<li><p>使用gcc命令把hello-c.tar.gz中的hello.c编译成可执行程序hello，运行查看效果，并使用ldd命令查看hello调用的相关外部函数库信息、使用file命令查看hello的信息。</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/141.jpg" alt="img"></p>
+</li>
+<li><p>把第一步编译生成的可执行程序hello删除，查看编译hello.c对应的Makefile，使用make工具编译该程序，检查编译结果。</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/151.jpg" alt="img"></p>
+</li>
+<li><p>解压并使用make命令编译math-c.tar.gz代码，阅读该压缩包中的Makefile，尝试直接使用gcc命令把mathtest.c编译成可执行程序mathsqrtdemo</p>
+</li>
+</ol>
+<p>   <img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/161.jpg" alt="img"></p>
+<ol start="4">
+<li><p>使用rpm -q查询sqlite函数库以及sqlite开发库是否已经安装，如果没有安装，请从光盘安装sqlite函数库及其开发包对应的rpm文件，并查询这2个rpm软件安装包向Linux系统安装了哪些文件。</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps17.jpg" alt="img"></p>
+</li>
+<li><p>编译调用了轻量级数据库sqlite3函数库的C程序代码。<br>sqlite-test-2目录中的源码文件sqlite-test.c为一个使用C语言结合sqlite api编写的sqlite3数据库访问程序</p>
+<ul>
+<li><p>使用make命令编译生成可执行程序<br>提示：编译成功后，按“sqlite-test  a.db”格式运行该程序，查看运行效果</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps18.jpg" alt="img"></p>
+</li>
+<li><p>阅读分析sqlite-test.c对应的Makefile文件，理解pkg-config命令的作用</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps19.jpg" alt="img"></p>
+<p> pkg-config 的作用是帮助 gcc 命令获取关于 SQLite3 库的编译和链接信息，包括需要添加的头文件路径和库文件路径</p>
+</li>
+<li><p>使用make clean清除现有的编译成功的可执行程序sqlite-test</p>
+</li>
+</ul>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps20.jpg" alt="img"></p>
+<ul>
+<li><p>阅读sqlite-test-demo.tar.gz压缩包中的Makefile，对比两个版本的Makefile的写法差异。</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps21.jpg" alt="img"></p>
+<p><code>-lsqlite3</code> 选项会直接链接 SQLite3 库</p>
+<p>前者使用 <code>pkg-config --cflags --libs sqlite3</code> 来获取 SQLite3 库的编译和链接信息</p>
+</li>
+</ul>
+</li>
+<li><p>尝试编译 hello-gtk-2.0目录中的代码并运行，阅读并理解该代码及其Makefile文件</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps22.jpg" alt="img"></p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps23.jpg" alt="img"></p>
+<p>这个 Makefile 文件的作用是编译 hello-gtk2.c 文件，并链接 gtk+-2.0 库，以生成可执行文件 hello-gtk2。使用 pkg-config 可以方便地获取所需库的编译和链接信息</p>
+</li>
+<li><p>aes-demo.tar.gz是一个调用openssl库进行aes加密解密的C源代码，尝试编译运行该代码，并阅读Makefile文件，分析其编译gcc命令。</p>
+<p><img src="/blog/2024/12/16/Linux%E4%BB%8E0-5%E5%88%B01/wps24.jpg" alt="img"></p>
+<p>gcc命令中用 <code>-l</code> 链接 ssl 库和 crypto 库</p>
+</li>
+</ol>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

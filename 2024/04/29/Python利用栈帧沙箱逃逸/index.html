@@ -1,0 +1,510 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Python利用栈帧沙箱逃逸 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E5%99%A8"><span class="toc-number">2.</span> <span class="toc-text">生成器</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E5%99%A8%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">2.1.</span> <span class="toc-text">生成器表达式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E5%99%A8%E7%9A%84%E5%B1%9E%E6%80%A7"><span class="toc-number">2.2.</span> <span class="toc-text">生成器的属性</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A0%88%E5%B8%A7"><span class="toc-number">3.</span> <span class="toc-text">栈帧</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%A0%88%E5%B8%A7%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8"><span class="toc-number">4.</span> <span class="toc-text">利用栈帧沙箱逃逸</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E9%A2%98%E7%9B%AE"><span class="toc-number">5.</span> <span class="toc-text">相关题目</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Python利用栈帧沙箱逃逸</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/4/29
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/" style="color: #03a9f4">沙箱逃逸</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/python/" style="color: #ff7d73">python</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.6k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">6分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/13635">https://xz.aliyun.com/t/13635</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/637003652">https://zhuanlan.zhihu.com/p/637003652</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h1><p>生成器（Generator）是 Python 中一种特殊的迭代器，它可以通过简单的函数和表达式来创建。</p>
+<p>生成器的主要特点是<strong>能够逐个产生值</strong>，并且在每次生成值后保留当前的状态，以便下次调用时可以继续生成值。这使得生成器非常适合处理大型数据集或需要延迟计算的情况。</p>
+<p>在 Python 中，生成器可以使用<code>yield</code>关键字来定义。yield 用于<strong>产生一个值，并在保留当前状态的同时暂停函数的执行</strong>。当下一次调用生成器时，函数会从上次暂停的位置继续执行，直到遇到下一个 yield 语句或者函数结束。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">f</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    a<span class="token operator">=</span><span class="token number">1</span>
+    <span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>
+        <span class="token keyword">yield</span> a
+        a<span class="token operator">+=</span><span class="token number">1</span>
+f<span class="token operator">=</span>f<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token builtin">next</span><span class="token punctuation">(</span>f<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment">#输出1</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token builtin">next</span><span class="token punctuation">(</span>f<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment">#输出2</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token builtin">next</span><span class="token punctuation">(</span>f<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment">#输出3</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>什么意思呢？这里实现了惰性计算，即仅在需要时才生成值，而不是一次性生成整个序列</p>
+<hr>
+<h2 id="生成器表达式"><a href="#生成器表达式" class="headerlink" title="生成器表达式"></a>生成器表达式</h2><p>一种在 Python 中创建生成器的紧凑形式，类似于列表推导式</p>
+<p>语法与列表推导式（<code>[表达式 for 变量 in 列表] </code>）类似，但是使用<strong>圆括号</strong>而不是方括号</p>
+<p>生成器表达式会逐个生成值，而不是一次性生成整个序列，这样可以节省内存空间，特别是在处理大型数据集时非常有用</p>
+<p>在一个有逻辑范围的情况下下可以通过生成器表达式去实现，如计数1-100：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">a<span class="token operator">=</span><span class="token punctuation">(</span>i<span class="token operator">+</span><span class="token number">1</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment">#next(a)</span>
+<span class="token keyword">for</span> value <span class="token keyword">in</span> a<span class="token punctuation">:</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h2 id="生成器的属性"><a href="#生成器的属性" class="headerlink" title="生成器的属性"></a>生成器的属性</h2><ul>
+<li><code>gi_code</code>：生成器对应的 code 对象</li>
+<li><code>gi_frame</code>：生成器对应的 <strong>frame（栈帧）</strong>对象</li>
+<li><code>gi_running</code>：生成器函数是否在执行。生成器函数在yield以后、执行yield的下一行代码前处于frozen状态，此时这个属性的值为0</li>
+<li><code>gi_yieldfrom</code>：如果生成器正在从另一个生成器中 yield 值，则为该生成器对象的引用；否则为 None</li>
+<li><code>gi_frame.f_locals</code>：一个字典，包含生成器当前帧的本地变量</li>
+</ul>
+<p>对于<code>gi_frame</code>，这是一个与生成器（generator）和协程（coroutine）相关的属性。它指向生成器或协程当前执行的<strong>帧对象</strong>（frame object），如果这个生成器或协程正在执行的话。帧对象表示代码执行的当前上下文，包含了<strong>局部变量、执行的字节码指令</strong>等信息。</p>
+<p>使用生成器的<code>gi_frame</code>属性来获取生成器的当前帧信息：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">my_generator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">yield</span> <span class="token number">1</span>
+    <span class="token keyword">yield</span> <span class="token number">2</span>
+    <span class="token keyword">yield</span> <span class="token number">3</span>
+
+gen <span class="token operator">=</span> my_generator<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment"># 获取生成器的当前帧信息</span>
+frame <span class="token operator">=</span> gen<span class="token punctuation">.</span>gi_frame
+
+<span class="token comment"># 输出生成器的当前帧信息</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Local Variables:"</span><span class="token punctuation">,</span> frame<span class="token punctuation">.</span>f_locals<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Global Variables:"</span><span class="token punctuation">,</span> frame<span class="token punctuation">.</span>f_globals<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Code Object:"</span><span class="token punctuation">,</span> frame<span class="token punctuation">.</span>f_code<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Instruction Pointer:"</span><span class="token punctuation">,</span> frame<span class="token punctuation">.</span>f_lasti<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/04/29/Python%E5%88%A9%E7%94%A8%E6%A0%88%E5%B8%A7%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/image-20240429010312936.png" alt="image-20240429010312936"></p>
+<br>
+
+<p>貌似也可以通过抛出报错搜索 traceback 来获得栈帧：<a target="_blank" rel="noopener" href="https://pullp.github.io/writeup/2020/12/26/hxp2020-audited.html">https://pullp.github.io/writeup/2020/12/26/hxp2020-audited.html</a></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">try</span><span class="token punctuation">:</span>
+    <span class="token keyword">raise</span> Exception<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">except</span> Exception <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+    _<span class="token punctuation">,</span> _<span class="token punctuation">,</span> tb <span class="token operator">=</span> sys<span class="token punctuation">.</span>exc_info<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    nxt_frame <span class="token operator">=</span> tb<span class="token punctuation">.</span>tb_frame
+    <span class="token builtin">globals</span> <span class="token operator">=</span> nxt_frame<span class="token punctuation">.</span>f_globals
+    builtin <span class="token operator">=</span> <span class="token builtin">globals</span><span class="token punctuation">[</span><span class="token string">"__builtins__"</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h1 id="栈帧"><a href="#栈帧" class="headerlink" title="栈帧"></a>栈帧</h1><p>栈帧（stack frame）是Python虚拟机执行的载体之一，它是一个数据结构，用于存储代码运行时的数据</p>
+<p>每个栈帧都有自己的局部变量、操作数栈、异常处理信息等</p>
+<p>栈帧是一个栈结构，每个栈帧都有一个<strong>指向上一个栈帧的指针</strong>，这样就形成了一个栈帧链</p>
+<p>栈帧的创建和销毁是由Python虚拟机自动完成的，当一个函数被调用时，就会创建一个栈帧，当函数返回时，就会销毁这个栈帧</p>
+<p>其数据结构：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">typedef</span> <span class="token keyword">struct</span> <span class="token class-name">_frame</span> PyFrameObject<span class="token punctuation">;</span>
+
+<span class="token keyword">struct</span> <span class="token class-name">_frame</span> <span class="token punctuation">&#123;</span>
+    PyObject_VAR_HEAD
+    <span class="token keyword">struct</span> <span class="token class-name">_frame</span> <span class="token operator">*</span>f_back<span class="token punctuation">;</span>      <span class="token comment">/* previous frame, or NULL 前一个栈帧 */</span>
+    PyCodeObject <span class="token operator">*</span>f_code<span class="token punctuation">;</span>       <span class="token comment">/* code segment */</span>      <span class="token comment">// 代码段</span>
+    PyObject <span class="token operator">*</span>f_builtins<span class="token punctuation">;</span>       <span class="token comment">/* builtin symbol table (PyDictObject) 内置符号表，字典 */</span>
+    PyObject <span class="token operator">*</span>f_globals<span class="token punctuation">;</span>        <span class="token comment">/* global symbol table (PyDictObject) 全局符号表 字典 */</span>
+    PyObject <span class="token operator">*</span>f_locals<span class="token punctuation">;</span>         <span class="token comment">/* local symbol table (any mapping)  当前作用域 映射 */</span>
+    PyObject <span class="token operator">*</span><span class="token operator">*</span>f_valuestack<span class="token punctuation">;</span>    <span class="token comment">/* points after the last local */</span>   <span class="token comment">// 指向最后一个局部变量的后面</span>
+    PyObject <span class="token operator">*</span>f_trace<span class="token punctuation">;</span>          <span class="token comment">/* Trace function */</span>    <span class="token comment">// 跟踪函数</span>
+    <span class="token keyword">int</span> f_stackdepth<span class="token punctuation">;</span>           <span class="token comment">/* Depth of value stack */</span>  <span class="token comment">// 值栈深度</span>
+    <span class="token keyword">char</span> f_trace_lines<span class="token punctuation">;</span>         <span class="token comment">/* Emit per-line trace events? */</span> <span class="token comment">// 每行跟踪事件</span>
+    <span class="token keyword">char</span> f_trace_opcodes<span class="token punctuation">;</span>       <span class="token comment">/* Emit per-opcode trace events? */</span> <span class="token comment">// 每个操作码跟踪事件</span>
+
+    <span class="token comment">/* Borrowed reference to a generator, or NULL */</span>
+    PyObject <span class="token operator">*</span>f_gen<span class="token punctuation">;</span>        <span class="token comment">// 生成器</span>
+
+    <span class="token keyword">int</span> f_lasti<span class="token punctuation">;</span>                <span class="token comment">/* Last instruction if called */</span>    <span class="token comment">// 最后一条指令</span>
+    <span class="token keyword">int</span> f_lineno<span class="token punctuation">;</span>               <span class="token comment">/* Current line number. Only valid if non-zero */</span>   <span class="token comment">// 当前行号</span>
+    <span class="token keyword">int</span> f_iblock<span class="token punctuation">;</span>               <span class="token comment">/* index in f_blockstack */</span> <span class="token comment">// f_blockstack的索引</span>
+    PyFrameState f_state<span class="token punctuation">;</span>       <span class="token comment">/* What state the frame is in 状态 */</span>   <span class="token comment">// 栈帧的状态</span>
+    PyTryBlock f_blockstack<span class="token punctuation">[</span>CO_MAXBLOCKS<span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token comment">/* for try and loop blocks  */</span>   <span class="token comment">// try 和 loop 块，长度为CO_MAXBLOCKS=20</span>
+    PyObject <span class="token operator">*</span>f_localsplus<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>  <span class="token comment">/* locals+stack, dynamically sized */</span>   <span class="token comment">// 局部变量和栈，动态地长度</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这里我们直接看几个关键的属性：</p>
+<ul>
+<li><code>f_locals</code>：一个字典，包含了函数或方法的局部变量。键是变量名，值是变量的值</li>
+<li><code>f_globals</code>：一个字典，包含了函数或方法所在模块的全局变量。键是全局变量名，值是变量的值</li>
+<li><code>f_code</code>：一个代码对象（code object），包含了函数或方法的字节码指令、常量、变量名等信息</li>
+<li><code>f_lasti</code>：整数，表示最后执行的字节码指令的索引</li>
+<li><code>f_back</code>：指向上一级调用栈帧的引用，用于构建调用栈</li>
+</ul>
+<hr>
+<h1 id="利用栈帧沙箱逃逸"><a href="#利用栈帧沙箱逃逸" class="headerlink" title="利用栈帧沙箱逃逸"></a>利用栈帧沙箱逃逸</h1><p>原理：通过生成器的栈帧对象通过<code>f_back</code>（返回前一帧）从而逃逸出去获取<code>globals</code>全局符号表</p>
+<p>demo：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">s3cret<span class="token operator">=</span><span class="token string">"this is flag"</span>
+
+codes<span class="token operator">=</span><span class="token triple-quoted-string string">'''
+def waff():
+    def f():
+        yield g.gi_frame.f_back
+
+    g = f()  #生成器
+    frame = next(g) #获取到生成器的栈帧对象
+    print(frame)
+    print(frame.f_back)
+    print(frame.f_back.f_back)
+    b = frame.f_back.f_back.f_globals['s3cret'] #返回并获取前一级栈帧的globals
+    return b
+b=waff()
+'''</span>
+<span class="token builtin">locals</span><span class="token operator">=</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+code <span class="token operator">=</span> <span class="token builtin">compile</span><span class="token punctuation">(</span>codes<span class="token punctuation">,</span> <span class="token string">"test"</span><span class="token punctuation">,</span> <span class="token string">"exec"</span><span class="token punctuation">)</span>
+<span class="token keyword">exec</span><span class="token punctuation">(</span>code<span class="token punctuation">,</span><span class="token builtin">locals</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token builtin">locals</span><span class="token punctuation">[</span><span class="token string">"b"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2024/04/29/Python%E5%88%A9%E7%94%A8%E6%A0%88%E5%B8%A7%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/image-20240429011524042.png" alt="image-20240429011524042"></p>
+<p>类似于nodejs原型链污染里的<code>__proto__</code>，逐步往外取得栈帧，从而得到外部的全局<code>globals</code>，最终拿到1.py里的全局变量<code>s3cret</code></p>
+<p>这里也可以使用<code>f_locals</code>去代替<code>f_globals</code>效果是相同的，但是要注意，<code>locals</code>返回的是局部符号表，它包含了在当前函数或方法内部定义的变量。这些局部变量只在当前函数或方法的执行过程中存在，并且只能在该函数或方法内部访问。当函数执行完毕后，这些局部变量就会被销毁。</p>
+<hr>
+<h1 id="相关题目"><a href="#相关题目" class="headerlink" title="相关题目"></a>相关题目</h1><p><a href="https://c1oudfl0w0.github.io/blog/2024/02/04/L3HCTF-2024/#intractable-problem-%E5%A4%8D%E7%8E%B0">L3HCTF 2024 —— intractable problem</a></p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

@@ -1,0 +1,635 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>PHP代码审计 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%A1%E8%AE%A1%E6%80%9D%E8%B7%AF"><span class="toc-number">2.</span> <span class="toc-text">审计思路</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E5%88%86%E7%B1%BB"><span class="toc-number">3.</span> <span class="toc-text">系统分类</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%A1%E8%AE%A1%E6%96%B9%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">审计方法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E5%8F%B0%E6%BC%8F%E6%B4%9E"><span class="toc-number">5.</span> <span class="toc-text">前台漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%BB%E6%89%BE%E6%96%87%E4%BB%B6"><span class="toc-number">5.1.</span> <span class="toc-text">寻找文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%9E%E6%A1%86%E6%9E%B6"><span class="toc-number">5.1.1.</span> <span class="toc-text">非框架</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6"><span class="toc-number">5.1.2.</span> <span class="toc-text">框架</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A8%A1%E5%9D%97%E5%8C%96%E5%88%92%E5%88%86"><span class="toc-number">5.1.2.1.</span> <span class="toc-text">模块化划分</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B7%AF%E7%94%B1%E9%85%8D%E7%BD%AE%E5%8C%BA%E5%88%86"><span class="toc-number">5.1.2.2.</span> <span class="toc-text">路由配置区分</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E5%99%A8%E5%91%BD%E5%90%8D%E8%A7%84%E8%8C%83"><span class="toc-number">5.1.2.3.</span> <span class="toc-text">控制器命名规范</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8B%A6%E6%88%AA%EF%BC%88ThinkPHP6-%EF%BC%89"><span class="toc-number">5.1.2.4.</span> <span class="toc-text">中间件拦截（ThinkPHP6+）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E6%A0%87%E8%AF%86%E6%B3%A8%E8%A7%A3"><span class="toc-number">5.1.2.5.</span> <span class="toc-text">权限标识注解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%89%8D%E7%AB%AF%E6%A8%A1%E6%9D%BF%E5%88%86%E7%A6%BB"><span class="toc-number">5.1.2.6.</span> <span class="toc-text">前端模板分离</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1"><span class="toc-number">5.1.2.7.</span> <span class="toc-text">权限系统设计</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%89%B4%E6%9D%83%E7%BB%95%E8%BF%87"><span class="toc-number">5.2.</span> <span class="toc-text">鉴权绕过</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="toc-number">6.</span> <span class="toc-text">SQL注入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#PHP%E5%8E%9F%E7%94%9FSQL%E8%AF%AD%E5%8F%A5%E5%A4%84%E7%90%86"><span class="toc-number">6.1.</span> <span class="toc-text">PHP原生SQL语句处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6%E5%AE%A1%E8%AE%A1"><span class="toc-number">6.2.</span> <span class="toc-text">框架审计</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C"><span class="toc-number">7.</span> <span class="toc-text">文件操作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="toc-number">7.1.</span> <span class="toc-text">文件上传</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5"><span class="toc-number">7.2.</span> <span class="toc-text">文件写入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96-x2F-%E4%B8%8B%E8%BD%BD"><span class="toc-number">7.3.</span> <span class="toc-text">文件读取&#x2F;下载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4"><span class="toc-number">7.4.</span> <span class="toc-text">文件删除</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">7.5.</span> <span class="toc-text">文件包含</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A1%E8%AE%A1%E6%80%9D%E8%B7%AF-1"><span class="toc-number">7.6.</span> <span class="toc-text">审计思路</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>PHP代码审计</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2025/4/17
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/PHP/" style="color: #00bcd4">PHP</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" style="color: #03a9f4">代码审计</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.3k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">5分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/y9d04tnRaKHQBfZubj1cKg">https://mp.weixin.qq.com/s/y9d04tnRaKHQBfZubj1cKg</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="审计思路"><a href="#审计思路" class="headerlink" title="审计思路"></a>审计思路</h1><ol>
+<li><p>敏感函数查找</p>
+<ul>
+<li><p>危险函数：<code>eval</code>、<code>system</code></p>
+</li>
+<li><p>SQL注入：<code>select</code>，<code>from</code></p>
+</li>
+<li><p>XFF注入：<code>HTTP_CLIENT_IP</code>、<code>REMOTE_ADDR</code></p>
+</li>
+</ul>
+</li>
+<li><p>通读全文代码</p>
+<ul>
+<li><p>函数集文件：<code>function</code>、<code>common</code>等关键词，一般是公共函数统一调用</p>
+</li>
+<li><p>配置文件：<code>config</code> 等关键词，了解功能配置与数据库配置；观察参数值，如果存在双引号可能存在代码执行</p>
+</li>
+<li><p>安全过滤文件：<code>filter</code>、<code>safe</code>、<code>check</code> 等关键词，waf</p>
+</li>
+<li><p>index文件：入口文件，可知 CMS 的架构，运行流程、包含到的文件、核心文件有哪些等</p>
+</li>
+</ul>
+</li>
+<li><p>根据功能点定向审计</p>
+<ul>
+<li>文件上传：任意文件上传、sql注入（文件名可能记录到数据库）</li>
+<li>文件管理</li>
+<li>登入认证</li>
+<li>找回密码：重置管理员密码、验证码爆破</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h1 id="系统分类"><a href="#系统分类" class="headerlink" title="系统分类"></a>系统分类</h1><p>原生非开发框架：<strong>WordPress、phpMyAdmin</strong></p>
+<ul>
+<li>无额外抽象层</li>
+<li>传统 PHP 项目的路由访问一般是直接访问对应文件</li>
+<li>容易出洞</li>
+<li>GitHub 上居多</li>
+</ul>
+<p>框架二开CMS：<strong>ThinkPHP、Laravel、Yii</strong></p>
+<ul>
+<li>MVC 等标准化结构，多数不支持直接访问</li>
+<li>内置功能：路由、ORM、模板引擎等</li>
+<li>安全性：内置CSRF防护，XSS过滤等</li>
+<li>社区支持：文档</li>
+<li>Gitee 上居多</li>
+</ul>
+<p>自研框架系统</p>
+<hr>
+<h1 id="审计方法"><a href="#审计方法" class="headerlink" title="审计方法"></a>审计方法</h1><p>黑白盒结合</p>
+<p>黑盒：XSS、CSRF、越权、文件操作</p>
+<p>白盒：SQL注入、SSRF、鉴权、XXE</p>
+<hr>
+<h1 id="前台漏洞"><a href="#前台漏洞" class="headerlink" title="前台漏洞"></a>前台漏洞</h1><ul>
+<li>无需授权即可访问</li>
+<li>后台文件&#x2F;功能点，但存在鉴权但可绕过</li>
+</ul>
+<h2 id="寻找文件"><a href="#寻找文件" class="headerlink" title="寻找文件"></a>寻找文件</h2><h3 id="非框架"><a href="#非框架" class="headerlink" title="非框架"></a>非框架</h3><p>寻找鉴权文件，关注哪些文件有包含鉴权文件</p>
+<p>因为非框架类的路由通常是直接访问文件，所以可以考虑直接把所有 php 文件的文件名作为字典，丢 bp 或者 yakit 里面爆破看返回包</p>
+<p>以 Seacms 为例</p>
+<p>起一个脚本遍历目录并输出字典</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> os
+
+<span class="token keyword">def</span> <span class="token function">find_php_files</span><span class="token punctuation">(</span>directory<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"dict.txt"</span><span class="token punctuation">,</span> <span class="token string">"a"</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'utf-8'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+        <span class="token comment"># 遍历目录及其子目录</span>
+        <span class="token keyword">for</span> root<span class="token punctuation">,</span> dirs<span class="token punctuation">,</span> files <span class="token keyword">in</span> os<span class="token punctuation">.</span>walk<span class="token punctuation">(</span>directory<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">for</span> <span class="token builtin">file</span> <span class="token keyword">in</span> files<span class="token punctuation">:</span>
+                <span class="token keyword">if</span> <span class="token builtin">file</span><span class="token punctuation">.</span>endswith<span class="token punctuation">(</span><span class="token string">'.php'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+                    abs_path <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span>root<span class="token punctuation">,</span> <span class="token builtin">file</span><span class="token punctuation">)</span>
+                    rel_path <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>relpath<span class="token punctuation">(</span>abs_path<span class="token punctuation">,</span> directory<span class="token punctuation">)</span>  <span class="token comment"># 计算相对路径</span>
+                    rel_path <span class="token operator">=</span> rel_path<span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">"\\"</span><span class="token punctuation">,</span> <span class="token string">"/"</span><span class="token punctuation">)</span>  <span class="token comment"># 统一路径分隔符为/</span>
+                    f<span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"</span><span class="token interpolation"><span class="token punctuation">&#123;</span>rel_path<span class="token punctuation">&#125;</span></span><span class="token string">\n"</span></span><span class="token punctuation">)</span>  <span class="token comment"># 每个路径单独占一行</span>
+    
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    <span class="token comment"># 指定要遍历的目录（去掉首尾空白字符）</span>
+    target_directory <span class="token operator">=</span> <span class="token string">"D:\\phpstudy_pro\\WWW\\seacms.v13"</span><span class="token punctuation">.</span>strip<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    
+    <span class="token keyword">if</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>isdir<span class="token punctuation">(</span>target_directory<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        find_php_files<span class="token punctuation">(</span>target_directory<span class="token punctuation">)</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"指定的路径不是一个有效的目录。"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后进行爆破，按返回相应的大小确定前台文件</p>
+<p><img src="/blog/PHP%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20250425094907203.png" alt="image-20250425094907203"></p>
+<hr>
+<h3 id="框架"><a href="#框架" class="headerlink" title="框架"></a>框架</h3><p>先关注鉴权部分</p>
+<h4 id="模块化划分"><a href="#模块化划分" class="headerlink" title="模块化划分"></a>模块化划分</h4><p>以 OneBase 为例，项目结构大致如下</p>
+<p><img src="/blog/2025/04/17/PHP%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/image-20250426005212507.png" alt="image-20250426005212507"></p>
+<p>挑出主要的结构，和 thinkphp 差不多</p>
+<pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">app(lication)/
+├─ admin/ # 后台模块
+|	├─ controller/
+|	├─ view/
+|
+├─ index/ # 前台模块
+|	├─ controller/
+|	├─ view/
+|
+├─ common.php # 公共函数<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>那么前台访问路径就是 index&#x2F;controller&#x2F;action </p>
+<p>后台访问路径就是 admin&#x2F;controller&#x2F;action </p>
+<hr>
+<h4 id="路由配置区分"><a href="#路由配置区分" class="headerlink" title="路由配置区分"></a>路由配置区分</h4><p>路由文件 route.php，vscode 下 ctrl+P 搜索此文件</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+
+<span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string single-quoted-string">'__pattern__'</span> <span class="token operator">=></span> <span class="token punctuation">[</span>
+        <span class="token string single-quoted-string">'name'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'\w+'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string single-quoted-string">'[hello]'</span>     <span class="token operator">=></span> <span class="token punctuation">[</span>
+        <span class="token string single-quoted-string">':id'</span>   <span class="token operator">=></span> <span class="token punctuation">[</span><span class="token string single-quoted-string">'index/hello'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string single-quoted-string">'method'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'get'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string single-quoted-string">'id'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'\d+'</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token string single-quoted-string">':name'</span> <span class="token operator">=></span> <span class="token punctuation">[</span><span class="token string single-quoted-string">'index/hello'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string single-quoted-string">'method'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'post'</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+
+<span class="token punctuation">]</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>一般此处路由前缀标识可以区分</p>
+<hr>
+<h4 id="控制器命名规范"><a href="#控制器命名规范" class="headerlink" title="控制器命名规范"></a>控制器命名规范</h4><p>前台控制器：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token keyword">namespace</span> <span class="token package">app<span class="token punctuation">\</span>home<span class="token punctuation">\</span>controller</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name-definition class-name">IndexController</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string single-quoted-string">'前台首页'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>后台控制器：</p>
+<p>通常会有在 action 中存在一些 Auth 认证相关的方法，大致如下：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token comment">// 后台用户管理控制器</span>
+<span class="token keyword">namespace</span> <span class="token package">app<span class="token punctuation">\</span>admin<span class="token punctuation">\</span>controller</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name-definition class-name">UserController</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">list</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token string single-quoted-string">'用户列表'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h4 id="中间件拦截（ThinkPHP6-）"><a href="#中间件拦截（ThinkPHP6-）" class="headerlink" title="中间件拦截（ThinkPHP6+）"></a>中间件拦截（ThinkPHP6+）</h4><p>大致位置会在 app&#x2F;admin&#x2F;middleware 下</p>
+<p>通过后台控制器绑定中间件，使所有方法自动继承中间件验证</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token keyword">namespace</span> <span class="token package">app<span class="token punctuation">\</span>admin<span class="token punctuation">\</span>middleware</span><span class="token punctuation">;</span>
+<span class="token keyword">use</span> <span class="token package">think<span class="token punctuation">\</span>facade<span class="token punctuation">\</span>Session</span><span class="token punctuation">;</span>
+<span class="token keyword">use</span> <span class="token package">think<span class="token punctuation">\</span>facade<span class="token punctuation">\</span>View</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name-definition class-name">AuthCheck</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">handle</span><span class="token punctuation">(</span><span class="token variable">$request</span><span class="token punctuation">,</span> <span class="token class-name class-name-fully-qualified type-declaration"><span class="token punctuation">\</span>Closure</span> <span class="token variable">$next</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">// 检查是否登录（排除登录页面）</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token class-name static-context">Session</span><span class="token operator">::</span><span class="token function">has</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'admin'</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span><span class="token function">preg_match</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'/login/'</span><span class="token punctuation">,</span> <span class="token variable">$request</span><span class="token operator">-></span><span class="token function">pathinfo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token function">redirect</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'/admin/login'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token keyword">return</span> <span class="token variable">$next</span><span class="token punctuation">(</span><span class="token variable">$request</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<hr>
+<h4 id="权限标识注解"><a href="#权限标识注解" class="headerlink" title="权限标识注解"></a>权限标识注解</h4><p>自定义注解检查：<code>@Permission(&quot;admin:access&quot;)</code></p>
+<hr>
+<h4 id="前端模板分离"><a href="#前端模板分离" class="headerlink" title="前端模板分离"></a>前端模板分离</h4><p>视图目录结构</p>
+<hr>
+<h4 id="权限系统设计"><a href="#权限系统设计" class="headerlink" title="权限系统设计"></a>权限系统设计</h4><p>RBAC 权限节点</p>
+<hr>
+<h2 id="鉴权绕过"><a href="#鉴权绕过" class="headerlink" title="鉴权绕过"></a>鉴权绕过</h2><p>关注身份认证的逻辑是否存在缺陷</p>
+<p>身份认证的凭据是否能够伪造</p>
+<hr>
+<h1 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h1><h2 id="PHP原生SQL语句处理"><a href="#PHP原生SQL语句处理" class="headerlink" title="PHP原生SQL语句处理"></a>PHP原生SQL语句处理</h2><p>mysql_query</p>
+<p>mysqli</p>
+<p>PDO</p>
+<hr>
+<h2 id="框架审计"><a href="#框架审计" class="headerlink" title="框架审计"></a>框架审计</h2><p>永远优先使用查询构造器而不是原生 SQL</p>
+<p>关注是否使用参数绑定处理用户输入</p>
+<br>
+
+<p>框架二开但是原生写法</p>
+<p>框架的非预编译写法：</p>
+<ul>
+<li><p>直接拼接 sql 字符串：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token variable">$username</span> <span class="token operator">=</span> <span class="token function">input</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'username'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Db<span class="token punctuation">:</span><span class="token function">query</span><span class="token punctuation">(</span><span class="token string double-quoted-string">"SELECT * FROM user WHERE username = '"</span><span class="token operator">.</span><span class="token variable">$username</span><span class="token operator">.</span><span class="token string double-quoted-string">"'"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+</li>
+<li><p>使用 where() 时直接拼接</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token variable">$map</span> <span class="token operator">=</span> <span class="token string single-quoted-string">'id = '</span><span class="token operator">.</span><span class="token function">input</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'id'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token class-name static-context">Db</span><span class="token operator">::</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'user'</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">where</span><span class="token punctuation">(</span><span class="token variable">$map</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>正确写法：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token comment">// 参数绑定</span>
+<span class="token class-name static-context">Db</span><span class="token operator">::</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'user'</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'id = ?'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token function">input</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'id'</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 强制类型转换</span>
+<span class="token variable">$id</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword type-casting">int</span><span class="token punctuation">)</span> <span class="token function">input</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'id'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token class-name static-context">Db</span><span class="token operator">::</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'user'</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'id'</span><span class="token punctuation">,</span> <span class="token variable">$id</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 数组条件，ThinkPHP会自动处理参数</span>
+<span class="token class-name static-context">Db</span><span class="token operator">::</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'user'</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">where</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'id'</span> <span class="token operator">=></span> <span class="token function">input</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'id'</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 框架的输入过滤</span>
+<span class="token variable">$id</span> <span class="token operator">=</span> <span class="token function">input</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'id/d'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// 强制转为整数</span>
+<span class="token class-name static-context">Db</span><span class="token operator">::</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'user'</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'id'</span><span class="token punctuation">,</span> <span class="token variable">$id</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+</ul>
+<hr>
+<h1 id="文件操作"><a href="#文件操作" class="headerlink" title="文件操作"></a>文件操作</h1><h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><ul>
+<li>未校验文件类型</li>
+<li>黑名单过滤不严</li>
+<li>解析漏洞利用</li>
+</ul>
+<h2 id="文件写入"><a href="#文件写入" class="headerlink" title="文件写入"></a>文件写入</h2><ul>
+<li>未过滤用户输入</li>
+<li>目录穿越</li>
+</ul>
+<h2 id="文件读取-x2F-下载"><a href="#文件读取-x2F-下载" class="headerlink" title="文件读取&#x2F;下载"></a>文件读取&#x2F;下载</h2><p>危险函数列表：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token keyword">include</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">require</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token function">file_get_contents</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token function">readfile</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token function">fopen</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token function">file</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token function">show_source</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token function">highlight_file</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="文件删除"><a href="#文件删除" class="headerlink" title="文件删除"></a>文件删除</h2><p>危险函数列表：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token function">unlink</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token function">rmdir</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token function">array_map</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'unlink'</span><span class="token punctuation">,</span><span class="token function">glob</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token function">system</span><span class="token punctuation">(</span><span class="token string double-quoted-string">"rm -rf <span class="token interpolation"><span class="token variable">$path</span></span>"</span><span class="token punctuation">)</span>
+<span class="token class-name static-context">Filesystem</span><span class="token operator">::</span><span class="token constant">deleteDirectory</span>
+remove_dir
+<span class="token class-name static-context">Filesystem</span><span class="token operator">::</span><span class="token constant">delete</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="文件包含"><a href="#文件包含" class="headerlink" title="文件包含"></a>文件包含</h2><p>危险函数列表：</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token keyword">include</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">include_once</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">require</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">require_once</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    
+<span class="token comment">// 视图渲染方法</span>
+<span class="token function">assign</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token function">fetch</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token function">display</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token function">view</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment">// 类加载方法</span>
+<span class="token class-name static-context">Loader</span><span class="token operator">::</span><span class="token function">import</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment">// 配置文件加载</span>
+<span class="token function">config</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+
+
+<hr>
+<h2 id="审计思路-1"><a href="#审计思路-1" class="headerlink" title="审计思路"></a>审计思路</h2><p>黑盒 + 白盒</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

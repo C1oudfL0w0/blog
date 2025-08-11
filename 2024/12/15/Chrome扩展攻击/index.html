@@ -1,0 +1,481 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Chrome扩展攻击 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-number">2.</span> <span class="toc-text">基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.1.</span> <span class="toc-text">组件介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#manifest-json"><span class="toc-number">2.2.</span> <span class="toc-text">manifest.json</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Content-scripts"><span class="toc-number">2.3.</span> <span class="toc-text">Content scripts</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Inject-scripts"><span class="toc-number">2.3.1.</span> <span class="toc-text">Inject scripts</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Background-scripts"><span class="toc-number">2.4.</span> <span class="toc-text">Background scripts</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Popup"><span class="toc-number">2.4.1.</span> <span class="toc-text">Popup</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#options-page"><span class="toc-number">2.4.2.</span> <span class="toc-text">options_page</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E4%BF%A1%E6%9E%B6%E6%9E%84"><span class="toc-number">2.5.</span> <span class="toc-text">通信架构</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Content-scripts-1"><span class="toc-number">3.1.</span> <span class="toc-text">Content scripts</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DOM"><span class="toc-number">3.1.1.</span> <span class="toc-text">DOM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DOM-Event"><span class="toc-number">3.1.2.</span> <span class="toc-text">DOM  Event</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#onmessage"><span class="toc-number">3.1.3.</span> <span class="toc-text">onmessage</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#window-name"><span class="toc-number">3.1.4.</span> <span class="toc-text">window.name</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Web-Storage"><span class="toc-number">3.1.5.</span> <span class="toc-text">Web Storage</span></a></li></ol></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Chrome扩展攻击</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/12/15
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.1k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">4分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前打 GeekGame 的时候就遇到过利用 chrome 扩展进行 xss 的题，正好看到有相关的文章，遂学习一下</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.xlab.app/p/4db211d1/">https://blog.xlab.app/p/4db211d1/</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.xlab.app/p/4db211d2/">https://blog.xlab.app/p/4db211d2/</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h2 id="组件介绍"><a href="#组件介绍" class="headerlink" title="组件介绍"></a>组件介绍</h2><p>edge 的扩展位置在 <code>%localappdata%\Microsoft\Edge\User Data\Default\Extensions</code></p>
+<p>接下来以 GeekGame2024 里 web-crx 更新后的扩展文件 bxx 为例子来熟悉组件</p>
+<h2 id="manifest-json"><a href="#manifest-json" class="headerlink" title="manifest.json"></a>manifest.json</h2><p>官方文档：<a target="_blank" rel="noopener" href="https://developer.chrome.google.cn/docs/extensions/reference/manifest?hl=zh-cn">https://developer.chrome.google.cn/docs/extensions/reference/manifest?hl=zh-cn</a></p>
+<p>扩展程序的配置清单，放在扩展程序代码的根目录，包含以下内容：</p>
+<ol>
+<li><p>名称，描述，版本等</p>
+<p>最小清单：</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+  <span class="token property">"manifest_version"</span><span class="token operator">:</span> <span class="token number">3</span><span class="token punctuation">,</span>
+  <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Minimal Manifest"</span><span class="token punctuation">,</span>
+  <span class="token property">"version"</span><span class="token operator">:</span> <span class="token string">"1.0.0"</span><span class="token punctuation">,</span>
+  <span class="token property">"description"</span><span class="token operator">:</span> <span class="token string">"A basic example extension with only required keys"</span><span class="token punctuation">,</span>
+  <span class="token property">"icons"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">"48"</span><span class="token operator">:</span> <span class="token string">"images/icon-48.png"</span><span class="token punctuation">,</span>
+    <span class="token property">"128"</span><span class="token operator">:</span> <span class="token string">"images/icon-128.png"</span>
+  <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>API权限定义，如 读写书签&#x2F;历史&#x2F;Cookie 等 Chrome API</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token property">"permissions"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"tabs"</span><span class="token punctuation">,</span> <span class="token string">"scripting"</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li><p>网站权限定义，允许无视同源策略访问哪些网站</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token property">"host_permissions"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token string">"&lt;all_urls>"</span>
+<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>定义<code>Content scripts</code>是哪些 js，在哪里何时运行等</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token property">"content_scripts"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">&#123;</span>
+        <span class="token property">"matches"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"*://*/*"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token property">"js"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"contentScript.bundle.js"</span><span class="token punctuation">]</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>定义<code>Background scripts</code>是哪些 js</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token property">"background"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">"service_worker"</span><span class="token operator">:</span> <span class="token string">"background.bundle.js"</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p><code>CSP</code>策略…</p>
+</li>
+</ol>
+<hr>
+<h2 id="Content-scripts"><a href="#Content-scripts" class="headerlink" title="Content scripts"></a>Content scripts</h2><p><a target="_blank" rel="noopener" href="https://developer.chrome.google.cn/docs/extensions/reference/manifest/content-scripts?hl=zh-cn">https://developer.chrome.google.cn/docs/extensions/reference/manifest/content-scripts?hl=zh-cn</a></p>
+<p>在每个标签页中运行，每个扩展<strong>一个隔离环境</strong>，有独立的<code>JavaScript</code>变量，<code>CSP</code>策略等，同时拥有一部分Chrome API功能，<strong>只与网页中的JS使用同一个<code>DOM</code></strong></p>
+<p>一般用来处理与网页<code>DOM</code>相关的功能，或与<code>Background scripts</code>通信交互完成相关功能</p>
+<p>同源策略与所在的标签页相同</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token property">"content_scripts"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">&#123;</span>
+        <span class="token property">"matches"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"*://*/*"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token property">"js"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"contentScript.bundle.js"</span><span class="token punctuation">]</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>matches：将内容脚本注入到的网址格式，这里匹配所有的网址</li>
+<li>js：注入网页的 js 脚本</li>
+</ul>
+<p><img src="/blog/Chrome%E6%89%A9%E5%B1%95%E6%94%BB%E5%87%BB/image-20241218194441943.png" alt="image-20241218194441943"></p>
+<p><img src="/blog/Chrome%E6%89%A9%E5%B1%95%E6%94%BB%E5%87%BB/image-20241218194514408.png" alt="image-20241218194514408"></p>
+<hr>
+<h3 id="Inject-scripts"><a href="#Inject-scripts" class="headerlink" title="Inject scripts"></a>Inject scripts</h3><p>由于<code>Content scripts</code>与网页隔离，有些功能又需要访问网页空间中的数据</p>
+<p>那么扩展程序往往会在<code>Content scripts</code>中通过<code>DOM</code>注入各种标签，当然也包括<code>script</code></p>
+<p>这里是在 contentScript.bundle.js 里面进行插入的</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">var</span> style <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span><span class="token string">'style'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+style<span class="token punctuation">.</span>textContent <span class="token operator">=</span> styles<span class="token punctuation">;</span>
+document<span class="token punctuation">.</span>head<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>style<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>如果插入的是 script 标签便会引入一些攻击面</p>
+<hr>
+<h2 id="Background-scripts"><a href="#Background-scripts" class="headerlink" title="Background scripts"></a>Background scripts</h2><p>扩展程序的后台服务，拥有完整的Chrome API功能，但不能直接访问<code>DOM</code></p>
+<p>一般用于持续运行的功能，或依赖相关Chrome API的功能</p>
+<p>在一定的权限设定下，无同源策略限制</p>
+<p>在Manifest V2中是一个HTML，叫<code>background.html</code>，如果是JS的话会自动生成一个HTML</p>
+<p>在Manifest V3中是一个JS，叫<code>Service Worker</code></p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token property">"background"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">"service_worker"</span><span class="token operator">:</span> <span class="token string">"background.bundle.js"</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/Chrome%E6%89%A9%E5%B1%95%E6%94%BB%E5%87%BB/image-20241218194904970.png" alt="image-20241218194904970"></p>
+<p>background.bundle.js 里对应的代码</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">chrome<span class="token punctuation">.</span>runtime<span class="token punctuation">.</span>onInstalled<span class="token punctuation">.</span><span class="token function">addListener</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">t</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+    <span class="token string">"install"</span><span class="token operator">===</span>t<span class="token punctuation">.</span>reason <span class="token operator">&amp;&amp;</span> chrome<span class="token punctuation">.</span>tabs<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token literal-property property">url</span><span class="token operator">:</span> <span class="token string">"chrome://newtab"</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>监听安装行为，在安装此扩展时在浏览器打开一个新标签页</p>
+<hr>
+<h3 id="Popup"><a href="#Popup" class="headerlink" title="Popup"></a>Popup</h3><p>定义的位置在 action 的 default_popup</p>
+<p>是点击扩展图标后弹出的页面，权限与<code>Background</code>组件相同</p>
+<p>以 沉浸式翻译 为例子：</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token property">"action"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">"default_icon"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+        <span class="token property">"128"</span><span class="token operator">:</span> <span class="token string">"icons/128.png"</span><span class="token punctuation">,</span>
+        <span class="token property">"256"</span><span class="token operator">:</span> <span class="token string">"icons/256.png"</span><span class="token punctuation">,</span>
+        <span class="token property">"32"</span><span class="token operator">:</span> <span class="token string">"icons/32.png"</span><span class="token punctuation">,</span>
+        <span class="token property">"48"</span><span class="token operator">:</span> <span class="token string">"icons/48.png"</span><span class="token punctuation">,</span>
+        <span class="token property">"64"</span><span class="token operator">:</span> <span class="token string">"icons/64.png"</span>
+    <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token property">"default_popup"</span><span class="token operator">:</span> <span class="token string">"popup.html"</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/Chrome%E6%89%A9%E5%B1%95%E6%94%BB%E5%87%BB/image-20241218195819564.png" alt="image-20241218195819564"></p>
+<h3 id="options-page"><a href="#options-page" class="headerlink" title="options_page"></a>options_page</h3><p>为扩展的选项页，权限与<code>Background</code>组件相同</p>
+<hr>
+<h2 id="通信架构"><a href="#通信架构" class="headerlink" title="通信架构"></a>通信架构</h2><p><img src="/blog/Chrome%E6%89%A9%E5%B1%95%E6%94%BB%E5%87%BB/image-20241218200053198.png" alt="image-20241218200053198"></p>
+<p>Webpage 是指网页 Javascript 的空间，与 Content 共享 DOM，其中 window 比较特殊，虽然是共用一个 window，但有变量隔离</p>
+<p>由于共用 window ，Webpage 与 Content 可以使用<code>window.postMessage</code>进行通信</p>
+<p>当 Content 调用<code>chrome.runtime.sendMessage</code>时其实在向所有 Background 页面中广播</p>
+<p>同理，Background 页面之间使用<code>chrome.runtime.sendMessage</code>发送消息时也相当于在广播</p>
+<hr>
+<h1 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h1><p>前端漏洞主要还是围绕 XSS 和 CSRF</p>
+<p>而 Chrome Manifest V3 中规定禁止代码执行，禁止加载远程资源，体现在CSP中无法添加<code>unsafe-eval</code>和<code>unsafe-inline</code>，也无法添加任何远程地址，导致想要在 Manifest V3 实现 XSS 非常困难</p>
+<h2 id="Content-scripts-1"><a href="#Content-scripts-1" class="headerlink" title="Content scripts"></a>Content scripts</h2><h3 id="DOM"><a href="#DOM" class="headerlink" title="DOM"></a>DOM</h3><p>由于 Content scripts 与网页 JS 共享<code>DOM</code></p>
+<p>对于攻击者来说，攻击入口包括整个 DOM</p>
+<h3 id="DOM-Event"><a href="#DOM-Event" class="headerlink" title="DOM  Event"></a>DOM  Event</h3><p>除了<code>Content</code>去直接查询<code>DOM</code>元素，还有订阅事件</p>
+<h3 id="onmessage"><a href="#onmessage" class="headerlink" title="onmessage"></a>onmessage</h3><p>由于<code>Content scripts</code>与网页使用同一个<code>window</code>，<code>postMessage</code>将直接与<code>Content scripts</code>通信</p>
+<p>如果没有校验来源，甚至可以利用 iframe 或者 window.open 获取目标window，跨域发送消息直达<code>Content scripts</code>完成攻击</p>
+<h3 id="window-name"><a href="#window-name" class="headerlink" title="window.name"></a>window.name</h3><p>虽然说<code>Content</code>与网页隔离，变量不能共享，但是<code>window.name</code>是个例外</p>
+<h3 id="Web-Storage"><a href="#Web-Storage" class="headerlink" title="Web Storage"></a>Web Storage</h3><p>如果在<code>Content</code>中使用Web Storage，其实是在使用当前网站的存储，而不是扩展程序自己的</p>
+<p>写入Web Storage存在信息泄露，同时读取Web Storage也是用户输入</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

