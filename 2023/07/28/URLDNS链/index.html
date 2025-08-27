@@ -260,7 +260,7 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/Java/" style="color: #00a596">Java</a>
+                <a href="/blog/tags/Java/" style="color: #ff7d73">Java</a>
             </span>
             
             <span class="tag">
@@ -374,7 +374,7 @@
 ht<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>u<span class="token punctuation">,</span> url<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//The value can be anything that is Serializable, URL as the key is what triggers the DNS lookup.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <ul>
-<li>先是用<code>URLStreamHandler</code>创建了一个句柄，这个句柄可以打开一个指定的url（URLStreamHandler 是一个抽象类，这里 ysoserial 写了一个 SilentURLStreamHandler 类继承 URLStreamHandler ，重写了 getHostAddress 方法，防止在 put 的时候就触发）</li>
+<li>先是用<code>URLStreamHandler</code>创建了一个句柄，这个句柄可以打开一个指定的url（URLStreamHandler 是一个抽象类，这里 ysoserial 写了一个 SilentURLStreamHandler 类继承 URLStreamHandler ，重写了 getHostAddress 方法，而我们的目标就是最终调用 URLStreamHandler 中的 getHostAddress 方法，于是这里要防止在 put 的时候就触发请求）</li>
 <li>创建一个哈希表HashMap，调用 put 方法将 URL 对象 u 作为key存入到了哈希表中</li>
 </ul>
 <p>第二部分：</p>
@@ -387,7 +387,7 @@ ht<span class="token punctuation">.</span><span class="token function">put</span
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <ul>
-<li>这里利用反射将url对象u的 hashCode 设置成了-1，为什么要这么做我们一会在分析具体的触发过程时会提到</li>
+<li>这里利用反射将 URL 对象 u 的 hashCode 设置成了-1，为什么要这么做我们一会在分析具体的触发过程时会提到</li>
 <li>最后返回了<code>HashMap</code>对象ht，并用PayloadRunner运行该利用链</li>
 </ul>
 <p>那么URLDNS链的重点就在这个HashMap类上</p>
