@@ -260,17 +260,17 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/CVE/" style="color: #00a596">CVE</a>
+                <a href="/blog/tags/CVE/" style="color: #ffa2c4">CVE</a>
             </span>
             
             <span class="tag">
                 
-                <a href="/blog/tags/ThinkPHP/" style="color: #ff7d73">ThinkPHP</a>
+                <a href="/blog/tags/ThinkPHP/" style="color: #03a9f4">ThinkPHP</a>
             </span>
             
             <span class="tag">
                 
-                <a href="/blog/tags/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83/" style="color: #ffa2c4">春秋云境</a>
+                <a href="/blog/tags/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83/" style="color: #00bcd4">春秋云境</a>
             </span>
             
         </span>
@@ -284,7 +284,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">1.5k字</span>
+        <span class="post-count">1.6k字</span>
       </span>
     </span>
 
@@ -293,7 +293,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">6分</span>
+        <span class="post-count">7分</span>
       </span>
     </span>
     
@@ -453,6 +453,10 @@ r <span class="token operator">=</span> session<span class="token punctuation">.
 <hr>
 <h1 id="MS17-010-amp-DCSync"><a href="#MS17-010-amp-DCSync" class="headerlink" title="MS17-010 &amp; DCSync"></a>MS17-010 &amp; DCSync</h1><p>接下来打内网的 MS17-010 服务器，这个搜一下可以知道是永恒之蓝</p>
 <p>msf上有，遂直接一把梭，参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/ElsonHY/article/details/109939420">https://blog.csdn.net/ElsonHY/article/details/109939420</a></p>
+<blockquote>
+<p>原理：永恒之蓝(ms17-010)通过TCP端口445和139来利用SMBv1和NBT中的远程代码执行漏洞，恶意代码会扫描开放445文件共享端口的Windows机器，无需用户任何操作，只要开机上网，不法分子就能在电脑和服务器中植入勒索软件、远程控制木马、虚拟货币挖矿机等恶意程序。</p>
+<p>已知受影响的Windows 版本包括但不限于：Windows NT，Windows 2000、Windows XP、Windows 2003、Windows Vista、Windows 7、Windows 8，Windows 2008、Windows 2008 R2、Windows Server 2012 SP0</p>
+</blockquote>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">proxychains4 msfconsole
 search ms17-010<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
@@ -467,7 +471,7 @@ exploit<span aria-hidden="true" class="line-numbers-rows"><span></span><span></s
 <p>拿到权限后可以用 creds_all 等命令收集内网凭据，而我们控制的这台机器是有 DCSync 的权限的(因为这个是DC1，也就是域控制器)，所以能直接从域控上导出Hash</p>
 <p><img src="/blog/2025/02/24/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Initial/image-20250224125846463.png" alt="image-20250224125846463"></p>
 <blockquote>
-<p><strong>DCSync攻击:</strong><br>DCSync的原理是利用域控制器之间的数据同步复制<br>DCSync是AD域渗透中常用的凭据窃取手段，默认情况下，域内不同DC每隔15分钟会进行一次数据同步，当一个DC从另外一个DC同步数据时，发起请求的一方会通过目录复制协议（MS-  DRSR）来对另外一台域控中的域用户密码进行复制，DCSync就是利用这个原理，“模拟”DC向真实DC发送数据同步请求，获取用户凭据数据，由于这种攻击利用了Windows RPC协议，并不需要登陆域控或者在域控上落地文件，避免触发EDR告警，因此DCSync时一种非常隐蔽的凭据窃取方式</p>
+<p><strong>DCSync攻击:</strong><br>DCSync的原理是利用域控制器之间的数据同步复制<br>DCSync是AD域渗透中常用的凭据窃取手段，默认情况下，域内不同DC每隔15分钟会进行一次数据同步，当一个DC从另外一个DC同步数据时，发起请求的一方会通过目录复制协议（MS-DRSR）来对另外一台域控中的域用户密码进行复制，DCSync就是利用这个原理，“模拟”DC向真实DC发送数据同步请求，获取用户凭据数据，由于这种攻击利用了Windows RPC协议，并不需要登陆域控或者在域控上落地文件，避免触发EDR告警，因此DCSync时一种非常隐蔽的凭据窃取方式</p>
 </blockquote>
 <blockquote>
 <p><strong>DCSync 攻击前提:</strong><br>想进行DCSync 攻击，必须获得以下任一用户的权限：<br>Administrators 组内的用户<br>Domain Admins 组内的用户<br>Enterprise Admins 组内的用户域控制器的计算机帐户<br>即：默认情况下域管理员组具有该权限</p>
