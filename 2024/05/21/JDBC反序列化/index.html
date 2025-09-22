@@ -260,12 +260,12 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" style="color: #ff7d73">反序列化</a>
+                <a href="/blog/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" style="color: #ffa2c4">反序列化</a>
             </span>
             
             <span class="tag">
                 
-                <a href="/blog/tags/JDBC/" style="color: #ff7d73">JDBC</a>
+                <a href="/blog/tags/JDBC/" style="color: #00a596">JDBC</a>
             </span>
             
         </span>
@@ -327,6 +327,13 @@
 <p>然后取出压缩包里面的jar包，导到项目中，这里新建一个lib文件夹用来存放jar包</p>
 <p><img src="/blog/2024/05/21/JDBC%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20240521010346883.png" alt="image-20240521010346883"></p>
 <p>（也可以直接右键jar包添加为库）</p>
+<p>或者直接导入 pom</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>mysql<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>mysql-connector-java<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>8.0.12<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
 <hr>
 <h2 id="简单demo"><a href="#简单demo" class="headerlink" title="简单demo"></a>简单demo</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>example</span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>sql<span class="token punctuation">.</span></span><span class="token operator">*</span></span><span class="token punctuation">;</span>
@@ -430,7 +437,7 @@
                                 <span class="token punctuation">&#125;</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p><img src="/blog/2024/05/21/JDBC%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20240521134323858.png" alt="image-20240521134323858"></p>
-<p>在readObject前有一个判断，那就是<code>if (data[0] != -84 || data[1] != -19)</code>，即前面Java序列化对象的标识符</p>
+<p>在 readObject 前有一个判断，那就是 <code>if (data[0] != -84 || data[1] != -19)</code>，即前面Java序列化对象的标识符</p>
 <p>那么这个就用来判断是否为序列化对象，如果是的话才能进入readObject方法被调用</p>
 <p>接下来找调用 getObject 方法的地方，在<code>com.mysql.cj.jdbc.interceptors.ServerStatusDiffInterceptor.populateMapWithSessionStatusValues()</code></p>
 <blockquote>
@@ -454,11 +461,11 @@
         <span class="token punctuation">&#125;</span>
         <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p>rs 是服务端执行SQL语句<code>SHOW SESSION STATUS</code>后返回的结果，那么只要我们能利用恶意的mysql服务端来控制rs的值，就可以尝试触发反序列化链了</p>
+<p>rs 是服务端执行 SQL 语句 <code>SHOW SESSION STATUS</code> 后返回的结果，那么只要我们能利用恶意的mysql服务端来控制 rs 的值，就可以尝试触发反序列化链了</p>
 <hr>
-<h2 id="MySQL认证报文"><a href="#MySQL认证报文" class="headerlink" title="MySQL认证报文"></a>MySQL认证报文</h2><p>既然需要恶意的mysql服务，那么就得自己写，这里有两种写法：</p>
+<h2 id="MySQL认证报文"><a href="#MySQL认证报文" class="headerlink" title="MySQL认证报文"></a>MySQL认证报文</h2><p>既然需要恶意的 mysql 服务，那么就得自己写，这里有两种写法：</p>
 <ol>
-<li><p>根据MYSQL的协议去写服务器</p>
+<li><p>根据 MYSQL 的协议去写服务器</p>
 </li>
 <li><p>抓包，模拟发包过程</p>
 </li>
@@ -487,9 +494,9 @@
 <p><img src="/blog/2024/05/21/JDBC%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20240530113435915.png" alt="image-20240530113435915"></p>
 <p>直接发送原始数据即可，恶意服务端可以将这部分改为恶意payload，之后进行反序列化</p>
 <hr>
-<h2 id="show-session-status响应包的编写"><a href="#show-session-status响应包的编写" class="headerlink" title="show session status响应包的编写"></a>show session status响应包的编写</h2><p>从流量中可以看出来<code>show session status</code>属于<strong>request Query</strong> 报文</p>
+<h2 id="show-session-status响应包的编写"><a href="#show-session-status响应包的编写" class="headerlink" title="show session status响应包的编写"></a>show session status响应包的编写</h2><p>从流量中可以看出来 <code>show session status</code> 属于 <strong>request Query</strong> 报文</p>
 <p>对于查询数据包的响应包可以分为四种：错误包（ERR Packet）、正确包（OK Packet）、 Protocol::LOCAL_INFILE_Request、结果集（ProtocolText::Resultset）</p>
-<p>流量里看到的<strong>Response OK</strong>数据包就是<strong>OK packet</strong></p>
+<p>流量里看到的 <strong>Response OK</strong> 数据包就是 <strong>OK packet</strong></p>
 <p>我们这里要用的是<strong>结果集</strong>的数据包，结果集响应包的结构：</p>
 <p><img src="/blog/2024/05/21/JDBC%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20240531005812275.png" alt="image-20240531005812275"></p>
 <ul>
