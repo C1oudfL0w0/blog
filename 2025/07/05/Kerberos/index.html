@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Kerberos | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80"><span class="toc-number">2.</span> <span class="toc-text">基础</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%94%BB%E5%87%BB"><span class="toc-number">3.</span> <span class="toc-text">攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#AS-REQ-amp-AS-REP-%E9%98%B6%E6%AE%B5%E6%94%BB%E5%87%BB"><span class="toc-number">3.1.</span> <span class="toc-text">AS_REQ &amp; AS_REP 阶段攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E5%86%85%E7%94%A8%E6%88%B7%E6%9E%9A%E4%B8%BE"><span class="toc-number">3.1.1.</span> <span class="toc-text">域内用户枚举</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%86%E7%A0%81%E5%96%B7%E6%B4%92%E6%94%BB%E5%87%BB"><span class="toc-number">3.1.2.</span> <span class="toc-text">密码喷洒攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AS-REP-Roasting-%E6%94%BB%E5%87%BB"><span class="toc-number">3.1.3.</span> <span class="toc-text">AS_REP Roasting 攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E6%94%BB%E5%87%BB"><span class="toc-number">3.1.4.</span> <span class="toc-text">黄金票据攻击</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TGS-REQ-amp-TGS-REP-%E9%98%B6%E6%AE%B5%E6%94%BB%E5%87%BB"><span class="toc-number">3.2.</span> <span class="toc-text">TGS_REQ&amp;TGS_REP 阶段攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SPN-amp-amp-Kerberoast-%E6%94%BB%E5%87%BB"><span class="toc-number">3.2.1.</span> <span class="toc-text">SPN &amp;&amp; Kerberoast 攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE%E6%94%BB%E5%87%BB"><span class="toc-number">3.2.2.</span> <span class="toc-text">白银票据攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8E%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">3.2.2.1.</span> <span class="toc-text">与黄金票据的区别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A7%94%E6%B4%BE%E6%94%BB%E5%87%BB"><span class="toc-number">3.2.3.</span> <span class="toc-text">委派攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9E%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE"><span class="toc-number">3.2.3.1.</span> <span class="toc-text">非约束委派</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#S4U-amp-amp-%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE"><span class="toc-number">3.2.3.2.</span> <span class="toc-text">S4U &amp;&amp; 约束委派</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PAC-%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98"><span class="toc-number">3.3.</span> <span class="toc-text">PAC 安全问题</span></a></li></ol></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>Kerberos</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2025/7/5
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/%E6%B8%97%E9%80%8F/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                渗透
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Kerberos/" style="color: #03a9f4">Kerberos</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.9k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">7分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>域渗透中，如果能够获取域控的权限，便可接管域内所有机器，而域渗透中，Kerberos 是最常用的，是整个域的基础认证协议</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/437641.html">Kerberos 票据攻击：黄金、白银、钻石、蓝宝石票据的攻防全解析 - FreeBuf网络安全行业门户</a></p>
+<p><a target="_blank" rel="noopener" href="https://y4er.com/posts/kerberos-as_req-and-as_rep/">https://y4er.com/posts/kerberos-as_req-and-as_rep/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/network/384457.html">https://www.freebuf.com/articles/network/384457.html</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h1><p>包括三个部分：</p>
+<ul>
+<li>Client</li>
+<li>Server</li>
+<li>KDC（密钥分发中心）：包含 AS（认证服务器）和 TGS（票据授权服务器）</li>
+</ul>
+<p>基础认证流程如下：</p>
+<p><img src="/blog/2025/07/05/Kerberos/IMG-20251023172203790.png"></p>
+<ol>
+<li>AS_REQ: Client 向 AS 发起 AS_REQ，请求凭据是 Client hash 加密的时间戳，请求内容为通过 Client 的哈希加密的时间戳、ClientID 等内容</li>
+<li>AS_REP: AS 使用 Client hash 进行解密，如果结果正确就返回<strong>用 krbtgt（域控中用来管理发放票据的用户） 的 NTLM-hash 加密的 TGT （Ticket Granting Ticket，票据授权凭证）票据</strong>，TGT 里面包含 PAC（Privlege Attribute 特权属证书），PAC 包含 Client 的 sid，Client 所在的组，<strong>用于验证用户权限</strong>，只有 KDC 能制作和查看 PAC。</li>
+<li>TGS_REQ: Client 凭借 TGT 票据向 KDC 发起针对特定服务的 TGS_REQ 请求</li>
+<li>TGS_REP: KDC 使用 krbtgt NTLM-hash 进行解密，如果结果正确，就返回用服务 NTLM-hash 加密的 TGS 票据（简称 ST）；注意，<strong>不管用户有没有访问服务的权限，只要 TGT 正确，就返回 TGS 票据</strong></li>
+<li>AP_REQ: Client 拿着 TGS 票据去请求服务</li>
+<li>AP_REP: 服务使用自己的 NTLM-hash 解密 TGS 票据。如果解密正确，就拿着 PAC 去 KDC 那边问 Client 有没有访问权限，域控解密 PAC。获取 Client 的 sid，以及所在的组，再根据该服务的 ACL，判断 Client 是否有访问服务的权限。</li>
+</ol>
+<h1 id="攻击"><a href="#攻击" class="headerlink" title="攻击"></a>攻击</h1><h2 id="AS-REQ-amp-AS-REP-阶段攻击"><a href="#AS-REQ-amp-AS-REP-阶段攻击" class="headerlink" title="AS_REQ &amp; AS_REP 阶段攻击"></a>AS_REQ &amp; AS_REP 阶段攻击</h2><p>此阶段与 AS 认证服务器进行交互，那么就会出现最基础的用户枚举和密码喷洒</p>
+<h3 id="域内用户枚举"><a href="#域内用户枚举" class="headerlink" title="域内用户枚举"></a>域内用户枚举</h3><p>用户名存在与不存在的报错不一致，那么可以进行用户枚举</p>
+<p>Kerberos 服务所在端口为 88 端口，采用 tcp 连接，所以通过 88 端口来探测；其次是用户名登录存在三种状态，根据不同状态可以判断其是否存在：</p>
+<ol>
+<li><code>KDC_ERR_PREAUTH_REQUIRED</code> - 需要额外的预认证（启用）</li>
+<li><code>KDC_ERR_CLIENT_REVOKED</code> - 客户端凭证已被吊销（禁用）</li>
+<li><code>KDC_ERR_C_PRINCIPAL_UNKNOWN</code> - 在Kerberos数据库中找不到客户端（不存在）</li>
+</ol>
+<p>相关工具： <a target="_blank" rel="noopener" href="https://github.com/ropnop/kerbrute/releases/">https://github.com/ropnop/kerbrute/releases/</a></p>
+<h3 id="密码喷洒攻击"><a href="#密码喷洒攻击" class="headerlink" title="密码喷洒攻击"></a>密码喷洒攻击</h3><p>对其他用户进行密码爆破</p>
+<h3 id="AS-REP-Roasting-攻击"><a href="#AS-REP-Roasting-攻击" class="headerlink" title="AS_REP Roasting 攻击"></a>AS_REP Roasting 攻击</h3><p>对于域用户，如果设置了选项 &quot;Do not require Kerberos preauthentication&quot;，此时向域控制器的 88 端口发送 AS-REQ 请求，对收到的 AS-REP 内容重新组合，能够拼接成 &quot;Kerberos 5 AS-REP etype 23&quot;(18200) 的格式，接下来可以使用 hashcat 对其破解，最终获得该用户的明文口令。</p>
+<p><strong>通常情况此选项默认关闭</strong></p>
+<p>工具：impacket 的 GetNPUsers.py 可检索启动了&quot;Do not require Kerberos preauthentication&quot;的目标域用户</p>
+<h3 id="黄金票据攻击"><a href="#黄金票据攻击" class="headerlink" title="黄金票据攻击"></a>黄金票据攻击</h3><p>针对 Kerberos 认证中生成 **TGT (Ticket Granting Ticket，票据授权票据)**的部分</p>
+<p>Kerberos 中每个用户的票据都是由 krbtgt 的 NTLM 哈希值加密生成的，所以只要我们获得了 krbtgt 的哈希值，就能伪造任意用户的票据，即黄金票据攻击</p>
+<p>攻击者需要的信息：域名、域 sid、krbtgt 哈希值、要伪造的用户</p>
+<p>首先要获取 krbtgt 的 hash，此处可以用 DCSync 攻击，从域控直接请求，但是需要域管或者等效权限：</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">lsadump::dcsync <span class="token operator">/</span>domain:test<span class="token punctuation">.</span>local <span class="token operator">/</span>user:krbtgt<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>或者在已经提权的域控上直接导出所有用户的 hash</p>
+<p>然后需要 sid 的 hash：</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">lsadump::lsa <span class="token operator">/</span>patch<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>接下来就能生成 golden ticket 了，此处可以用 aes256 也可以用 krbtgt 的 NTLM hash：</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">kerberos::golden <span class="token operator">/</span>domain:test<span class="token punctuation">.</span>local <span class="token operator">/</span>sid:S-1-5-21-514356739-3204155868-1239341419 <span class="token operator">/</span>aes256:b4e2924c2d378eda457c2dd3810fdde0a5312354c2b26bc677dfb48e46a17fe7 <span class="token operator">/</span>user:administrator <span class="token operator">/</span>ticket:gold<span class="token punctuation">.</span>kirbi
+
+<span class="token comment">###############################</span>
+
+kerberos::golden <span class="token operator">/</span>user:administrator <span class="token operator">/</span>domain:test<span class="token punctuation">.</span>local <span class="token operator">/</span>sid:S-1-5-21-514356739-3204155868-1239341419 <span class="token operator">/</span>krbtgt:bfb69399cb7ac7828c70a1a0833119f6 <span class="token operator">/</span>ticket:gold<span class="token punctuation">.</span>kirbi<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后用 <code>/ptt</code> （Pass The Ticket）参数将生成的票据注入到当前会话中，无需重启即可使用：</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">kerberos::ptt gold<span class="token punctuation">.</span>kirbi<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+<hr>
+<h2 id="TGS-REQ-amp-TGS-REP-阶段攻击"><a href="#TGS-REQ-amp-TGS-REP-阶段攻击" class="headerlink" title="TGS_REQ&amp;TGS_REP 阶段攻击"></a>TGS_REQ&amp;TGS_REP 阶段攻击</h2><h3 id="SPN-amp-amp-Kerberoast-攻击"><a href="#SPN-amp-amp-Kerberoast-攻击" class="headerlink" title="SPN &amp;&amp; Kerberoast 攻击"></a>SPN &amp;&amp; Kerberoast 攻击</h3><p>SPN（Service Principal Name，服务器主体名称）是服务器所运行服务的唯一标识，每个使用 Kerberos 认证的服务都必须正确配置相应的 SPN，一个账户下可以有多个 SPN</p>
+<p>根据权限，SPN 有两种注册方式，分别为：机器账户 computers、域用户账户 users。KDC 查询 SPN 也按照账户方式进行查找</p>
+<p>Kerberoast 攻击：针对 TGS_REP 阶段使用服务的 NTLM Hash 返回的加密数据 ST 进行爆破，注意只有域用户的 SPN 是可以被利用的，机器账户会定期更改为随机字符所以无法利用</p>
+<p>首先在已经能登录某台域用户的基础上查询 SPN 寻找在 Users 下并且是高权限域用户的服务，然后请求并导出 TGS</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">python3 GetUserSPNs.py <span class="token parameter variable">-request</span> -dc-ip <span class="token number">172.22</span>.9.7 xiaorang.lab/zhangjian:i9XDE02pLVf<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>最后爆破 TGS 得出密码即可</p>
+<p>相关工具：impacket 的 GetUserSPNs.py、hashcat、<strong>一个正确的密码字典</strong></p>
+<hr>
+<h3 id="白银票据攻击"><a href="#白银票据攻击" class="headerlink" title="白银票据攻击"></a>白银票据攻击</h3><p>在 TGS_REP 中，不管 Client 是否有权限访问特殊服务，只要 Client 发送的 TGT 票据是正确的，那么就会返回服务 NTLM Hash 加密的 TGS 票据。如果我们有了服务 NTLM Hash，就可以签发 TGS 票据</p>
+<p>原理即伪造 ST 来访问服务，但是只能访问特定服务器上的部分服务</p>
+<p>需要如下信息：</p>
+<ul>
+<li>&#x2F;domain</li>
+<li>&#x2F;sid</li>
+<li>&#x2F;target：目标服务器的域名全称</li>
+<li>&#x2F;service：目标服务器上面的 Kerberos 服务</li>
+<li>&#x2F;rc4：计算机账户的 NTLM hash，域控主机的计算机账户</li>
+<li>&#x2F;user：要伪造的用户名</li>
+</ul>
+<p>mimikatz 导出服务账户的 NTLM Hash</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">sekurlsa::logonpasswords<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>如果导出的是域控服务账户 DC$ 的哈希，那么就可以获取 DC 机器名的哈希值和域 id，执行下面的命令便可获取 krbtgt 的 hash 从而制作黄金票据</p>
+<pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell">kerberos::golden <span class="token operator">/</span>domain:test<span class="token punctuation">.</span>local <span class="token operator">/</span>sid:S-1-5-21-514356739-3204155868-1239341419 <span class="token operator">/</span>target:dc<span class="token punctuation">.</span>test<span class="token punctuation">.</span>local <span class="token operator">/</span>service:cifs <span class="token operator">/</span>rc4:9150e40e4ec936a15baf384ca382a3df <span class="token operator">/</span>user:dc$ <span class="token operator">/</span>ptt
+
+lsadump::dcsync <span class="token operator">/</span>domain:test<span class="token punctuation">.</span>local <span class="token operator">/</span>user:krbtgt<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="与黄金票据的区别"><a href="#与黄金票据的区别" class="headerlink" title="与黄金票据的区别"></a>与黄金票据的区别</h4><table>
+<thead>
+<tr>
+<th></th>
+<th>黄金票据</th>
+<th>白银票据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>访问权限</td>
+<td>伪造 TGT，可以获取任何 Kerberos 服务权限</td>
+<td>伪造 TGS，只能访问指定的服务</td>
+</tr>
+<tr>
+<td>加密方式</td>
+<td>由 krbtgt 的 Hash 加密</td>
+<td>由服务账号（通常为计算机账户）的 Hash 加密</td>
+</tr>
+<tr>
+<td>认证流程</td>
+<td>需要访问域控</td>
+<td>不需要访问域控</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="委派攻击"><a href="#委派攻击" class="headerlink" title="委派攻击"></a>委派攻击</h3><h4 id="非约束委派"><a href="#非约束委派" class="headerlink" title="非约束委派"></a>非约束委派</h4><hr>
+<h4 id="S4U-amp-amp-约束委派"><a href="#S4U-amp-amp-约束委派" class="headerlink" title="S4U &amp;&amp; 约束委派"></a>S4U &amp;&amp; 约束委派</h4><p>Windows Server 2003 中引入了约束委派，对 Kerberos 协议进行了拓展，引入了 S4U 协议：S4U2Self 和 S4U2proxy，前者用于生成本身服务的 TGS 票据，S4U2proxy 用于“代理”相关用户申请其他服务票据</p>
+<p>请求过程：</p>
+<p><img src="/blog/2025/07/05/Kerberos/IMG-20251213165446996.png"></p>
+<p>具体过程是收到用户的请求之后，首先代表用户获得针对服务自身的可转发的 Kerberos 服务票据(S4U2SELF)，拿着这个票据向 KDC 请求访问特定服务的<strong>可转发的 TGS</strong>(S4U2PROXY)，并且代表用户访问特定服务，而且只能访问该特定服务。</p>
+<p>注意：约束委派的前置条件服务自身需要通过 KDC 认证的 TGT</p>
+<hr>
+<h2 id="PAC-安全问题"><a href="#PAC-安全问题" class="headerlink" title="PAC 安全问题"></a>PAC 安全问题</h2>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2025 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

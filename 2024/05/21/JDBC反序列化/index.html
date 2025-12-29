@@ -260,12 +260,12 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" style="color: #00a596">反序列化</a>
+                <a href="/blog/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" style="color: #00bcd4">反序列化</a>
             </span>
             
             <span class="tag">
                 
-                <a href="/blog/tags/JDBC/" style="color: #ff7d73">JDBC</a>
+                <a href="/blog/tags/JDBC/" style="color: #03a9f4">JDBC</a>
             </span>
             
         </span>
@@ -279,7 +279,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">4.6k字</span>
+        <span class="post-count">4.7k字</span>
       </span>
     </span>
 
@@ -386,7 +386,8 @@
 <p><img src="/blog/2024/05/21/JDBC%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20240521012111477.png" alt="image-20240521012111477"></p>
 <p>前两个字节固定为<code>-84</code>和<code>-19</code>，这一点在后面会回收伏笔</p>
 <hr>
-<h1 id="MYSQL-JDBC-RCE"><a href="#MYSQL-JDBC-RCE" class="headerlink" title="MYSQL JDBC RCE"></a>MYSQL JDBC RCE</h1><h2 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h2><p>若攻击者能控制 JDBC 连接设置项，则可以通过设置其配置指向恶意 MySQL 服务器触发<code>ObjectInputStream.readObject()</code>，构造反序列化利用链从而造成RCE。</p>
+<h1 id="MYSQL-JDBC-RCE"><a href="#MYSQL-JDBC-RCE" class="headerlink" title="MYSQL JDBC RCE"></a>MYSQL JDBC RCE</h1><p>当<code>JDBC URL</code>可控时，特殊的<code>MySQL</code>服务端可以读取<code>JDBC</code>客户端任意文件或执行反序列化操作</p>
+<h2 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h2><p>若攻击者能控制 JDBC 连接设置项，则可以通过设置其配置指向恶意 MySQL 服务器触发<code>ObjectInputStream.readObject()</code>，构造反序列化利用链从而造成RCE。</p>
 <p>通过 JDBC 连接 MySQL 服务端时，会有几句内置的查询语句需执行，其中两个查询的结果集在 MySQL 客户端进行处理时会被<code>ObjectInputStream.readObject()</code>进行反序列化处理。如果攻击者可以控制 JDBC 连接设置项，那么可以通过设置其配置指向恶意MySQL服务触发MySQL JDBC客户端的反序列化漏洞。可被利用的两条查询语句：</p>
 <pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SHOW</span> <span class="token keyword">SESSION</span> <span class="token keyword">STATUS</span>
 <span class="token keyword">SHOW</span> COLLATION<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
@@ -746,7 +747,7 @@ conn <span class="token operator">=</span> <span class="token class-name">Driver
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p>此处需要用到 Mysql_Fake_Server</p>
+<p>此处需要用到 <a target="_blank" rel="noopener" href="https://github.com/4ra1n/mysql-fake-server">Mysql_Fake_Server</a></p>
 <hr>
 <h1 id="H2-RCE"><a href="#H2-RCE" class="headerlink" title="H2 RCE"></a>H2 RCE</h1><h2 id="H2-基础"><a href="#H2-基础" class="headerlink" title="H2 基础"></a>H2 基础</h2><p>H2 是一个用 Java 开发的轻量级关系型数据库，支持内存（<code>mem:</code>）和文件（<code>file:</code>）两种模式，它本身只是一个类库，即只有一个 jar 文件。它支持标准 SQL 和 JDBC 接口，也可以直接嵌入到应用项目中。H2 主要有如下三个用途：</p>
 <ol>
