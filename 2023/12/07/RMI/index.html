@@ -260,7 +260,7 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/Java/" style="color: #00bcd4">Java</a>
+                <a href="/blog/tags/Java/" style="color: #ffa2c4">Java</a>
             </span>
             
         </span>
@@ -328,9 +328,10 @@
 <p>注：在低版本的JDK中，Server与Registry是可以不在一台服务器上的，而在高版本的JDK中，Server与Registry只能在一台服务器上，否则无法注册成功</p>
 <hr>
 <h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><ol>
-<li><p>先编写一个远程接口</p>
+<li>先编写一个远程接口</li>
+</ol>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">IRemoteHelloWorld</span> <span class="token keyword">extends</span> <span class="token class-name">Remote</span> <span class="token punctuation">&#123;</span>
-    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">hello</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">RemoteException</span><span class="token punctuation">;</span>
+   <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">hello</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">RemoteException</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <ul>
@@ -338,18 +339,19 @@
 <li>继承 Remote 接口</li>
 <li>其中的接口方法抛出异常</li>
 </ul>
-</li>
-<li><p>定义该接口的实现类</p>
+<ol start="2">
+<li>定义该接口的实现类</li>
+</ol>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RemoteHelloWorld</span> <span class="token keyword">extends</span> <span class="token class-name">UnicastRemoteObject</span> <span class="token keyword">implements</span> <span class="token class-name">IRemoteHelloWorld</span> <span class="token punctuation">&#123;</span>
-    
-    <span class="token keyword">protected</span> <span class="token class-name">RemoteHelloWorld</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">RemoteException</span> <span class="token punctuation">&#123;</span>
-        <span class="token keyword">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
+   
+   <span class="token keyword">protected</span> <span class="token class-name">RemoteHelloWorld</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">RemoteException</span> <span class="token punctuation">&#123;</span>
+	   <span class="token keyword">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+   <span class="token punctuation">&#125;</span>
 
-    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">hello</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">RemoteException</span> <span class="token punctuation">&#123;</span>
-        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"call from"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> <span class="token string">"Hello world"</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
+   <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">hello</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">RemoteException</span> <span class="token punctuation">&#123;</span>
+	   <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"call from"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	   <span class="token keyword">return</span> <span class="token string">"Hello world"</span><span class="token punctuation">;</span>
+   <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <ul>
@@ -358,19 +360,20 @@
 <li>构造函数需要抛出一个RemoteException错误</li>
 <li>实现类中使用的对象必须都可序列化，即都继承<code>java.io.Serializable</code></li>
 </ul>
-</li>
-<li><p>注册远程对象</p>
+<ol start="3">
+<li>注册远程对象</li>
+</ol>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RMIServer</span> <span class="token punctuation">&#123;</span>
-    <span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
-        <span class="token class-name">RemoteHelloWorld</span> h <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">RemoteHelloWorld</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">// 实例化远程对象</span>
-        <span class="token class-name">LocateRegistry</span><span class="token punctuation">.</span><span class="token function">createRegistry</span><span class="token punctuation">(</span><span class="token number">1099</span><span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">// 创建注册中心</span>
-        <span class="token class-name">Naming</span><span class="token punctuation">.</span><span class="token function">rebind</span><span class="token punctuation">(</span><span class="token string">"rmi://127.0.0.1:1099/Hello"</span><span class="token punctuation">,</span> h<span class="token punctuation">)</span><span class="token punctuation">;</span>		<span class="token comment">// 将RemoteHelloWorld对象绑定到Hello这个名字上</span>
-        <span class="token comment">// 等价于Naming.bind("Hello", new RemoteHelloWorld());</span>
-    <span class="token punctuation">&#125;</span>
+   <span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
+	   <span class="token class-name">RemoteHelloWorld</span> h <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">RemoteHelloWorld</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">// 实例化远程对象</span>
+	   <span class="token class-name">LocateRegistry</span><span class="token punctuation">.</span><span class="token function">createRegistry</span><span class="token punctuation">(</span><span class="token number">1099</span><span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">// 创建注册中心</span>
+	   <span class="token class-name">Naming</span><span class="token punctuation">.</span><span class="token function">rebind</span><span class="token punctuation">(</span><span class="token string">"rmi://127.0.0.1:1099/Hello"</span><span class="token punctuation">,</span> h<span class="token punctuation">)</span><span class="token punctuation">;</span>		<span class="token comment">// 将RemoteHelloWorld对象绑定到Hello这个名字上</span>
+	   <span class="token comment">// 等价于Naming.bind("Hello", new RemoteHelloWorld());</span>
+   <span class="token punctuation">&#125;</span>
 
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
-        <span class="token keyword">new</span> <span class="token class-name">RMIServer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
+   <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
+	   <span class="token keyword">new</span> <span class="token class-name">RMIServer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+   <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <ul>
@@ -379,8 +382,6 @@
 <li><p>bind 的绑定这里，只要和客户端去查找的 registry 一致即可</p>
 </li>
 </ul>
-</li>
-</ol>
 <p>最终的代码：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span></span><span class="token constant">RMI</span><span class="token punctuation">;</span>
 

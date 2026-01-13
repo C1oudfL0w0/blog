@@ -85,7 +85,7 @@
     <div id="toc" class="toc-article">
     <h3><i class="fas fa-stream"></i>  目录</h3>
       <div class="toc-title"></div>
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text">序列化</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RPC-%E5%8D%8F%E8%AE%AE"><span class="toc-number">2.</span> <span class="toc-text">RPC 协议</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Hessian-%E5%8D%8F%E8%AE%AE"><span class="toc-number">3.</span> <span class="toc-text">Hessian 协议</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">4.</span> <span class="toc-text">序列化</span></a></li></ol>
     </div>
   
 
@@ -260,7 +260,7 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/Java/" style="color: #00a596">Java</a>
+                <a href="/blog/tags/Java/" style="color: #ffa2c4">Java</a>
             </span>
             
         </span>
@@ -274,7 +274,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">75字</span>
+        <span class="post-count">714字</span>
       </span>
     </span>
 
@@ -283,7 +283,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">1分</span>
+        <span class="post-count">2分</span>
       </span>
     </span>
     
@@ -302,10 +302,47 @@
 <p>参考：</p>
 <p><a target="_blank" rel="noopener" href="https://boogipop.com/2023/03/21/%E8%A2%AB%E6%88%91%E5%BF%98%E6%8E%89%E7%9A%84Hessian%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">https://boogipop.com/2023/03/21/%E8%A2%AB%E6%88%91%E5%BF%98%E6%8E%89%E7%9A%84Hessian%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.potatowo.top/2024/11/12/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B9%8BHessian/">https://blog.potatowo.top/2024/11/12/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B9%8BHessian/</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/621596752">https://zhuanlan.zhihu.com/p/621596752</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/oldersheep/simple-hessian-rpc">https://github.com/oldersheep/simple-hessian-rpc</a></p>
 <span id="more"></span>
 
 <hr>
-<h1 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h1><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h1 id="RPC-协议"><a href="#RPC-协议" class="headerlink" title="RPC 协议"></a>RPC 协议</h1><p>此事在计算机操作系统中亦有记载</p>
+<p>RPC 全称为 Remote Procedure Call（远程过程调用），它允许一个计算机程序在另一台计算机上执行代码</p>
+<p>类似于之前的 RMI，都是远程调用服务，它们的不同之处就是 RPC 通过标准的二进制格式来定义请求的信息，这样跨平台和系统更加方便</p>
+<p>实现：</p>
+<ol>
+<li>定义接口。客户端和服务端需要共同定义一套接口，描述函数的输入参数和返回值。</li>
+<li>生成代理代码。客户端需要生成一个代理，它可以将函数调用转换成网络消息，并将结果返回给客户端。</li>
+<li>序列化和反序列化。客户端和服务端之间需要将数据序列化成网络字节流，以便进行传输。收到数据后，需要将其反序列化成可读的数据格式。</li>
+<li>网络传输。客户端和服务端之间需要进行网络传输，以便进行数据交换。</li>
+<li>调用远程函数。客户端通过代理调用服务端的函数，服务端执行该函数并返回结果。</li>
+<li>返回结果。服务端将执行结果序列化后发送给客户端，客户端将其反序列化成可读的数据格式。</li>
+</ol>
+<p>相应的通信过程：</p>
+<ul>
+<li>客户端发起请求，并按照RPC协议格式填充信息</li>
+<li>填充完毕后将二进制格式文件转化为流，通过传输协议进行传输</li>
+<li>服务端接收到流后，将其转换为二进制格式文件，并按照RPC协议格式获取请求的信息并进行处理</li>
+<li>处理完毕后将结果按照RPC协议格式写入二进制格式文件中并返回</li>
+</ul>
+<hr>
+<h1 id="Hessian-协议"><a href="#Hessian-协议" class="headerlink" title="Hessian 协议"></a>Hessian 协议</h1><p>Hessian 是一个基于 RPC 的高性能二进制远程传输协议，<a target="_blank" rel="noopener" href="http://hessian.caucho.com/">官方</a>对 Java、Python、C++ 等语言都进行了实现，Hessian 一般在Web服务中使用。</p>
+<p>在 Java 里它的使用方法很简单，它定义远程对象，并通过二进制的格式进行传输</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>  
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>com.caucho<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>  
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>hessian<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>  
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>4.0.63<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>  
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>类似于 RMI 的形式，Hessian 需要服务端和消费端通过接口相关联，服务端实现接口，当然数据在网络传输之后要进行还原就需要序列号</p>
+<p>写一个 demo：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+
+<hr>
+<h1 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h1>
     </div>
     
     
