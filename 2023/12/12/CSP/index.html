@@ -260,7 +260,7 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/XSS/" style="color: #ff7d73">XSS</a>
+                <a href="/blog/tags/XSS/" style="color: #03a9f4">XSS</a>
             </span>
             
         </span>
@@ -366,24 +366,24 @@ nonce：通过使用一次性加密字符来定义可以执行的内联js脚本�
 <h1 id="绕过"><a href="#绕过" class="headerlink" title="绕过"></a>绕过</h1><p>首先我们可以把响应的CSP政策丢<a target="_blank" rel="noopener" href="https://csp-evaluator.withgoogle.com/">CSP Evaluator</a>检测一手</p>
 <h2 id="location-href"><a href="#location-href" class="headerlink" title="location.href"></a>location.href</h2><p>CSP不影响location.href跳转，因为在大多数网站中的跳转功能都是靠前端实现的，如果限制跳转将会使网站很大一部分功能受到影响，所以利用跳转来绕过CSP是一个万能的方法；或者存在<code>script-src &#39;unsafe-inline&#39;;</code>这条规则也可以用该绕过方法</p>
 <p>demo：</p>
-<pre class="line-numbers language-php+HTML" data-language="php+HTML"><code class="language-php+HTML">&lt;?php
-if (!isset($_COOKIE[&#39;a&#39;])) &#123;
-setcookie(&#39;a&#39;,md5(rand(0,1000)));
-&#125;
-header(&quot;Content-Security-Policy: default-src &#39;self&#39;;&quot;);
-?&gt;
-&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-&lt;title&gt;CSP Test&lt;&#x2F;title&gt;
-&lt;&#x2F;head&gt;
-&lt;body&gt;
-&lt;h2&gt;CSP-safe&lt;&#x2F;h2&gt;
-&lt;?php
-if (isset($_GET[&#39;a&#39;])) &#123;
-echo &quot;Your GET content&quot;.@$_GET[&#39;a&#39;];
-&#125;&#x2F;&#x2F;
-?&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token keyword">isset</span><span class="token punctuation">(</span><span class="token variable">$_COOKIE</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'a'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token function">setcookie</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'a'</span><span class="token punctuation">,</span><span class="token function">md5</span><span class="token punctuation">(</span><span class="token function">rand</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1000</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token function">header</span><span class="token punctuation">(</span><span class="token string double-quoted-string">"Content-Security-Policy: default-src 'self';"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token delimiter important">?></span></span>
+<span class="token doctype"><span class="token punctuation">&lt;!</span><span class="token doctype-tag">DOCTYPE</span> <span class="token name">html</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>title</span><span class="token punctuation">></span></span>CSP Test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>title</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h2</span><span class="token punctuation">></span></span>CSP-safe<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h2</span><span class="token punctuation">></span></span>
+<span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">isset</span><span class="token punctuation">(</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'a'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">echo</span> <span class="token string double-quoted-string">"Your GET content"</span><span class="token operator">.</span>@<span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'a'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span class="token comment">//</span>
+<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>虽然策略只允许同源的资源，但是我们还是可以用location跳转：<code>location.href(window.location/window.open)</code>绕过</p>
 <p>exp：链接处可以改为vps地址</p>
