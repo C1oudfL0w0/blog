@@ -155,28 +155,30 @@ class CursorSpecialEffects {
 const cursorSpecialEffects = new CursorSpecialEffects()
 cursorSpecialEffects.init();
 
-/* 文字效果 */
-var a_idx = 0;
-jQuery(document).ready(function ($) {
-  $("body").click(function (e) {
-    var a = new Array("Pure", "Far", "Lost", "Perfect", "Great", "Miss", "Bad");
-    var $i = $("<span/>").text(a[a_idx]);
-    var x = e.pageX,
-      y = e.pageY;
-    $i.css({
-      "z-index": 99999,
-      "top": y - 28,
-      "left": x - a[a_idx].length * 8,
-      "position": "absolute",
-      "color": "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
-    });
-    $("body").append($i);
-    $i.animate({
-      "top": y - 180,
-      "opacity": 0
-    }, 1500, function () {
-      $i.remove();
-    });
-    a_idx = (a_idx + 1) % a.length;
+/* 文字效果（原生 JS，无 jQuery 依赖） */
+(function () {
+  var a_idx = 0;
+  var words = ["Pure", "Far", "Lost", "Perfect", "Great", "Miss", "Bad"];
+
+  document.body.addEventListener('click', function (e) {
+    var span = document.createElement('span');
+    span.textContent = words[a_idx];
+    span.style.cssText = 'z-index:99999;position:absolute;pointer-events:none;' +
+      'top:' + (e.pageY - 28) + 'px;' +
+      'left:' + (e.pageX - words[a_idx].length * 8) + 'px;' +
+      'color:rgb(' + ~~(255 * Math.random()) + ',' + ~~(255 * Math.random()) + ',' + ~~(255 * Math.random()) + ');' +
+      'font-weight:bold;transition:top 1.5s,opacity 1.5s;opacity:1;';
+    document.body.appendChild(span);
+
+    // 触发重排后开始动画
+    span.offsetHeight;
+    span.style.top = (e.pageY - 180) + 'px';
+    span.style.opacity = '0';
+
+    setTimeout(function () {
+      span.remove();
+    }, 1500);
+
+    a_idx = (a_idx + 1) % words.length;
   });
-});
+})();

