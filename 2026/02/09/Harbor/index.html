@@ -1,0 +1,623 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Harbor | 雲流のLowest World</title>
+  <meta name="author" content="C1oudfL0w0" />
+  <meta name="description" content="" />
+  <meta name="keywords" content="" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+  <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+  <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+  <!--flag{never_g0nna g1ve_you up}-->
+
+  <!-- 页面点击特效 -->
+  <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+  <!-- 浏览器标题 -->
+  <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+  <!-- 动态背景 -->
+  
+
+  <!--文章目录-->
+  
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Docker-%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93"><span class="toc-number">2.</span> <span class="toc-text">Docker 私有仓库</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Harbor"><span class="toc-number">3.</span> <span class="toc-text">Harbor</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2"><span class="toc-number">4.</span> <span class="toc-text">部署</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#docker-%E7%99%BB%E5%BD%95-registry"><span class="toc-number">5.1.</span> <span class="toc-text">docker 登录 registry</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E6%96%B0%E9%A1%B9%E7%9B%AE%E5%B9%B6%E4%B8%8A%E4%BC%A0"><span class="toc-number">5.2.</span> <span class="toc-text">创建新项目并上传</span></a></li></ol></li></ol>
+    </div>
+    <script>
+    (function () {
+        function initTocHighlight() {
+            var tocLinks = document.querySelectorAll('#toc .toc-link');
+            if (!tocLinks.length) return;
+
+            // 收集所有标题锚点对应的 DOM 元素
+            var headings = [];
+            tocLinks.forEach(function (link) {
+                var href = link.getAttribute('href');
+                if (!href) return;
+                var id = decodeURIComponent(href.slice(1));
+                var el = document.getElementById(id);
+                if (el) headings.push({ el: el, link: link });
+            });
+            if (!headings.length) return;
+
+            var activeLink = null;
+            var offset = 80;
+
+            function highlight() {
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                var current = null;
+
+                for (var i = 0; i < headings.length; i++) {
+                    if (headings[i].el.getBoundingClientRect().top <= offset + 10) {
+                        current = headings[i];
+                    }
+                }
+
+                // 仅在用户确实滚动过、且到达页面底部时，才强制高亮最后一个
+                if (scrollTop > 100 && window.innerHeight + scrollTop >= document.documentElement.scrollHeight - 50) {
+                    current = headings[headings.length - 1];
+                }
+
+                // 页面顶部且没有标题进入视口时，高亮第一个
+                if (scrollTop == 0) {
+                    current = headings[0];
+                }
+
+                if (current && current.link !== activeLink) {
+                    // 清除所有高亮
+                    tocLinks.forEach(function (link) {
+                        link.classList.remove('toc-active');
+                    });
+
+                    // 高亮当前项
+                    current.link.classList.add('toc-active');
+                    activeLink = current.link;
+
+                    // TOC 容器自动滚动，使当前项可见
+                    var tocEl = document.getElementById('toc');
+                    var linkRect = activeLink.getBoundingClientRect();
+                    var tocRect = tocEl.getBoundingClientRect();
+                    if (linkRect.top < tocRect.top || linkRect.bottom > tocRect.bottom) {
+                        activeLink.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    }
+                } else if (!current && activeLink) {
+                    tocLinks.forEach(function (link) {
+                        link.classList.remove('toc-active');
+                    });
+                    activeLink = null;
+                }
+            }
+
+            var ticking = false;
+            window.addEventListener('scroll', function () {
+                if (!ticking) {
+                    requestAnimationFrame(function () {
+                        highlight();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+
+            // 初始高亮
+            highlight();
+        }
+
+        // 等待页面完全加载后再初始化（确保文章标题 DOM 已渲染）
+        if (document.readyState === 'complete') {
+            initTocHighlight();
+        } else {
+            window.addEventListener('load', initTocHighlight);
+        }
+    })();
+    </script>
+  
+
+  <!--返回顶部-->
+  <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+    <a title="返回顶部">↑</a>
+  </div>
+  <script src="/blog/js/totop.js"></script>
+
+  <div id="layout">
+    
+    <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+    
+    <transition name="fade">
+      <div id="loading" v-show="loading">
+        <div id="loading-circle">
+          <h2>LOADING</h2>
+          <p>第一次加载文章图片可能会花费较长时间</p>
+          <p>要不挂个梯子试试？（x</p>
+          <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+          <img src="/blog/images/loading.gif" />
+        </div>
+      </div>
+    </transition>
+    <transition name="into">
+      <div id="main" v-show="!loading">
+        <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+        <div class="article">
+    <div>
+        <h1>Harbor</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2026/2/9
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Dev/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Dev
+            </a>
+        </span>
+        
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.8k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">8分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/sowler/p/18242819">https://www.cnblogs.com/sowler/p/18242819</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/gm19900510/Harbor_Install">https://github.com/gm19900510/Harbor_Install</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="Docker-私有仓库"><a href="#Docker-私有仓库" class="headerlink" title="Docker 私有仓库"></a>Docker 私有仓库</h1><p>Docker 默认的镜像源是 DockerHub，而与 DockerHub 不同，私有仓库是受限访问的，只有授权用户才能够上传、下载和管理其中的镜像。这种私有仓库可以部署在本地云环境中，用于组织内部开发、测试和生产环境中的容器镜像管理，保证数据安全性。</p>
+<p>常见的 Docker 私有仓库有：Harbor、Docker Trusted Registry (DTR)、Portus、Nexus Repository Manager、GitLab Container Registry、AWS Elastic Container Registry (ECR)</p>
+<hr>
+<h1 id="Harbor"><a href="#Harbor" class="headerlink" title="Harbor"></a>Harbor</h1><p>Harbor 是由 VMware 公司开源的企业级的 Docker Registry 管理项目，相比 Docker 官方拥有更丰富的权限权利和完善的架构设计，适用大规模 docker 集群部署提供仓库服务。</p>
+<p>它主要提供 Dcoker Registry 管理界面 UI，可基于角色访问控制，镜像复制，AD&#x2F;LDAP 集成，日志审核等功能，完全的支持中文。</p>
+<p>主要功能：</p>
+<ul>
+<li>基于角色的访问控制：用户与 Docker 镜像仓库通过“项目”进行组织管理，一个用户可以对多个镜像仓库在同一命名空间（project）里有不同的权限。</li>
+<li>基于镜像的复制策略：镜像可以在多个 Registry 实例中复制（可以将仓库中的镜像同步到远程的 Harbor，类似于 MySQL 主从同步功能），尤其适合于负载均衡，高可用，混合云和多云的场景。</li>
+<li>图形化用户界面：用户可以通过浏览器来浏览，检索当前Docker镜像仓库，管理项目和命名空间。</li>
+<li>支持 AD&#x2F;LDAP：Harbor可以集成企业内部已有的AD&#x2F;LDAP，用于鉴权认证管理。</li>
+<li>镜像删除和垃圾回收：Harbor支持在Web删除镜像，回收无用的镜像，释放磁盘空间。image可以被删除并且回收image占用的空间。</li>
+<li>审计管理：所有针对镜像仓库的操作都可以被记录追溯，用于审计管理。</li>
+<li>RESTful API：RESTful API 提供给管理员对于Harbor更多的操控, 使得与其它管理软件集成变得更容易。</li>
+<li>部署简单：提供在线和离线两种安装工具，也可以安装到vSphere平台(OVA方式)虚拟设备。 Harbor 的所有组件都在 Docker 中部署，所以 Harbor 可使用 Docker Compose 快速部署。</li>
+</ul>
+<p>架构：</p>
+<p><img src="/blog/2026/02/09/Harbor/IMG-20260210105504457.png"></p>
+<p>Registry：负责存储 docker 镜像，处理上传&#x2F;下载命令。对用户进行访问控制，它指向一个 token 服务，强制用户的每次 docker pull&#x2F;push 请求都要携带一个合法的 token，registry 会通过公钥对  token 进行解密验证</p>
+<p>Core service：核心功能</p>
+<ul>
+<li>UI：图形界面</li>
+<li>Webhook：及时获取 registry 上 image 状态变化情况，在 registry 上配置 webhook，把状态变化传递给 UI 模块</li>
+<li>Token 服务：复杂根据用户权限给每个 docker pull&#x2F;push 命令签发 token。Docker 客户端向 registry 服务发起的请求，如果不包含 token，会被重定向到这里，获得 token 后再重新向 registry 进行请求</li>
+</ul>
+<hr>
+<h1 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h1><p>宿主机环境是 Mac</p>
+<p>直接用离线安装的方式部署，下载离线包（这里下载的是 amd64 架构，不过有 rosetta 在问题不大）： <a target="_blank" rel="noopener" href="https://github.com/goharbor/harbor/releases">https://github.com/goharbor/harbor/releases</a></p>
+<p>此时最新版本是 2.14.2</p>
+<p><img src="/blog/2026/02/09/Harbor/IMG-20260210114109332.png"></p>
+<p>修改配置文件</p>
+<pre class="line-numbers language-zsh" data-language="zsh"><code class="language-zsh">cp harbor.yml.tmpl  harbor.yml
+mkdir -p opt     # 用于存放harbor的持久化数据<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>harbor.yml 主要修改的内容：路径映射，ip域名，关闭 https</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token comment"># The IP address or hostname to access admin UI and registry service.</span>
+<span class="token comment"># DO NOT use localhost or 127.0.0.1, because Harbor needs to be accessed by external clients.</span>
+<span class="token key atrule">hostname</span><span class="token punctuation">:</span> 192.168.77.94
+
+<span class="token comment"># http related config</span>
+<span class="token key atrule">http</span><span class="token punctuation">:</span>
+  <span class="token comment"># port for http, default is 80. If https enabled, this port will redirect to https port</span>
+  <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8999</span>
+  
+<span class="token comment"># https related config</span>
+<span class="token comment"># https:</span>
+<span class="token comment">#   # https port for harbor, default is 443</span>
+<span class="token comment">#   port: 443</span>
+<span class="token comment">#   # The path of cert and key files for nginx</span>
+<span class="token comment">#   certificate: /your/certificate/path</span>
+<span class="token comment">#   private_key: /your/private/key/path</span>
+<span class="token comment">#   # enable strong ssl ciphers (default: false)</span>
+<span class="token comment">#   # strong_ssl_ciphers: false</span>
+  
+<span class="token comment"># The initial password of Harbor admin</span>
+<span class="token comment"># It only works in first time to install harbor</span>
+<span class="token comment"># Remember Change the admin password from UI after launching Harbor.</span>
+<span class="token key atrule">harbor_admin_password</span><span class="token punctuation">:</span> Harbor12345
+
+<span class="token comment"># Harbor DB configuration</span>
+<span class="token key atrule">database</span><span class="token punctuation">:</span>
+  <span class="token comment"># The password for the user('postgres' by default) of Harbor DB. Change this before any production use.</span>
+  <span class="token key atrule">password</span><span class="token punctuation">:</span> root123
+  <span class="token comment"># The maximum number of connections in the idle connection pool. If it &lt;=0, no idle connections are retained.</span>
+  <span class="token key atrule">max_idle_conns</span><span class="token punctuation">:</span> <span class="token number">100</span>
+  <span class="token comment"># The maximum number of open connections to the database. If it &lt;= 0, then there is no limit on the number of open connections.</span>
+  <span class="token comment"># Note: the default number of connections is 1024 for postgres of harbor.</span>
+  <span class="token key atrule">max_open_conns</span><span class="token punctuation">:</span> <span class="token number">900</span>
+  <span class="token comment"># The maximum amount of time a connection may be reused. Expired connections may be closed lazily before reuse. If it &lt;= 0, connections are not closed due to a connection's age.</span>
+  <span class="token comment"># The value is a duration string. A duration string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".</span>
+  <span class="token key atrule">conn_max_lifetime</span><span class="token punctuation">:</span> 5m
+  <span class="token comment"># The maximum amount of time a connection may be idle. Expired connections may be closed lazily before reuse. If it &lt;= 0, connections are not closed due to a connection's idle time.</span>
+  <span class="token comment"># The value is a duration string. A duration string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".</span>
+  <span class="token key atrule">conn_max_idle_time</span><span class="token punctuation">:</span> <span class="token number">0</span>
+
+<span class="token comment"># The default data volume</span>
+<span class="token key atrule">data_volume</span><span class="token punctuation">:</span> ~/DevOps/Harbor/opt
+
+
+<span class="token comment"># Log configurations</span>
+<span class="token key atrule">log</span><span class="token punctuation">:</span>
+  <span class="token comment"># options are debug, info, warning, error, fatal</span>
+  <span class="token key atrule">level</span><span class="token punctuation">:</span> info
+  <span class="token comment"># configs for logs in local storage</span>
+  <span class="token key atrule">local</span><span class="token punctuation">:</span>
+    <span class="token comment"># Log files are rotated log_rotate_count times before being removed. If count is 0, old versions are removed rather than rotated.</span>
+    <span class="token key atrule">rotate_count</span><span class="token punctuation">:</span> <span class="token number">50</span>
+    <span class="token comment"># Log files are rotated only if they grow bigger than log_rotate_size bytes. If size is followed by k, the size is assumed to be in kilobytes.</span>
+    <span class="token comment"># If the M is used, the size is in megabytes, and if G is used, the size is in gigabytes. So size 100, size 100k, size 100M and size 100G</span>
+    <span class="token comment"># are all valid.</span>
+    <span class="token key atrule">rotate_size</span><span class="token punctuation">:</span> 200M
+    <span class="token comment"># The directory on your host that store log</span>
+    <span class="token key atrule">location</span><span class="token punctuation">:</span> ~/DevOps/Harbor/log<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后执行 install.sh 安装脚本即可</p>
+<p><img src="/blog/2026/02/09/Harbor/IMG-20260210144156765.png"></p>
+<p>帐密 admin:Harbor12345</p>
+<p><img src="/blog/2026/02/09/Harbor/IMG-20260210144258070.png"></p>
+<hr>
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="docker-登录-registry"><a href="#docker-登录-registry" class="headerlink" title="docker 登录 registry"></a>docker 登录 registry</h2><blockquote>
+<p>这一步用来熟悉一下 docker login 的操作，不是必须的</p>
+</blockquote>
+<p>首先修改 docker-compose.yml，把 registry 的认证端口暴露出来</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">registry</span><span class="token punctuation">:</span>
+  <span class="token key atrule">image</span><span class="token punctuation">:</span> goharbor/registry<span class="token punctuation">-</span>photon<span class="token punctuation">:</span>v2.14.2
+  <span class="token key atrule">container_name</span><span class="token punctuation">:</span> registry
+  <span class="token key atrule">restart</span><span class="token punctuation">:</span> always
+  <span class="token key atrule">cap_drop</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> ALL
+  <span class="token key atrule">cap_add</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> CHOWN
+    <span class="token punctuation">-</span> SETGID
+    <span class="token punctuation">-</span> SETUID
+  <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> /Users/mashiro/DevOps/Harbor/opt/registry<span class="token punctuation">:</span>/storage<span class="token punctuation">:</span>z
+    <span class="token punctuation">-</span> ./common/config/registry/<span class="token punctuation">:</span>/etc/registry/<span class="token punctuation">:</span>z
+    <span class="token punctuation">-</span> <span class="token key atrule">type</span><span class="token punctuation">:</span> bind
+      <span class="token key atrule">source</span><span class="token punctuation">:</span> /Users/mashiro/DevOps/Harbor/opt/secret/registry/root.crt
+      <span class="token key atrule">target</span><span class="token punctuation">:</span> /etc/registry/root.crt
+    <span class="token punctuation">-</span> <span class="token key atrule">type</span><span class="token punctuation">:</span> bind
+      <span class="token key atrule">source</span><span class="token punctuation">:</span> ./common/config/shared/trust<span class="token punctuation">-</span>certificates
+      <span class="token key atrule">target</span><span class="token punctuation">:</span> /harbor_cust_cert
+  <span class="token key atrule">networks</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> harbor
+  <span class="token key atrule">depends_on</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> log
+  <span class="token key atrule">logging</span><span class="token punctuation">:</span>
+    <span class="token key atrule">driver</span><span class="token punctuation">:</span> <span class="token string">"syslog"</span>
+    <span class="token key atrule">options</span><span class="token punctuation">:</span>
+      <span class="token key atrule">syslog-address</span><span class="token punctuation">:</span> <span class="token string">"tcp://localhost:1514"</span>
+      <span class="token key atrule">tag</span><span class="token punctuation">:</span> <span class="token string">"registry"</span>
+  <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> 5000<span class="token punctuation">:</span><span class="token number">5000</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后尝试登录</p>
+<pre class="line-numbers language-zsh" data-language="zsh"><code class="language-zsh">❯ docker login 192.168.77.94:5000
+Username: admin
+Password: 
+Error response from daemon: Get &quot;https:&#x2F;&#x2F;192.168.77.94:5000&#x2F;v2&#x2F;&quot;: http: server gave HTTP response to HTTPS client<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>Docker 自从 1.3.x 之后 docker registry 交互默认使用的是 HTTPS，但是我们搭建私有镜像默认使用的是 HTTP 服务，所以与私有镜像交互时以 https 访问会导致出错</p>
+</blockquote>
+<p>解决办法是修改 daemon.json，加上这一段</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token property">"insecure-registries"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+ <span class="token string">"192.168.77.94"</span>
+<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2026/02/09/Harbor/IMG-20260210153124191.png"></p>
+<p>然后重启 docker 服务</p>
+<p>接下来就能连接了，帐密在 common&#x2F;config&#x2F;core&#x2F;env 下的 <code>REGISTRY_CREDENTIAL_USERNAME</code> 和 <code>REGISTRY_CREDENTIAL_PASSWORD</code></p>
+<p><img src="/blog/2026/02/09/Harbor/IMG-20260210153524839.png"></p>
+<hr>
+<h2 id="创建新项目并上传"><a href="#创建新项目并上传" class="headerlink" title="创建新项目并上传"></a>创建新项目并上传</h2><p>在 Harbor 上创建一个新项目 test 供上传使用</p>
+<p><img src="/blog/2026/02/09/Harbor/IMG-20260210160126089.png"></p>
+<p>还需要把 8999 端口也加入到 insecure-registries 中</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token property">"insecure-registries"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+  <span class="token string">"192.168.77.94:5000"</span><span class="token punctuation">,</span>
+  <span class="token string">"192.168.77.94:8999"</span>
+<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>重启 docker 服务</p>
+<p>尝试推送镜像</p>
+<pre class="line-numbers language-zsh" data-language="zsh"><code class="language-zsh">❯ docker tag busybox:latest 192.168.77.94:8999&#x2F;test&#x2F;busybox:latest
+
+❯ docker push 192.168.77.94:8999&#x2F;test&#x2F;busybox:latest
+The push refers to repository [192.168.77.94:8999&#x2F;test&#x2F;busybox]
+499bcf3c8ead: Unavailable 
+push access denied, repository does not exist or may require authorization: authorization failed: no basic auth credentials<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>此时需要登录 8999，帐密就是 web 端登录的</p>
+<pre class="line-numbers language-zsh" data-language="zsh"><code class="language-zsh">❯ docker login 192.168.77.94:8999
+Username: admin
+Password: 
+Login Succeeded<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/blog/2026/02/09/Harbor/IMG-20260210161203415.png"></p>
+<p><img src="/blog/2026/02/09/Harbor/IMG-20260210161234839.png"></p>
+<p>思考🤔：那其实前面好像没有必要登录 5000 端口，直接登录 8999 端口就行了</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+      </div>
+    </transition>
+    
+    <transition name="fade">
+      <div id="preview" ref="preview" v-show="previewShow">
+        <img id="preview-content" ref="previewContent" />
+      </div>
+    </transition>
+    
+  </div>
+  <script src="/blog/js/main.js"></script>
+  
+  
+
+
+
+
+  
+  
+
+<div id="vcomments"></div>
+<script defer src="/blog/js/lib/valine.min.js" onload="
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+"></script>
+
+
+  <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2026 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
