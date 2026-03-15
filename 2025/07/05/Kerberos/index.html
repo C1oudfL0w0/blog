@@ -345,7 +345,7 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/Kerberos/" style="color: #00a596">Kerberos</a>
+                <a href="/blog/tags/Kerberos/" style="color: #ff7d73">Kerberos</a>
             </span>
             
         </span>
@@ -359,7 +359,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">1.9k字</span>
+        <span class="post-count">2.1k字</span>
       </span>
     </span>
 
@@ -368,7 +368,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">7分</span>
+        <span class="post-count">8分</span>
       </span>
     </span>
     
@@ -388,6 +388,7 @@
 <p><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/437641.html">Kerberos 票据攻击：黄金、白银、钻石、蓝宝石票据的攻防全解析 - FreeBuf网络安全行业门户</a></p>
 <p><a target="_blank" rel="noopener" href="https://y4er.com/posts/kerberos-as_req-and-as_rep/">https://y4er.com/posts/kerberos-as_req-and-as_rep/</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/network/384457.html">https://www.freebuf.com/articles/network/384457.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zpchcbd/p/12939246.html">https://www.cnblogs.com/zpchcbd/p/12939246.html</a></p>
 <span id="more"></span>
 
 <hr>
@@ -495,7 +496,18 @@ lsadump::dcsync <span class="token operator">/</span>domain:test<span class="tok
 </tr>
 </tbody></table>
 <hr>
-<h3 id="委派攻击"><a href="#委派攻击" class="headerlink" title="委派攻击"></a>委派攻击</h3><h4 id="非约束委派"><a href="#非约束委派" class="headerlink" title="非约束委派"></a>非约束委派</h4><hr>
+<h3 id="委派攻击"><a href="#委派攻击" class="headerlink" title="委派攻击"></a>委派攻击</h3><p>现实情况下，多个服务往往不可能在一台机器中，那么如果用户在使用服务 A 时，这时候需要服务 B 上属于自己的数据，最简单的方式就是 A 代用户去请求 B 返回相应的信息，这个过程就是委派</p>
+<h4 id="非约束委派"><a href="#非约束委派" class="headerlink" title="非约束委派"></a>非约束委派</h4><p><img src="/blog/2025/07/05/Kerberos/IMG-20260315221612568.png"></p>
+<p>当 service 1 的服务账户开启了非约束委派后，user 访问 service 1 时，service 1 会将 user 的 TGT 保存在内存中，然后 service 1 就可以利用 TGT 以 user 的身份去访问域中任何 user 可以访问的服务</p>
+<p>那么实现这个攻击的重点就在于需要让 user 访问过 service 1 完成认证以获得 user 的 TGT</p>
+<p>service 1 需要有管理员权限来启动 Rubeus 的监听</p>
+<p>几种让域控主动连接的方法：</p>
+<ul>
+<li>Spooler 服务默认开启的情况下可使用 SpoolSample 强制认证： <a target="_blank" rel="noopener" href="https://github.com/leechristensen/SpoolSample">https://github.com/leechristensen/SpoolSample</a></li>
+<li>DFSCoerce NTLM relay： <a target="_blank" rel="noopener" href="https://github.com/Wh04m1001/DFSCoerce">https://github.com/Wh04m1001/DFSCoerce</a></li>
+<li>PetitPotam NTLM relay： <a target="_blank" rel="noopener" href="https://github.com/topotam/PetitPotam">https://github.com/topotam/PetitPotam</a></li>
+</ul>
+<hr>
 <h4 id="S4U-amp-amp-约束委派"><a href="#S4U-amp-amp-约束委派" class="headerlink" title="S4U &amp;&amp; 约束委派"></a>S4U &amp;&amp; 约束委派</h4><p>Windows Server 2003 中引入了约束委派，对 Kerberos 协议进行了拓展，引入了 S4U 协议：S4U2Self 和 S4U2proxy，前者用于生成本身服务的 TGS 票据，S4U2proxy 用于“代理”相关用户申请其他服务票据</p>
 <p>请求过程：</p>
 <p><img src="/blog/2025/07/05/Kerberos/IMG-20251213165446996.png"></p>

