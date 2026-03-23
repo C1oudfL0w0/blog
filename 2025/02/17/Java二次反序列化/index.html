@@ -82,7 +82,7 @@
     <div id="toc" class="toc-article">
     <h3><i class="fas fa-stream"></i>  目录</h3>
       <div class="toc-title"></div>
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SignedObject"><span class="toc-number">2.</span> <span class="toc-text">SignedObject</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Rome%E9%93%BE"><span class="toc-number">2.1.</span> <span class="toc-text">Rome链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ToStringBean"><span class="toc-number">2.1.1.</span> <span class="toc-text">ToStringBean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EqualsBean"><span class="toc-number">2.1.2.</span> <span class="toc-text">EqualsBean</span></a></li></ol></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#resolveClass"><span class="toc-number">2.</span> <span class="toc-text">resolveClass</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SignedObject"><span class="toc-number">3.</span> <span class="toc-text">SignedObject</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Rome%E9%93%BE"><span class="toc-number">3.1.</span> <span class="toc-text">Rome链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ToStringBean"><span class="toc-number">3.1.1.</span> <span class="toc-text">ToStringBean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EqualsBean"><span class="toc-number">3.1.2.</span> <span class="toc-text">EqualsBean</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RmiConnector"><span class="toc-number">4.</span> <span class="toc-text">RmiConnector</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#wrapperConnectionPoolDataSource"><span class="toc-number">5.</span> <span class="toc-text">wrapperConnectionPoolDataSource</span></a></li></ol>
     </div>
     <script>
     (function () {
@@ -345,12 +345,12 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/Java/" style="color: #03a9f4">Java</a>
+                <a href="/blog/tags/Java/" style="color: #00a596">Java</a>
             </span>
             
             <span class="tag">
                 
-                <a href="/blog/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" style="color: #00a596">反序列化</a>
+                <a href="/blog/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" style="color: #00bcd4">反序列化</a>
             </span>
             
         </span>
@@ -364,7 +364,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">691字</span>
+        <span class="post-count">892字</span>
       </span>
     </span>
 
@@ -373,7 +373,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">3分</span>
+        <span class="post-count">4分</span>
       </span>
     </span>
     
@@ -398,6 +398,46 @@
 <span id="more"></span>
 
 <hr>
+<h1 id="resolveClass"><a href="#resolveClass" class="headerlink" title="resolveClass"></a>resolveClass</h1><p>反序列化中，将字节码恢复为类会使用到 resolveClass 方法，如果我们继承一个自己的 ObjectInputStream，覆写其中的 resolveClass，使其检测恶意类名，即可实现拦截</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token class-name">Object</span> <span class="token function">deserializeWithBlacklist</span><span class="token punctuation">(</span><span class="token class-name">String</span> base64<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> data <span class="token operator">=</span> <span class="token class-name">Base64</span><span class="token punctuation">.</span><span class="token function">getDecoder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">decode</span><span class="token punctuation">(</span>base64<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">try</span> <span class="token punctuation">(</span><span class="token class-name">BlacklistObjectInputStream</span> ois <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BlacklistObjectInputStream</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">ByteArrayInputStream</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> ois<span class="token punctuation">.</span><span class="token function">readObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">></span></span> <span class="token constant">BLACKLIST</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> <span class="token keyword">class</span> <span class="token class-name">BlacklistObjectInputStream</span> <span class="token keyword">extends</span> <span class="token class-name">ObjectInputStream</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">private</span> <span class="token class-name">BlacklistObjectInputStream</span><span class="token punctuation">(</span><span class="token class-name">ByteArrayInputStream</span> in<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">super</span><span class="token punctuation">(</span>in<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">protected</span> <span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> <span class="token function">resolveClass</span><span class="token punctuation">(</span><span class="token class-name">ObjectStreamClass</span> desc<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span><span class="token punctuation">,</span> <span class="token class-name">ClassNotFoundException</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">String</span> className <span class="token operator">=</span> desc<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name">String</span> blockedPrefix <span class="token operator">:</span> <span class="token constant">BLACKLIST</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>className<span class="token punctuation">.</span><span class="token function">startsWith</span><span class="token punctuation">(</span>blockedPrefix<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+                <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">InvalidClassException</span><span class="token punctuation">(</span><span class="token string">"Unauthorized deserialization attempt"</span><span class="token punctuation">,</span> className<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">&#125;</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token keyword">return</span> <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">resolveClass</span><span class="token punctuation">(</span>desc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">static</span> <span class="token punctuation">&#123;</span>
+    <span class="token constant">BLACKLIST</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"com.sun.jndi"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token constant">BLACKLIST</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"com.fasterxml.jackson"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token constant">BLACKLIST</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"org.springframework"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token constant">BLACKLIST</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"com.sun.rowset.JdbcRowSetImpl"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token constant">BLACKLIST</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token constant">BLACKLIST</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"java.lang.Runtime"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token constant">BLACKLIST</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"java.lang.ProcessBuilder"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token constant">BLACKLIST</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"java.util.PriorityQueue"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<hr>
 <h1 id="SignedObject"><a href="#SignedObject" class="headerlink" title="SignedObject"></a>SignedObject</h1><p>这是<code>java.security</code>下一个用于创建真实运行时对象的类，更具体地说，<code>SignedObject</code>的参数中需要一个<code>Serializable</code>对象</p>
 <p><img src="/blog/2025/02/17/Java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250218084916485.png" alt="image-20250218084916485"></p>
 <p>主要看 getObject</p>
@@ -415,8 +455,6 @@ signedObject<span class="token punctuation">.</span><span class="token function"
 
 <p><img src="/blog/2025/02/17/Java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/image-20250219203025216.png" alt="image-20250219203025216"></p>
 <p>接下来就需要找一个能够调用 getObject() 的链</p>
-<br>
-
 <p>作为一个 getter 方法，首先想到的就是像 fastjson，rome 这种会调用任意 getter 方法的链子</p>
 <h2 id="Rome链"><a href="#Rome链" class="headerlink" title="Rome链"></a>Rome链</h2><p>Rome 中获取 getter 方法并调用的逻辑有两处地方，ToStringBean 的有参 toString 方法，Equalsbean 的 beanEquals 方法</p>
 <p>唯一一个前提是无参，而 getObject 就是无参函数</p>
@@ -487,7 +525,8 @@ signedObject<span class="token punctuation">.</span><span class="token function"
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <hr>
-
+<h1 id="RmiConnector"><a href="#RmiConnector" class="headerlink" title="RmiConnector"></a>RmiConnector</h1><hr>
+<h1 id="wrapperConnectionPoolDataSource"><a href="#wrapperConnectionPoolDataSource" class="headerlink" title="wrapperConnectionPoolDataSource"></a>wrapperConnectionPoolDataSource</h1>
     </div>
     
     

