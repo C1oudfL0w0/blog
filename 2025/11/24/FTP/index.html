@@ -1,0 +1,752 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>FTP | 雲流のLowest World</title>
+  <meta name="author" content="C1oudfL0w0" />
+  <meta name="description" content="" />
+  <meta name="keywords" content="" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+  <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+  <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+  <!--flag{never_g0nna g1ve_you up}-->
+
+  <!-- 页面点击特效 -->
+  <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+  <!-- 浏览器标题 -->
+  <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+  <!-- 动态背景 -->
+  
+
+  <!--文章目录-->
+  
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5"><span class="toc-number">3.</span> <span class="toc-text">连接</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%BB%E5%8A%A8%E6%A8%A1%E5%BC%8F-vs-%E8%A2%AB%E5%8A%A8%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">主动模式 vs 被动模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="toc-number">5.</span> <span class="toc-text">常用命令</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8C%BF%E5%90%8D%E7%99%BB%E5%BD%95"><span class="toc-number">6.</span> <span class="toc-text">匿名登录</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#vsftpd-v2-3-4"><span class="toc-number">7.</span> <span class="toc-text">vsftpd v2.3.4</span></a></li></ol>
+    </div>
+    <script>
+    (function () {
+        function initTocHighlight() {
+            var tocLinks = document.querySelectorAll('#toc .toc-link');
+            if (!tocLinks.length) return;
+
+            // 收集所有标题锚点对应的 DOM 元素
+            var headings = [];
+            tocLinks.forEach(function (link) {
+                var href = link.getAttribute('href');
+                if (!href) return;
+                var id = decodeURIComponent(href.slice(1));
+                var el = document.getElementById(id);
+                if (el) headings.push({ el: el, link: link });
+            });
+            if (!headings.length) return;
+
+            var activeLink = null;
+            var offset = 80;
+
+            function highlight() {
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                var current = null;
+
+                for (var i = 0; i < headings.length; i++) {
+                    if (headings[i].el.getBoundingClientRect().top <= offset + 10) {
+                        current = headings[i];
+                    }
+                }
+
+                // 仅在用户确实滚动过、且到达页面底部时，才强制高亮最后一个
+                if (scrollTop > 100 && window.innerHeight + scrollTop >= document.documentElement.scrollHeight - 50) {
+                    current = headings[headings.length - 1];
+                }
+
+                // 页面顶部且没有标题进入视口时，高亮第一个
+                if (scrollTop == 0) {
+                    current = headings[0];
+                }
+
+                if (current && current.link !== activeLink) {
+                    // 清除所有高亮
+                    tocLinks.forEach(function (link) {
+                        link.classList.remove('toc-active');
+                    });
+
+                    // 高亮当前项
+                    current.link.classList.add('toc-active');
+                    activeLink = current.link;
+
+                    // TOC 容器自动滚动，使当前项可见
+                    var tocEl = document.getElementById('toc');
+                    var linkRect = activeLink.getBoundingClientRect();
+                    var tocRect = tocEl.getBoundingClientRect();
+                    if (linkRect.top < tocRect.top || linkRect.bottom > tocRect.bottom) {
+                        activeLink.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    }
+                } else if (!current && activeLink) {
+                    tocLinks.forEach(function (link) {
+                        link.classList.remove('toc-active');
+                    });
+                    activeLink = null;
+                }
+            }
+
+            var ticking = false;
+            window.addEventListener('scroll', function () {
+                if (!ticking) {
+                    requestAnimationFrame(function () {
+                        highlight();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+
+            // 初始高亮
+            highlight();
+        }
+
+        // 等待页面完全加载后再初始化（确保文章标题 DOM 已渲染）
+        if (document.readyState === 'complete') {
+            initTocHighlight();
+        } else {
+            window.addEventListener('load', initTocHighlight);
+        }
+    })();
+    </script>
+  
+
+  <!--返回顶部-->
+  <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+    <a title="返回顶部">↑</a>
+  </div>
+  <script src="/blog/js/totop.js"></script>
+
+  <div id="layout">
+    
+    <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+    
+    <transition name="fade">
+      <div id="loading" v-show="loading">
+        <div id="loading-circle">
+          <h2>LOADING</h2>
+          <p>第一次加载文章图片可能会花费较长时间</p>
+          <p>要不挂个梯子试试？（x</p>
+          <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+          <img src="/blog/images/loading.gif" />
+        </div>
+      </div>
+    </transition>
+    <transition name="into">
+      <div id="main" v-show="!loading">
+        <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+        <div class="article">
+    <div>
+        <h1>FTP</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2025/11/24
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/DevOps/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                DevOps
+            </a>
+        </span>
+        
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">1.2k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">5分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>ftp 是一种用于在客户端和服务器之间传输文件的协议</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>这里使用 vsftpd 来搭建环境，ftp server 还有许多种，如 pure-ftpd</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">version</span><span class="token punctuation">:</span> <span class="token string">'3.8'</span>
+
+<span class="token key atrule">services</span><span class="token punctuation">:</span>
+  <span class="token key atrule">ftp</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> fauria/vsftpd
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> ftp<span class="token punctuation">-</span>lab
+    <span class="token key atrule">restart</span><span class="token punctuation">:</span> unless<span class="token punctuation">-</span>stopped
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token string">"21:21"</span>
+      <span class="token punctuation">-</span> <span class="token string">"21100-21110:21100-21110"</span>
+    <span class="token key atrule">environment</span><span class="token punctuation">:</span>
+      <span class="token key atrule">FTP_USER</span><span class="token punctuation">:</span> demo
+      <span class="token key atrule">FTP_PASS</span><span class="token punctuation">:</span> demo123
+      <span class="token key atrule">PASV_ADDRESS</span><span class="token punctuation">:</span> 127.0.0.1 <span class="token comment"># 服务器上修改成宿主机实际ip</span>
+      <span class="token key atrule">PASV_MIN_PORT</span><span class="token punctuation">:</span> <span class="token number">21100</span>
+      <span class="token key atrule">PASV_MAX_PORT</span><span class="token punctuation">:</span> <span class="token number">21110</span>
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./data<span class="token punctuation">:</span>/home/vsftpd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>ftp 用户帐密 demo:demo123，挂载目录到 &#x2F;home&#x2F;vsftpd 作为数据目录</p>
+<p>控制端口 21，被动模式数据端口 21100-21110</p>
+<p>宿主机目录结构如下：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">ftp-lab
+├── data
+│   └── demo
+│       └── upload
+│           └── hello.txt
+└── docker-compose.yml<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>写一个文件到 ftp 目录中</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">echo</span> <span class="token string">"hello ftp"</span> <span class="token operator">></span> data/demo/upload/hello.txt<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<hr>
+<h1 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h1><p>GUI 工具有很多，比如 FileZilla、WinSCP</p>
+<p>这里使用命令行直接连接</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">❯ <span class="token function">ftp</span> <span class="token number">127.0</span>.0.1
+Connected to <span class="token number">127.0</span>.0.1.
+<span class="token number">220</span> <span class="token punctuation">(</span>vsFTPd <span class="token number">3.0</span>.2<span class="token punctuation">)</span>
+Name <span class="token punctuation">(</span><span class="token number">127.0</span>.0.1<span class="token punctuation">)</span>: demo
+<span class="token number">331</span> Please specify the password.
+Password:
+<span class="token number">230</span> Login successful.
+ftp<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="主动模式-vs-被动模式"><a href="#主动模式-vs-被动模式" class="headerlink" title="主动模式 vs 被动模式"></a>主动模式 vs 被动模式</h1><p>参考： <a target="_blank" rel="noopener" href="https://www.cnblogs.com/longan-wang/p/15660490.html">https://www.cnblogs.com/longan-wang/p/15660490.html</a></p>
+<p>主动模式：</p>
+<p><img src="/blog/2025/11/24/FTP/IMG-20260505125809161.png"></p>
+<ol>
+<li>客户端以随机非特权端口 N，就是大于 1024 的端口，对 server 端21端口发起连接</li>
+<li>客户端开始监听 N+1 端口；</li>
+<li>服务端会主动以 20 端口连接到客户端的 N+1 端口。</li>
+</ol>
+<p>此时需要客户端具有公网地址，如果客户端客户端处于内网（NAT网关之后），或者被防火墙拦截，那么服务器对客户端端口发起的连接会失败</p>
+<p>被动模式：</p>
+<p><img src="/blog/2025/11/24/FTP/IMG-20260505125834560.png"></p>
+<ol>
+<li>客户端以随机非特权端口连接服务端的 21 端口</li>
+<li>服务端开启一个非特权端口为被动端口，并返回给客户端</li>
+<li>客户端以 非特权端口+1 的端口主动连接服务端的被动端口</li>
+</ol>
+<p>切换为被动模式，此时连接的被动端口就是上面配置的 21100-21110 其中的一个了：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">ftp<span class="token operator">></span> <span class="token function">dir</span>
+<span class="token number">500</span> Illegal PORT command.
+<span class="token number">500</span> Unknown command.
+<span class="token number">425</span> Use PORT or PASV first.
+ftp<span class="token operator">></span> passive
+Passive mode on.
+ftp<span class="token operator">></span> <span class="token function">dir</span>
+<span class="token number">227</span> Entering Passive Mode <span class="token punctuation">(</span><span class="token number">127,0</span>,0,1,82,118<span class="token punctuation">)</span>.
+<span class="token number">150</span> Here comes the directory listing.
+drwxr-xr-x    <span class="token number">3</span> <span class="token function">ftp</span>      <span class="token function">ftp</span>            <span class="token number">96</span> May 05 04:51 upload
+<span class="token number">226</span> Directory send OK.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>open</code></td>
+<td>连接 FTP 服务器</td>
+<td><code>open 127.0.0.1</code></td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td>登录用户名</td>
+<td><code>user demo</code></td>
+</tr>
+<tr>
+<td><code>ls</code></td>
+<td>简单列出远程目录内容</td>
+<td><code>ls</code></td>
+</tr>
+<tr>
+<td><code>dir</code></td>
+<td>详细列出远程目录内容</td>
+<td><code>dir</code></td>
+</tr>
+<tr>
+<td><code>pwd</code></td>
+<td>显示当前远程目录</td>
+<td><code>pwd</code></td>
+</tr>
+<tr>
+<td><code>cd</code></td>
+<td>切换远程目录</td>
+<td><code>cd upload</code></td>
+</tr>
+<tr>
+<td><code>cdup</code> 或 <code>cd ..</code></td>
+<td>返回上一级远程目录</td>
+<td><code>cd ..</code></td>
+</tr>
+<tr>
+<td><code>lcd</code></td>
+<td>显示或切换本地目录</td>
+<td><code>lcd /tmp</code></td>
+</tr>
+<tr>
+<td><code>!ls</code> &#x2F; <code>!dir</code></td>
+<td>查看本地目录内容</td>
+<td><code>!ls</code></td>
+</tr>
+<tr>
+<td><code>get</code></td>
+<td>下载单个文件</td>
+<td><code>get hello.txt</code></td>
+</tr>
+<tr>
+<td><code>mget</code></td>
+<td>批量下载文件</td>
+<td><code>mget *.txt</code></td>
+</tr>
+<tr>
+<td><code>put</code></td>
+<td>上传单个文件</td>
+<td><code>put test.txt</code></td>
+</tr>
+<tr>
+<td><code>mput</code></td>
+<td>批量上传文件</td>
+<td><code>mput *.txt</code></td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>删除远程文件</td>
+<td><code>delete hello.txt</code></td>
+</tr>
+<tr>
+<td><code>mdelete</code></td>
+<td>批量删除远程文件</td>
+<td><code>mdelete *.txt</code></td>
+</tr>
+<tr>
+<td><code>mkdir</code></td>
+<td>创建远程目录</td>
+<td><code>mkdir newdir</code></td>
+</tr>
+<tr>
+<td><code>rmdir</code></td>
+<td>删除远程目录</td>
+<td><code>rmdir olddir</code></td>
+</tr>
+<tr>
+<td><code>rename</code></td>
+<td>重命名远程文件</td>
+<td><code>rename old.txt new.txt</code></td>
+</tr>
+<tr>
+<td><code>ascii</code></td>
+<td>切换为文本传输模式</td>
+<td><code>ascii</code></td>
+</tr>
+<tr>
+<td><code>binary</code></td>
+<td>切换为二进制传输模式</td>
+<td><code>binary</code></td>
+</tr>
+<tr>
+<td><code>passive</code></td>
+<td>切换主动&#x2F;被动模式</td>
+<td><code>passive</code></td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>查看当前 FTP 状态</td>
+<td><code>status</code></td>
+</tr>
+<tr>
+<td><code>help</code> 或 <code>?</code></td>
+<td>查看帮助</td>
+<td><code>help get</code></td>
+</tr>
+<tr>
+<td><code>syst</code></td>
+<td>查看服务器系统类型</td>
+<td><code>syst</code></td>
+</tr>
+<tr>
+<td><code>close</code></td>
+<td>关闭当前连接</td>
+<td><code>close</code></td>
+</tr>
+<tr>
+<td><code>bye</code> &#x2F; <code>quit</code> &#x2F; <code>exit</code></td>
+<td>退出 FTP</td>
+<td><code>bye</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="匿名登录"><a href="#匿名登录" class="headerlink" title="匿名登录"></a>匿名登录</h1><p>需要修改 &#x2F;etc&#x2F;vsftpd&#x2F;vsftpd.conf 中 anonymous_enable 的配置</p>
+<pre class="line-numbers language-ini" data-language="ini"><code class="language-ini"><span class="token comment"># Run in the foreground to keep the container running:</span>
+<span class="token key attr-name">background</span><span class="token punctuation">=</span><span class="token value attr-value">NO</span>
+
+<span class="token comment"># Allow anonymous FTP? (Beware - allowed by default if you comment this out).</span>
+<span class="token key attr-name">anonymous_enable</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+
+<span class="token comment"># Uncomment this to allow local users to log in.</span>
+<span class="token key attr-name">local_enable</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+
+<span class="token comment">## Enable virtual users</span>
+<span class="token key attr-name">guest_enable</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+
+<span class="token comment">## Virtual users will use the same permissions as anonymous</span>
+<span class="token key attr-name">virtual_use_local_privs</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+
+<span class="token comment"># Uncomment this to enable any form of FTP write command.</span>
+<span class="token key attr-name">write_enable</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+
+<span class="token comment">## PAM file name</span>
+<span class="token key attr-name">pam_service_name</span><span class="token punctuation">=</span><span class="token value attr-value">vsftpd_virtual</span>
+
+<span class="token comment">## Home Directory for virtual users</span>
+<span class="token key attr-name">user_sub_token</span><span class="token punctuation">=</span><span class="token value attr-value">$USER</span>
+<span class="token key attr-name">local_root</span><span class="token punctuation">=</span><span class="token value attr-value">/home/vsftpd/$USER</span>
+
+<span class="token comment"># You may specify an explicit list of local users to chroot() to their home</span>
+<span class="token comment"># directory. If chroot_local_user is YES, then this list becomes a list of</span>
+<span class="token comment"># users to NOT chroot().</span>
+<span class="token key attr-name">chroot_local_user</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+
+<span class="token comment"># Workaround chroot check.</span>
+<span class="token comment"># See https://www.benscobie.com/fixing-500-oops-vsftpd-refusing-to-run-with-writable-root-inside-chroot/</span>
+<span class="token comment"># and http://serverfault.com/questions/362619/why-is-the-chroot-local-user-of-vsftpd-insecure</span>
+<span class="token key attr-name">allow_writeable_chroot</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+
+<span class="token comment">## Hide ids from user</span>
+<span class="token key attr-name">hide_ids</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+
+<span class="token comment">## Enable logging</span>
+<span class="token key attr-name">xferlog_enable</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+<span class="token key attr-name">xferlog_file</span><span class="token punctuation">=</span><span class="token value attr-value">/var/log/vsftpd/vsftpd.log</span>
+
+<span class="token comment">## Enable active mode</span>
+<span class="token key attr-name">port_enable</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+<span class="token key attr-name">connect_from_port_20</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+<span class="token key attr-name">ftp_data_port</span><span class="token punctuation">=</span><span class="token value attr-value">20</span>
+
+<span class="token comment">## Disable seccomp filter sanboxing</span>
+<span class="token key attr-name">seccomp_sandbox</span><span class="token punctuation">=</span><span class="token value attr-value">NO</span>
+
+<span class="token comment">### Variables set at container runtime</span>
+<span class="token key attr-name">pasv_address</span><span class="token punctuation">=</span><span class="token value attr-value">127.0.0.1</span>
+<span class="token key attr-name">pasv_max_port</span><span class="token punctuation">=</span><span class="token value attr-value">21110</span>
+<span class="token key attr-name">pasv_min_port</span><span class="token punctuation">=</span><span class="token value attr-value">21100</span>
+<span class="token key attr-name">pasv_addr_resolve</span><span class="token punctuation">=</span><span class="token value attr-value">NO</span>
+<span class="token key attr-name">pasv_enable</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+<span class="token key attr-name">file_open_mode</span><span class="token punctuation">=</span><span class="token value attr-value">0666</span>
+<span class="token key attr-name">local_umask</span><span class="token punctuation">=</span><span class="token value attr-value">077</span>
+<span class="token key attr-name">xferlog_std_format</span><span class="token punctuation">=</span><span class="token value attr-value">NO</span>
+<span class="token key attr-name">reverse_lookup_enable</span><span class="token punctuation">=</span><span class="token value attr-value">YES</span>
+<span class="token key attr-name">pasv_promiscuous</span><span class="token punctuation">=</span><span class="token value attr-value">NO</span>
+<span class="token key attr-name">port_promiscuous</span><span class="token punctuation">=</span><span class="token value attr-value">NO</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后重启 ftp 服务即可匿名登录</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">service</span> restart vsftpd	<span class="token comment"># Centos6</span>
+systemctl restart vsftpd	<span class="token comment"># Centos7</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">❯ <span class="token function">ftp</span> <span class="token number">127.0</span>.0.1
+Connected to <span class="token number">127.0</span>.0.1.
+<span class="token number">220</span> <span class="token punctuation">(</span>vsFTPd <span class="token number">3.0</span>.2<span class="token punctuation">)</span>
+Name <span class="token punctuation">(</span><span class="token number">127.0</span>.0.1<span class="token punctuation">)</span>: anonymous
+<span class="token number">331</span> Please specify the password.
+Password:
+<span class="token number">230</span> Login successful.
+ftp<span class="token operator">></span> passive
+Passive mode on.
+ftp<span class="token operator">></span> <span class="token function">dir</span>
+<span class="token number">227</span> Entering Passive Mode <span class="token punctuation">(</span><span class="token number">127,0</span>,0,1,82,116<span class="token punctuation">)</span>.
+<span class="token number">150</span> Here comes the directory listing.
+drwxr-xr-x    <span class="token number">2</span> <span class="token function">ftp</span>      <span class="token function">ftp</span>          <span class="token number">4096</span> Jun 09  <span class="token number">2021</span> pub
+<span class="token number">226</span> Directory send OK.
+ftp<span class="token operator">></span> <span class="token builtin class-name">cd</span> pub
+<span class="token number">250</span> Directory successfully changed.
+ftp<span class="token operator">></span> <span class="token function">ls</span>
+<span class="token number">227</span> Entering Passive Mode <span class="token punctuation">(</span><span class="token number">127,0</span>,0,1,82,113<span class="token punctuation">)</span>.
+<span class="token number">150</span> Here comes the directory listing.
+<span class="token number">226</span> Directory send OK.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>匿名用户的默认访问目录是 &#x2F;var&#x2F;ftp&#x2F;pub</p>
+<hr>
+<h1 id="vsftpd-v2-3-4"><a href="#vsftpd-v2-3-4" class="headerlink" title="vsftpd v2.3.4"></a>vsftpd v2.3.4</h1><p>一个后门，见 msf2 靶机渗透</p>
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+      </div>
+    </transition>
+    
+    <transition name="fade">
+      <div id="preview" ref="preview" v-show="previewShow">
+        <img id="preview-content" ref="previewContent" />
+      </div>
+    </transition>
+    
+  </div>
+  <script src="/blog/js/main.js"></script>
+  
+  
+
+
+
+
+  
+  
+
+<div id="vcomments"></div>
+<script defer src="/blog/js/lib/valine.min.js" onload="
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+"></script>
+
+
+  <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2026 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
