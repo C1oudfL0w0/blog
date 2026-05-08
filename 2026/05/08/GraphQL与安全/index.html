@@ -1,0 +1,561 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>GraphQL与安全 | 雲流のLowest World</title>
+  <meta name="author" content="C1oudfL0w0" />
+  <meta name="description" content="" />
+  <meta name="keywords" content="" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+  <link rel="icon" href="/blog/images/croppedImage_cropped.jpg" />
+  <!-- cdn挂掉的时候要可以引用本地 -->
+<!-- <script src="https://cdn.staticfile.org/vue/3.2.45/vue.global.prod.min.js"></script> -->
+<script src="/blog/js/vue.global.prod.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.2.1/css/all.min.css" />
+
+
+<link rel="stylesheet" href="/blog/css/all.min.css" />
+<link rel="stylesheet" href="/blog/css/fonts.min.css" />
+<link rel="stylesheet" href="/blog/css/search.css" />
+<script> const mixins = {}; </script>
+
+
+<!--改成了prismjs高亮-->
+
+<script src="/blog/js/lib/prism.js"></script>
+<link rel="stylesheet" href="/blog/css/prism.css" rel="stylesheet" />
+
+
+
+<script src="/blog/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/blog/js/lib/home.js"></script>
+
+<link rel="stylesheet" href="/blog/css/main.css" />
+<!-- 引入不蒜子-->
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeBlockFuction.js"></script>
+<!-- 代码语言 -->
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeLang.js"></script>
+<!-- 代码块复制 -->
+<!-- 引入clipboard -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeCopy.js"></script>
+<!-- 代码块收缩 -->
+<script type="text/javascript" src="/blog/js/lib/codeBlock/codeShrink.js"></script> 
+<!-- 代码块折行 -->
+<style type="text/css">code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }</style>
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/blog/atom.xml" title="雲流のLowest World" type="application/atom+xml">
+</head>
+
+<body>
+  <!--flag{never_g0nna g1ve_you up}-->
+
+  <!-- 页面点击特效 -->
+  <script type="text/javascript" src="/blog/js/love-click.js"></script>
+
+  <!-- 浏览器标题 -->
+  <script async type="text/javascript" src="/blog/js/FunnyTitle.js"></script>
+
+  <!-- 动态背景 -->
+  
+
+  <!--文章目录-->
+  
+    <div id="toc" class="toc-article">
+    <h3><i class="fas fa-stream"></i>  目录</h3>
+      <div class="toc-title"></div>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-number">2.</span> <span class="toc-text">核心概念</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8E-REST-API-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">2.1.</span> <span class="toc-text">与 REST API 的区别</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">基础语法</span></a></li></ol>
+    </div>
+    <script>
+    (function () {
+        function initTocHighlight() {
+            var tocLinks = document.querySelectorAll('#toc .toc-link');
+            if (!tocLinks.length) return;
+
+            // 收集所有标题锚点对应的 DOM 元素
+            var headings = [];
+            tocLinks.forEach(function (link) {
+                var href = link.getAttribute('href');
+                if (!href) return;
+                var id = decodeURIComponent(href.slice(1));
+                var el = document.getElementById(id);
+                if (el) headings.push({ el: el, link: link });
+            });
+            if (!headings.length) return;
+
+            var activeLink = null;
+            var offset = 80;
+
+            function highlight() {
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                var current = null;
+
+                for (var i = 0; i < headings.length; i++) {
+                    if (headings[i].el.getBoundingClientRect().top <= offset + 10) {
+                        current = headings[i];
+                    }
+                }
+
+                // 仅在用户确实滚动过、且到达页面底部时，才强制高亮最后一个
+                if (scrollTop > 100 && window.innerHeight + scrollTop >= document.documentElement.scrollHeight - 50) {
+                    current = headings[headings.length - 1];
+                }
+
+                // 页面顶部且没有标题进入视口时，高亮第一个
+                if (scrollTop == 0) {
+                    current = headings[0];
+                }
+
+                if (current && current.link !== activeLink) {
+                    // 清除所有高亮
+                    tocLinks.forEach(function (link) {
+                        link.classList.remove('toc-active');
+                    });
+
+                    // 高亮当前项
+                    current.link.classList.add('toc-active');
+                    activeLink = current.link;
+
+                    // TOC 容器自动滚动，使当前项可见
+                    var tocEl = document.getElementById('toc');
+                    var linkRect = activeLink.getBoundingClientRect();
+                    var tocRect = tocEl.getBoundingClientRect();
+                    if (linkRect.top < tocRect.top || linkRect.bottom > tocRect.bottom) {
+                        activeLink.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    }
+                } else if (!current && activeLink) {
+                    tocLinks.forEach(function (link) {
+                        link.classList.remove('toc-active');
+                    });
+                    activeLink = null;
+                }
+            }
+
+            var ticking = false;
+            window.addEventListener('scroll', function () {
+                if (!ticking) {
+                    requestAnimationFrame(function () {
+                        highlight();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+
+            // 初始高亮
+            highlight();
+        }
+
+        // 等待页面完全加载后再初始化（确保文章标题 DOM 已渲染）
+        if (document.readyState === 'complete') {
+            initTocHighlight();
+        } else {
+            window.addEventListener('load', initTocHighlight);
+        }
+    })();
+    </script>
+  
+
+  <!--返回顶部-->
+  <div id="totop" style="position:fixed;bottom:50px;right:60px;font-size: 48px;cursor: pointer;z-index: 10;">
+    <a title="返回顶部">↑</a>
+  </div>
+  <script src="/blog/js/totop.js"></script>
+
+  <div id="layout">
+    
+    <div id="content-background" ref="contentBackground" data-images="https://pic.imgdb.cn/item/65d61d809f345e8d03b8bc7a.png"></div>
+    
+    <transition name="fade">
+      <div id="loading" v-show="loading">
+        <div id="loading-circle">
+          <h2>LOADING</h2>
+          <p>第一次加载文章图片可能会花费较长时间</p>
+          <p>要不挂个梯子试试？（x</p>
+          <p>加载过慢请开启缓存&ensp;浏览器默认开启</p>
+          <img src="/blog/images/loading.gif" />
+        </div>
+      </div>
+    </transition>
+    <transition name="into">
+      <div id="main" v-show="!loading">
+        <nav id="menu" ref="menu">
+    <div class="desktop-menu">
+        <a class="title" href="/blog/">
+            <span>雲流のLOWEST WORLD</span>
+        </a>
+        
+        <a href="/blog/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/blog/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/blog/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/blog/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/blog/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+        <a href="/blog/links">
+            <i class="fa-solid fa-link fa-fw"></i>
+            <span>&ensp;Links</span>
+        </a>
+        
+        <a href="/blog/search">
+            <i class="fa-solid fa-search fa-fw"></i>
+            <span>&ensp;Search</span>
+        </a>
+        
+    </div>
+    <div id="mobile-menu">
+        <div class="curtain" v-show="showMenu" @click="showMenu = !showMenu"></div>
+        <div class="title" @click="showMenu = !showMenu">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;雲流のLOWEST WORLD</span>
+        </div>
+        <transition name="slide">
+        <div class="items" v-show="showMenu">
+            
+            <a href="/blog/">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-house fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                </div>
+            </a>
+            
+            <a href="/blog/about">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-id-card fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                </div>
+            </a>
+            
+            <a href="/blog/archives">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-box-archive fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                </div>
+            </a>
+            
+            <a href="/blog/categories">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                </div>
+            </a>
+            
+            <a href="/blog/tags">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                </div>
+            </a>
+            
+            <a href="/blog/links">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-link fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Links</div>
+                </div>
+            </a>
+            
+            <a href="/blog/search">
+                <div class="item">
+                    <div style="min-width: 20px; max-width: 50px; width: 10%">
+                        <i class="fa-solid fa-search fa-fw"></i>
+                    </div>
+                    <div style="min-width: 100px; max-width: 150%; width: 20%">Search</div>
+                </div>
+            </a>
+            
+        </div>
+        </transition>
+    </div>
+</nav>
+
+        <div class="article">
+    <div>
+        <h1>GraphQL与安全</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2026/5/8
+        </span>
+        
+        <span class="category">
+            <a href="/blog/categories/Web/">
+                <span class="icon">
+                    <i class="fa-solid fa-bookmark fa-fw"></i>
+                </span>
+                Web
+            </a>
+        </span>
+        
+        
+        <!--文章字数统计-->
+        
+            
+<div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <!-- 安装插件npm install hexo-wordcount --save -->
+        <span class="post-count">875字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">3分</span>
+      </span>
+    </span>
+    
+    <!--不蒜子统计访问数-->
+    <span id="busuanzi_container_page_pv">
+    &nbsp; | &nbsp;
+    总文章阅读量：<span id="busuanzi_value_page_pv"></span>次
+    </span>
+</div>
+
+          
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>GraphQL 本质上是一种<strong>用于 API 的查询语言</strong>，以及一个在服务端执行这些查询的<strong>运行时环境</strong></p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://graphql.cn/">https://graphql.cn/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/147455">https://www.anquanke.com/post/id/147455</a></p>
+<span id="more"></span>
+
+<hr>
+<h1 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h1><p>GraphQL 不是一种数据库，而是一种用于 API 的查询语言</p>
+<h2 id="与-REST-API-的区别"><a href="#与-REST-API-的区别" class="headerlink" title="与 REST API 的区别"></a>与 REST API 的区别</h2><p>假设正在开发一个博客网站，首页需要展示用户的名字与最近 3 篇文章标题</p>
+<p>在传统的 REST API 架构中，前端在这里需要访问获取用户信息的接口（假设是 <code>/users/1</code>）和获取用户文章信息的接口（假设是 <code>/users/1/posts</code>），这就导致两个问题：</p>
+<ul>
+<li>获取过度：对于获取用户信息，我们只需要知道用户的名字，但是访问 <code>/users/1</code> 会同时返回用户的其他信息，比如 email，phone 等内容</li>
+<li>获取不足导致的多次请求：对于获取用户文章信息，访问 <code>/users/1</code> 之后只返回用户信息而没有文章数据，于是还要发起第二个请求另一个接口 <code>/users/1/posts</code></li>
+</ul>
+<p>二者明显会浪费网络带宽，增加页面加载时间</p>
+<p>在 GraphQL 中，通常只有一个 api 端点，假设是 <code>/graphql</code>，前端想要什么数据就自行构造请求体发给服务端，对于上面的需求，前端会构造如下请求：</p>
+<pre class="line-numbers language-graphql" data-language="graphql"><code class="language-graphql"><span class="token keyword">query</span> <span class="token punctuation">&#123;</span>
+  <span class="token property-query">user</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">name</span>           <span class="token comment"># 返回名字</span>
+    <span class="token property-query">posts</span><span class="token punctuation">(</span><span class="token attr-name">last</span><span class="token punctuation">:</span> <span class="token number">3</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> 
+      <span class="token property">title</span>        <span class="token comment"># 返回最近3篇文章的标题</span>
+    <span class="token punctuation">&#125;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>服务端在收到后，会严格按照要求的结构返回 json 数据</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+  <span class="token property">"data"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">"user"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+      <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Ema"</span><span class="token punctuation">,</span>
+      <span class="token property">"posts"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">&#123;</span> <span class="token property">"title"</span><span class="token operator">:</span> <span class="token string">"hello world"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+        <span class="token punctuation">&#123;</span> <span class="token property">"title"</span><span class="token operator">:</span> <span class="token string">"React 性能优化"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+        <span class="token punctuation">&#123;</span> <span class="token property">"title"</span><span class="token operator">:</span> <span class="token string">"2026 前端展望"</span> <span class="token punctuation">&#125;</span>
+      <span class="token punctuation">]</span>
+    <span class="token punctuation">&#125;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这就是 GraphQL 的核心概念：<code>请求你所要的数据，不多不少；获取多个资源，只用一个请求</code></p>
+<hr>
+<h1 id="基础语法"><a href="#基础语法" class="headerlink" title="基础语法"></a>基础语法</h1><p>可用于练习的 lab： <a target="_blank" rel="noopener" href="https://graphql.org/swapi-graphql/">https://graphql.org/swapi-graphql/</a></p>
+<p>GraphQL SDL（Schema Definition Language，模式定义语言）</p>
+<p>依旧以博客系统为例：</p>
+<p>首先服务端需要定义 Schema 与类型</p>
+<pre class="line-numbers language-graphql" data-language="graphql"><code class="language-graphql"><span class="token comment"># 1. 标量类型（基础类型）：String, Int, Float, Boolean, ID</span>
+
+<span class="token comment"># 2. 对象类型：我们定义一个“用户”对象</span>
+<span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">&#123;</span>
+  <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>          <span class="token comment"># 感叹号 ! 代表这个字段是必填的（绝对不会返回 null）</span>
+  <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
+  <span class="token attr-name">age</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
+  <span class="token attr-name">posts</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Post</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>  <span class="token comment"># 中括号 [] 代表数组。这意味着它返回一个 Post 数组</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token comment"># 3. 再定义一个“文章”对象</span>
+<span class="token keyword">type</span> <span class="token class-name">Post</span> <span class="token punctuation">&#123;</span>
+  <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
+  <span class="token attr-name">title</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
+  <span class="token attr-name">content</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
+  <span class="token attr-name">views</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token comment"># 4. 根查询类型（Query）：暴露给客户端的“查询入口”</span>
+<span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">&#123;</span>
+  <span class="token comment"># 查询所有用户</span>
+  <span class="token attr-name">allUsers</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">User</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
+  <span class="token comment"># 根据 id 查询单个用户，需要传入参数 id</span>
+  <span class="token attr-name">getUserById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">User</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">type</span> <span class="token class-name">Mutation</span> <span class="token punctuation">&#123;</span>
+  <span class="token comment"># 创建一篇文章，需要标题和内容，返回创建好的文章对象</span>
+  <span class="token attr-name">createPost</span><span class="token punctuation">(</span><span class="token attr-name">title</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">,</span> <span class="token attr-name">content</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Post</span><span class="token operator">!</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后前端就可以进行 Query 了，这里的 Query 相当于 REST 中的 GET 请求</p>
+<pre class="line-numbers language-graphql" data-language="graphql"><code class="language-graphql"><span class="token keyword">query</span> <span class="token punctuation">&#123;</span>
+  <span class="token object">allUsers</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">name</span>
+    <span class="token property">age</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>然后后端返回</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+  <span class="token property">"data"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">"allUsers"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token punctuation">&#123;</span> <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Ema"</span><span class="token punctuation">,</span> <span class="token property">"age"</span><span class="token operator">:</span> <span class="token number">16</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+      <span class="token punctuation">&#123;</span> <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Hiro"</span><span class="token punctuation">,</span> <span class="token property">"age"</span><span class="token operator">:</span> <span class="token number">16</span> <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">]</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>带参数嵌套查询的例子：</p>
+<pre class="line-numbers language-graphql" data-language="graphql"><code class="language-graphql"><span class="token keyword">query</span> <span class="token punctuation">&#123;</span>
+  <span class="token property-query">getUserById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token string">"101"</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>   <span class="token comment"># 括号里传递参数</span>
+    <span class="token property">name</span>
+    <span class="token object">posts</span> <span class="token punctuation">&#123;</span>                  <span class="token comment"># 嵌套查询文章信息</span>
+      <span class="token property">title</span>
+      <span class="token property">views</span>
+    <span class="token punctuation">&#125;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>修改数据使用 Mutation 类型（Mutation 执行后，可以立刻查询新生成的数据）：</p>
+<pre class="line-numbers language-graphql" data-language="graphql"><code class="language-graphql"><span class="token keyword">mutation</span> <span class="token punctuation">&#123;</span>
+  <span class="token property-query property-mutation">createPost</span><span class="token punctuation">(</span><span class="token attr-name">title</span><span class="token punctuation">:</span> <span class="token string">"GraphQL"</span><span class="token punctuation">,</span> <span class="token attr-name">content</span><span class="token punctuation">:</span> <span class="token string">"hello world"</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">id</span>        <span class="token comment"># 创建成功后，后端立刻把新生成的 id 返回给我</span>
+    <span class="token property">title</span>     <span class="token comment"># 返回文章标题</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>后端返回</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">&#123;</span>
+  <span class="token property">"data"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">"createPost"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+      <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"999"</span><span class="token punctuation">,</span>
+      <span class="token property">"title"</span><span class="token operator">:</span> <span class="token string">"GraphQL"</span>
+    <span class="token punctuation">&#125;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div>
+
+      </div>
+    </transition>
+    
+    <transition name="fade">
+      <div id="preview" ref="preview" v-show="previewShow">
+        <img id="preview-content" ref="previewContent" />
+      </div>
+    </transition>
+    
+  </div>
+  <script src="/blog/js/main.js"></script>
+  
+  
+
+
+
+
+  
+  
+
+<div id="vcomments"></div>
+<script defer src="/blog/js/lib/valine.min.js" onload="
+    new Valine({
+        el: '#vcomments',
+        app_id: 'U9mZLKunkRUTcBFthjXPjnZE-9Nh9j0Va',
+        app_key: 'SzWOnY0PWLGNuL6jW8TZYc7j',
+        visitor: 'true',
+        placeholder: '写点什么吧(●ˇ∀ˇ●)',
+        serverURLs: 'https://u9mzlkun.lc-cn-n1-shared.com',
+    });
+"></script>
+
+
+  <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2022 - 2026 雲流のLowest World
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;C1oudfL0w0
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/argvchs/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/blog/live2dw/assets/z16.model.json"},"display":{"position":"left","width":150,"height":290},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
